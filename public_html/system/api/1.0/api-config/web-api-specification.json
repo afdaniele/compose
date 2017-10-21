@@ -1,0 +1,108 @@
+{
+    "global" : {
+        "parameters" : {
+            "embedded" : {
+                "format" : {
+                    "type" : "enum",
+                    "values" : ["json", "xml"],
+                    "details" : "Output format"
+                }
+            },
+            "mandatory" : {
+                "token" : {
+                    "type" : "alphanumeric",
+                    "details" : "Alphanumeric string used to authorize the API call within the current PHP session."
+                }
+            }
+        },
+        "return" : {
+            "errors" : {
+                "type" : "object",
+                "details" : "Returned only with response code 400. It is an array containing (key,value) pairs where the key is the field that generated the error and the value is a description of the error.",
+                "_data" : {
+                    "field_name" : "Error string"
+                }
+            }
+        }
+    },
+    "services" : {
+        "session" : {
+            "enabled" : true,
+            "actions" : {
+                "start" : {
+                    "enabled" : true,
+                    "access_level" : "guest"
+                }
+            }
+        },
+        "duckiebot" : {
+            "enabled" : true,
+            "actions" : {
+                "owner" : {
+                    "enabled" : true,
+                    "access_level" : "logged"
+                },
+                "status" : {
+                    "enabled" : true,
+                    "access_level" : "guest"
+                }
+            }
+
+        },
+        "adminprofile" : {
+            "enabled" : true,
+            "actions" : {
+                "login" : {
+                    "enabled" : true,
+                    "access_level" : "guest"
+                },
+                "logout" : {
+                    "enabled" : true,
+                    "access_level" : "logged"
+                },
+                "recovery" : {
+                    "enabled" : true,
+                    "access_level" : "guest"
+                },
+                "updatepersonal" : {
+                    "enabled" : true,
+                    "access_level" : "logged"
+                },
+                "updatekeys" : {
+                    "enabled" : true,
+                    "access_level" : "logged"
+                }
+            }
+        },
+        "configuration" : {
+            "enabled" : true,
+            "actions" : {
+                "get" : {
+                    "enabled" : true,
+                    "access_level" : "logged"
+                },
+                "set" : {
+                    "enabled" : true,
+                    "access_level" : "logged"
+                }
+            }
+        },
+        "server" : {
+            "enabled" : true,
+            "actions" : {
+                "disk_usage" : {
+                    "enabled" : true,
+                    "access_level" : "logged"
+                },
+                "surveillance_status" : {
+                    "enabled" : true,
+                    "access_level" : "logged"
+                },
+                "surveillance_history" : {
+                    "enabled" : true,
+                    "access_level" : "logged"
+                }
+            }
+        }
+    }
+}

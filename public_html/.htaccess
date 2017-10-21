@@ -1,0 +1,18 @@
+<IfModule mod_rewrite.c>
+
+    RewriteEngine On
+
+    RewriteRule ^(system)/(.*)$ /index.php [L,R]
+
+    RewriteRule ^web-api/(.+)/(.+)/(.+)/(.+)$ /web-api/index.php?apiversion=$1&service=$2&action=$3&format=$4 [QSA,NC,L]
+    RewriteRule ^web-api/(.+)/(.+)/(.+)$ /web-api/index.php?error=1 [QSA,NC,L]
+    RewriteRule ^web-api/(.+)/(.+)$ /web-api/index.php?error=1 [QSA,NC,L]
+    RewriteRule ^web-api/(.+)/$ /web-api/index.php?error=1 [QSA,NC,L]
+
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteRule ^_phpMyAdmin/(.*)$ /_phpMyAdmin/index.php?arg=$1 [QSA,NC,L]
+
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteRule ^(.*)$ index.php?arg=$1 [QSA,NC,L]
+
+</IfModule>

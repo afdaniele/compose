@@ -1,0 +1,124 @@
+{
+    "details" : "Provides info about the server",
+	"actions" : {
+        "disk_usage" : {
+            "details" : "Returns the server disk usage",
+            "parameters" : {
+                "mandatory" : {
+                    "camera_num" : {
+                        "type" : "enum",
+                        "values" : ["1", "2"],
+                        "details" : "ID of the surveillance system to query"
+                    }
+                },
+                "optional" : {}
+            },
+            "return" : {
+                "values" : {
+                    "camera_num" : {
+                        "type" : "enum",
+                        "values" : ["1", "2"],
+                        "details" : "ID of the surveillance system queried"
+                    },
+                    "used" : {
+                        "type" : "float",
+                        "details" : "Size of the storage space used. The size is normalized to 1.0"
+                    },
+                    "free" : {
+                        "type" : "float",
+                        "details" : "Size of the storage space available. The size is normalized to 1.0"
+                    }
+                }
+            }
+        },
+        "surveillance_status" : {
+            "details" : "Checks whether the surveillance camera is recording",
+            "parameters" : {
+                "mandatory" : {
+                    "camera_num" : {
+                        "type" : "enum",
+                        "values" : ["1", "2"],
+                        "details" : "ID of the surveillance system to query"
+                    }
+                },
+                "optional" : {}
+            },
+            "return" : {
+                "values" : {
+                    "camera_num" : {
+                        "type" : "enum",
+                        "values" : ["1", "2"],
+                        "details" : "ID of the surveillance system queried"
+                    },
+                    "is_recording" : {
+                        "type" : "boolean",
+                        "details" : "Whether the surveillance camera is recording"
+                    },
+                    "chunk" : {
+                        "type" : "text",
+                        "details" : "The starting time of the current chunk formatted as hour.minute"
+                    }
+                }
+            }
+        },
+        "surveillance_history" : {
+            "details" : "Returns recording/post-processing history",
+            "parameters" : {
+                "mandatory" : {
+                    "camera_num" : {
+                        "type" : "enum",
+                        "values" : ["1", "2"],
+                        "details" : "ID of the surveillance system to query"
+                    },
+                    "type" : {
+                        "type" : "enum",
+                        "values" : ["recording", "post-processing"],
+                        "details" : "Type of history to query"
+                    }
+                },
+                "optional" : {
+                    "size" : {
+                        "type" : "numeric",
+                        "details" : "Number of past days to include in the history"
+                    }
+                }
+
+            },
+            "return" : {
+                "values" : {
+                    "camera_num" : {
+                        "type" : "enum",
+                        "values" : ["1", "2"],
+                        "details" : "ID of the surveillance system queried"
+                    },
+                    "total_minutes" : {
+                        "type" : "numeric",
+                        "details" : "Total number of minutes of recording/post-processing in this report"
+                    },
+                    "days" : {
+                        "type" : "object",
+                        "details" : "Array of days included in this report",
+                        "_data" : {
+                            "date_string" : {
+                                "type" : "object",
+                                "details" : "Array of events of this date",
+                                "_data" : {
+                                    "chunks" : {
+                                        "type" : "object",
+                                        "details" : "Array of strings, each representing an event",
+                                        "_data" : [
+                                            {
+                                                "type" : "text",
+                                                "details" : "Name of the event #1"
+                                            }
+                                        ]
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+	}
+}

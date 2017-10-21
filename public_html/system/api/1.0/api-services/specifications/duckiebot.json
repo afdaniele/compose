@@ -1,0 +1,49 @@
+{
+    "details" : "Provides the tools for managing Duckiebots",
+	"actions" : {
+        "owner" : {
+            "details" : "Provides information about the owner of a Duckiebot",
+            "parameters" : {
+                "mandatory" : {
+                    "name" : {
+                        "type" : "alphabetic",
+                        "details" : "Name of the Duckiebot"
+                    }
+                },
+                "optional" : {}
+            },
+            "return" : {
+                "values" : {
+                    "owner" : {
+                        "type" : "text",
+                        "details" : "Name of the owner of the Duckiebot"
+                    }
+                }
+            }
+        },
+        "status" : {
+            "details" : "Provides information about the current status of a Duckiebot",
+            "parameters" : {
+                "mandatory" : {
+                    "name" : {
+                        "type" : "alphabetic",
+                        "details" : "Name of the Duckiebot"
+                    }
+                },
+                "optional" : {}
+            },
+            "return" : {
+                "values" : {
+                    "name" : {
+                        "type" : "alphabetic",
+                        "details" : "Name of the Duckiebot"
+                    },
+                    "online" : {
+                        "type" : "boolean",
+                        "details" : "Whether the Duckiebot is online"
+                    }
+                }
+            }
+        }
+	}
+}

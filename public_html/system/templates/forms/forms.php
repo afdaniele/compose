@@ -1,0 +1,143 @@
+<?php
+
+
+function generateView( $labelName, $fieldValue, $labelCol, $valueCol ){
+	echo '<table style="width:100%"><tr><td>';
+	for( $i = 0; $i < sizeof( $labelName ); $i++ ){
+
+		echo '<div style="margin-bottom:4px">
+				<label class="col-'. ( (is_array($labelCol))? $labelCol[$i] : $labelCol ) .' text-right">'.$labelName[$i].'</label>
+				<p class="col-'. ( (is_array($valueCol))? $valueCol[$i] : $valueCol ) .'">'.( (strlen($fieldValue[$i]) > 0)? $fieldValue[$i] : '&nbsp;' ).'</p>
+			</div>';
+
+	}
+	echo '</td></tr></table>';
+}//generateView
+
+
+function generateForm( $method='post', $action=null, $formID=null, $labelName, $inputName, $inputPlaceholder, $inputValue, $inputType, $inputEditable, $labelCol, $inputCol, $inputError=null, $inputExtraParameters=null ){
+
+	echo ($formID !== null) ? '<form class="form-horizontal" ' . ( ($formID != null)? 'id="'.$formID.'"' : '' ) . ' role="form" method="'.$method.'" ' . ( ($action != null)? 'action="'.$action.'"' : '' ) . '>' : '';
+
+	//
+
+	for( $i = 0; $i < sizeof( $labelName ); $i++ ){
+
+		echo '<div class="form-group" style="margin-bottom:4px">
+				<label class="col-'. ( (is_array($labelCol))? $labelCol[$i] : $labelCol ) .' control-label">'.$labelName[$i].'</label>
+				<div class="col-'. ( (is_array($inputCol))? $inputCol[$i] : $inputCol ) .'">';
+
+		if( $inputEditable === true || ( is_array($inputEditable) && $inputEditable[$i]===true ) ){
+			// Modifiable input
+			$has_error = ( ($inputError[$i] !== null) ? $inputError[$i] : '' );
+			$extra = ( ($inputExtraParameters == null)? '' : ( ($inputExtraParameters[$i] == null)? '' : $inputExtraParameters[$i] ) );
+			$type = 'text';
+			if( $inputType[$i] == 'password' ){
+				$type = 'password';
+				$inputType[$i] = 'text';
+			}
+			//
+			switch( $inputType[$i] ){
+				case 'text':
+				case 'number':
+					$value = ( ($inputValue[$i] !== null ) ? 'value="'.$inputValue[$i].'"' : '' );
+					echo '<input type="'.$type.'" class="form-control '.$has_error.'" id="'.$inputName[$i].'" name="'.$inputName[$i].'" placeholder="'.$inputPlaceholder[$i].'" '.$value.' '.$extra.'>';
+					break;
+				case 'select':
+					echo '<select class="form-control '.$has_error.'" id="'.$formID.'-'.$inputName[$i].'" name="'.$inputName[$i].'" '.$extra.'>';
+					foreach( $inputPlaceholder[$i] as $val ){
+						$select = ( ($val == $inputValue[$i])? 'selected' : '' );
+						echo '<option '.$select.'>'.$val.'</option>';
+					}
+					echo '</select>';
+				default:break;
+			}
+		}else{
+			// Static input
+			echo '<p class="form-control-static" id="'.$inputName[$i].'_p">'.$inputValue[$i].'</p>';
+			echo '<input type="hidden" id="'.$inputName[$i].'_i" name="'.$inputName[$i].'">';
+		}
+
+		echo '</div>
+			</div>';
+
+	}
+	//
+	echo ( ($formID !== null) ? '</form>' : '' );
+}
+
+
+
+
+
+function generateFormByLayout( &$layout, $formID=null, $method=null, $action=null, &$values=array() ){
+	$formTag = ( $formID != null || ( $method != null && $action != null ) );
+	//
+	echo ($formTag)? '<form class="form-horizontal" ' . ( ($formID != null)? 'id="'.$formID.'"' : '' ) . ' role="form" method="'.$method.'" ' . ( ($action != null)? 'action="'.$action.'"' : '' ) . '>' : '';
+	// =>
+	foreach( $layout as $key => $field ){
+		echo '<div class="form-group" style="margin-bottom:4px">';
+		echo '<label class="col-md-4 control-label">'.$field['translation'].'</label>';
+		echo '<div class="col-md-6">';
+		//
+		if( $field['editable'] ){
+			$type = null;
+			$object = null;
+			//
+			switch( $field['type'] ){
+				case 'password':
+					$object = 'input';
+					$type = 'password';
+					break;
+				case 'email':
+					$object = 'input';
+					$type = 'email';
+					break;
+				case 'select':
+					$object = 'select';
+					break;
+				case 'boolean':
+					$object = 'checkbox';
+					break;
+				default:
+					$object = 'input';
+					$type = 'text';
+					break;
+			}
+			//
+			$disabled = ( ( booleanval($values['_lock_'.$key]) )? ' disabled' : '' );
+			//
+			switch( $object ){
+				case 'input':
+					echo '<input type="'.$type.'" class="form-control" id="'.$key.'" name="'.$key.'" placeholder="'.$field['placeholder'].'" value="'.$values[$key].'" '.$field['html'].$disabled.'>';
+					//
+					break;
+				case 'select':
+					echo '<select type="select" class="form-control" id="'.$key.'" name="'.$key.'" '.$field['html'].$disabled.'>';
+					foreach( $field['placeholder'] as $value ){
+						$selected = ( (isset($field['value']) && $values[$key] == $value)? 'selected' : '' );
+						echo '<option '.$selected.'>'.$value.'</option>';
+					}
+					echo '</select>';
+					//
+					break;
+				case 'checkbox':
+					echo '<input type="checkbox" style="margin-top:12px" id="'.$key.'" name="'.$key.'" '.( (booleanval($values[$key]) == true)? 'checked' : '' ).' '.$field['html'].$disabled.'>';
+					//
+					break;
+				default:break;
+			}
+		}else{
+			echo '<p class="form-control-static" id="'.$key.'_p">'.$values[$key].'</p>';
+			echo '<input type="hidden" id="'.$key.'" name="'.$key.'">';
+		}
+		//
+		echo '</div>';
+		echo '</div>';
+	}
+	echo '<input type="hidden" name="token" value="'.$_SESSION['TOKEN'].'">';
+	// <=
+	echo ($formTag)? '</form>' : '';
+}//generateFormByLayout
+
+?>

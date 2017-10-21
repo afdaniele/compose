@@ -1,0 +1,18 @@
+{
+	"maintenance_mode" : false,
+	"main_page_title": "Duckietown @ TTIC",
+	"admin_contact_email_address": "afdaniele@ttic.edu",
+	"cache_enabled": "0",
+	"surveillance_1_enabled" : true,
+	"surveillance_1_disk_dev": "/dev/sda1",
+	"surveillance_1_raw_data_path": "/mnt/data/duckietown-data/video",
+	"surveillance_1_log_data_path": "/mnt/data/duckietown-data/logs",
+	"surveillance_1_activity_data_path": "/mnt/data/duckietown-data/activity",
+	"surveillance_2_enabled" : false,
+	"surveillance_2_disk_dev": "/dev/sda1",
+	"surveillance_2_raw_data_path": "/tmp",
+	"surveillance_2_log_data_path": "/tmp",
+	"surveillance_2_activity_data_path": "/tmp",
+	"duckiefleet_path": "/home/duckietown-surveillance/duckiefleet",
+	"duckiefleet_branch": "chicago"
+}

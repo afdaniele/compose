@@ -1,0 +1,21 @@
+{
+    "command-line-tools" : [
+        "free",
+        "ls",
+        "awk",
+        "grep",
+        "sed",
+        "sort",
+        "df",
+        "ps",
+        "head",
+        "ping"
+    ],
+    "php-extensions" : [
+        "h264_streaming_module",
+        "rewrite"
+    ],
+    "pecl-modules" : [
+        "mongo"
+    ]
+}
