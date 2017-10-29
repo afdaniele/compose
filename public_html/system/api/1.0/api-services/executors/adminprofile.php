@@ -11,10 +11,9 @@ function execute( &$service, &$actionName, &$arguments ){
 	//
 	switch( $actionName ){
 		case 'login':
-			Core::startSession();
 			if( Core::isAdministratorLoggedIn() ){
 				// error
-				return array( 'code' => 412, 'status' => 'Precondition Failed', 'message' => 'Risulti essere già loggato!' );
+				return array( 'code' => 412, 'status' => 'Precondition Failed', 'message' => 'You are already logged in' );
 			}
 			//
 			$uri = 'web-api/'.$arguments['apiversion'].'/adminprofile/login/'.$arguments['format']. toQueryString(array('username','timestamp','token'),$arguments,true,false);
@@ -64,11 +63,11 @@ function execute( &$service, &$actionName, &$arguments ){
 					// success
 					return array( 'code' => 200, 'status' => 'OK' );
 				}else{
-					return array( 'code' => 401, 'status' => 'Unauthorized', 'message' => 'Tentativo di login fallito, nome utente o password errati', 'data' => $data );
+					return array( 'code' => 401, 'status' => 'Unauthorized', 'message' => 'Login failed. Wrong credentials', 'data' => $data );
 				}
 			}
 			// error
-			return array( 'code' => 401, 'status' => 'Unauthorized', 'message' => 'Tentativo di login fallito, nome utente o password errati' );
+			return array( 'code' => 401, 'status' => 'Unauthorized', 'message' => 'Login failed. Wrong credentials' );
 			break;
 		//
 		case 'logout':
@@ -78,10 +77,9 @@ function execute( &$service, &$actionName, &$arguments ){
 			break;
 		//
 		case 'recovery':
-			Core::startSession();
 			if( Core::isAdministratorLoggedIn() ){
 				// error
-				return array( 'code' => 412, 'status' => 'Precondition Failed', 'message' => 'Risulti essere già loggato!' );
+				return array( 'code' => 412, 'status' => 'Precondition Failed', 'message' => 'You are already logged in' );
 			}
 			//
 			$username = Core::escape_string( $arguments['username'] );
@@ -98,8 +96,8 @@ function execute( &$service, &$actionName, &$arguments ){
 			$res = Core::generateAdministratorTemporaryPassword( $username );
 			$password = $res['data'];
 			//
-			$emaildata = array( /*title*/ 'Ecco la tua nuova password!',  /*first_name*/ $record['name'],  /*username*/ $username,  /*password*/ $password);
-			Core::sendEMail( $record['email'], 'Recupero password su '.\system\classes\Configuration::$SHORT_SITE_LINK, \system\classes\enum\EmailTemplates::$PASSWORD_RECOVERY, $emaildata );
+			$emaildata = array( /*title*/ 'This is your new password!',  /*first_name*/ $record['name'],  /*username*/ $username,  /*password*/ $password);
+			Core::sendEMail( $record['email'], 'Password recovery '.\system\classes\Configuration::$SHORT_SITE_LINK, \system\classes\enum\EmailTemplates::$PASSWORD_RECOVERY, $emaildata );
 			// success
 			return array( 'code' => 200, 'status' => 'OK' );
 			break;
@@ -152,7 +150,7 @@ function execute( &$service, &$actionName, &$arguments ){
 				//
 				if( $success ){
 					if( !($arguments['password'] == $arguments['passwordconfirm']) ){
-						return array( 'code' => 401, 'status' => 'Unauthorized', 'message' => "I campi 'Password' e 'Conferma Password' devono avere lo stesso valore" );
+						return array( 'code' => 401, 'status' => 'Unauthorized', 'message' => "Password and Password (confirm) must match" );
 					}
 					// update the password
 					$arguments['password_confirm'] = $arguments['passwordconfirm'];
@@ -165,13 +163,13 @@ function execute( &$service, &$actionName, &$arguments ){
 					// success
 					return array( 'code' => 200, 'status' => 'OK' );
 				}else{
-					return array( 'code' => 401, 'status' => 'Unauthorized', 'message' => 'La tua vecchia password non corrisponde a quella inserita, riprova!' );
+					return array( 'code' => 401, 'status' => 'Unauthorized', 'message' => 'The current password is wrong' );
 				}
 			}
 			break;
 		//
 		default:
-			return array( 'code' => 404, 'status' => 'Not Found', 'message' => "Comando '".$actionName."' non trovato" );
+			return array( 'code' => 404, 'status' => 'Not Found', 'message' => "The command '".$actionName."' was not found" );
 			break;
 	}
 }//execute

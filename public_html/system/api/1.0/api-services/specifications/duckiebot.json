@@ -44,6 +44,202 @@
                     }
                 }
             }
+        },
+        "network" : {
+            "details" : "Provides information about the network configuration of a Duckiebot",
+            "parameters" : {
+                "mandatory" : {
+                    "name" : {
+                        "type" : "alphabetic",
+                        "details" : "Name of the Duckiebot"
+                    }
+                },
+                "optional" : {}
+            },
+            "return" : {
+                "values" : {
+                    "name" : {
+                        "type" : "alphabetic",
+                        "details" : "Name of the Duckiebot"
+                    },
+                    "interfaces" : {
+                        "type" : "array",
+                        "details" : "List of network interfaces",
+                        "_data" : [
+                            {
+                                "type" : "object",
+                                "details" : "Object describing a particular network interface",
+                                "_data" : {
+                                    "name" : {
+                                        "type" : "alphanumeric",
+                                        "details" : "Name of the interface"
+                                    },
+                                    "connected" : {
+                                        "type" : "boolean",
+                                        "details" : "Whether the interface is connected"
+                                    },
+                                    "mac" : {
+                                        "type" : "text",
+                                        "details" : "The MAC address of the interface"
+                                    },
+                                    "ip" : {
+                                        "type" : "text",
+                                        "details" : "The IP address of this interface (null if not connected)"
+                                    },
+                                    "mask" : {
+                                        "type" : "text",
+                                        "details" : "The subnet mask of the network this interface is connected to"
+                                    }
+                                }
+                            },
+                            "..."
+                        ]
+                    }
+                }
+            }
+        },
+        "storage" : {
+            "details" : "Provides information about the disk status of a Duckiebot",
+            "parameters" : {
+                "mandatory" : {
+                    "name" : {
+                        "type" : "alphabetic",
+                        "details" : "Name of the Duckiebot"
+                    }
+                },
+                "optional" : {}
+            },
+            "return" : {
+                "values" : {
+                    "name" : {
+                        "type" : "alphabetic",
+                        "details" : "Name of the Duckiebot"
+                    },
+                    "mountpoints" : {
+                        "type" : "array",
+                        "details" : "List of mountpoints",
+                        "_data" : [
+                            {
+                                "type" : "object",
+                                "details" : "Object describing a particular mountpoint",
+                                "_data" : {
+                                    "mountpoint" : {
+                                        "type" : "text",
+                                        "details" : "Mountpoint of the device"
+                                    },
+                                    "device" : {
+                                        "type" : "text",
+                                        "details" : "Device mounted to the mountpoint"
+                                    },
+                                    "used" : {
+                                        "type" : "float",
+                                        "details" : "Size of the storage space used. The size is normalized to 1.0"
+                                    },
+                                    "free" : {
+                                        "type" : "float",
+                                        "details" : "Size of the storage space available. The size is normalized to 1.0"
+                                    }
+                                }
+                            },
+                            "..."
+                        ]
+                    }
+                }
+            }
+        },
+        "configuration" : {
+            "details" : "Provides information about the current configuration of a Duckiebot",
+            "parameters" : {
+                "mandatory" : {
+                    "name" : {
+                        "type" : "alphabetic",
+                        "details" : "Name of the Duckiebot"
+                    }
+                },
+                "optional" : {}
+            },
+            "return" : {
+                "values" : {
+                    "name" : {
+                        "type" : "alphabetic",
+                        "details" : "Name of the Duckiebot"
+                    },
+                    "configuration" : {
+                        "type" : "object",
+                        "details" : "Configuration of the Duckiebot",
+                        "_data" : {
+                            "w" : {
+                                "type" : "boolean",
+                                "details" : "Whether the external wireless adapter is connected"
+                            },
+                            "j" : {
+                                "type" : "boolean",
+                                "details" : "Whether the joystick is connected"
+                            },
+                            "d" : {
+                                "type" : "boolean",
+                                "details" : "Whether the external USB storage device is connected"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "ros" : {
+            "details" : "Provides information about ROS processes running on the Duckiebot",
+            "parameters" : {
+                "mandatory" : {
+                    "name" : {
+                        "type" : "alphabetic",
+                        "details" : "Name of the Duckiebot"
+                    }
+                },
+                "optional" : {}
+            },
+            "return" : {
+                "values" : {
+                    "name" : {
+                        "type" : "alphabetic",
+                        "details" : "Name of the Duckiebot"
+                    },
+                    "core" : {
+                        "type" : "object",
+                        "details" : "Info about the roscore process",
+                        "_data" : {
+                            "is_running" : {
+                                "type" : "boolean",
+                                "details" : "Whether the roscore process is running on the Duckiebot"
+                            },
+                            "pid" : {
+                                "type" : "numeric",
+                                "details" : "The PID of the roscore process. Null if roscore is not running"
+                            }
+                        }
+                    },
+                    "nodes" : {
+                        "type" : "array",
+                        "details" : "List of ROS nodes currently running on the Duckiebot",
+                        "_data" : [
+                            {
+                                "type" : "text",
+                                "details" : "Name of the ROS node"
+                            },
+                            "..."
+                        ]
+                    },
+                    "topics" : {
+                        "type" : "array",
+                        "details" : "List of ROS topics currently advertised by the master node",
+                        "_data" : [
+                            {
+                                "type" : "text",
+                                "details" : "Name of the ROS topic"
+                            },
+                            "..."
+                        ]
+                    }
+                }
+            }
         }
 	}
 }

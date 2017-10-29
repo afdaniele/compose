@@ -191,18 +191,10 @@ $table = array(
 			var url = '<?php echo \system\classes\Configuration::$BASE_URL ?>web-api/<?php echo \system\classes\Configuration::$WEBAPI_VERSION ?>/duckiebot/status/json?name='+duckiebot.name+'&token=<?php echo $_SESSION["TOKEN"] ?>';
 			callAPI( url, false, false, duckiebot_status_callback, true );
 			// owner name call
-
-
 			url = 'https://api.github.com/users/'+duckiebot.owner;
 			callExternalAPI( url, 'GET', 'json', false, false, github_user_info_callback, true, true, error_fcn, duckiebot.owner );
-
-
-
-
 		});
 	} );
-
-	console.log( duckiebots );
 
 	function _go_to_link( target ){
 		var duckiebot = $(target).data('name');

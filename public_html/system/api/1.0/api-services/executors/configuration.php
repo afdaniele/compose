@@ -21,23 +21,7 @@ function execute( &$service, &$actionName, &$arguments ){
 			break;
 		//
 		case 'set':
-			$keys = array(
-				"maintenance_mode",
-				"main_page_title",
-				"admin_contact_email_address",
-				"cache_enabled",
-				"surveillance_1_disk_dev",
-				"surveillance_1_raw_data_path",
-				"surveillance_1_log_data_path",
-				"surveillance_1_activity_data_path",
-				"duckiefleet_path",
-				"duckiefleet_branch"
-			);
-
-			//TODO: try this instead
-			// $keys = $service['actions']['get']['parameters']['mandatory']['key']['values'];
-
-			//
+			$keys = $service['actions']['get']['parameters']['mandatory']['key']['values'];
 			$k = 0;
 			$error = null;
 			$success = true;

@@ -96,75 +96,46 @@
 
 
 
+		<div style="width:100%; margin:auto; display:table; clear:both; padding-left:45px">
 
+			<table style="width:100%; border-bottom:1px solid #ddd; margin-bottom:32px">
+				<tr>
+					<td style="width:100%">
+						<h3>Surveillance</h3>
+					</td>
+				</tr>
+			</table>
 
-		<?php
-		foreach (\system\classes\Configuration::$SURVEILLANCE as $cam_num => $cam) {
-			?>
-			<div style="width:100%; margin:auto; display:table; clear:both; padding-left:45px">
+			<table style="width:100%; margin-top:10px; margin-bottom:20px">
+				<tr>
+					<td>
+						<div style="width:700px; margin:auto">
 
-				<table style="width:100%; border-bottom:1px solid #ddd; margin-bottom:32px">
-					<tr>
-						<td style="width:100%">
-							<h3>Surveillance system #<?php echo $cam_num ?></h3>
-						</td>
-					</tr>
-				</table>
-
-				<table style="width:100%; margin-top:10px; margin-bottom:20px">
-					<tr>
-						<td>
-							<div style="width:700px; margin:auto">
-
-								<div style="margin-bottom:4px">
-									<label class="col-md-5 text-right">Enabled</label>
-									<p class="col-md-6" style="margin-bottom:20px">
-										<input type="checkbox" class="switch" data-size="mini" name="surveillance_<?php echo $cam_num ?>_enabled" id="maintenance-switch" <?php echo ( ( $cam['enabled'] )? 'checked' : '' ) ?>>
-									</p>
-								</div>
-
-								<div style="margin-bottom:4px">
-									<label class="col-md-5 text-right">Storage disk device</label>
-									<p class="col-md-6" style="margin-bottom:20px">
-										<input type="text" name="surveillance_<?php echo $cam_num ?>_disk_dev" style="width:100%" placeholder="es. /dev/sdb1" value="<?php echo $cam['disk_dev'] ?>">
-									</p>
-								</div>
-
-								<div style="margin-bottom:4px">
-									<label class="col-md-5 text-right">Raw videos path</label>
-									<p class="col-md-6" style="margin-bottom:20px">
-										<input type="text" name="surveillance_<?php echo $cam_num ?>_raw_data_path" style="width:100%" placeholder="es. /mnt/data/videos/" value="<?php echo $cam['raw_data_path'] ?>">
-									</p>
-								</div>
-
-								<div style="margin-bottom:4px">
-									<label class="col-md-5 text-right">Video logs path</label>
-									<p class="col-md-6" style="margin-bottom:20px">
-										<input type="text" name="surveillance_<?php echo $cam_num ?>_log_data_path" style="width:100%" placeholder="es. /mnt/data/logs/" value="<?php echo $cam['log_data_path'] ?>">
-									</p>
-								</div>
-
-								<div style="margin-bottom:4px">
-									<label class="col-md-5 text-right">Motion detection path</label>
-									<p class="col-md-6" style="margin-bottom:20px">
-										<input type="text" name="surveillance_<?php echo $cam_num ?>_activity_data_path" style="width:100%" placeholder="es. /mnt/data/activity/" value="<?php echo $cam['activity_data_path'] ?>">
-									</p>
-								</div>
-
+							<div style="margin-bottom:4px">
+								<label class="col-md-5 text-right">Show Camera 1</label>
+								<p class="col-md-6" style="margin-bottom:20px">
+									<input type="checkbox" class="switch" data-size="mini" name="camera_1_enabled" id="maintenance-switch" <?php echo ( \system\classes\Configuration::$SURVEILLANCE_1_ENABLED )? 'checked' : ''; ?>>
+								</p>
 							</div>
 
-						</td>
-					</tr>
-				</table>
+							<div style="margin-bottom:4px">
+								<label class="col-md-5 text-right">Show Camera 2</label>
+								<p class="col-md-6" style="margin-bottom:20px">
+									<input type="checkbox" class="switch" data-size="mini" name="camera_2_enabled" id="maintenance-switch" <?php echo ( \system\classes\Configuration::$SURVEILLANCE_2_ENABLED )? 'checked' : ''; ?>>
+								</p>
+							</div>
 
-			</div>
-		<?php
-		}
-		?>
+						</div>
+
+					</td>
+				</tr>
+			</table>
+
+		</div>
 
 
 		<div style="width:700px; margin:auto">
-			<button type="button" class="btn btn-success" id="settings-save-button" style="float:right; margin-right:70px">Save and Apply</button>
+			<button type="button" class="btn btn-success" id="settings-save-button" style="float:right; margin-right:40px">Save and Apply</button>
 		</div>
 
 	</form>

@@ -6,7 +6,7 @@
 				<span class="icon-bar"></span>
 				<span class="icon-bar"></span>
 			</button>
-			<a class="navbar-brand" href="<?php echo \system\classes\Configuration::$BASE ?>admin/" style="padding-right:0"><b><?php echo \system\classes\Configuration::$SHORT_SITE_LINK ?> - Dashboard</b></a>
+			<a class="navbar-brand" href="<?php echo \system\classes\Configuration::$BASE ?>" style="padding-right:0"><b><?php echo \system\classes\Configuration::$SHORT_SITE_NAME ?> Remote Dashboard</b> (beta)</a>
 		</div>
 		<div id="navbar" class="collapse navbar-collapse">
 
@@ -25,7 +25,7 @@
 
 					<li <?php if(\system\classes\Configuration::$PAGE == 'duckiebots') echo 'class="active"'?> >
 						<a href="<?php echo \system\classes\Configuration::$BASE ?>duckiebots">
-							<i class="icon-automobile-car"></i> &nbsp;Duckiebots
+							<i class="fa fa-car" aria-hidden="true"></i> &nbsp;Duckiebots
 						</a>
 					</li>
 
@@ -77,15 +77,15 @@
 						</a>
 					</li>
 
-					<li style="width:2px" class="navbar-1460-full-button-component">&nbsp;</li>
+					<li style="width:2px" class="navbar-1440-full-button-component">&nbsp;</li>
 
-					<li class="navbar-1460-full-button-component <?php if(\system\classes\Configuration::$PAGE == 'api') echo 'active'?>">
+					<li class="navbar-1440-full-button-component <?php if(\system\classes\Configuration::$PAGE == 'api') echo 'active'?>">
 						<a href="<?php echo \system\classes\Configuration::$BASE ?>api">
 							<span class="glyphicon glyphicon-book" aria-hidden="true"></span> &nbsp;API
 						</a>
 					</li>
 
-					<li class="dropdown navbar-1460-responsive-button-component">
+					<li class="dropdown navbar-1440-responsive-button-component">
 						<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><span class="glyphicon glyphicon-chevron-down" aria-hidden="true" style="margin-top:2px"></span></a>
 						<ul class="dropdown-menu" role="menu">
 							<li class="navbar-1220-responsive-button-component">
@@ -108,7 +108,7 @@
 									<span class="glyphicon glyphicon-align-justify" aria-hidden="true"></span> &nbsp;Profile
 								</a>
 							</li>
-							<li class="navbar-1460-responsive-button-component">
+							<li class="navbar-1440-responsive-button-component">
 								<a href="<?php echo \system\classes\Configuration::$BASE ?>api">
 									<span class="glyphicon glyphicon-book" aria-hidden="true"></span> &nbsp;API
 								</a>
@@ -143,20 +143,20 @@
 	});
 
 	function _resize_navbar(){
-		if( window.innerWidth < 1460 ){
-			$('#navbar').find('.navbar-1460-full-button-component').each(function(){
+		if( window.innerWidth < 1440 ){
+			$('#navbar').find('.navbar-1440-full-button-component').each(function(){
 				$(this).css('display', 'none');
 			});
 			//
-			$('#navbar').find('.navbar-1460-responsive-button-component').each(function(){
+			$('#navbar').find('.navbar-1440-responsive-button-component').each(function(){
 				$(this).css('display', '');
 			});
 		}else{
-			$('#navbar').find('.navbar-1460-full-button-component').each(function(){
+			$('#navbar').find('.navbar-1440-full-button-component').each(function(){
 				$(this).css('display', '');
 			});
 			//
-			$('#navbar').find('.navbar-1460-responsive-button-component').each(function(){
+			$('#navbar').find('.navbar-1440-responsive-button-component').each(function(){
 				$(this).css('display', 'none');
 			});
 		}

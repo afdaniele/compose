@@ -6,6 +6,7 @@ require_once __DIR__.'/../../../templates/tableviewers/TableViewer.php';
 // Define constants
 $start_hour = 8; // 8AM
 $end_hour = 23; // 11PM
+$activity_plot_points_per_segment = 4; // It has to match the number of points per segment in the thumbnail file
 
 // Define months available
 $available_month_year = array(
@@ -101,22 +102,34 @@ $current_chunk_str = $cameraStatus['chunk'];
 	<div class="text-center">
 		<?php
 		$hours = $end_hour - $start_hour;
+		$number_of_segments = $hours*2;
 
 		$month_short = date('M', mktime(0, 0, 0, $month, 10));
 
 		$rec_history = \system\classes\Core::getSurveillanceRecordingHistory( $camera_num, null, $month );
+		$pproc_history = \system\classes\Core::getSurveillancePostProcessingHistory( $camera_num, null, $month );
 
+		$motion_datasets = array();
+		$zero_motion = array_fill(0,$activity_plot_points_per_segment,0);
+
+		$motion_labels = range( 0, $activity_plot_points_per_segment*$number_of_segments, 1 );
+
+		$today_found = false;
 		for ($day = 1; $day <= cal_days_in_month(CAL_GREGORIAN, $month, $year); $day++) {
 			$date_str = sprintf("%d-%02d-%02d", $year, $month, $day);
 			$rec_day_chunks = $rec_history['days'][$date_str]['chunks'];
-			$pproc_day_chunks = array(); //TODO
+			$pproc_day_chunks = $pproc_history['days'][$date_str]['chunks'];
 			$current_chunk = false;
+			$this_is_today = booleanval( strcmp($date_str, $today_str) == 0 );
+			$today_found = $today_found || $this_is_today;
 
 			$no_data = booleanval($rec_day_chunks == null);
 			$nav_size = "";
 			if( $no_data ){
 				$nav_size = "width:175px; margin:0 7px 36px 7px; display:inline-block";
 			}
+
+			$current_day_motion_dataset = array();
 			?>
 
 			<nav class="navbar navbar-default" role="navigation" style="margin-bottom:36px; <?php echo $nav_size ?>">
@@ -143,6 +156,13 @@ $current_chunk_str = $cameraStatus['chunk'];
 										<div class="rotated90ccw" style="margin-left:-5px">No&nbsp;Data</div>
 										<?php
 									}else{
+										$motion_thumbnail = \system\classes\Core::getSurveillanceActivityThumbnail( $camera_num, $date_str );
+										if( $motion_thumbnail['success'] && isset($motion_thumbnail['data']['thumbnails']) ){
+											$motion_thumbnail = $motion_thumbnail['data']['thumbnails'];
+										}else{
+											// use default data
+											$motion_thumbnail = array();
+										}
 										?>
 
 										<table style="width:840px">
@@ -150,13 +170,13 @@ $current_chunk_str = $cameraStatus['chunk'];
 												<td width="40px" style="font-size:14pt; padding-right:12px; text-align:right">
 													<table style="width:100%">
 														<tr height="30px">
-															<td><i class="icon-videocamerathree"></i></td>
+															<td><i class="fa fa-video-camera" aria-hidden="true"></i></td>
 														</tr>
 														<tr height="30px">
-															<td><i class="icon-movieclapper"></i></td>
+															<td><i class="fa fa-film" aria-hidden="true"></i></td>
 														</tr>
 														<tr height="30px">
-															<td><i class="icon-manalt"></i></td>
+															<td><i class="fa fa-male" aria-hidden="true" style="margin-right: 5px;"></i></td>
 														</tr>
 													</table>
 												</td>
@@ -180,26 +200,34 @@ $current_chunk_str = $cameraStatus['chunk'];
 																			<?php
 																			$cur = 0;
 																			$right_now_found = false;
-																			for ($abs = 0; $abs < 2*$hours; $abs++) {
+																			for ($abs = 0; $abs < $number_of_segments; $abs++) {
 																				$bar_color = null;
 																				$was_recorded = false;
 																				$right_now = false;
 																				$expected = sprintf("%02d.%02d", $start_hour+$abs/2, 30*($abs%2) );
+																				$segment_name = sprintf('%s_%s', $date_str, $expected );
 																				if( strcmp($expected, $day_chunks[$cur]) == 0 ){
 																					$was_recorded = true;
 																					$bar_color = 'progress-bar-success';
 																					$cur += 1;
 																				}
-																				if( strcmp($type, 'rec') == 0 && strcmp($today_str, $date_str)==0 && strcmp($expected, $current_chunk_str)==0 ){
+																				if( strcmp($type, 'rec') == 0 && $this_is_today && strcmp($expected, $current_chunk_str)==0 ){
 																					$right_now = true;
 																					$right_now_found = true;
 																					$bar_color = 'progress-bar-warning progress-bar-striped active';
 																				}
-																				if( strcmp($type, 'rec') == 0 && strcmp($today_str, $date_str)==0 && strcmp($expected, $now_str)==0 ){
+																				if( strcmp($type, 'rec') == 0 && $this_is_today && strcmp($expected, $now_str)==0 ){
 																					$right_now_found = true;
 																				}
 																				if( strcmp($type, 'rec') == 0 && !$was_recorded && !$right_now_found ){
 																					$bar_color = 'progress-bar-danger';
+																				}
+																				if( strcmp($type, 'post-proc') == 0 && !$today_found && !$this_is_today && !$was_recorded ){
+																					if( in_array($expected, array_values($day_chunks_per_type['rec'])) ){
+																						$bar_color = 'progress-bar-warning';
+																					}else{
+																						$bar_color = 'progress-bar-danger';
+																					}
 																				}
 																				$border_color = ($abs%2 == 0)? ( ($abs==0)? 'lightgray' : '#e5e5e5' ) : '';
 																				?>
@@ -207,7 +235,7 @@ $current_chunk_str = $cameraStatus['chunk'];
 																				<td>
 																					<?php $clickable = ($was_recorded && !$right_now); ?>
 																					<div class="progress <?php echo ($clickable)? 'pointer-hand' : '' ?>" style="margin:0; height:16px"
-																						data-segment="<?php echo sprintf('%04d-%02d-%02d_%s', $year, $month, $day, $expected ); ?>"
+																						data-segment="<?php echo $segment_name ?>"
 																						<?php echo ($clickable)? 'onclick="_go_to_segment(this)"' : '' ?> >
 																						<?php
 																						$bar_size = ($right_now)? (float)$now_minute_int%30 / 0.3 : 100;
@@ -220,6 +248,10 @@ $current_chunk_str = $cameraStatus['chunk'];
 																					</div>
 																				</td>
 																				<?php
+																				if( strcmp($type, 'post-proc') == 0 ){
+																					$segment_motion = ( count($motion_thumbnail[$expected]['activity']) == $activity_plot_points_per_segment )? $motion_thumbnail[$expected]['activity'] : $zero_motion;
+																					$current_day_motion_dataset = array_merge( $current_day_motion_dataset, $segment_motion );
+																				}
 																			}
 																			?>
 																			<td width="1px" style="background-color:#e5e5e5"></td>
@@ -232,7 +264,7 @@ $current_chunk_str = $cameraStatus['chunk'];
 														?>
 														<tr height="30px">
 															<td>
-																<canvas id="motion-detection-chart-<?php echo 'TODO' ?>" width="780" height="30" class="chartjs-render-monitor" style="display: block; max-height:30px; border-right:1px solid #e5e5e5"></canvas>
+																<canvas id="motion-detection-chart-<?php echo $date_str ?>" width="780" height="30" class="chartjs-render-monitor" style="display: block; max-height:30px; border-right:1px solid #e5e5e5"></canvas>
 															</td>
 														</tr>
 													</table>
@@ -272,7 +304,10 @@ $current_chunk_str = $cameraStatus['chunk'];
 
 				</div>
 			</nav>
-		<?php
+			<?php
+			if( !$no_data ){
+				$motion_datasets[ $date_str ] = $current_day_motion_dataset;
+			}
 		}
 		?>
 	</div>
@@ -280,68 +315,90 @@ $current_chunk_str = $cameraStatus['chunk'];
 
 	<script>
 
-		var data = [1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 0,    0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1];
-		var labels = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,    17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31];
-
-		var ctx = document.getElementById("motion-detection-chart-TODO").getContext("2d");
-
-		var cfg = {
-			type: 'line',
-			data: {
-				labels: labels,
-				datasets: [{
-					data: data,
-					type: 'line',
-					pointRadius: 0,
-					fill: true,
-					lineTension: 0,
-					borderWidth: 3
-				}]
-			},
-			options: {
-				scales: {
-					xAxes: [{
-						type: 'time',
-						time: {
-							stepSize: 2
-		                },
-						ticks: {
-							display: false
-						},
-						gridLines: {
-				            display: true,
-							drawBorder: false,
-							drawTicks: false
-				        }
-					}],
-					yAxes: [{
-						type: 'linear',
-						ticks: {
-							display: false,
-							max: 1.2
-						},
-						gridLines: {
-				            display: false,
-							drawBorder: true,
-							drawTicks: false
-				        }
-					}]
-				},
-				legend: {
-		            display: false
-		        },
-				gridLines: {
-		            display: true,
-					drawBorder: false,
-					drawTicks: false
-		        }
+		var labels = [
+			<?php
+			foreach ($motion_labels as $v) {
+				echo $v.',';
 			}
+			?>
+		];
+
+		var data = {
+			<?php
+			foreach ($motion_datasets as $key => $data) {
+				echo sprintf( '"%s": [', $key );
+				foreach ($data as $v) {
+					echo (($v > 4)? 1 : 0).',';
+				}
+				echo '], ';
+			}
+			?>
 		};
 
-		$( document ).ready( function(){
-			new Chart(ctx, cfg);
-		} );
 
+		function plot_activity( date ){
+			var ctx = document.getElementById("motion-detection-chart-"+date).getContext("2d");
+			var cfg = {
+				type: 'line',
+				data: {
+					labels: labels,
+					datasets: [{
+						data: data[date],
+						type: 'line',
+						pointRadius: 0,
+						fill: true,
+						lineTension: 0.2,
+						borderWidth: 1
+					}]
+				},
+				options: {
+					scales: {
+						xAxes: [{
+							type: 'time',
+							time: {
+								stepSize: 4
+			                },
+							ticks: {
+								display: false
+							},
+							gridLines: {
+					            display: true,
+								drawBorder: false,
+								drawTicks: false
+					        }
+						}],
+						yAxes: [{
+							type: 'linear',
+							ticks: {
+								display: false,
+								max: 1.2
+							},
+							gridLines: {
+					            display: false,
+								drawBorder: true,
+								drawTicks: false
+					        }
+						}]
+					},
+					legend: {
+			            display: false
+			        },
+					gridLines: {
+			            display: true,
+						drawBorder: false,
+						drawTicks: false
+			        }
+				}
+			};
+			// draw chart
+			new Chart(ctx, cfg);
+		}
+
+		$( document ).ready( function(){
+			$.each(data, function(date){
+				plot_activity( date );
+			});
+		} );
 
 		function _go_to_month( target ){
 			var date = $(target).data('date');

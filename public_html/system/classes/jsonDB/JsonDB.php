@@ -20,7 +20,7 @@ class JsonDB {
 		$file_content = file_get_contents( $filename );
 		if( $file_content === false ){
 			// the file does not exist
-			$this->json = array();
+			$this->json = array('_empty_config' => true);
 		}else{
 			$this->json = json_decode($file_content, true);
 		}

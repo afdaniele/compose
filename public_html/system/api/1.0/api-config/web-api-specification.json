@@ -31,7 +31,8 @@
             "actions" : {
                 "start" : {
                     "enabled" : true,
-                    "access_level" : "guest"
+                    "access_level" : "guest",
+                    "read_only_session" : false
                 }
             }
         },
@@ -40,11 +41,33 @@
             "actions" : {
                 "owner" : {
                     "enabled" : true,
-                    "access_level" : "logged"
+                    "access_level" : "logged",
+                    "read_only_session" : true
                 },
                 "status" : {
                     "enabled" : true,
-                    "access_level" : "guest"
+                    "access_level" : "guest",
+                    "read_only_session" : true
+                },
+                "network" : {
+                    "enabled" : true,
+                    "access_level" : "guest",
+                    "read_only_session" : true
+                },
+                "storage" : {
+                    "enabled" : true,
+                    "access_level" : "guest",
+                    "read_only_session" : true
+                },
+                "configuration" : {
+                    "enabled" : true,
+                    "access_level" : "guest",
+                    "read_only_session" : true
+                },
+                "ros" : {
+                    "enabled" : true,
+                    "access_level" : "guest",
+                    "read_only_session" : true
                 }
             }
 
@@ -54,23 +77,28 @@
             "actions" : {
                 "login" : {
                     "enabled" : true,
-                    "access_level" : "guest"
+                    "access_level" : "guest",
+                    "read_only_session" : false
                 },
                 "logout" : {
                     "enabled" : true,
-                    "access_level" : "logged"
+                    "access_level" : "logged",
+                    "read_only_session" : false
                 },
                 "recovery" : {
                     "enabled" : true,
-                    "access_level" : "guest"
+                    "access_level" : "guest",
+                    "read_only_session" : false
                 },
                 "updatepersonal" : {
                     "enabled" : true,
-                    "access_level" : "logged"
+                    "access_level" : "logged",
+                    "read_only_session" : false
                 },
                 "updatekeys" : {
                     "enabled" : true,
-                    "access_level" : "logged"
+                    "access_level" : "logged",
+                    "read_only_session" : false
                 }
             }
         },
@@ -79,11 +107,13 @@
             "actions" : {
                 "get" : {
                     "enabled" : true,
-                    "access_level" : "logged"
+                    "access_level" : "logged",
+                    "read_only_session" : true
                 },
                 "set" : {
                     "enabled" : true,
-                    "access_level" : "logged"
+                    "access_level" : "logged",
+                    "read_only_session" : true
                 }
             }
         },
@@ -92,15 +122,18 @@
             "actions" : {
                 "disk_usage" : {
                     "enabled" : true,
-                    "access_level" : "logged"
+                    "access_level" : "logged",
+                    "read_only_session" : true
                 },
                 "surveillance_status" : {
                     "enabled" : true,
-                    "access_level" : "logged"
+                    "access_level" : "logged",
+                    "read_only_session" : true
                 },
                 "surveillance_history" : {
                     "enabled" : true,
-                    "access_level" : "logged"
+                    "access_level" : "logged",
+                    "read_only_session" : true
                 }
             }
         }

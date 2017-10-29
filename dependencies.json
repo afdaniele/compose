@@ -1,5 +1,5 @@
 {
-    "command-line-tools" : [
+    "server-command-line-tools" : [
         "free",
         "ls",
         "awk",
@@ -9,7 +9,12 @@
         "df",
         "ps",
         "head",
-        "ping"
+        "ping",
+        "pgrep"
+    ],
+    "duckiebot-command-line-tools" : [
+        "ifconfig",
+        "test"
     ],
     "php-extensions" : [
         "h264_streaming_module",
@@ -17,5 +22,15 @@
     ],
     "pecl-modules" : [
         "mongo"
+    ],
+    "apt" : [
+        "libssh2-1-dev",
+        "libssh2-php"
+    ],
+    "symlinks" : [
+        "public_html/surveillance_data_1_sd => $(surveillance_1_webm_data_path)",
+        "public_html/surveillance_data_2_sd => $(surveillance_2_webm_data_path)",
+        "public_html/surveillance_data_1_hd => $(surveillance_1_raw_data_path)",
+        "public_html/surveillance_data_2_hd => $(surveillance_2_raw_data_path)"
     ]
 }

@@ -1,0 +1,28 @@
+{
+	"what_the_duck": {
+		"tests_data_path": "/home/duckietown-surveillance/what_the_duck_tests"
+	},
+	"surveillance": {
+		"camera_1_disk_dev": "/dev/sda1",
+		"camera_1_raw_data_path": "/mnt/data/duckietown-data/video",
+		"camera_1_log_data_path": "/mnt/data/duckietown-data/logs",
+		"camera_1_webm_data_path": "/mnt/data/duckietown-data/webm",
+		"camera_1_activity_data_path": "/mnt/data/duckietown-data/activity",
+		"camera_2_disk_dev": "/dev/sda1",
+		"camera_2_raw_data_path": "/tmp",
+		"camera_2_log_data_path": "/tmp",
+		"camera_2_webm_data_path": "/tmp",
+		"camera_2_activity_data_path": "/tmp"
+	},
+	"duckiefleet": {
+		"path": "/home/duckietown-surveillance/duckiefleet",
+		"branch": "chicago"
+	},
+	"duckiebot": {
+		"ssh_username": "ubuntu",
+		"ssh_password": "ubuntu",
+		"ros_path": "/opt/ros/kinetic",
+		"w_config_vid_pid_list": [ "7392:b822" ],
+		"d_config_vid_pid_list": [ "0781:5583", "090c:1000" ]
+	}
+}

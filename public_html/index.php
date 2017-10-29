@@ -62,7 +62,7 @@ Configuration::$ACTION = (isset($args[1]) && $args[1]!=='') ? $args[1] : $_GET['
 	<link href="<?php echo Configuration::$BASE_URL ?>css/bootstrap-theme.min.css" rel="stylesheet" type="text/css" >
 
 	<!-- FontAwesome v4.7 by fontawesome.io -->
-	<link href="<?php echo Configuration::$BASE_URL ?>css/whhg-font/css/whhg.css" rel="stylesheet" media="all">
+	<link rel="stylesheet" href="<?php echo Configuration::$BASE_URL ?>css/font-awesome/css/font-awesome.min.css">
 
 	<!-- videoJS v5.19 by videojs.com -->
 	<link href="<?php echo Configuration::$BASE_URL ?>css/video-js.min.css" rel="stylesheet">

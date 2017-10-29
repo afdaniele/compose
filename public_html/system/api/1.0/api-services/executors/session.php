@@ -23,7 +23,7 @@ function execute( &$service, &$actionName, &$arguments ){
 			break;
 		//
 		default:
-			return array( 'code' => 404, 'status' => 'Not Found', 'message' => "Comando '".$actionName."' non trovato" );
+			return array( 'code' => 404, 'status' => 'Not Found', 'message' => "The command '".$actionName."' was not found" );
 			break;
 	}
 }//execute

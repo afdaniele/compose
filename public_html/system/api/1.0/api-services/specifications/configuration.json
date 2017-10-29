@@ -8,17 +8,12 @@
 		            "key" : {
 		                "type" : "enum",
 		                "values" : [
-
                             "maintenance_mode",
-							"main_page_title",
-							"admin_contact_email_address",
-							"cache_enabled",
-							"surveillance_1_disk_dev",
-							"surveillance_1_raw_data_path",
-							"surveillance_1_log_data_path",
-							"surveillance_1_activity_data_path",
-							"duckiefleet_path",
-							"duckiefleet_branch"
+                        	"main_page_title",
+                        	"admin_contact_email_address",
+                        	"cache_enabled",
+                        	"camera_1_enabled",
+                        	"camera_2_enabled"
                         ],
 		                "details" : "Name of the parameter to query"
 		            }

@@ -167,15 +167,15 @@ if( !$action['enabled'] ){
 }
 
 
-
-
-
 // 8. check for authorization
 $access = $action['access_level'];
 
-if( $access == 'logged' ){
-	// <= INIT SESSION
+// <= INIT SESSION (if needed)
+if( $access == 'logged' || !$action['read_only_session'] ){
 	Core::startSession();
+}
+
+if( $access == 'logged' ){
 	$authorized = $authorized || ( $_SESSION['TOKEN'] == $token && Core::isAdministratorLoggedIn() );
 }else{
 	$authorized = true;
@@ -190,6 +190,12 @@ if( !$authorized ){
 	// error : authorization failed
 	sendResponse( 401, 'Unauthorized', 'Authentication failed', $format, null );
 }
+
+// <= CLOSE SESSION (if needed)
+if( $access == 'logged' && $action['read_only_session'] ){
+	session_write_close();
+}
+
 
 // 9. decode the arguments
 $arguments = array();

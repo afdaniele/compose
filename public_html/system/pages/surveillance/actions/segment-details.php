@@ -5,13 +5,14 @@ $segment = $_GET['segment'];
 
 // Get the query string from the `list` page
 $qs = array();
-parse_str( base64_decode($_GET['lst']), $qs );
+parse_str( base64_decode( urldecode($_GET['lst']) ), $qs );
 $camera_num = $qs['camera_num'];
 
 $segment_is_valid = ( preg_match('/[0-9]{4}-[0-9]{2}-[0-9]{2}_[0-9]{2}\.[0-9]{2}/', $segment) === 1 );
-$segment_exists = \system\classes\Core::isSurveillanceSegmentPresent( $camera_num, $segment );
+$segment_exists = \system\classes\Core::isWebMSurveillanceSegmentPresent( $camera_num, $segment );
 
 if( !$segment_is_valid || !$segment_exists ){
+	$_SESSION['ADMIN_BACKEND_ALERT_WARNING'] = "The segment has not yet been converted to the web-format. The video segments are accessible via web only after the post-processing step.";
 	?>
 	<script type="text/javascript">
 		var url = "<?php echo \system\classes\Configuration::$PLATFORM_BASE ?>surveillance";
@@ -46,14 +47,22 @@ $min = $chunk_parts[1];
 
 	</table>
 
-	<div class="alert alert-info text-center" role="alert" style="padding:10px">
-		<span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span> &nbsp;
-		<bold>Note:</bold> This video was recorded in high resolution. You need a high-speed connection to watch it.
-	</div>
 	<div style="text-align:center">
 		<video width="100%" poster="<?php echo \system\classes\Configuration::$BASE_URL ?>images/video_privacy_placeholder.jpg" style="border: 1px solid lightgray" controls>
-		  <source src="http://box0.afdaniele.com/surveillance_data_1/<?php echo $date ?>/<?php echo $segment ?>.mp4?start=1" type="video/mp4">
+		  <source src="<?php echo \system\classes\Configuration::$BASE_URL ?>surveillance_data_1_sd/<?php echo $date ?>/web_<?php echo $segment ?>.mp4?start=1" type="video/mp4">
 		</video>
+	</div>
+
+
+	<div class="text-right" style="width:100%; margin:40px 0 20px 0">
+		<h4 style="display:inline">Downloads:</h4>&nbsp;&nbsp;
+		<a role="button" class="btn btn-primary" style="margin-right:10px" href="<?php echo \system\classes\Configuration::$BASE_URL ?>surveillance_data_1_hd/<?php echo $date ?>/<?php echo $segment ?>.mp4" Download>
+			Download HD (<?php echo \system\classes\Core::sizeOfSurveillanceSegment( $camera_num, $segment ) ?>)
+		</a>
+		<a role="button" class="btn btn-primary" href="<?php echo \system\classes\Configuration::$BASE_URL ?>surveillance_data_1_sd/<?php echo $date ?>/web_<?php echo $segment ?>.mp4" download>
+			Download SD (<?php echo \system\classes\Core::sizeOfWebMSurveillanceSegment( $camera_num, $segment ) ?>)
+		</a>
+
 	</div>
 
 </div>

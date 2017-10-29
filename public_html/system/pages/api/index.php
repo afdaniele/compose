@@ -164,6 +164,11 @@ if( $version == null ){
 
 		</div>
 
+
+		<p class="text-right" style="margin-top:8px; font-size:12px">
+			<strong style="color:#337ab7">Session token: </strong><?php echo $_SESSION["TOKEN"] ?>
+		</p>
+
 	</td>
 
 	<td style="width:727px">
@@ -222,7 +227,7 @@ if( $version == null ){
 							<a href="#reply-format">Response format</a>
 						</li>
 						<li>
-							<a href="#parameters">Parameters</a>
+							<a href="#reply-parameters">Parameters</a>
 						</li>
 					</ul>
 				</ul>
@@ -666,6 +671,12 @@ if( $version == null ){
 						</li>
 					</ul>
 				</ul>
+
+				<!-- <ul>
+					<li>
+						<a href="#tiy">Try it yourself</a>
+					</li>
+				</ul> -->
 			</div>
 		</div>
 
@@ -872,10 +883,90 @@ if( $version == null ){
 				?>
 			</div>
 		</div>
-
 		</div>
 		</div>
 
+
+
+
+
+
+			<!-- <div class="api-service-section">
+				<a class="anchor" id="action"></a>
+				<h3>
+					Try it yourself
+				</h3>
+				<div>
+					<p>
+						Use the following form to submit an API call.
+					</p>
+
+
+					<?php
+					$table = array(
+						'layout' => array(
+							'productID' => array(
+								'type' => 'key',
+								'show' => true,
+								'width' => 'md-1',
+								'align' => 'center',
+								'translation' => '#Prodotto',
+								'editable' => false
+							),
+							'merchID' => array(
+								'show' => false,
+								'translation' => '#Esercente',
+								'editable' => false
+							),
+							'name' => array(
+								'type' => 'alphaspace',
+								'show' => true,
+								'width' => 'md-4',
+								'align' => 'left',
+								'translation' => 'Nome',
+								'placeholder' => 'es. Pizza Margherita',
+								'editable' => true
+							),
+							'price' => array(
+								'type' => 'money',
+								'show' => true,
+								'width' => 'md-1',
+								'align' => 'center',
+								'translation' => 'Prezzo',
+								'placeholder' => 'es. 5.99',
+								'editable' => true
+							),
+							'isAvailable' => array(
+								'type' => 'boolean',
+								'show' => true,
+								'width' => 'md-1',
+								'align' => 'center',
+								'translation' => 'Disponibile',
+								'editable' => true
+							)
+						)
+					);
+					?>
+
+					<div class="api-service-subsection">
+						<a class="anchor" id="tiy"></a>
+						<h3>
+							Complete the form below
+						</h3>
+						<div>
+							<p>
+								<?php
+								// // load modals
+								// require_once __DIR__.'/../../modules/modals/record_editor_modal.php';
+								// generateFormByLayout( $table['layout'] );
+
+								?>
+							</p>
+
+						</div>
+					</div>
+				</div>
+			</div> -->
 		</div>
 
 	<?php
@@ -957,7 +1048,7 @@ function loadJSON( $file ){
 
 function arrayToPrettyJson( $data, $level ){
 	// tmp data
-	$data_type_example = array('text' => 'free text. Can contain letters, numbers, symbols, etc..', 'alphabetic' => 'Alphabetic string. Contains letters only.', 'alphanumeric' => 'Alphanumeric string. Can contain letters and numbers.', 'numeric' => 'A positive integer', 'float' => 'A floating-point number', 'boolean' => 'Boolean values, /true/ or /false/' );
+	$data_type_example = array('text' => 'Free text. Can contain letters, numbers, symbols, etc..', 'alphabetic' => 'Alphabetic string. Contains letters only.', 'alphanumeric' => 'Alphanumeric string. Can contain letters and numbers.', 'numeric' => 'A positive integer', 'float' => 'A floating-point number', 'boolean' => 'Boolean values, /true/ or /false/' );
 	$next_of_something = false;
 	//
 	$result = ( (is_assoc($data))? '{' : '[' );
