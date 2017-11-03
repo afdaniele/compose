@@ -49,7 +49,7 @@ $min = $chunk_parts[1];
 
 	<div style="text-align:center">
 		<video width="100%" poster="<?php echo \system\classes\Configuration::$BASE_URL ?>images/video_privacy_placeholder.jpg" style="border: 1px solid lightgray" controls>
-		  <source src="<?php echo \system\classes\Configuration::$BASE_URL ?>surveillance_data_1_sd/<?php echo $date ?>/web_<?php echo $segment ?>.mp4?start=1" type="video/mp4">
+		  <source src="<?php echo \system\classes\Configuration::$BASE_URL ?>surveillance_data_1_sd/<?php echo $date ?>/web_<?php echo $segment ?>.mp4?start=8" type="video/mp4">
 		</video>
 	</div>
 
