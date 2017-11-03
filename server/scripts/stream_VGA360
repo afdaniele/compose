@@ -1,0 +1,33 @@
+#!/bin/bash
+# streamVGA360.sh
+# ------------
+# -----------
+# Author: Andrea F. Daniele
+# License: BSD
+
+
+# Where the segments will be saved.
+BASEpath='/home/duckietown-surveillance/dashboard/public_html/ts'
+
+# Add a watermark
+WATERMARK='/home/duckietown-surveillance/scripts/images/live_stream_watermark.png'
+
+# Remove the old segments from the disk but the newest 4
+find $BASEpath -printf "%T+\t%p\n" | grep -E "\.ts" | sort -r | awk '{print $2}' | tail -n +5 | xargs rm --
+
+
+# Check whether the live streaming process is already running and exit if it is
+ps -x | grep "ffmpeg" | grep -q "ts/live.m3u8"
+if [ $? -eq 0 ];
+then
+	exit 0
+fi
+
+# Clean the ts/ folder
+rm $BASEpath/*
+
+# Run the streaming process
+ffmpeg -y -i rtsp://duckietown-visitor:duckiet0wn@192.168.1.2:88/videoSub -filter:v "crop=550:360:0:0" -c:v libx264 -an -r 15 -f ssegment -segment_list $BASEpath/live.m3u8 -segment_list_type hls -segment_list_flags +live -segment_list_size 2 -segment_time 6 -hls_flags delete_segments $BASEpath/segment_%d.ts
+
+# Clean the ts/ folder
+rm $BASEpath/*

@@ -1,0 +1,66 @@
+#!/usr/bin/env python3
+
+import json
+import datetime
+
+destination_dir = '/home/duckietown-surveillance/what_the_duck_tests'
+
+mongo_db = 'wtd01'
+mongo_collection = 'uploads'
+
+try:
+    import pymongo
+except ImportError as e:
+    msg = 'pymongo not installed.'
+    msg += '\n\nTry the following:'
+    msg += '\n\n     pip3 install --user pymongo'
+    exit()
+
+def get_connection_string():
+    username = 'upload'
+    password = 'quackquack'
+
+    s = ("mongodb://<USERNAME>:<PASSWORD>@dt0-shard-00-00-npkyt.mongodb.net:27017,"
+        "dt0-shard-00-01-npkyt.mongodb.net:27017,dt0-shard-00-02-npkyt.mongodb.net"
+        ":27017/test?ssl=true&replicaSet=dt0-shard-0&authSource=admin")
+
+    s = s.replace("<PASSWORD>", password)
+    s = s.replace("<USERNAME>", username)
+    return s
+
+def get_upload_collection():
+    s = get_connection_string()
+
+    print('Opening connection to MongoDB...')
+    client = pymongo.MongoClient(s)
+
+    db = client[mongo_db]
+    collection = db[mongo_collection]
+    return collection
+
+def get_valid_data(collection):
+    res = list(collection.find())
+    out = {}
+    for r in res:
+        if 'what_the_duck_version' in r:
+            v = r['what_the_duck_version']
+            h = r['hostname']
+            if h not in out:
+                out[h] = []
+            if v in ['1.1', '1.2', '1.3']:
+                del r['_id']
+                if v in ['1.1']:
+                    r['type'] = '?'
+                r['upload_event_date'] = str(r['upload_event_date'])
+                out[h].append(r)
+    print('Found %d database entries; %d are compatible.' % (len(res), len(out)))
+    return out
+
+collection = get_upload_collection()
+
+res = get_valid_data(collection)
+
+for h in res:
+    h_file = '%s/%s.wtd.json' % ( destination_dir, h )
+    with open(h_file, 'w') as outfile:
+        json.dump({'what-the-duck' : res[h]}, outfile)
