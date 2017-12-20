@@ -1,3 +1,5 @@
-# Duckietown - Remote Dashboard
+# Duckieboard - A Remote Dashboard for Duckietown
 
-A remote dashboard for the Duckietown project.
+The Duckietown Remote Dashboard (duckieboard) is a web
+platform that provides high level fleet management and
+monitoring capabilities for Duckietown.
