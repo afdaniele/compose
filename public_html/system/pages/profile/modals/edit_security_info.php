@@ -55,15 +55,27 @@ $extra = array('style="margin-bottom:20px"', '', '')
 		var queryString = 'password='+password+'&passwordconfirm='+passwordconfirm
 		var timestamp = Math.ceil( (new Date().getTime())/1000 ); // in seconds
 		//
-		var uri = "web-api/<?php echo \system\classes\Configuration::$WEBAPI_VERSION ?>/adminprofile/updatekeys/json?"+queryString+"&timestamp="+timestamp+"&token=<?php echo $_SESSION['TOKEN'] ?>";
+		var uri = "web-api/<?php echo \system\classes\Configuration::$WEBAPI_VERSION ?>/userprofile/updatekeys/json?"+queryString+"&timestamp="+timestamp+"&token=<?php echo $_SESSION['TOKEN'] ?>";
 		//
-		var secret = CryptoJS.MD5( oldpwd );
-		var hash = CryptoJS.HmacSHA256( uri, CryptoJS.enc.Utf8.parse(secret));
-		var hashInBase64 = CryptoJS.enc.Base64.stringify(hash);
+		var hashInBase64 = computeURIhmac( uri, oldpwd );
+
+
+		console.log( hashInBase64 );
+
+
+
+		// var secret = CryptoJS.MD5( oldpwd );
+		// var hash = CryptoJS.HmacSHA256( uri, CryptoJS.enc.Utf8.parse(secret));
+		// var hashInBase64 = CryptoJS.enc.Base64.stringify(hash);
+
 		//
 		uri += "&hmac="+CryptoJS.MD5(hashInBase64);
 		//
 		var url = "<?php echo \system\classes\Configuration::$BASE_URL ?>" + encodeURI( uri );
+
+
+		console.log( url );
+
 		// call the API
 		callAPI( url, true, true );
 	});

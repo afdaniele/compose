@@ -13,11 +13,10 @@
 
 	<?php
 
-	$administratorData = \system\classes\Core::getAdministratorLogged();
+	$user = \system\classes\Core::getUserLogged();
 
-	$labelName = array('First name', 'Last name', 'E-mail address' );
-	$fieldValue = array( $administratorData['name'], $administratorData['surname'], $administratorData['email'] );
-
+	$labelName = array('Name', 'E-mail address' );
+	$fieldValue = array( $user['name'], $user['email'] );
 
 	Section::begin('Personal information', null, null, null, array('Edit'), array('glyphicon-wrench'), array('data-toggle="modal" data-target="#edit-personal-info-modal"') );
 	generateView( $labelName, $fieldValue, 'md-4', 'md-8' );
@@ -31,7 +30,7 @@
 	<?php
 
 	$labelName = array('Username', 'Password');
-	$fieldValue = array( $administratorData['username'], '********' );
+	$fieldValue = array( $user['username'], '********' );
 
 
 	Section::begin('Access information', null, null, null, array('Edit'), array('glyphicon-wrench'), array('data-toggle="modal" data-target="#edit-security-info-modal"') );
@@ -42,8 +41,8 @@
 
 	<?php
 
-	require_once __DIR__.'/dialogs/edit_personal_info.php';
-	require_once __DIR__.'/dialogs/edit_security_info.php';
+	require_once __DIR__.'/modals/edit_personal_info.php';
+	require_once __DIR__.'/modals/edit_security_info.php';
 
 	?>
 

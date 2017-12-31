@@ -2,13 +2,13 @@
 
 <?php
 
-$merchant = \system\classes\Core::getAdministratorLogged();
+$user = \system\classes\Core::getUserLogged();
 
-$labelName = array('First name', 'Last name', 'E-mail address');
-$inputName = array('name', 'surname', 'email');
-$inputPlaceholder = array('Your first name', 'Your last name', 'Your e-mail address');
-$inputValue = array( $merchant['name'], $merchant['surname'], $merchant['email'] );
-$inputType = array('text', 'text', 'text');
+$labelName = array('Name', 'E-mail address');
+$inputName = array('name', 'email');
+$inputPlaceholder = array('Your name', 'Your e-mail address');
+$inputValue = array( $user['name'], $user['email'] );
+$inputType = array('text', 'text');
 
 ?>
 
@@ -48,7 +48,7 @@ $inputType = array('text', 'text', 'text');
 		// get the info
 		var queryString = $('#edit-personal-info-modal #edit-personal-info-modal-form').serialize();
 		//
-		var url = "<?php echo \system\classes\Configuration::$BASE_URL ?>web-api/<?php echo \system\classes\Configuration::$WEBAPI_VERSION ?>/adminprofile/updatepersonal/json?" + queryString + "&token=<?php echo $_SESSION["TOKEN"] ?>";
+		var url = "<?php echo \system\classes\Configuration::$BASE_URL ?>web-api/<?php echo \system\classes\Configuration::$WEBAPI_VERSION ?>/userprofile/updatepersonal/json?" + queryString + "&token=<?php echo $_SESSION["TOKEN"] ?>";
 		//
 		callAPI( url, true, true );
 	});

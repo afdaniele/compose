@@ -1,0 +1,16 @@
+{
+    "name" : "Profile",
+    "menu_entry" : {
+        "icon" : {
+            "type" : "glyphicon",
+            "name" : "align-justify"
+        },
+        "responsive" : {
+            "priority" : 20
+        }
+    },
+    "access" : {
+        "user_type" : "administrator",
+        "level" : "authenticated"
+    }
+}
