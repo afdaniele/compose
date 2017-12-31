@@ -264,6 +264,84 @@ $(document).on('ready', function(){
 
 /* UserProfile functions */
 
+// function userLogIn( baseurl, apiversion, token, formId ){
+//     showPleaseWait();
+//     //
+//     var username = $('#'+formId).find('#username').val();
+//     var password = $('#'+formId).find('#password').val();
+//     var timestamp = Math.ceil( (new Date().getTime())/1000 ); // in seconds
+//     //
+//     var uri = "web-api/"+apiversion+"/userprofile/login/json?username="+username+"&timestamp="+timestamp+"&token="+token;
+//     //
+//     var secret = CryptoJS.MD5( password );
+//     var hash = CryptoJS.HmacSHA256( uri, CryptoJS.enc.Utf8.parse(secret));
+//     var hashInBase64 = CryptoJS.enc.Base64.stringify(hash);
+//     //
+//     uri += "&hmac="+CryptoJS.MD5(hashInBase64);
+//     //
+//     var url = baseurl + encodeURI( uri );
+//     // call the API
+//     $.ajax({type: 'GET', url:url, dataType: 'json', success:function( result ){
+//         if( result.code == 200 ){
+//             // success, reload page
+//             hidePleaseWait();
+//             window.location.reload(true);
+//         }else{
+//             // error
+//             hidePleaseWait();
+//             openAlertObj( 'danger', result.message, result );
+//         }
+//     }, error:function(){
+//         hidePleaseWait();
+//         openAlert( 'danger', 'Si è verificato un errore, Riprova!' );
+//     }});
+// }
+//
+// function userLogOut( base, baseurl, apiversion, token ){
+//     showPleaseWait();
+//     //
+//     var uri = "web-api/"+apiversion+"/userprofile/logout/json?token="+token;
+//     //
+//     var url = baseurl + encodeURI( uri );
+//     // call the API
+//     $.ajax({type: 'GET', url:url, dataType: 'json', success:function( result ){
+//         if( result.code == 200 ){
+//             // success, redirect
+//             hidePleaseWait();
+//             window.location.href = base;
+//         }else{
+//             // error
+//             hidePleaseWait();
+//             openAlertObj( 'danger', result.message, result );
+//         }
+//     }, error:function(){
+//         hidePleaseWait();
+//     }});
+// }
+
+
+function computeURIhmac( uri, password ){
+    // MD5-based two-legged OAuth v1.0 implementation (Deprecated, bcrypt is now used)
+    // var secret = CryptoJS.MD5( password );
+
+    // bcrypt-based two-legged OAuth v1.0 implementation
+    var bcrypt = dcodeIO.bcrypt;
+    var seed_plain = "";
+    for (var i=0; i<password.length; i+=2) {
+        seed_plain += password.charAt(i); // get letters in even position
+    }
+    var seed = CryptoJS.MD5( seed_plain ).toString().substring( 0, 22 );
+    var salt = "$2y$10${0}".format( seed );
+    secret = bcrypt.hashSync(password , salt);
+
+    // create HMAC hash of the request URI
+    var hash = CryptoJS.HmacSHA256( uri, CryptoJS.enc.Utf8.parse(secret));
+    var hashInBase64 = CryptoJS.enc.Base64.stringify(hash);
+
+    // return HMAC
+    return hashInBase64;
+}//computeURIhmac
+
 function userLogIn( baseurl, apiversion, token, formId ){
     showPleaseWait();
     //
@@ -273,13 +351,13 @@ function userLogIn( baseurl, apiversion, token, formId ){
     //
     var uri = "web-api/"+apiversion+"/userprofile/login/json?username="+username+"&timestamp="+timestamp+"&token="+token;
     //
-    var secret = CryptoJS.MD5( password );
-    var hash = CryptoJS.HmacSHA256( uri, CryptoJS.enc.Utf8.parse(secret));
-    var hashInBase64 = CryptoJS.enc.Base64.stringify(hash);
-    //
+    var hashInBase64 = computeURIhmac( uri, password );
+    // append HMAC to the original request URI
     uri += "&hmac="+CryptoJS.MD5(hashInBase64);
-    //
+
+    // compile URL
     var url = baseurl + encodeURI( uri );
+
     // call the API
     $.ajax({type: 'GET', url:url, dataType: 'json', success:function( result ){
         if( result.code == 200 ){
@@ -293,7 +371,7 @@ function userLogIn( baseurl, apiversion, token, formId ){
         }
     }, error:function(){
         hidePleaseWait();
-        openAlert( 'danger', 'Si è verificato un errore, Riprova!' );
+        openAlert( 'danger', 'An error occurred, please retry!' );
     }});
 }
 
@@ -301,116 +379,6 @@ function userLogOut( base, baseurl, apiversion, token ){
     showPleaseWait();
     //
     var uri = "web-api/"+apiversion+"/userprofile/logout/json?token="+token;
-    //
-    var url = baseurl + encodeURI( uri );
-    // call the API
-    $.ajax({type: 'GET', url:url, dataType: 'json', success:function( result ){
-        if( result.code == 200 ){
-            // success, redirect
-            hidePleaseWait();
-            window.location.href = base;
-        }else{
-            // error
-            hidePleaseWait();
-            openAlertObj( 'danger', result.message, result );
-        }
-    }, error:function(){
-        hidePleaseWait();
-    }});
-}
-
-function merchantLogIn( baseurl, apiversion, token, formId ){
-    showPleaseWait();
-    //
-    var username = $('#'+formId).find('#username').val();
-    var password = $('#'+formId).find('#password').val();
-    var timestamp = Math.ceil( (new Date().getTime())/1000 ); // in seconds
-    //
-    var uri = "web-api/"+apiversion+"/merchantprofile/login/json?username="+username+"&timestamp="+timestamp+"&token="+token;
-    //
-    var secret = CryptoJS.MD5( password );
-    var hash = CryptoJS.HmacSHA256( uri, CryptoJS.enc.Utf8.parse(secret));
-    var hashInBase64 = CryptoJS.enc.Base64.stringify(hash);
-    //
-    uri += "&hmac="+CryptoJS.MD5(hashInBase64);
-    //
-    var url = baseurl + encodeURI( uri );
-    // call the API
-    $.ajax({type: 'GET', url:url, dataType: 'json', success:function( result ){
-        if( result.code == 200 ){
-            // success, reload page
-            hidePleaseWait();
-            window.location.reload(true);
-        }else{
-            // error
-            hidePleaseWait();
-            openAlertObj( 'danger', result.message, result );
-        }
-    }, error:function(){
-        hidePleaseWait();
-        openAlert( 'danger', 'Si è verificato un errore, Riprova!' );
-    }});
-}
-
-function merchantLogOut( base, baseurl, apiversion, token ){
-    showPleaseWait();
-    //
-    var uri = "web-api/"+apiversion+"/merchantprofile/logout/json?token="+token;
-    //
-    var url = baseurl + encodeURI( uri );
-    // call the API
-    $.ajax({type: 'GET', url:url, dataType: 'json', success:function( result ){
-        if( result.code == 200 ){
-            // success, redirect
-            hidePleaseWait();
-            window.location.href = base;
-        }else{
-            // error
-            hidePleaseWait();
-            openAlertObj( 'danger', result.message, result );
-        }
-    }, error:function(){
-        hidePleaseWait();
-    }});
-}
-
-function administratorLogIn( baseurl, apiversion, token, formId ){
-    showPleaseWait();
-    //
-    var username = $('#'+formId).find('#username').val();
-    var password = $('#'+formId).find('#password').val();
-    var timestamp = Math.ceil( (new Date().getTime())/1000 ); // in seconds
-    //
-    var uri = "web-api/"+apiversion+"/adminprofile/login/json?username="+username+"&timestamp="+timestamp+"&token="+token;
-    //
-    var secret = CryptoJS.MD5( password );
-    var hash = CryptoJS.HmacSHA256( uri, CryptoJS.enc.Utf8.parse(secret));
-    var hashInBase64 = CryptoJS.enc.Base64.stringify(hash);
-    //
-    uri += "&hmac="+CryptoJS.MD5(hashInBase64);
-    //
-    var url = baseurl + encodeURI( uri );
-    // call the API
-    $.ajax({type: 'GET', url:url, dataType: 'json', success:function( result ){
-        if( result.code == 200 ){
-            // success, reload page
-            hidePleaseWait();
-            window.location.reload(true);
-        }else{
-            // error
-            hidePleaseWait();
-            openAlertObj( 'danger', result.message, result );
-        }
-    }, error:function(){
-        hidePleaseWait();
-        openAlert( 'danger', 'Si è verificato un errore, Riprova!' );
-    }});
-}
-
-function administratorLogOut( base, baseurl, apiversion, token ){
-    showPleaseWait();
-    //
-    var uri = "web-api/"+apiversion+"/adminprofile/logout/json?token="+token;
     //
     var url = baseurl + encodeURI( uri );
     // call the API
@@ -447,19 +415,6 @@ function errorsToString( str, result ){
     return str;
 }//errorsToString
 
-function updateNavbarCart( baseurl, apiversion, token ){
-    var url = baseurl + "web-api/" + apiversion + "/cart/info/json?token=" + token;
-    // call the API
-    $.ajax({type: 'GET', url:url, dataType: 'json', success:function( result ){
-        if( result.code == 200 ){
-            // success, update the badge
-            $('#navbar-cart-badge').html( result.data.size );
-        }else{
-            // error, ignore
-        }
-    }});
-}//updateNavbarCart
-
 function printElement(elem){
     html2canvas($(elem), {
         onrendered: function(canvas) {
@@ -469,8 +424,8 @@ function printElement(elem){
 }
 
 function popup(data){
-    var mywindow = window.open('', 'Pagina di Stampa', 'height=400,width=600');
-    mywindow.document.write('<html><head><title>Pagina di Stampa</title>');
+    var mywindow = window.open('', 'Print', 'height=400,width=600');
+    mywindow.document.write('<html><head><title>Print</title>');
     mywindow.document.write('</head><body >');
     mywindow.document.write('</body></html>');
     mywindow.document.body.appendChild(data);
