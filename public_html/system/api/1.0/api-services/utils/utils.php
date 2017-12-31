@@ -136,7 +136,7 @@ function formatResult( &$results, &$details ){
 function prepareResult( &$res, &$action, $prune=true ){
 	if( !$res['success'] ) return array( 'code' => 500, 'status' => 'Internal Server Error', 'message' => $res['data'] );
 	//
-	if( $res['size'] == 0 ) return array( 'code' => 204, 'status' => 'No Content', 'message' => 'No results found' );
+	if( isset($res['size']) && $res['size']==0 ) return array( 'code' => 204, 'status' => 'No Content', 'message' => 'No results found' );
 	//
 	if( $prune ){
 		pruneResult( $res['data'], $action );
