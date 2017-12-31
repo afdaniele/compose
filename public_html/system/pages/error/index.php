@@ -69,7 +69,7 @@ if( !isset($_SESSION['ADMIN_BACKEND_ERROR_PAGE_MESSAGE']) ){
 			<br/>
 
 
-			<form method="post" action="<?php echo \system\classes\Configuration::$PLATFORM_BASE ?>errore?report=1">
+			<form method="post" action="<?php echo \system\classes\Configuration::$BASE ?>errore?report=1">
 				<input type="hidden" name="errorMsg" value="<?php echo urlencode($_SESSION['ADMIN_BACKEND_ERROR_PAGE_MESSAGE']) ?>">
 				<table style="width:100%">
 					<tr>
