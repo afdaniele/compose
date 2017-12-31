@@ -28,8 +28,6 @@ class Configuration {
 	public static $BASE;
 	public static $PAGE;
 	public static $ACTION;
-	public static $PLATFORM;
-	public static $PLATFORM_BASE;
 	public static $SHORT_SITE_NAME;
 	public static $SHORT_SITE_LINK;
 
