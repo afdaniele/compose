@@ -15,8 +15,6 @@ use system\classes\Configuration as Configuration;
 
 // Init Core
 Core::initCore();
-Configuration::$PLATFORM = 'ADMIN_BACKEND';
-Configuration::$PLATFORM_BASE = Configuration::$BASE;
 
 // Create a Session
 Core::startSession();
@@ -28,15 +26,15 @@ $availablePages['logged'] = array( 'dashboard', 'duckiebots', 'live', 'surveilla
 $args = explode( '/', strtolower($_GET['arg']) );
 
 
-if( ( !Core::isAdministratorLoggedIn() && !in_array($args[0], $availablePages['guest']) ) || ( Core::isAdministratorLoggedIn() && !in_array($args[0], $availablePages['guest']) && !in_array($args[0], $availablePages['logged']) )  ){
-	if( Core::isAdministratorLoggedIn() ){
+if( ( !Core::isUserLoggedIn() && !in_array($args[0], $availablePages['guest']) ) || ( Core::isUserLoggedIn() && !in_array($args[0], $availablePages['guest']) && !in_array($args[0], $availablePages['logged']) )  ){
+	if( Core::isUserLoggedIn() ){
 		Core::redirectTo( 'dashboard' );
 	}else{
 		Core::redirectTo( 'login' );
 	}
 }
 
-Configuration::$PAGE = ($args[0] == '')? ( ( Core::isAdministratorLoggedIn() )? 'dashboard' : 'login' ) : $args[0];
+Configuration::$PAGE = ($args[0] == '')? ( ( Core::isUserLoggedIn() )? ( isset($_SESSION['USER_LOGGED_IN_RECOVERY_MODE'])? 'profile' : 'dashboard' ) : 'login' ) : $args[0];
 Configuration::$ACTION = (isset($args[1]) && $args[1]!=='') ? $args[1] : $_GET['action'];
 
 ?>
@@ -96,7 +94,7 @@ Configuration::$ACTION = (isset($args[1]) && $args[1]!=='') ? $args[1] : $_GET['
 	<script src="<?php echo Configuration::$BASE_URL ?>js/hmac-sha256.js"></script>
 	<script src="<?php echo Configuration::$BASE_URL ?>js/enc-base64-min.js"></script>
 	<script src="<?php echo Configuration::$BASE_URL ?>js/string.format.js"></script>
-
+	<script src="<?php echo Configuration::$BASE_URL ?>js/bcrypt.min.js"></script>
 
 	<!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
 	<!--[if lt IE 9]>
@@ -126,21 +124,9 @@ include( 'system/modules/navbar.php' );
 
 
 	<!-- Main Container -->
-	<?php
-	if( Configuration::$PAGE == 'login' ){
-		if( Core::isAdministratorLoggedIn() ){
-			Core::redirectTo('dashboard');
-		}else{
-			include __DIR__.'/system/modules/login.php';
-		}
-	}else{
-		?>
-		<div>
-			<?php include(__DIR__."/system/pages/".Configuration::$PAGE."/index.php"); ?>
-		</div>
-	<?php
-	}
-	?>
+	<div>
+		<?php include(__DIR__."/system/pages/".Configuration::$PAGE."/index.php"); ?>
+	</div>
 	<!-- Main Container End -->
 
 	<br>
@@ -155,7 +141,7 @@ include( 'system/modules/modals/yes_no_modal.php' );
 ?>
 
 <?php
-include( 'system/modules/footer' . ( (Core::isAdministratorLoggedIn())? '' : '_guest' ) . '.php' );
+include( 'system/modules/footer' . ( (Core::isUserLoggedIn())? '' : '_guest' ) . '.php' );
 ?>
 
 
