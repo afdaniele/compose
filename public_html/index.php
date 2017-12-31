@@ -103,11 +103,7 @@ Configuration::$ACTION = (isset($args[1]) && $args[1]!=='') ? $args[1] : $_GET['
 	<![endif]-->
 </head>
 
-
 <body <?php echo ( (Configuration::$PAGE == 'error')? 'style="background-color:white"' : '' ) ?>>
-
-
-<?php require_once __DIR__.'/js/charts.js.php'; ?>
 
 <!-- Fixed navbar -->
 <?php
