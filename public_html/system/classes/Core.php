@@ -40,8 +40,10 @@ class Core{
 	private static $initialized = false;
 
 	// Fields
-	public static $mysql;
+	// public static $mysql;//TODO: to remove
 	private static $cache = null;
+
+	private static $pages = null;
 
 	private static $regexes = array(
 		"alphabetic" => "/^[a-zA-Z]+$/",
@@ -73,23 +75,15 @@ class Core{
 	public static function initCore(){
 		if( !self::$initialized ){
 			mb_internal_encoding("UTF-8");
-			//
-			$error = false;
-			$error_msg = null;
 			//init configuration
 			$res = Configuration::init();
 			if( !$res['success'] ){
 				return $res;
 			}
-			//
+			// load email templates
 			EmailTemplates::init();
-			//
+			// enable cache
 			try{
-				self::$mysql = new \mysqli(Configuration::$MYSQL_HOST, Configuration::$MYSQL_USERNAME, Configuration::$MYSQL_PASSWORD, Configuration::$MYSQL_DBNAME);
-				self::$mysql->query("SET character_set_results = 'utf8', character_set_client = 'utf8', character_set_connection = 'utf8', character_set_database = 'utf8', character_set_server = 'utf8'");
-
-				self::$mysql->query('SET time_zone = \''.self::_getGMTOffset().'\'');
-				//
 				if( Configuration::$CACHE_ENABLED ){
 					try{
 						self::$cache = phpFastCache(Configuration::$CACHE_SYSTEM);
@@ -103,16 +97,11 @@ class Core{
 				$_SESSION['CACHE_GROUPS'] = array();
 				//
 			}catch(\Exception $e){}
-			if( self::$mysql->connect_errno ){
-				$error = true;
-				$error_msg = "Failed to connect to MySQL: (" . self::$mysql->connect_errno . ") " . self::$mysql->connect_error;
-			}
-			if( !$error ){
-				self::$initialized = true;
-				return array( 'success' => true, 'data' => null );
-			}else{
-				return array( 'success' => false, 'data' => $error_msg );
-			}
+			// load list of available pages
+			self::$pages = self::_load_available_pages();
+			//
+			self::$initialized = true;
+			return array( 'success' => true, 'data' => null );
 		}else{
 			return array( 'success' => true, 'data' => "Core already initialized!" );
 		}
@@ -184,6 +173,10 @@ class Core{
 
 	// =================================================================================================================
 	// 2. Getter functions
+
+	public static function getPagesList( ){
+		return self::$pages;
+	}//getPagesList
 
 	public static function getUserLastSeen( $username ){
 		$res = self::getUserInfoNoAuth( $username );
@@ -1301,6 +1294,44 @@ class Core{
 	    preg_match_all($pattern, $string, $matches);
 	    return $matches[$groupNum][0];
 	}//_regex_extract_group
+
+	private static function _load_available_pages(){
+		$pages_descriptors = __DIR__."/../pages/*/setup.json";
+		$jsons = glob( $pages_descriptors );
+		//
+		$pages = [
+			'list' => [],
+			'by-id' => [],
+			'by-usertype' => [
+				'administrator' => [],
+				'supervisor' => [],
+				'user' => [],
+				'guest' => []
+			],
+			'by-menuorder' => []
+		];
+		foreach ($jsons as $json) {
+			$page_id = self::_regex_extract_group($json, "/.*pages\/(.+)\/setup.json/", 1);
+			$page = json_decode( file_get_contents($json), true );
+			$page['id'] = $page_id;
+			// list
+			array_push( $pages['list'], $page );
+			// by-id
+			$pages['by-id'][$page_id] = $page;
+			// by-usertype
+			foreach ($page['access'] as $access) {
+				array_push( $pages['by-usertype'][$access], $page );
+			}
+		}
+		$menuorder = array_filter($pages['list'], function($e){ return !is_null($e['menu_entry']); } );
+		usort($menuorder, function($a, $b){
+			return ($a['menu_entry']['order'] < $b['menu_entry']['order'])? -1 : 1;
+		});
+		$pages['by-menuorder'] = $menuorder;
+		//
+		return $pages;
+	}//_load_available_pages
+
 
 
 
