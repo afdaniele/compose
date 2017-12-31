@@ -1,5 +1,5 @@
 {
-    "name" : "Duckiebots",
+    "name" : "Duckiefleet",
     "menu_entry" : {
         "order" : 1,
         "icon" : {
@@ -10,8 +10,8 @@
             "priority" : -1
         }
     },
-    "access" : {
-        "user_type" : "administrator",
-        "level" : "authenticated"
-    }
+    "access" : [
+        "administrator",
+        "supervisor"
+    ]
 }

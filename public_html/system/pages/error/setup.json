@@ -1,8 +1,10 @@
 {
     "name" : "Error",
     "menu_entry" : null,
-    "access" : {
-        "user_type" : "any",
-        "level" : "any"
-    }
+    "access" : [
+        "administrator",
+        "supervisor",
+        "user",
+        "guest"
+    ]
 }

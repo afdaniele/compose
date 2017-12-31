@@ -10,8 +10,9 @@
             "priority" : 10
         }
     },
-    "access" : {
-        "user_type" : "administrator",
-        "level" : "authenticated"
-    }
+    "access" : [
+        "administrator",
+        "supervisor",
+        "user"
+    ]
 }
