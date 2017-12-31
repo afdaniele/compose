@@ -12,7 +12,7 @@ $segment_is_valid = ( preg_match('/[0-9]{4}-[0-9]{2}-[0-9]{2}_[0-9]{2}\.[0-9]{2}
 $segment_exists = \system\classes\Core::isWebMSurveillanceSegmentPresent( $camera_num, $segment );
 
 if( !$segment_is_valid || !$segment_exists ){
-	$_SESSION['ADMIN_BACKEND_ALERT_WARNING'] = "The segment has not yet been converted to the web-format. The video segments are accessible via web only after the post-processing step.";
+	$_SESSION['_ALERT_WARNING'] = "The segment has not yet been converted to the web-format. The video segments are accessible via web only after the post-processing step.";
 	?>
 	<script type="text/javascript">
 		var url = "<?php echo \system\classes\Configuration::$BASE ?>surveillance";

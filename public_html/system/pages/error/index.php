@@ -1,12 +1,11 @@
 <?php
 
-
 if( isset($_GET['report']) ){
-	if( isset($_POST['errorMsg']) && isset($_SESSION['ADMIN_BACKEND_ERROR_OCCURRED']) ){
+	if( isset($_POST['errorMsg']) && isset($_SESSION['_ERROR_OCCURRED']) ){
 		// collect error message
 		\system\classes\Core::collectErrorInformation( array( 'message' => urldecode($_POST['errorMsg']) ) );
 		// clear the flag
-		unset( $_SESSION['ADMIN_BACKEND_ERROR_OCCURRED'] );
+		unset( $_SESSION['_ERROR_OCCURRED'] );
 		// open an alert
 		$_SESSION['_ALERT_INFO'] = 'Thanks for reporting the error!';
 	}
@@ -14,10 +13,10 @@ if( isset($_GET['report']) ){
 	\system\classes\Core::redirectTo('dashboard');
 }else{
 	// mark the ERROR flag
-	$_SESSION['ADMIN_BACKEND_ERROR_OCCURRED'] = true;
+	$_SESSION['_ERROR_OCCURRED'] = true;
 }
 
-if( !isset($_SESSION['ADMIN_BACKEND_ERROR_PAGE_MESSAGE']) ){
+if( !isset($_SESSION['_ERROR_PAGE_MESSAGE']) ){
 	\system\classes\Core::redirectTo('dashboard');
 }
 
@@ -65,7 +64,7 @@ if( !isset($_SESSION['ADMIN_BACKEND_ERROR_PAGE_MESSAGE']) ){
 		<div class="panel-footer" style="padding:18px">
 			<code>
 				<?php
-				echo $_SESSION['ADMIN_BACKEND_ERROR_PAGE_MESSAGE'];
+				echo $_SESSION['_ERROR_PAGE_MESSAGE'];
 				?>
 			</code>
 
@@ -73,7 +72,7 @@ if( !isset($_SESSION['ADMIN_BACKEND_ERROR_PAGE_MESSAGE']) ){
 
 
 			<form method="post" action="<?php echo \system\classes\Configuration::$BASE ?>error?report=1">
-				<input type="hidden" name="errorMsg" value="<?php echo urlencode($_SESSION['ADMIN_BACKEND_ERROR_PAGE_MESSAGE']) ?>">
+				<input type="hidden" name="errorMsg" value="<?php echo urlencode($_SESSION['_ERROR_PAGE_MESSAGE']) ?>">
 				<table style="width:100%">
 					<tr>
 						<td class="col-md-12 text-right" style="padding-right:0">
@@ -91,5 +90,5 @@ if( !isset($_SESSION['ADMIN_BACKEND_ERROR_PAGE_MESSAGE']) ){
 
 <?php
 // clear the error console
-unset( $_SESSION['ADMIN_BACKEND_ERROR_PAGE_MESSAGE'] );
+unset( $_SESSION['_ERROR_PAGE_MESSAGE'] );
 ?>

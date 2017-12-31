@@ -71,7 +71,7 @@ function _error_handler_generic_error_function( $errno, $errstr, $errfile, $errl
     }
 
     // set the message for the error page and redirect to it
-    $_SESSION['ADMIN_BACKEND_ERROR_PAGE_MESSAGE'] = $message;
+    $_SESSION['_ERROR_PAGE_MESSAGE'] = $message;
     \system\classes\Core::redirectTo( 'error' );
 }//_error_handler_generic_error_function
 
