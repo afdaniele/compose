@@ -1,6 +1,7 @@
 {
     "name" : "Surveillance",
     "menu_entry" : {
+        "order" : 3,
         "icon" : {
             "type" : "glyphicon",
             "name" : "hdd"

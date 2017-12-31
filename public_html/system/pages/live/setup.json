@@ -1,6 +1,7 @@
 {
     "name" : "Live",
     "menu_entry" : {
+        "order" : 2,
         "icon" : {
             "type" : "glyphicon",
             "name" : "facetime-video"

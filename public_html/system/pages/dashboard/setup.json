@@ -1,6 +1,7 @@
 {
     "name" : "Dashboard",
     "menu_entry" : {
+        "order" : 0,
         "icon" : {
             "type" : "glyphicon",
             "name" : "th-large"

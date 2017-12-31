@@ -1,6 +1,7 @@
 {
     "name" : "API",
     "menu_entry" : {
+        "order" : 6,
         "icon" : {
             "type" : "glyphicon",
             "name" : "book"

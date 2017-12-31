@@ -1,6 +1,7 @@
 {
     "name" : "Duckiebots",
     "menu_entry" : {
+        "order" : 1,
         "icon" : {
             "type" : "fa",
             "name" : "car"

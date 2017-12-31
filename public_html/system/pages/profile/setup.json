@@ -1,6 +1,7 @@
 {
     "name" : "Profile",
     "menu_entry" : {
+        "order" : 5,
         "icon" : {
             "type" : "glyphicon",
             "name" : "align-justify"
