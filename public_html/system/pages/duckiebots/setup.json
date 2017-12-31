@@ -1,0 +1,16 @@
+{
+    "name" : "Duckiebots",
+    "menu_entry" : {
+        "icon" : {
+            "type" : "fa",
+            "name" : "car"
+        },
+        "responsive" : {
+            "priority" : -1
+        }
+    },
+    "access" : {
+        "user_type" : "administrator",
+        "level" : "authenticated"
+    }
+}

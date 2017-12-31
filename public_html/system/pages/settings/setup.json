@@ -1,0 +1,16 @@
+{
+    "name" : "Settings",
+    "menu_entry" : {
+        "icon" : {
+            "type" : "glyphicon",
+            "name" : "cog"
+        },
+        "responsive" : {
+            "priority" : 30
+        }
+    },
+    "access" : {
+        "user_type" : "administrator",
+        "level" : "authenticated"
+    }
+}

@@ -1,0 +1,16 @@
+{
+    "name" : "Surveillance",
+    "menu_entry" : {
+        "icon" : {
+            "type" : "glyphicon",
+            "name" : "hdd"
+        },
+        "responsive" : {
+            "priority" : 40
+        }
+    },
+    "access" : {
+        "user_type" : "administrator",
+        "level" : "authenticated"
+    }
+}

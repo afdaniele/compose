@@ -1,0 +1,16 @@
+{
+    "name" : "Dashboard",
+    "menu_entry" : {
+        "icon" : {
+            "type" : "glyphicon",
+            "name" : "th-large"
+        },
+        "responsive" : {
+            "priority" : -1
+        }
+    },
+    "access" : {
+        "user_type" : "administrator",
+        "level" : "authenticated"
+    }
+}

@@ -1,0 +1,16 @@
+{
+    "name" : "Live",
+    "menu_entry" : {
+        "icon" : {
+            "type" : "glyphicon",
+            "name" : "facetime-video"
+        },
+        "responsive" : {
+            "priority" : 50
+        }
+    },
+    "access" : {
+        "user_type" : "administrator",
+        "level" : "authenticated"
+    }
+}

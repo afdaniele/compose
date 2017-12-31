@@ -1,0 +1,16 @@
+{
+    "name" : "API",
+    "menu_entry" : {
+        "icon" : {
+            "type" : "glyphicon",
+            "name" : "book"
+        },
+        "responsive" : {
+            "priority" : 10
+        }
+    },
+    "access" : {
+        "user_type" : "administrator",
+        "level" : "authenticated"
+    }
+}
