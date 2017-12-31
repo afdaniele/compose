@@ -176,14 +176,14 @@ if( $access == 'logged' || !$action['read_only_session'] ){
 }
 
 if( $access == 'logged' ){
-	$authorized = $authorized || ( $_SESSION['TOKEN'] == $token && Core::isAdministratorLoggedIn() );
+	$authorized = $authorized || ( $_SESSION['TOKEN'] == $token && Core::isUserLoggedIn() );
 }else{
 	$authorized = true;
 }
 //
-if( Core::isAdministratorLoggedIn() ){
+if( Core::isUserLoggedIn() ){
 	$_GET['ADMIN_LOGGED'] = true;
-	$_GET['ADMIN_ID'] = Core::getAdministratorLogged('username');
+	$_GET['ADMIN_ID'] = Core::getUserLogged('username');
 }
 //
 if( !$authorized ){
