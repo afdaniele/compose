@@ -72,7 +72,7 @@
             }
 
         },
-        "adminprofile" : {
+        "userprofile" : {
             "enabled" : true,
             "actions" : {
                 "login" : {
