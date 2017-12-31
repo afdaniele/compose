@@ -13,7 +13,7 @@
 			<ul class="nav navbar-nav navbar-right">
 
 				<?php
-				if( \system\classes\Core::isAdministratorLoggedIn() ){
+				if( \system\classes\Core::isUserLoggedIn() ){
 					?>
 					<li <?php if(\system\classes\Configuration::$PAGE == 'dashboard') echo 'class="active"'?> >
 						<a href="<?php echo \system\classes\Configuration::$BASE ?>dashboard">
@@ -44,22 +44,6 @@
 							<span class="glyphicon glyphicon-hdd" aria-hidden="true"></span> &nbsp;Surveillance
 						</a>
 					</li>
-
-					<li style="width:2px">&nbsp;</li>
-
-					<!-- <?php
-					$res = \system\classes\Core::getAdministratorMessageList( null, false );
-					$count = ( ($res['success'])? $res['size'] : 0 );
-					?>
-
-					<li class="<?php if(\system\classes\Configuration::$PAGE == 'inbox') echo 'active'?>">
-						<a href="<?php echo \system\classes\Configuration::$BASE ?>inbox">
-							<span class="glyphicon glyphicon-envelope" aria-hidden="true"></span> &nbsp;Inbox
-						<span class="badge" style="background-color:#ffad00; margin-left:4px; <?php echo ( ( $count > 0 )? '' : 'display:none' ) ?>">
-							<?php echo $count ?>
-						</span>
-						</a>
-					</li> -->
 
 					<li style="width:2px" class="navbar-1340-full-button-component">&nbsp;</li>
 
@@ -120,7 +104,7 @@
 						&nbsp;&bull;&nbsp;
 					</li>
 
-					<li><a class="cursor-pointer" onclick="administratorLogOut('<?php echo \system\classes\Configuration::$BASE ?>', '<?php echo \system\classes\Configuration::$BASE_URL ?>', '<?php echo \system\classes\Configuration::$WEBAPI_VERSION ?>', '<?php echo $_SESSION['TOKEN'] ?>');" style="color:#ffc864; padding-right:0"><span class="glyphicon glyphicon-log-out" aria-hidden="true"></span> &nbsp;Log out</a></li>
+					<li><a class="cursor-pointer" onclick="userLogOut('<?php echo \system\classes\Configuration::$BASE ?>', '<?php echo \system\classes\Configuration::$BASE_URL ?>', '<?php echo \system\classes\Configuration::$WEBAPI_VERSION ?>', '<?php echo $_SESSION['TOKEN'] ?>');" style="color:#ffc864; padding-right:0"><span class="glyphicon glyphicon-log-out" aria-hidden="true"></span> &nbsp;Log out</a></li>
 				<?php
 				}else{
 					?>
