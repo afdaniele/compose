@@ -12,8 +12,7 @@ $activity_plot_points_per_segment = 4; // It has to match the number of points p
 $available_month_year = array(
 	'10-2017',
 	'11-2017',
-	'12-2017',
-	'01-2018'
+	'12-2017'
 );
 
 // Get available cameras
@@ -402,7 +401,7 @@ $current_chunk_str = $cameraStatus['chunk'];
 
 		function _go_to_month( target ){
 			var date = $(target).data('date');
-			var url = "<?php echo \system\classes\Configuration::$PLATFORM_BASE ?>surveillance?date="+date;
+			var url = "<?php echo \system\classes\Configuration::$BASE ?>surveillance?date="+date;
 			window.location = url;
 		}
 
@@ -411,7 +410,7 @@ $current_chunk_str = $cameraStatus['chunk'];
 			<?php
 			$qs = urlencode( base64_encode( toQueryString( array_keys($features), $_GET ) ) );
 			?>
-			var url = "<?php echo \system\classes\Configuration::$PLATFORM_BASE ?>surveillance?<?php echo ( (strlen($qs) > 0)? 'lst='.$qs.'&' : '' ) ?>segment="+segment;
+			var url = "<?php echo \system\classes\Configuration::$BASE ?>surveillance?<?php echo ( (strlen($qs) > 0)? 'lst='.$qs.'&' : '' ) ?>segment="+segment;
 			window.location = url;
 		}
 

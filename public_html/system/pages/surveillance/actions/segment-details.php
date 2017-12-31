@@ -15,7 +15,7 @@ if( !$segment_is_valid || !$segment_exists ){
 	$_SESSION['ADMIN_BACKEND_ALERT_WARNING'] = "The segment has not yet been converted to the web-format. The video segments are accessible via web only after the post-processing step.";
 	?>
 	<script type="text/javascript">
-		var url = "<?php echo \system\classes\Configuration::$PLATFORM_BASE ?>surveillance";
+		var url = "<?php echo \system\classes\Configuration::$BASE ?>surveillance";
 		window.location = url;
 	</script>
 	<?php
