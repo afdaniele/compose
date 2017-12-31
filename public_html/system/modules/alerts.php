@@ -3,7 +3,7 @@
 $message = '';
 $type = null;
 
-$prefix = \system\classes\Configuration::$PLATFORM.'_ALERT_';
+$prefix = '_ALERT_';
 //
 if( isset($_SESSION[$prefix.'ERROR']) ){
 	$message = '<strong>Errore!</strong> '.$_SESSION[$prefix.'ERROR'];
