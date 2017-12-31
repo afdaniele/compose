@@ -1,5 +1,6 @@
 {
     "name" : "Live",
+    "package" : "surveillance",
     "menu_entry" : {
         "order" : 2,
         "icon" : {
@@ -13,5 +14,6 @@
     "access" : [
         "administrator",
         "supervisor"
-    ]
+    ],
+    "enabled" : true
 }

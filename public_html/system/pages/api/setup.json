@@ -1,5 +1,6 @@
 {
     "name" : "API",
+    "package" : "core",
     "menu_entry" : {
         "order" : 6,
         "icon" : {
@@ -15,5 +16,6 @@
         "supervisor",
         "user",
         "guest"
-    ]
+    ],
+    "enabled" : true
 }

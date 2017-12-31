@@ -1,5 +1,6 @@
 {
     "name" : "Duckiefleet",
+    "package" : "duckietown",
     "menu_entry" : {
         "order" : 1,
         "icon" : {
@@ -13,5 +14,6 @@
     "access" : [
         "administrator",
         "supervisor"
-    ]
+    ],
+    "enabled" : true
 }

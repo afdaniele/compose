@@ -1,5 +1,6 @@
 {
     "name" : "Dashboard",
+    "package" : "duckietown",
     "menu_entry" : {
         "order" : 0,
         "icon" : {
@@ -13,5 +14,6 @@
     "access" : [
         "administrator",
         "supervisor"
-    ]
+    ],
+    "enabled" : true
 }

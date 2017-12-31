@@ -1,5 +1,6 @@
 {
     "name" : "Login",
+    "package" : "core",
     "menu_entry" : {
         "order" : -1,
         "icon" : {
@@ -12,5 +13,6 @@
     },
     "access" : [
         "guest"
-    ]
+    ],
+    "enabled" : true
 }

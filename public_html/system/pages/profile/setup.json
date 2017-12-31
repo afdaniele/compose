@@ -1,5 +1,6 @@
 {
     "name" : "Profile",
+    "package" : "core",
     "menu_entry" : {
         "order" : 5,
         "icon" : {
@@ -14,5 +15,6 @@
         "administrator",
         "supervisor",
         "user"
-    ]
+    ],
+    "enabled" : true
 }

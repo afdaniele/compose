@@ -1,5 +1,6 @@
 {
     "name" : "Settings",
+    "package" : "core",
     "menu_entry" : {
         "order" : 4,
         "icon" : {
@@ -12,5 +13,6 @@
     },
     "access" : [
         "administrator"
-    ]
+    ],
+    "enabled" : true
 }
