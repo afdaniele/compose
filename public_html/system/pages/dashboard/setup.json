@@ -7,7 +7,7 @@
             "name" : "th-large"
         },
         "responsive" : {
-            "priority" : -1
+            "priority" : -100
         }
     },
     "access" : [

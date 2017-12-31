@@ -7,7 +7,7 @@
             "name" : "align-justify"
         },
         "responsive" : {
-            "priority" : 20
+            "priority" : 40
         }
     },
     "access" : [

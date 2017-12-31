@@ -956,7 +956,7 @@ if( $version == null ){
 							<p>
 								<?php
 								// // load modals
-								// require_once __DIR__.'/../../modules/modals/record_editor_modal.php';
+								// require_once __DIR__.'/../../modules/core/modals/record_editor_modal.php';
 								// generateFormByLayout( $table['layout'] );
 
 								?>

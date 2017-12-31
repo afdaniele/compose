@@ -7,7 +7,7 @@
             "name" : "hdd"
         },
         "responsive" : {
-            "priority" : 40
+            "priority" : 20
         }
     },
     "access" : [

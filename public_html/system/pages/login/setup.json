@@ -1,6 +1,15 @@
 {
     "name" : "Login",
-    "menu_entry" : null,
+    "menu_entry" : {
+        "order" : -1,
+        "icon" : {
+            "type" : "glyphicon",
+            "name" : "log-in"
+        },
+        "responsive" : {
+            "priority" : -1
+        }
+    },
     "access" : [
         "guest"
     ]

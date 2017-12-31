@@ -1,5 +1,6 @@
 <?php
 
+
 if( isset($_GET['report']) ){
 	if( isset($_POST['errorMsg']) && isset($_SESSION['ADMIN_BACKEND_ERROR_OCCURRED']) ){
 		// collect error message
@@ -7,7 +8,7 @@ if( isset($_GET['report']) ){
 		// clear the flag
 		unset( $_SESSION['ADMIN_BACKEND_ERROR_OCCURRED'] );
 		// open an alert
-		$_SESSION['ADMIN_BACKEND_ALERT_INFO'] = 'Grazie per aver segnalato l\'errore!';
+		$_SESSION['_ALERT_INFO'] = 'Thanks for reporting the error!';
 	}
 	//
 	\system\classes\Core::redirectTo('dashboard');
@@ -22,8 +23,6 @@ if( !isset($_SESSION['ADMIN_BACKEND_ERROR_PAGE_MESSAGE']) ){
 
 ?>
 
-
-<br/>
 <br/>
 <br/>
 <br/>
@@ -34,29 +33,33 @@ if( !isset($_SESSION['ADMIN_BACKEND_ERROR_PAGE_MESSAGE']) ){
 
 <div class="col-md-6">
 	<h1 style="font-size:70px; margin-bottom:0">Oops!</h1>
-	<h3 style="margin-top:0; padding-left:4px">Qualcosa qui è andato storto!</h3>
-
-	<br/>
-	<p style="padding-left:70px">- - - - - - - - - - - - - - - - - - -</p>
+	<h3 style="margin-top:0; padding-left:4px">Something broke here!</h3>
 
 	<br/>
 
-	<div class="col-md-11" style="padding-left:5px">
-		Se è la prima volta che vedi questa pagina, torna al sito e non preoccuparti.
+	<div class="col-md-12 text-center" style="padding-left:5px; padding-right:100px">
+		- - - - - - - - - - - - - - - - - - -
+	</div>
+
+	<br/>
+	<br/>
+
+	<div class="col-md-12 text-justify" style="padding-left:5px; padding-right:80px">
+		The box below contains a description of the error.
 		<br/>
-		Se ti capita spesso di ricevere questo errore ti preghiamo di segnalarcelo, provvederemo a sistemarlo.
+		You can either ignore the error and return to the website or report the error using the orange button in the box below.
 		<br><br>
-		<a href="<?php echo \system\classes\Configuration::$BASE ?>amministrazione/" type="button" class="btn btn-info" role="button">Torna al sito</a>
+		<a href="<?php echo \system\classes\Configuration::$BASE ?>dashboard/" type="button" class="btn btn-info" role="button">Go back to the Dashboard</a>
 	</div>
 
 </div>
 
 
-<div class="col-md-offset-1 col-md-10" style="margin-top:30px">
+<div class="col-md-offset-1 col-md-10" style="margin-top:20px">
 	<div class="panel panel-warning">
 
 		<div class="panel-heading" style="padding:4px 15px 4px 15px">
-			Descrizione dell'errore
+			Error description
 		</div>
 
 		<div class="panel-footer" style="padding:18px">
@@ -69,13 +72,14 @@ if( !isset($_SESSION['ADMIN_BACKEND_ERROR_PAGE_MESSAGE']) ){
 			<br/>
 
 
-			<form method="post" action="<?php echo \system\classes\Configuration::$BASE ?>errore?report=1">
+			<form method="post" action="<?php echo \system\classes\Configuration::$BASE ?>error?report=1">
 				<input type="hidden" name="errorMsg" value="<?php echo urlencode($_SESSION['ADMIN_BACKEND_ERROR_PAGE_MESSAGE']) ?>">
 				<table style="width:100%">
 					<tr>
-						<td class="col-md-8"></td>
-						<td class="col-md-4" style="padding-right:0">
-							<button type="submit" class="btn btn-warning pull-right" style="margin:0"><span class="glyphicon glyphicon-bullhorn" aria-hidden="true"></span> Segnala</button>
+						<td class="col-md-12 text-right" style="padding-right:0">
+							<button type="submit" class="btn btn-warning pull-right" style="margin:0">
+								<span class="glyphicon glyphicon-bullhorn" aria-hidden="true"></span> Report
+							</button>
 						</td>
 					</tr>
 				</table>

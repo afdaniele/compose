@@ -11,31 +11,42 @@ require_once 'system/templates/paginators/paginators.php';
 use system\classes\Core as Core;
 use system\classes\Configuration as Configuration;
 
-
-
-// Init Core
+// init Core
 Core::initCore();
 
-// Create a Session
+// load the error handler module
+require_once 'system/modules/core/error_handler.php';
+
+// create a Session
 Core::startSession();
 
-$availablePages = array();
-$availablePages['guest'] = array( 'login', 'error' );
-$availablePages['logged'] = array( 'dashboard', 'duckiebots', 'live', 'surveillance', 'inbox', 'settings', 'profile', 'api' );
+// get info about the current user
+$user_role = Core::getUserRole();
 
+// get the list of pages the current user has access to
+$pagesList = Core::getPagesList('by-usertype');
+$availablePages = array_map( function($p){ return $p['id']; }, $pagesList[$user_role] );
+$defaultPage = [
+	'administrator' => 'dashboard',
+	'supervisor' => 'dashboard',
+	'user' => 'profile',
+	'guest' => 'login'
+];
+
+// parse arguments
 $args = explode( '/', strtolower($_GET['arg']) );
+$requested_page = $args[0];
+$requested_action = (count($args) > 1 && $args[1]!=='') ? $args[1] : $_GET['action'];
 
-
-if( ( !Core::isUserLoggedIn() && !in_array($args[0], $availablePages['guest']) ) || ( Core::isUserLoggedIn() && !in_array($args[0], $availablePages['guest']) && !in_array($args[0], $availablePages['logged']) )  ){
-	if( Core::isUserLoggedIn() ){
-		Core::redirectTo( 'dashboard' );
-	}else{
-		Core::redirectTo( 'login' );
-	}
+// redirect to default page if the page is invalid
+if( $requested_page == '' || !in_array($requested_page, $availablePages) ){
+	// invalid page
+	$redirect_page = $defaultPage[$user_role];
+	Core::redirectTo( $redirect_page );
 }
 
-Configuration::$PAGE = ($args[0] == '')? ( ( Core::isUserLoggedIn() )? ( isset($_SESSION['USER_LOGGED_IN_RECOVERY_MODE'])? 'profile' : 'dashboard' ) : 'login' ) : $args[0];
-Configuration::$ACTION = (isset($args[1]) && $args[1]!=='') ? $args[1] : $_GET['action'];
+Configuration::$PAGE = $requested_page;
+Configuration::$ACTION = $requested_action;
 
 ?>
 
@@ -70,6 +81,9 @@ Configuration::$ACTION = (isset($args[1]) && $args[1]!=='') ? $args[1] : $_GET['
 
 	<!-- Custom CSS -->
 	<link href="<?php echo Configuration::$BASE_URL ?>css/style.css" rel="stylesheet" media="all">
+
+	<!-- TODO: Disable Bootstrap responsive behaviour -->
+	<!-- <link href="<?php echo Configuration::$BASE_URL ?>css/non-responsive.css" rel="stylesheet" media="all"> -->
 
 
 
@@ -107,17 +121,15 @@ Configuration::$ACTION = (isset($args[1]) && $args[1]!=='') ? $args[1] : $_GET['
 
 <!-- Fixed navbar -->
 <?php
-include( 'system/modules/navbar.php' );
+include( 'system/modules/core/navbar.php' );
 ?>
-
 
 <!-- Begin page content -->
 <div class="container" style="padding-bottom:15px; margin-top:42px">
 
-	<?php include(__DIR__."/system/modules/alerts.php") ?>
+	<?php include(__DIR__."/system/modules/core/alerts.php") ?>
 
 	<br>
-
 
 	<!-- Main Container -->
 	<div>
@@ -131,13 +143,13 @@ include( 'system/modules/navbar.php' );
 
 
 <?php
-include( 'system/modules/modals/loading_modal.php' );
-include( 'system/modules/modals/success_modal.php' );
-include( 'system/modules/modals/yes_no_modal.php' );
+include( 'system/modules/core/modals/loading_modal.php' );
+include( 'system/modules/core/modals/success_modal.php' );
+include( 'system/modules/core/modals/yes_no_modal.php' );
 ?>
 
 <?php
-include( 'system/modules/footer' . ( (Core::isUserLoggedIn())? '' : '_guest' ) . '.php' );
+include( 'system/modules/core/footer' . ( (Core::isUserLoggedIn())? '' : '_guest' ) . '.php' );
 ?>
 
 

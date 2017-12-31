@@ -7,7 +7,7 @@
             "name" : "facetime-video"
         },
         "responsive" : {
-            "priority" : 50
+            "priority" : 10
         }
     },
     "access" : [

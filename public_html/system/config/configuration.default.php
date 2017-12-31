@@ -5,7 +5,7 @@ $TIMEZONE = 'America/Chicago';
 date_default_timezone_set($TIMEZONE);
 
 /* Platform URLs settings */
-$SHORT_SITE_NAME = "Duckietown";
+$SHORT_SITE_NAME = "Duckieboard";
 $SHORT_SITE_LINK = "Duckietown.org";
 $FOOTBAR_MESSAGE = "Developed by <a href='http://www.afdaniele.com/'>Andrea F. Daniele</a>";
 $BASE_URL = "http://duckietown.afdaniele.com/";

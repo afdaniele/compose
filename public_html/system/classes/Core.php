@@ -109,11 +109,6 @@ class Core{
 
 
 	public static function close(){
-		try{
-			self::$mysql->close();
-		}catch(\Exception $e){
-			return array( 'success' => false, 'data' => null );
-		}
 		return array( 'success' => true, 'data' => null );
 	}//close
 
@@ -174,8 +169,12 @@ class Core{
 	// =================================================================================================================
 	// 2. Getter functions
 
-	public static function getPagesList( ){
-		return self::$pages;
+	public static function getPagesList( $order = null ){
+		if( is_null($order) || !isset(self::$pages[$order]) ){
+			return self::$pages;
+		}else{
+			return self::$pages[$order];
+		}
 	}//getPagesList
 
 	public static function getUserLastSeen( $username ){
@@ -248,6 +247,11 @@ class Core{
 	public static function getUserLogged( $field=null ){
 		return (isset($_SESSION['USER_RECORD'])) ? ( ($field==null) ? $_SESSION['USER_RECORD'] : $_SESSION['USER_RECORD'][$field] ) : null;
 	}//getUserLogged
+
+
+	public static function getUserRole(){
+		return ( self::isUserLoggedIn() )? self::getUserLogged('role') : 'guest';
+	}//getUserRole
 
 
 	public static function getStatistics(){
@@ -1208,25 +1212,14 @@ class Core{
 		return $hash;
 	}//hash_password
 
+	public static function collectErrorInformation( $errorData ){
+		//TODO: implement a logging system here
+	}//collectErrorInformation
+
 	// public static function escape_string( $string ){
 	// 	return self::$mysql->real_escape_string( $string );
 	// }//escape_string
 	//
-	// public static function collectErrorInformation( $errorData ){
-	// 	$query = 'INSERT INTO ComplaintBox(
-	// 				`id`,
-	// 				`date`,
-	// 				`platform`,
-	// 				`error`
-	// 			) VALUES (
-	// 				DEFAULT,
-	// 				UNIX_TIMESTAMP(NOW()),
-	// 				\''. Configuration::$PLATFORM .'\',
-	// 				\''. self::escape_string(serialize( $errorData )) .'\'
-	// 			)';
-	// 	//
-	// 	self::execINSERT( $query );
-	// }//collectErrorInformation
 
 
 	// =================================================================================================================
@@ -1308,7 +1301,8 @@ class Core{
 				'user' => [],
 				'guest' => []
 			],
-			'by-menuorder' => []
+			'by-menuorder' => [],
+			'by-responsive-priority' => [],
 		];
 		foreach ($jsons as $json) {
 			$page_id = self::_regex_extract_group($json, "/.*pages\/(.+)\/setup.json/", 1);
@@ -1323,11 +1317,18 @@ class Core{
 				array_push( $pages['by-usertype'][$access], $page );
 			}
 		}
+		// by-menuorder
 		$menuorder = array_filter($pages['list'], function($e){ return !is_null($e['menu_entry']); } );
 		usort($menuorder, function($a, $b){
 			return ($a['menu_entry']['order'] < $b['menu_entry']['order'])? -1 : 1;
 		});
 		$pages['by-menuorder'] = $menuorder;
+		// by-responsive-priority
+		$responsive_priority = array_filter($pages['list'], function($e){ return !is_null($e['menu_entry']); } );
+		usort($responsive_priority, function($a, $b){
+			return ($a['menu_entry']['responsive']['priority'] < $b['menu_entry']['responsive']['priority'])? -1 : 1;
+		});
+		$pages['by-responsive-priority'] = $responsive_priority;
 		//
 		return $pages;
 	}//_load_available_pages

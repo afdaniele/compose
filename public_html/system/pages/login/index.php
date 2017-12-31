@@ -1,5 +1,4 @@
 <?php
-
 if( \system\classes\Core::isUserLoggedIn() ){
 	\system\classes\Core::redirectTo('dashboard');
 }else{
