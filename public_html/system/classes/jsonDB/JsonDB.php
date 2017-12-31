@@ -54,6 +54,10 @@ class JsonDB {
 		return array('success' => false, 'data' => 'Impossibile scrivere le impostazioni. Riprova!');
 	}//commit
 
+	public function asArray(){
+		return $this->json;
+	}//asArray
+
 
 	// utility
 
