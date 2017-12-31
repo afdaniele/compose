@@ -1,0 +1,8 @@
+{
+    "name" : "Login",
+    "menu_entry" : null,
+    "access" : {
+        "user_type" : "any",
+        "level" : "unauthenticated"
+    }
+}
