@@ -14,13 +14,14 @@
 				<ul class="dropdown-menu dropup" role="menu" style="background-color:#3c3c3c; color:white">
 					<?php
 					// get pages
-					$pages_list = \system\classes\Core::getPagesList();
 					$user_role = \system\classes\Core::getUserRole();
-					$pages = $pages_list['by-menuorder'];
+					$pages = \system\classes\Core::getFilteredPagesList(
+						'by-menuorder',
+						true /* enabledOnly */,
+						$user_role /* accessibleBy */
+					);
+
 					foreach($pages as &$elem) {
-						if( !in_array($user_role, $elem['access']) ){
-							continue;
-						}
 						$icon = sprintf('%s %s-%s', $elem['menu_entry']['icon']['type'], $elem['menu_entry']['icon']['type'], $elem['menu_entry']['icon']['name']);
 						?>
 						<li role="presentation">

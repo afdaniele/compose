@@ -169,12 +169,27 @@ class Core{
 	// =================================================================================================================
 	// 2. Getter functions
 
-	public static function getPagesList( $order = null ){
+	public static function getPagesList( $order=null ){
 		if( is_null($order) || !isset(self::$pages[$order]) ){
 			return self::$pages;
 		}else{
 			return self::$pages[$order];
 		}
+	}//getPagesList
+
+	public static function getFilteredPagesList( $order='list', $enabledOnly=false, $accessibleBy=null ){
+		if( !in_array($order, ['list', 'by-id', 'by-menuorder', 'by-responsive-priority']) ){
+			// invalid order
+			return [];
+		}
+		$pages = [];
+		foreach( self::getPagesList($order) as $page ){
+			if( $enabledOnly && !$page['enabled'] ) continue;
+			if( !is_null($accessibleBy) && !in_array($accessibleBy, $page['access']) ) continue;
+			//
+			array_push( $pages, $page );
+		}
+		return $pages;
 	}//getPagesList
 
 	public static function getUserLastSeen( $username ){

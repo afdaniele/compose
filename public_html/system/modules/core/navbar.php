@@ -11,7 +11,12 @@ $responsive_min_width = 700;
 $responsive_width_per_button = 80;
 
 // assign limit widths to the responsive buttons
-$buttons = $pages_list['by-responsive-priority'];
+$buttons = \system\classes\Core::getFilteredPagesList(
+	'by-responsive-priority',
+	true /* enabledOnly */,
+	$user_role /* accessibleBy */
+);
+
 $responsive_buttons = [];
 $responsive_current_width = $responsive_min_width;
 foreach ($buttons as &$button) {
@@ -37,14 +42,16 @@ foreach ($buttons as &$button) {
 			<ul class="nav navbar-nav navbar-right">
 
 				<?php
-				$pages = $pages_list['by-menuorder'];
+				$pages = \system\classes\Core::getFilteredPagesList(
+					'by-menuorder',
+					true /* enabledOnly */,
+					$user_role /* accessibleBy */
+				);
+
 				// create buttons
 				for ($i = 0; $i < count($pages); $i++) {
 					$is_last = boolval( $i == count($pages)-1 );
 					$elem = $pages[$i];
-					if( !in_array($user_role, $elem['access']) ){
-						continue;
-					}
 					$icon = sprintf('%s %s-%s', $elem['menu_entry']['icon']['type'], $elem['menu_entry']['icon']['type'], $elem['menu_entry']['icon']['name']);
 					//
 					?>
