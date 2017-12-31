@@ -57,7 +57,7 @@ if( $version == null ){
 		foreach( $web_api_settings['versions'] as $key => $opt ){
 			?>
 			<span class="label label-<?php echo ( ($version == $key)? 'primary' : 'default' ) ?> api-version-label">
-					<a href="<?php echo \system\classes\Configuration::$PLATFORM_BASE.'api?version='.$key ?>">
+					<a href="<?php echo \system\classes\Configuration::$BASE.'api?version='.$key ?>">
 						<?php echo $key ?>
 					</a>
 				</span>
@@ -72,7 +72,7 @@ if( $version == null ){
 			<?php
 			if( $sget !== null && $aget !== null ){
 				?>
-				<a href="<?php echo \system\classes\Configuration::$PLATFORM_BASE.'api?version='.$version ?>"><span class="glyphicon glyphicon-arrow-left"></span> &nbsp;Back</a>
+				<a href="<?php echo \system\classes\Configuration::$BASE.'api?version='.$version ?>"><span class="glyphicon glyphicon-arrow-left"></span> &nbsp;Back</a>
 			<?php
 			}else{
 				$servs_count = sizeof( array_keys($web_api_specification['services']) );
@@ -137,7 +137,7 @@ if( $version == null ){
 								<?php
 								foreach( $service['actions'] as $aname => $action ){
 									?>
-									<a href="<?php echo \system\classes\Configuration::$PLATFORM_BASE ?>api?version=<?php echo $version ?>&service=<?php echo $sname ?>&action=<?php echo $aname ?>" <?php echo ( ($sget == $sname && $aget == $aname)? 'class="active"' : '' ) ?>>
+									<a href="<?php echo \system\classes\Configuration::$BASE ?>api?version=<?php echo $version ?>&service=<?php echo $sname ?>&action=<?php echo $aname ?>" <?php echo ( ($sget == $sname && $aget == $aname)? 'class="active"' : '' ) ?>>
 										<table>
 											<tr>
 												<td style="padding-bottom:2px">
@@ -764,7 +764,6 @@ if( $version == null ){
 				<p>
 					The box below shows an example of how to call the action <span class="mono emph"><?php echo $sget ?></span>/<span class="mono emph"><?php echo $aget ?></span>.
 				</p>
-				<br/>
 				<div class="mono api-url-container">
 					<p>
 						<?php echo \system\classes\Configuration::$BASE.'web-api/'.$version.'/'.$sget.'/'.$aget.'/<span class="emph param">format</span>?' ?><span class="emph param">parameters</span>
