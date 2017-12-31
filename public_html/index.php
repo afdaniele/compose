@@ -127,7 +127,7 @@ include( 'system/modules/core/navbar.php' );
 <!-- Begin page content -->
 <div class="container" style="padding-bottom:15px; margin-top:42px">
 
-	<?php include(__DIR__."/system/modules/core/alerts.php") ?>
+	<?php include(__DIR__."/system/modules/core/alerts.php"); ?>
 
 	<br>
 
