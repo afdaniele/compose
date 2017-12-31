@@ -22,7 +22,7 @@
 					<li role="presentation"><a role="menuitem" tabindex="-1" href="<?php echo \system\classes\Configuration::$BASE ?>profile" style="color:white" onMouseOver="this.style.color='#000'" onMouseOut="this.style.color='#FFF'"><span class="glyphicon glyphicon-align-justify" aria-hidden="true"></span> &nbsp;Profile</a></li>
 					<li role="presentation"><a role="menuitem" tabindex="-1" href="<?php echo \system\classes\Configuration::$BASE ?>api" style="color:white" onMouseOver="this.style.color='#000'" onMouseOut="this.style.color='#FFF'"><span class="glyphicon glyphicon-book" aria-hidden="true"></span> &nbsp;API</a></li>
 					<li class="divider"></li>
-					<li role="presentation"><a role="menuitem" tabindex="-1" href="#" onclick="administratorLogOut('<?php echo \system\classes\Configuration::$BASE ?>', '<?php echo \system\classes\Configuration::$BASE_URL ?>', '<?php echo \system\classes\Configuration::$WEBAPI_VERSION ?>', '<?php echo $_SESSION['TOKEN'] ?>');" style="color:#ffc864" onMouseOver="this.style.color='#000'" onMouseOut="this.style.color='#ffc864'"><span class="glyphicon glyphicon-log-out" aria-hidden="true"></span> &nbsp;Log out</a></li>
+					<li role="presentation"><a role="menuitem" tabindex="-1" href="#" onclick="userLogOut('<?php echo \system\classes\Configuration::$BASE ?>', '<?php echo \system\classes\Configuration::$BASE_URL ?>', '<?php echo \system\classes\Configuration::$WEBAPI_VERSION ?>', '<?php echo $_SESSION['TOKEN'] ?>');" style="color:#ffc864" onMouseOver="this.style.color='#000'" onMouseOut="this.style.color='#ffc864'"><span class="glyphicon glyphicon-log-out" aria-hidden="true"></span> &nbsp;Log out</a></li>
 				</ul>
 
 			</li>
@@ -32,10 +32,10 @@
 
 		<div style="float:left">
 			<?php
-			$administrator = \system\classes\Core::getAdministratorLogged();
+			$user = \system\classes\Core::getUserLogged();
 			?>
-			<p style="margin:0; font-size:16px; margin-top:8px"><strong><?php echo $administrator['name'].' '.$administrator['surname'] ?></strong></p>
-			<p style="margin:0; font-size:12px; margin-top:-4px"><?php echo $administrator['username'].' | '.$administrator['email'] ?></p>
+			<p style="margin:0; font-size:16px; margin-top:8px"><strong><?php echo $user['name'] ?></strong></p>
+			<p style="margin:0; font-size:12px; margin-top:-4px"><?php echo $user['username'].' | '.$user['email'] ?></p>
 		</div>
 
 	</div>
