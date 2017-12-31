@@ -190,7 +190,7 @@ class Core{
 			array_push( $pages, $page );
 		}
 		return $pages;
-	}//getPagesList
+	}//getFilteredPagesList
 
 	public static function getUserLastSeen( $username ){
 		$res = self::getUserInfoNoAuth( $username );
