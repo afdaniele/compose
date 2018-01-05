@@ -39,14 +39,34 @@
         "duckiebot" : {
             "enabled" : true,
             "actions" : {
-                "owner" : {
+                "exists" : {
                     "enabled" : true,
-                    "access_level" : "logged",
+                    "access_level" : "guest",
                     "read_only_session" : true
                 },
                 "status" : {
                     "enabled" : true,
                     "access_level" : "guest",
+                    "read_only_session" : true
+                },
+                "authenticate" : {
+                    "enabled" : true,
+                    "access_level" : "logged",
+                    "read_only_session" : true
+                },
+                "associate" : {
+                    "enabled" : true,
+                    "access_level" : "logged",
+                    "read_only_session" : false
+                },
+                "release" : {
+                    "enabled" : true,
+                    "access_level" : "logged",
+                    "read_only_session" : false
+                },
+                "owner" : {
+                    "enabled" : true,
+                    "access_level" : "logged",
                     "read_only_session" : true
                 },
                 "network" : {
@@ -76,6 +96,11 @@
             "enabled" : true,
             "actions" : {
                 "login" : {
+                    "enabled" : true,
+                    "access_level" : "guest",
+                    "read_only_session" : false
+                },
+                "login_with_google" : {
                     "enabled" : true,
                     "access_level" : "guest",
                     "read_only_session" : false

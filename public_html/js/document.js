@@ -1,109 +1,49 @@
-/**
- * Created by andrea on 12/1/14.
- */
+window.chartColors = {
+    red: 'rgb(255, 99, 132)',
+    orange: 'rgb(255, 159, 64)',
+    yellow: 'rgb(255, 205, 86)',
+    green: 'rgb(75, 192, 192)',
+    blue: 'rgb(54, 162, 235)',
+    purple: 'rgb(153, 102, 255)',
+    grey: 'rgb(201, 203, 207)'
+};
 
-
- window.chartColors = {
- 	red: 'rgb(255, 99, 132)',
- 	orange: 'rgb(255, 159, 64)',
- 	yellow: 'rgb(255, 205, 86)',
- 	green: 'rgb(75, 192, 192)',
- 	blue: 'rgb(54, 162, 235)',
- 	purple: 'rgb(153, 102, 255)',
- 	grey: 'rgb(201, 203, 207)'
- };
-
- var range = function(start, end, step) {
-     var range = [];
-     var typeofStart = typeof start;
-     var typeofEnd = typeof end;
-     if (step === 0) {
-         throw TypeError("Step cannot be zero.");
-     }
-     if (typeofStart == "undefined" || typeofEnd == "undefined") {
-         throw TypeError("Must pass start and end arguments.");
-     } else if (typeofStart != typeofEnd) {
-         throw TypeError("Start and end arguments must be of same type.");
-     }
-     typeof step == "undefined" && (step = 1);
-     if (end < start) {
-         step = -step;
-     }
-     if (typeofStart == "number") {
-         while (step > 0 ? end >= start : end <= start) {
-             range.push(start);
-             start += step;
-         }
-     } else if (typeofStart == "string") {
-         if (start.length != 1 || end.length != 1) {
-             throw TypeError("Only strings with one character are supported.");
-         }
-         start = start.charCodeAt(0);
-         end = end.charCodeAt(0);
-         while (step > 0 ? end >= start : end <= start) {
-             range.push(String.fromCharCode(start));
-             start += step;
-         }
-     } else {
-         throw TypeError("Only string and number types are supported");
-     }
-     return range;
- }
-
-// TAG filtering in tags selector dialog
-$(document).on("keyup", "#tag-radios-selector-input", function () {
-    var keywds = $(this).val().toLowerCase();
-    // search for the tag
-    $(this).closest('.modal').find('#tags-modal-radios-div').find('input').each(function() {
-        if( this.checked ) return;
-        //
-        var id = $(this).attr('id');
-        if( keywds == '' || id.indexOf( keywds ) >= 0 ){
-            $(this).closest('div').show();
-        } else {
-            $(this).closest('div').hide();
+var range = function(start, end, step) {
+    var range = [];
+    var typeofStart = typeof start;
+    var typeofEnd = typeof end;
+    if (step === 0) {
+        throw TypeError("Step cannot be zero.");
+    }
+    if (typeofStart == "undefined" || typeofEnd == "undefined") {
+        throw TypeError("Must pass start and end arguments.");
+    } else if (typeofStart != typeofEnd) {
+        throw TypeError("Start and end arguments must be of same type.");
+    }
+    typeof step == "undefined" && (step = 1);
+    if (end < start) {
+        step = -step;
+    }
+    if (typeofStart == "number") {
+        while (step > 0 ? end >= start : end <= start) {
+            range.push(start);
+            start += step;
         }
-    });
-});
-
-$(document).on("keyup", "#tag-checkboxes-selector-input", function () {
-    var keywds = $(this).val().toLowerCase();
-    // search for the tag
-    $(this).closest('.modal').find('#tags-modal-checkboxes-div').find('input').each(function() {
-        if( this.checked ) return;
-        //
-        var id = $(this).attr('id');
-        if( keywds == '' || id.indexOf( keywds ) >= 0 ){
-            $(this).closest('div').show();
-        } else {
-            $(this).closest('div').hide();
+    } else if (typeofStart == "string") {
+        if (start.length != 1 || end.length != 1) {
+            throw TypeError("Only strings with one character are supported.");
         }
-    });
-});
-
-function filterCheckboxList( containerID, checked, keywds ){
-    // search for the tag
-    $('#'+containerID).find('.checkboxes-div').find('input').each(function() {
-        // filter by keywords
-        var id = $(this).attr('id');
-        if( keywds == '' || id.indexOf( keywds ) >= 0 ){
-            $(this).closest('div').show();
-        } else {
-            if( !this.checked ){
-                $(this).closest('div').hide();
-            }
+        start = start.charCodeAt(0);
+        end = end.charCodeAt(0);
+        while (step > 0 ? end >= start : end <= start) {
+            range.push(String.fromCharCode(start));
+            start += step;
         }
-        // filter by status
-        if( checked != null ){
-            if( checked == this.checked ){
-                $(this).closest('div').show();
-            } else {
-                $(this).closest('div').hide();
-            }
-        }
-    });
-}//filterCheckboxList
-
+    } else {
+        throw TypeError("Only string and number types are supported");
+    }
+    return range;
+}
 
 // enable popovers
 $(function () {
@@ -264,102 +204,14 @@ $(document).on('ready', function(){
 
 /* UserProfile functions */
 
-// function userLogIn( baseurl, apiversion, token, formId ){
-//     showPleaseWait();
-//     //
-//     var username = $('#'+formId).find('#username').val();
-//     var password = $('#'+formId).find('#password').val();
-//     var timestamp = Math.ceil( (new Date().getTime())/1000 ); // in seconds
-//     //
-//     var uri = "web-api/"+apiversion+"/userprofile/login/json?username="+username+"&timestamp="+timestamp+"&token="+token;
-//     //
-//     var secret = CryptoJS.MD5( password );
-//     var hash = CryptoJS.HmacSHA256( uri, CryptoJS.enc.Utf8.parse(secret));
-//     var hashInBase64 = CryptoJS.enc.Base64.stringify(hash);
-//     //
-//     uri += "&hmac="+CryptoJS.MD5(hashInBase64);
-//     //
-//     var url = baseurl + encodeURI( uri );
-//     // call the API
-//     $.ajax({type: 'GET', url:url, dataType: 'json', success:function( result ){
-//         if( result.code == 200 ){
-//             // success, reload page
-//             hidePleaseWait();
-//             window.location.reload(true);
-//         }else{
-//             // error
-//             hidePleaseWait();
-//             openAlertObj( 'danger', result.message, result );
-//         }
-//     }, error:function(){
-//         hidePleaseWait();
-//         openAlert( 'danger', 'Si è verificato un errore, Riprova!' );
-//     }});
-// }
-//
-// function userLogOut( base, baseurl, apiversion, token ){
-//     showPleaseWait();
-//     //
-//     var uri = "web-api/"+apiversion+"/userprofile/logout/json?token="+token;
-//     //
-//     var url = baseurl + encodeURI( uri );
-//     // call the API
-//     $.ajax({type: 'GET', url:url, dataType: 'json', success:function( result ){
-//         if( result.code == 200 ){
-//             // success, redirect
-//             hidePleaseWait();
-//             window.location.href = base;
-//         }else{
-//             // error
-//             hidePleaseWait();
-//             openAlertObj( 'danger', result.message, result );
-//         }
-//     }, error:function(){
-//         hidePleaseWait();
-//     }});
-// }
-
-
-function computeURIhmac( uri, password ){
-    // MD5-based two-legged OAuth v1.0 implementation (Deprecated, bcrypt is now used)
-    // var secret = CryptoJS.MD5( password );
-
-    // bcrypt-based two-legged OAuth v1.0 implementation
-    var bcrypt = dcodeIO.bcrypt;
-    var seed_plain = "";
-    for (var i=0; i<password.length; i+=2) {
-        seed_plain += password.charAt(i); // get letters in even position
-    }
-    var seed = CryptoJS.MD5( seed_plain ).toString().substring( 0, 22 );
-    var salt = "$2y$10${0}".format( seed );
-    secret = bcrypt.hashSync(password , salt);
-
-    // create HMAC hash of the request URI
-    var hash = CryptoJS.HmacSHA256( uri, CryptoJS.enc.Utf8.parse(secret));
-    var hashInBase64 = CryptoJS.enc.Base64.stringify(hash);
-
-    // return HMAC
-    return hashInBase64;
-}//computeURIhmac
-
-function userLogIn( baseurl, apiversion, token, formId ){
+function userLogInWithGoogle( baseurl, apiversion, token, id_token ){
     showPleaseWait();
-    //
-    var username = $('#'+formId).find('#username').val();
-    var password = $('#'+formId).find('#password').val();
-    var timestamp = Math.ceil( (new Date().getTime())/1000 ); // in seconds
-    //
-    var uri = "web-api/"+apiversion+"/userprofile/login/json?username="+username+"&timestamp="+timestamp+"&token="+token;
-    //
-    var hashInBase64 = computeURIhmac( uri, password );
-    // append HMAC to the original request URI
-    uri += "&hmac="+CryptoJS.MD5(hashInBase64);
-
+    // compile URI
+    var uri = "web-api/"+apiversion+"/userprofile/login_with_google/json?token="+token;
     // compile URL
     var url = baseurl + encodeURI( uri );
-
     // call the API
-    $.ajax({type: 'GET', url:url, dataType: 'json', success:function( result ){
+    $.ajax({type:'POST', url:url, dataType:'json', data:{'id_token':id_token}, success:function( result ){
         if( result.code == 200 ){
             // success, reload page
             hidePleaseWait();
@@ -369,13 +221,14 @@ function userLogIn( baseurl, apiversion, token, formId ){
             hidePleaseWait();
             openAlertObj( 'danger', result.message, result );
         }
-    }, error:function(){
+    }, error:function( jqXHR, textStatus, errorThrown ){
         hidePleaseWait();
-        openAlert( 'danger', 'An error occurred, please retry!' );
+        openAlert( 'danger', errorThrown ); //'An error occurred, please retry!' );
     }});
 }
 
-function userLogOut( base, baseurl, apiversion, token ){
+function userLogOut( baseurl, apiversion, token, successFcn ){
+    if( successFcn == undefined ) successFcn = function( res ){ /* do nothing! */ };
     showPleaseWait();
     //
     var uri = "web-api/"+apiversion+"/userprofile/logout/json?token="+token;
@@ -385,12 +238,11 @@ function userLogOut( base, baseurl, apiversion, token ){
     $.ajax({type: 'GET', url:url, dataType: 'json', success:function( result ){
         if( result.code == 200 ){
             // success, redirect
-            hidePleaseWait();
-            window.location.href = base;
+            successFcn();
         }else{
             // error
             hidePleaseWait();
-            openAlertObj( 'danger', result.message, result );
+            openAlertObj( 'danger', 'An error occurred while trying to log you out. Please, retry.' );
         }
     }, error:function(){
         hidePleaseWait();
@@ -439,13 +291,14 @@ function popup(data){
     return true;
 }
 
-function callAPI( url, successDialog, reload, funct, silentMode, suppressErrors, errorFcn ){
+function callAPI( url, successDialog, reload, funct, silentMode, suppressErrors, errorFcn, transportType ){
     if( successDialog == undefined ) successDialog = false;
     if( reload == undefined ) reload = false;
     if( funct == undefined ) funct = function( res ){ /* do nothing! */ };
     if( silentMode == undefined ) silentMode = false;
     if( suppressErrors == undefined ) suppressErrors = false;
     if( errorFcn == undefined ) errorFcn = function( res ){ /* do nothing! */ };
+    if( transportType == undefined ) transportType = 'GET';
     //
     url = encodeURI( url );
     //
@@ -453,7 +306,7 @@ function callAPI( url, successDialog, reload, funct, silentMode, suppressErrors,
         showPleaseWait();
     }
     //
-    $.ajax({type: 'GET', url:url, dataType: 'json', success:function( result ){
+    $.ajax({type: transportType, url:url, dataType: 'json', success:function( result ){
         if( result.code == 200 ){
             // success
             // call the callback function
@@ -478,14 +331,14 @@ function callAPI( url, successDialog, reload, funct, silentMode, suppressErrors,
                 openAlertObj( 'danger', result.message, result );
             }
         }
-    }, error:function(){
+    }, error:function( jqXHR, textStatus, errorThrown ){
         // error
         // call the callback function
-        errorFcn( null );
+        errorFcn( errorThrown );
         // open an alert
         hidePleaseWait();
         if( !suppressErrors ){
-            openAlert( 'danger', 'An error occurred while trying to communicate with the server. Please, retry!' );
+            openAlert( 'danger', 'An error occurred while trying to communicate with the server. Details: `{0}`'.format(errorThrown) );
         }
     }});
 }
@@ -519,14 +372,14 @@ function callExternalAPI( url, callType, resultDataType, successDialog, reload, 
                 window.location.reload(true);
             }
         }
-    }, error:function(){
+    }, error:function( jqXHR, textStatus, errorThrown ){
         // error
         // call the callback function
-        errorFcn( errorArgs );
+        errorFcn( errorThrown );
         // open an alert
         hidePleaseWait();
         if( !suppressErrors ){
-            openAlert( 'danger', 'An error occurred while trying to communicate with the server. Please, retry!' );
+            openAlert( 'danger', 'An error occurred while trying to communicate with the server. Details: `{0}`'.format(errorThrown) );
         }
     }});
 }
@@ -573,6 +426,15 @@ function serializeForm( formID, excludeDisabled ){
     //
     return ( (str.length > 0)? str.slice(1) : str );
 }//serializeForm
+
+// form element to associative array
+$.fn.toAssociativeArray = function() {
+    var formData = {};
+    this.find('[name]').each(function() {
+        formData[this.name] = this.value;
+    })
+    return formData;
+};
 
 function money( num ){
     return parseFloat(Math.round(num * 100) / 100).toFixed(2);

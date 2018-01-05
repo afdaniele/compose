@@ -7,6 +7,23 @@ bold{
     font-weight: bold;
 }
 
+legend{
+    border-bottom: 1px solid lightgrey;
+}
+
+footer #avatar{
+    border-radius: 50%;
+    width: 60px;
+    margin-top: -30px;
+    border: 1px solid black;
+}
+
+#profile_page_avatar #avatar{
+    border-radius: 50%;
+    width: 96px;
+    border: 1px solid darkgrey;
+}
+
 .rotated90cw{
     -webkit-transform: rotate(90deg);
     -moz-transform: rotate(90deg);

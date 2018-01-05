@@ -41,18 +41,11 @@
 $duckiebots = \system\classes\Core::getDuckiebotsCurrentBranch();
 $total_duckiebots = sizeof( $duckiebots );
 
-
-//TODO: to remove
-// var_dump( isset( $_SESSION['USER_LOGGED_IN_RECOVERY_MODE'] ) );
-//
-// echo $user_role;
-// echoArray( \system\classes\Core::getPagesList() );
-//TODO: to remove
 ?>
-
 
 <div style="width:100%; margin:auto">
 
+	<br/>
 	<br/>
 
 	<!-- First Row ><-->

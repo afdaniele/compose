@@ -467,13 +467,15 @@ $duckiebotName = $_GET['bot'];
 		// create mountpoints descriptors
 		$.each(result.data.mountpoints, function(i) {
 			mount = result.data.mountpoints[i];
+			var used = Math.floor( mount.used*100 );
+			var free = Math.floor( mount.free*100 );
 			html = _storage_mountpoint_template.format(
 				mount.mountpoint,
 				mount.device,
-				'{0}%'.format( mount.used*100 ),
-				'{0}%{1}'.format( mount.used*100, (mount.used > 0.34)? ' used' : '' ),
-				'{0}%'.format( mount.free*100 ),
-				'{0}%{1}'.format( mount.free*100, (mount.free > 0.34)? ' free' : '' ),
+				'{0}%'.format( used ),
+				'{0}%{1}'.format( used, (used > 34)? ' used' : '' ),
+				'{0}%'.format( free ),
+				'{0}%{1}'.format( free, (free > 34)? ' free' : '' ),
 				( (i+1)%3==0 ||  i == result.data.mountpoints.length-1 )? '0' : '16px'
 			);
 			container.html( container.html() + html );

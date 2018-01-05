@@ -28,6 +28,22 @@
 				"values" : {}
 			}
 		},
+        "login_with_google" : {
+			"details" : "Authenticates a user on the platform using the Google Sign-In OAuth2 authentication system",
+			"parameters" : {
+				"mandatory" : {
+					"id_token" : {
+						"type" : "text",
+						"length" : null,
+						"details" : "ID Token provided by Google Sign-In"
+					}
+				},
+				"optional" : {}
+			},
+			"return" : {
+				"values" : {}
+			}
+		},
         "logout" : {
             "details" : "Close the current session and logs out the user of the platform",
             "parameters" : {

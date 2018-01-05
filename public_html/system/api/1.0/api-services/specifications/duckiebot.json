@@ -1,8 +1,8 @@
 {
     "details" : "Provides the tools for managing Duckiebots",
 	"actions" : {
-        "owner" : {
-            "details" : "Provides information about the owner of a Duckiebot",
+        "exists" : {
+            "details" : "Check whether a Duckiebot exists",
             "parameters" : {
                 "mandatory" : {
                     "name" : {
@@ -14,9 +14,13 @@
             },
             "return" : {
                 "values" : {
-                    "owner" : {
-                        "type" : "text",
-                        "details" : "Name of the owner of the Duckiebot"
+                    "name" : {
+                        "type" : "alphabetic",
+                        "details" : "Name of the Duckiebot"
+                    },
+                    "exists" : {
+                        "type" : "boolean",
+                        "details" : "Whether the Duckiebot was found"
                     }
                 }
             }
@@ -41,6 +45,114 @@
                     "online" : {
                         "type" : "boolean",
                         "details" : "Whether the Duckiebot is online"
+                    }
+                }
+            }
+        },
+        "authenticate" : {
+            "details" : "Authenticate the given user on the Duckiebot via SSH connection",
+            "parameters" : {
+                "mandatory" : {
+                    "name" : {
+                        "type" : "alphabetic",
+                        "details" : "Name of the Duckiebot"
+                    },
+                    "username" : {
+                        "type" : "alphanumeric",
+                        "details" : "Username used to authenticate the user on the Duckiebot via SSH connection"
+                    },
+                    "password" : {
+                        "type" : "text",
+                        "details" : "Password used to authenticate the user on the Duckiebot via SSH connection"
+                    }
+                },
+                "optional" : {}
+            },
+            "return" : {
+                "values" : {
+                    "name" : {
+                        "type" : "alphabetic",
+                        "details" : "Name of the Duckiebot"
+                    },
+                    "success" : {
+                        "type" : "boolean",
+                        "details" : "Whether the user was successfully authenticated on the Duckiebot"
+                    }
+                }
+            }
+        },
+        "associate" : {
+            "details" : "Associate the given Duckiebot with the user currently logged in",
+            "parameters" : {
+                "mandatory" : {
+                    "name" : {
+                        "type" : "alphabetic",
+                        "details" : "Name of the Duckiebot"
+                    },
+                    "username" : {
+                        "type" : "alphanumeric",
+                        "details" : "Username used to authenticate the user on the Duckiebot via SSH connection"
+                    },
+                    "password" : {
+                        "type" : "text",
+                        "details" : "Password used to authenticate the user on the Duckiebot via SSH connection"
+                    }
+                },
+                "optional" : {}
+            },
+            "return" : {
+                "values" : {
+                    "name" : {
+                        "type" : "alphabetic",
+                        "details" : "Name of the Duckiebot"
+                    },
+                    "success" : {
+                        "type" : "boolean",
+                        "details" : "Whether the user was successfully associated with the user account"
+                    }
+                }
+            }
+        },
+        "release" : {
+            "details" : "Releases the ownership of the given Duckiebot",
+            "parameters" : {
+                "mandatory" : {
+                    "name" : {
+                        "type" : "alphabetic",
+                        "details" : "Name of the Duckiebot"
+                    }
+                },
+                "optional" : {}
+            },
+            "return" : {
+                "values" : {
+                    "name" : {
+                        "type" : "alphabetic",
+                        "details" : "Name of the Duckiebot"
+                    },
+                    "success" : {
+                        "type" : "boolean",
+                        "details" : "Whether the Duckiebot was successfully unlinked from its user account"
+                    }
+                }
+            }
+        },
+        "owner" : {
+            "details" : "Provides information about the owner of a Duckiebot",
+            "parameters" : {
+                "mandatory" : {
+                    "name" : {
+                        "type" : "alphabetic",
+                        "details" : "Name of the Duckiebot"
+                    }
+                },
+                "optional" : {}
+            },
+            "return" : {
+                "values" : {
+                    "owner" : {
+                        "type" : "text",
+                        "details" : "Name of the owner of the Duckiebot"
                     }
                 }
             }

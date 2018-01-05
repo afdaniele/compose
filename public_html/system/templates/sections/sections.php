@@ -7,7 +7,7 @@ class Section{
 		$actionExtraList = ( ($actionExtraList == null)? array() : $actionExtraList );
 		//
 		echo '<ul class="nav nav-tabs">
-			<li role="presentation" class="active" style="margin-left:10px"><a><strong>'.$name.'</strong></a></li>'.
+			<li role="presentation" class="active" style="margin-left:10px; font-size:12pt"><a>'.$name.'</a></li>'.
 			( ( $cmdName !== null )? '<li role="presentation" style="margin-left:10px"><a '. ( (strpos($cmdExtra, 'href') === false)? 'href="#" '.$cmdExtra : $cmdExtra ) .' style="background-color:lightskyblue; color:#ffffff"><span class="glyphicon '.$cmdGlyph.'" aria-hidden="true"></span>&nbsp; '.$cmdName.'</a></li>' : '' );
 
 		if( $actionNameList !== null ){
@@ -23,7 +23,7 @@ class Section{
 		}
 
 		echo '</ul>';
-		echo '<div style="width:100%; border-bottom:1px solid #ddd; padding:12px 0 12px 0; background-color:white">';
+		echo '<div style="width:100%; border-bottom:1px solid #ddd; padding:20px; background-color:white">';
 	}//begin
 
 	public static function end( $footerMsg = null ){

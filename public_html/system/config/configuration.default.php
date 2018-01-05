@@ -11,11 +11,8 @@ $FOOTBAR_MESSAGE = "Developed by <a href='http://www.afdaniele.com/'>Andrea F. D
 $BASE_URL = "http://duckietown.afdaniele.com/";
 $MOBILE_BASE_URL = "http://duckietown.afdaniele.com/";
 
-/* Database connection settings */
-$MYSQL_HOST = "localhost";
-$MYSQL_DBNAME = "duckietown";
-$MYSQL_USERNAME = "duckietown";
-$MYSQL_PASSWORD = "duckiet0wn";
+/* Google Application - Client ID  */
+$GOOGLE_CLIENT_ID = "955196953203-herjcvulrkosa9h5dsapeu7t8a9mjrak.apps.googleusercontent.com";
 
 /* No-Reply email address settings */
 $NOREPLY_MAIL_ADDRESS = 'no-reply@duckietown.org';

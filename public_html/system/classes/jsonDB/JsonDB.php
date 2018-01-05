@@ -20,7 +20,7 @@ class JsonDB {
 		$file_content = file_get_contents( $filename );
 		if( $file_content === false ){
 			// the file does not exist
-			$this->json = array('_empty_config' => true);
+			$this->json = array();
 		}else{
 			$this->json = json_decode($file_content, true);
 		}
@@ -44,14 +44,14 @@ class JsonDB {
 			$res = file_put_contents( $this->file, $file_content );
 			if( $res === false ){
 				$error = error_get_last();
-				return array('success' => false, 'data' => 'Impossibile scrivere le impostazioni. Il server riporta: ('.$error['message'].')');
+				return array('success' => false, 'data' => 'An error occurred while writing the file. The server reports: ('.$error['message'].')');
 			}else{
 				return array('success' => true );
 			}
 		}catch( \Exception $e ){
-			return array('success' => false, 'data' => 'Impossibile scrivere le impostazioni. Il server riporta: ('.$e->getMessage().')');
+			return array('success' => false, 'data' => 'An error occurred while writing the file. The server reports: ('.$e->getMessage().')');
 		}
-		return array('success' => false, 'data' => 'Impossibile scrivere le impostazioni. Riprova!');
+		return array('success' => false, 'data' => 'An error occurred while writing the file. Please retry!');
 	}//commit
 
 	public function asArray(){

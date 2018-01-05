@@ -15,7 +15,7 @@ function generateView( $labelName, $fieldValue, $labelCol, $valueCol ){
 }//generateView
 
 
-function generateForm( $method='post', $action=null, $formID=null, $labelName, $inputName, $inputPlaceholder, $inputValue, $inputType, $inputEditable, $labelCol, $inputCol, $inputError=null, $inputExtraParameters=null ){
+function generateForm( $method='post', $action=null, $formID=null, $labelName, $inputName, $inputPlaceholder, $inputValue, $inputType, $inputEditable, $labelCol, $inputCol, $inputError=null, $inputExtraParameters=null, $inputAddOn=null ){
 
 	echo ($formID !== null) ? '<form class="form-horizontal" ' . ( ($formID != null)? 'id="'.$formID.'"' : '' ) . ' role="form" method="'.$method.'" ' . ( ($action != null)? 'action="'.$action.'"' : '' ) . '>' : '';
 
@@ -37,6 +37,7 @@ function generateForm( $method='post', $action=null, $formID=null, $labelName, $
 				$inputType[$i] = 'text';
 			}
 			//
+			echo '<div class="input-group" style="width:100%">';
 			switch( $inputType[$i] ){
 				case 'text':
 				case 'number':
@@ -52,6 +53,11 @@ function generateForm( $method='post', $action=null, $formID=null, $labelName, $
 					echo '</select>';
 				default:break;
 			}
+			$addOn = ( ($inputAddOn == null)? false : ( ($inputAddOn[$i] == null)? false : $inputAddOn[$i] ) );
+			if( $addOn !== false ){
+				echo '<span class="input-group-addon" id="basic-addon2" style="padding-right:20px">'.$addOn.'</span>';
+			}
+			echo '</div>';
 		}else{
 			// Static input
 			echo '<p class="form-control-static" id="'.$inputName[$i].'_p">'.$inputValue[$i].'</p>';

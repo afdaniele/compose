@@ -1,7 +1,2 @@
-# Ignore all the users
-*
-
-# But not the default one
-!admin.json
-
-!.gitignore
+accounts
+associations

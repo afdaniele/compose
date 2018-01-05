@@ -10,6 +10,73 @@ function execute( &$service, &$actionName, &$arguments ){
 	$action = $service['actions'][$actionName];
 	//
 	switch( $actionName ){
+		case 'exists':
+			$exists = Core::duckiebotExists( $arguments['name'] );
+			//
+			return array(
+				'code' => 200,
+				'status' => 'OK',
+				'data' => array(
+					'name' => $arguments['name'],
+					'exists' => $exists,
+					'message' => ($exists)? 'OK' : 'The Duckiebot does not exist'
+				)
+			);
+			break;
+		//
+		case 'status':
+			$is_online = Core::isDuckiebotOnline( $arguments['name'] );
+			//
+			return array(
+				'code' => 200,
+				'status' => 'OK',
+				'data' => array(
+					'name' => $arguments['name'],
+					'online' => $is_online,
+					'message' => ($exists)? 'OK' : 'The Duckiebot is not reachable'
+				)
+			);
+			break;
+		//
+		case 'authenticate':
+			$password = base64_decode( $arguments['password'] );
+			$res = Core::authenticateOnDuckiebot( $arguments['name'], $arguments['username'], $password );
+			//
+			return array(
+				'code' => 200,
+				'status' => 'OK',
+				'data' => array(
+					'name' => $arguments['name'],
+					'success' => $res['success'],
+					'message' => ($res['success'])? 'OK' : $res['data']
+				)
+			);
+			break;
+		//
+		case 'associate':
+			$res = Core::linkDuckiebotToUserAccount( $arguments['name'] );
+			//
+			return array(
+				'code' => 200,
+				'status' => 'OK',
+				'data' => array(
+					'name' => $arguments['name'],
+					'success' => $res['success'],
+					'message' => ($res['success'])? 'OK' : $res['data']
+				)
+			);
+			break;
+		//
+		case 'release':
+			$res = Core::unlinkDuckiebotFromUserAccount( $arguments['name'] );
+			//
+			if( !$res['success'] ){
+				return array( 'code' => 500, 'status' => 'Internal Server Error', 'data' => $res['data'] );
+			}else{
+				return array( 'code' => 200, 'status' => 'OK', 'data' => array( 'name' => $arguments['name'], 'success' => true ) );
+			}
+			break;
+		//
 		case 'owner':
 			$owner = Core::getDuckiebotOwner( $arguments['name'] );
 			//
@@ -18,12 +85,6 @@ function execute( &$service, &$actionName, &$arguments ){
 			}else{
 				return array( 'code' => 200, 'status' => 'OK', 'data' => array( 'owner' => $owner ) );
 			}
-			break;
-		//
-		case 'status':
-			$is_online = Core::isDuckiebotOnline( $arguments['name'] );
-			//
-			return array( 'code' => 200, 'status' => 'OK', 'data' => array( 'name' => $arguments['name'], 'online' => $is_online ) );
 			break;
 		//
 		case 'network':

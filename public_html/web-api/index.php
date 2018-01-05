@@ -202,6 +202,9 @@ $arguments = array();
 foreach( $_GET as $key => $value ){
 	$arguments[$key] = urldecode( $value );
 }
+foreach( $_POST as $key => $value ){
+	$arguments[$key] = urldecode( $value );
+}
 
 // <= LOAD INTERPRETER
 require_once __DIR__.'/../system/api/'.$version.'/api-interpreter/APIinterpreter.php';

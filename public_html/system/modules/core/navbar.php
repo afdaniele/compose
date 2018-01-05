@@ -104,7 +104,7 @@ foreach ($buttons as &$button) {
 
 					<li>
 						<a class="cursor-pointer"
-						   onclick="userLogOut('<?php echo \system\classes\Configuration::$BASE ?>', '<?php echo \system\classes\Configuration::$BASE_URL ?>', '<?php echo \system\classes\Configuration::$WEBAPI_VERSION ?>', '<?php echo $_SESSION['TOKEN'] ?>');"
+						   onclick="logOutButtonClick();"
 						   style="color:#ffc864; padding-right:0">
 							<span class="glyphicon glyphicon-log-out" aria-hidden="true"></span> &nbsp;Log out
 						</a>
@@ -153,5 +153,46 @@ foreach ($buttons as &$button) {
 		}
 		?>
 	}//_resize_navbar
+
+	function logOutButtonClick(){
+		userLogOut(
+			'<?php echo \system\classes\Configuration::$BASE_URL ?>',
+			'<?php echo \system\classes\Configuration::$WEBAPI_VERSION ?>',
+			'<?php echo $_SESSION['TOKEN'] ?>',
+			function(){ /* successFcn: on success function */
+				// Sign-out from Google
+				var auth2 = gapi.auth2.getAuthInstance();
+			    auth2.signOut().then(function () {
+					hidePleaseWait();
+				    window.location.href = '<?php echo \system\classes\Configuration::$BASE ?>'
+			    });
+			}
+		);
+	}//logOutButtonClick
+
+	// initialize Google Sign-in library
+	gapi.load('auth2', function(){
+		gapi.auth2.init();
+		gapi.auth2.getAuthInstance().isSignedIn.listen( function(isSignedIn){
+			if( isSignedIn ){
+				<?php
+				if( !\system\classes\Core::isUserLoggedIn() ){
+					?>
+					// sign-in with Google and get the temporary id_token
+					googleUser = gapi.auth2.getAuthInstance().currentUser.get();
+					var id_token = googleUser.getAuthResponse().id_token;
+					// Sign-in in the back-end server by verifying the id_token with Google
+					userLogInWithGoogle(
+						'<?php echo \system\classes\Configuration::$BASE_URL ?>',
+						'<?php echo \system\classes\Configuration::$WEBAPI_VERSION ?>',
+						'<?php echo $_SESSION['TOKEN'] ?>',
+						id_token
+					);
+					<?php
+				}
+				?>
+			}
+		});
+	});
 
 </script>

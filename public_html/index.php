@@ -30,6 +30,7 @@ $defaultPage = [
 	'administrator' => 'dashboard',
 	'supervisor' => 'dashboard',
 	'user' => 'profile',
+	'candidate' => 'register',
 	'guest' => 'login'
 ];
 
@@ -108,7 +109,10 @@ Configuration::$ACTION = $requested_action;
 	<script src="<?php echo Configuration::$BASE_URL ?>js/hmac-sha256.js"></script>
 	<script src="<?php echo Configuration::$BASE_URL ?>js/enc-base64-min.js"></script>
 	<script src="<?php echo Configuration::$BASE_URL ?>js/string.format.js"></script>
-	<script src="<?php echo Configuration::$BASE_URL ?>js/bcrypt.min.js"></script>
+
+	<!-- Google API Library -->
+	<script src="https://apis.google.com/js/platform.js"></script>
+	<meta name="google-signin-client_id" content="<?php echo Configuration::$GOOGLE_CLIENT_ID ?>">
 
 	<!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
 	<!--[if lt IE 9]>
@@ -119,59 +123,63 @@ Configuration::$ACTION = $requested_action;
 
 <body <?php echo ( (Configuration::$PAGE == 'error')? 'style="background-color:white"' : '' ) ?>>
 
-<!-- Fixed navbar -->
-<?php
-include( 'system/modules/core/navbar.php' );
-?>
+	<!-- Fixed navbar -->
+	<?php
+	include( 'system/modules/core/navbar.php' );
+	?>
 
-<!-- Begin page content -->
-<div class="container" style="padding-bottom:15px; margin-top:42px">
+	<!-- Begin page content -->
+	<div class="container" style="padding-bottom:15px; margin-top:42px">
 
-	<?php include(__DIR__."/system/modules/core/alerts.php"); ?>
+		<?php include(__DIR__."/system/modules/core/alerts.php"); ?>
 
-	<br>
+		<?php
 
-	<!-- Main Container -->
-	<div>
-		<?php include(__DIR__."/system/pages/".Configuration::$PAGE."/index.php"); ?>
+		?>
+
+		<br>
+
+		<!-- Main Container -->
+		<div>
+			<?php include(__DIR__."/system/pages/".Configuration::$PAGE."/index.php"); ?>
+		</div>
+		<!-- Main Container End -->
+
+		<br>
+
 	</div>
-	<!-- Main Container End -->
-
-	<br>
-
-</div>
 
 
-<?php
-include( 'system/modules/core/modals/loading_modal.php' );
-include( 'system/modules/core/modals/success_modal.php' );
-include( 'system/modules/core/modals/yes_no_modal.php' );
-?>
+	<?php
+	include( 'system/modules/core/modals/loading_modal.php' );
+	include( 'system/modules/core/modals/success_modal.php' );
+	include( 'system/modules/core/modals/yes_no_modal.php' );
+	?>
 
-<?php
-include( 'system/modules/core/footer' . ( (Core::isUserLoggedIn())? '' : '_guest' ) . '.php' );
-?>
+	<?php
+	include( 'system/modules/core/footer' . ( (Core::isUserLoggedIn())? '' : '_guest' ) . '.php' );
+	?>
 
 
-<!-- Bootstrap core JavaScript
-================================================== -->
-<!-- Placed at the end of the document so the pages load faster -->
-<script src="<?php echo Configuration::$BASE_URL ?>js/bootstrap.min.js"></script>
-<script src="<?php echo Configuration::$BASE_URL ?>js/bootstrap-switch.min.js"></script>
+	<!-- Bootstrap core JavaScript
+	================================================== -->
+	<!-- Placed at the end of the document so the pages load faster -->
+	<script src="<?php echo Configuration::$BASE_URL ?>js/bootstrap.min.js"></script>
+	<script src="<?php echo Configuration::$BASE_URL ?>js/bootstrap-switch.min.js"></script>
 
-<!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
-<script src="<?php echo Configuration::$BASE_URL ?>js/ie10-viewport-bug-workaround.js"></script>
+	<!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+	<script src="<?php echo Configuration::$BASE_URL ?>js/ie10-viewport-bug-workaround.js"></script>
 
-<script type="text/javascript">
-	$.fn.bootstrapSwitch.defaults.size = 'small';
-	$.fn.bootstrapSwitch.defaults.offColor = 'warning';
-	$("[class='switch']").bootstrapSwitch();
+	<script type="text/javascript">
+		$.fn.bootstrapSwitch.defaults.size = 'small';
+		$.fn.bootstrapSwitch.defaults.offColor = 'warning';
+		$("[class='switch']").bootstrapSwitch();
 
-	// configure button groups
-	$(".btn-group > .btn").click(function(){
-		$(this).addClass("active").siblings().removeClass("active");
-	});
-</script>
+		// configure button groups
+		$(".btn-group > .btn").click(function(){
+			$(this).addClass("active").siblings().removeClass("active");
+		});
+	</script>
 
 </body>
 </html>

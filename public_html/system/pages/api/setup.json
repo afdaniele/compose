@@ -14,8 +14,7 @@
     "access" : [
         "administrator",
         "supervisor",
-        "user",
-        "guest"
+        "user"
     ],
     "enabled" : true
 }

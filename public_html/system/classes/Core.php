@@ -23,6 +23,9 @@ require_once __DIR__.'/yaml/Spyc.php';
 
 require_once __DIR__.'/jsonDB/JsonDB.php';
 
+// load Google API client
+require_once __DIR__.'/google_api_php_client/vendor/autoload.php';
+
 
 use \phpfastcache;
 use system\classes\enum\EmailTemplates;
@@ -40,7 +43,6 @@ class Core{
 	private static $initialized = false;
 
 	// Fields
-	// public static $mysql;//TODO: to remove
 	private static $cache = null;
 
 	private static $pages = null;
@@ -125,26 +127,48 @@ class Core{
 	}//startSession
 
 
-	public static function logInUser( $username, $recoveryMode=false ){
+	public static function logInUserWithGoogle( $id_token ){
 		if( $_SESSION['USER_LOGGED'] ){
 			return array( 'success' => false, 'data' => 'You are already logged in!' );
 		}
-		//
-		$res = self::getUserInfoNoAuth($username, true);
-		if( !$res['success'] ){
-			return $res;
+		// get the Google Client ID for the Google Application 'Duckieboard'
+		$CLIENT_ID = Configuration::$GOOGLE_CLIENT_ID;
+		// verify id_token
+		$client = new \Google_Client(['client_id' => $CLIENT_ID]);
+		$payload = $client->verifyIdToken($id_token);
+		if ($payload) {
+			$userid = $payload['sub'];
+			// create user descriptor
+			$user_info = [
+				"username" => $userid,
+			    "name" => $payload['name'],
+			    "email" => $payload['email'],
+				"picture" => $payload['picture'],
+			    "role" => "user",
+			    "branch" => Configuration::$DUCKIEFLEET_BRANCH,
+				"active" => true
+			];
+			// look for a pre-existing user profile
+			$res = self::userExists($userid);
+			if( $res['success'] ){
+				// there exists a user profile, load info
+				$res = self::openUserInfo($userid);
+				if( !$res['success'] ){
+					return $res;
+				}
+				$user_info = $res['data']->asArray();
+			}
+			//
+			$_SESSION['USER_LOGGED'] = true;
+			$_SESSION['USER_RECORD'] = $user_info;
+			//
+			self::regenerateSessionID();
+			return array( 'success' => true, 'data' => $user_info );
+		} else {
+			// Invalid ID token
+			return array( 'success' => false, 'data' => "Invalid ID Token" );
 		}
-		$user_info = $res['data'];
-		//
-		$_SESSION['USER_LOGGED'] = true;
-		$_SESSION['USER_RECORD'] = $user_info;
-		if( $recoveryMode ){
-			$_SESSION['USER_LOGGED_IN_RECOVERY_MODE'] = true;
-		}
-		//
-		self::regenerateSessionID();
-		return array( 'success' => true, 'data' => $user_info );
-	}//logInUser
+	}//logInUserWithGoogle
 
 
 	public static function isUserLoggedIn(){
@@ -159,6 +183,7 @@ class Core{
 		//
 		$_SESSION['USER_LOGGED'] = false;
 		unset( $_SESSION['USER_RECORD'] );
+		unset( $_SESSION['USER_DUCKIEBOT'] );
 		self::regenerateSessionID();
 		//
 		return true;
@@ -192,51 +217,19 @@ class Core{
 		return $pages;
 	}//getFilteredPagesList
 
-	public static function getUserLastSeen( $username ){
-		$res = self::getUserInfoNoAuth( $username );
-		if( !$res['success'] ){
-			return $res;
-		}
-		//
-		return array( 'success' => true, 'data' => array( 'last_seen' => $res['data']['last_seen'] ) );
-	}//getUserLastSeen
 
-
-	public static function getUserInfoAuth( $username, $password ){
-		$res = self::getUserInfoNoAuth($username, true);
-		if( !$res['success'] ){
-			return $res;
-		}
-		// check the password
-		if( strcmp($password, $res['data']['password'] ) != 0 ){
+	public static function userExists( $username ){
+		$user_file = sprintf( __DIR__.'/../users/accounts/%s.json', $username );
+		if( file_exists($user_file) ){
+			return array( 'success' => true, 'data' => null );
+		}else{
 			return array( 'success' => false, 'data' => 'User "'.$username.'" not found!' );
 		}
-		// remove the password
-		unset( $res['data']['password'] );
-		unset( $res['data']['temp_password'] );
-		//
-		return $res;
-	}//getUserInfoAuth
-
-
-	public static function getUserInfoNoAuth( $username, $keepPassword=false ){
-		$res = self::openUserInfo( $username );
-		if( !$res['success'] ){
-			return $res;
-		}
-		$user_info = $res['data']->asArray();
-		// remove the password
-		if( !$keepPassword ){
-			unset( $user_info['password'] );
-			unset( $user_info['temp_password'] );
-		}
-		//
-		return array( 'success' => true, 'data' => $user_info );
-	}//getUserInfoNoAuth
+	}//userExists
 
 
 	public static function openUserInfo( $username ){
-		$user_file = sprintf( __DIR__.'/../users/%s.json', $username );
+		$user_file = sprintf( __DIR__.'/../users/accounts/%s.json', $username );
 		$user_info = null;
 		if( file_exists($user_file) ){
 			// load user information
@@ -246,13 +239,13 @@ class Core{
 		}
 		//
 		$static_user_info = $user_info->asArray();
-		foreach (["username","name","email","password","temp_password","role","branch","active","last_seen"] as $field) {
+		foreach (["username","name","email","picture","role","branch","active"] as $field) {
 			if( !isset($static_user_info[$field]) ){
-				return array( 'success' => false, 'data' => 'The descriptor file for the user "'.$username.'" is corrupted! Contact the administrator.' );
+				return array( 'success' => false, 'data' => 'The descriptor file for the user "'.$username.'" is corrupted! Contact the administrator' );
 			}
 		}
 		if( strcmp($static_user_info['username'], $username) != 0 ){
-			return array( 'success' => false, 'data' => 'The descriptor file for the user "'.$username.'" is corrupted! Contact the administrator.' );
+			return array( 'success' => false, 'data' => 'The descriptor file for the user "'.$username.'" is corrupted! Contact the administrator' );
 		}
 		//
 		return array( 'success' => true, 'data' => $user_info );
@@ -265,8 +258,29 @@ class Core{
 
 
 	public static function getUserRole(){
-		return ( self::isUserLoggedIn() )? self::getUserLogged('role') : 'guest';
+		$user_role = ( self::isUserLoggedIn() )? self::getUserLogged('role') : 'guest';
+		if( $user_role == 'user' ){
+			$bot_name = self::getUserDuckiebot();
+			if( is_null($bot_name) ){
+				return 'candidate';
+			}
+		}
+		return $user_role;
 	}//getUserRole
+
+
+	public static function getUserDuckiebot(){
+		if( isset($_SESSION['USER_DUCKIEBOT']) ){
+			return $_SESSION['USER_DUCKIEBOT'];
+		}
+		$username = self::getUserLogged('username');
+		$res = self::getDuckiebotLinkedToUser($username);
+		if( !$res['success'] ){
+			self::throwError($res['data']);
+		}
+		$_SESSION['USER_DUCKIEBOT'] = $res['data'];
+		return $_SESSION['USER_DUCKIEBOT'];
+	}//getUserDuckiebot
 
 
 	public static function getStatistics(){
@@ -284,55 +298,6 @@ class Core{
 	public static function getSiteName(){
 		return Configuration::$SHORT_SITE_NAME;
 	}//getSiteName
-
-	// public static function _getNewsList($orderBy = 'newsID', $orderWay = 'ASC', $offset = 0, $limit = PHP_INT_MAX){
-	// 	$query = "SELECT SQL_CALC_FOUND_ROWS newsID, date, title, writer FROM News WHERE 1 ORDER BY ".self::$mysql->real_escape_string($orderBy)." ".self::$mysql->real_escape_string($orderWay)." LIMIT ".self::$mysql->real_escape_string($offset).",".self::$mysql->real_escape_string($limit);
-	// 	//
-	// 	$res = self::intelliSELECT( $query, 'News' );
-	// 	//
-	// 	if( $res['success'] ){
-	// 		$res['total'] = $res['size'];
-	// 		$res2 = self::intelliSELECT( 'SELECT FOUND_ROWS() as total; /* '.$query.' */', 'News' );
-	// 		if( $res2['success'] ){
-	// 			$res['total'] = $res2['data'][0]['total'];
-	// 		}
-	// 	}
-	// 	//
-	// 	return $res;
-	// }//getNewsList
-	//
-	// public static function _getNewsDetails($newsID){
-	// 	$query = "SELECT * FROM News WHERE newsID='".self::$mysql->real_escape_string($newsID)."'";
-	// 	//
-	// 	$res = self::intelliSELECT( $query, 'News' );
-	// 	//
-	// 	return $res;
-	// }//getNewsDetails
-	//
-	//
-	// public static function _getAdministratorMessageList($subject=null, $read=null, $orderBy = 'creationTime', $orderWay = 'DESC', $offset = 0, $limit = PHP_INT_MAX){
-	// 	$query = "SELECT SQL_CALC_FOUND_ROWS * FROM AdministratorMessage WHERE 1 ". ( ($subject !== null)? ' AND subject=\''.self::escape_string($subject).'\'' : '' ) . ( ($read !== null)? ' AND `read`='.intval($read) : '' ) ." ORDER BY `".self::escape_string($orderBy)."` ".self::escape_string($orderWay).", creationTime DESC LIMIT ".self::escape_string($offset).",".self::escape_string($limit);
-	// 	//
-	// 	$res = self::intelliSELECT( $query, 'AdministratorMessage' );
-	// 	//
-	// 	if( $res['success'] ){
-	// 		$res['total'] = $res['size'];
-	// 		$res2 = self::intelliSELECT( 'SELECT FOUND_ROWS() as total; /* '.$query.' */', 'AdministratorMessage' );
-	// 		if( $res2['success'] ){
-	// 			$res['total'] = $res2['data'][0]['total'];
-	// 		}
-	// 	}
-	// 	//
-	// 	return $res;
-	// }//getAdministratorMessageList
-	//
-	// public static function _getAdministratorMessage($messageID){
-	// 	$query = "SELECT * FROM AdministratorMessage WHERE messageID=".self::escape_string($messageID);
-	// 	//
-	// 	$res = self::intelliSELECT( $query, 'AdministratorMessage' );
-	// 	//
-	// 	return $res;
-	// }//getAdministratorMessage
 
 
 	public static function getCodebaseHash(){
@@ -533,6 +498,7 @@ class Core{
 		return $result;
 	}//getSurveillancePostProcessingHistory
 
+
 	public static function getSurveillanceSegmentActivity( $cameraNum, $segment_name ){
 		if( preg_match('/[0-9]{4}-[0-9]{2}-[0-9]{2}_[0-9]{2}\.[0-9]{2}/', $segment_name) !== 1 ){
 			return array('success' => false, 'data' => 'segment_name does not conform to the format required "YYYY-mm-dd_HH.mm"');
@@ -595,7 +561,6 @@ class Core{
 	}//getDuckiebotOwner
 
 
-
 	private static function execCommandOnDuckiebot( $bot_name, $command, $ssh=null ){
 		$res = array(
 			'success' => false,
@@ -641,9 +606,51 @@ class Core{
 		return $res;
 	}
 
+
 	private static function getROScommand( $command ){
 		return sprintf('source %s/setup.bash; %s', Configuration::$DUCKIEBOT_ROS_PATH, $command);
 	}//getROScommand
+
+
+	public static function authenticateOnDuckiebot( $bot_name, $username, $password, $protectDefaultUser=true ){
+		// prepare result object
+		$res = array(
+			'success' => false,
+			'data' => null,
+			'connection' => null
+		);
+		// check whether the Duckiebot exists
+		if( !self::duckiebotExists($bot_name) ){
+			$res['data'] = 'Duckiebot not found';
+			return $res;
+		}
+		// check whether the username provided matches the default backdoor username used by the platform
+		if( $protectDefaultUser ){
+			if( strcasecmp( trim($username), trim(Configuration::$DUCKIEBOT_DEFAULT_USERNAME) ) == 0 ){
+				$res['data'] = sprintf('The user `%s` is protected. Create your own user to continue.', Configuration::$DUCKIEBOT_DEFAULT_USERNAME);
+				return $res;
+			}
+		}
+		// Set PHP timeout to 5 seconds and open SSH connection
+		set_time_limit(5);
+		$host = sprintf('%s.local', $bot_name);
+		$ssh = ssh2_connect($host);
+		if( $ssh === false ){
+			$res['data'] = 'SSH connection timed out';
+			return $res;
+		}
+		// authenticate SSH session
+		$auth = @ssh2_auth_password($ssh, $username, $password);
+		if( $auth === false ) {
+			$res['data'] = 'Authentication failed';
+			return $res;
+		}
+		$res['success'] = true;
+		$res['data'] = 'OK';
+		$res['connection'] = $ssh;
+		//
+		return $res;
+	}//authenticateOnDuckiebot
 
 
 	public static function getDuckiebotNetworkConfig( $bot_name ){
@@ -894,6 +901,53 @@ class Core{
 	}//getDuckiebotLatestWhatTheDuck
 
 
+	public static function getDuckiebotLinkedToUser( $username ){
+		$associations_dir = __DIR__."/../users/associations/";
+		// create command
+		$cmd = sprintf("ls -l %s | awk '{print $9}' | grep -E '^%s.[a-z]+$' | cat", $associations_dir, $username);
+		// execute the command and parse the output
+		$output = [];
+		$retval = -100;
+		exec( $cmd, $output, $retval );
+		if( $retval != 0 ){
+			return array('success' => false, 'data' => 'An error occurred while processing your request.');
+		}
+		// get the list of associations (hopefully no more than one element is present)
+		if( count($output) == 0 ){
+			return array('success' => true, 'data' => null);
+		}else{
+			//TODO: check for multiple associations indicating an inconsistent DB
+			$association = $output[0];
+			$parts = explode('.', $association);
+			$bot_name = $parts[1];
+			return array('success' => true, 'data' => $bot_name);
+		}
+	}//getDuckiebotLinkedTo
+
+	public static function getUserLinkedToDuckiebot( $bot_name ){
+		$associations_dir = __DIR__."/../users/associations/";
+		// create command
+		$cmd = sprintf("ls -l %s | awk '{print $9}' | grep -E '^[0-9]+.%s$' | cat", $associations_dir, $bot_name);
+		// execute the command and parse the output
+		$output = [];
+		$retval = -100;
+		exec( $cmd, $output, $retval );
+		if( $retval != 0 ){
+			return array('success' => false, 'data' => 'An error occurred while processing your request.');
+		}
+		// get the list of associations (hopefully no more than one element is present)
+		if( count($output) == 0 ){
+			return array('success' => true, 'data' => null);
+		}else{
+			//TODO: check for multiple associations indicating an inconsistent DB
+			$association = $output[0];
+			$parts = explode('.', $association);
+			$username = $parts[0];
+			return array('success' => true, 'data' => $username);
+		}
+	}//getUserLinkedToDuckiebot
+
+
 	public static function isDuckiebotOnline( $bot_name ){
 		if( !self::duckiebotExists($bot_name) ){
 			return array('success' => false, 'data' => 'Duckiebot not found');
@@ -924,221 +978,102 @@ class Core{
 	// =================================================================================================================
 	// 3. Setter functions
 
-
-	public static function editPersonalInformation($username, $info){
-		array_assoc_filter( $info , array('name', 'email') );
-		if( sizeof($info) <= 0 ){
-			return array( 'success' => true, 'data' => 'Nothing to update' );
+	public static function linkDuckiebotToUserAccount( $bot_name ){
+		// prepare result object
+		$res = array(
+			'success' => false,
+			'data' => null
+		);
+		// check whether there is a user logged in
+		if( !self::isUserLoggedIn() ){
+			$res['data'] = 'You must be logged in to link a Duckiebot to your account';
+			return $res;
 		}
+		// get the username of the current user
+		$username = self::getUserLogged('username');
+		// check whether the Duckiebot exists
+		if( !self::duckiebotExists($bot_name) ){
+			$res['data'] = sprintf('Duckiebot `%s` not found', $bot_name);
+			return $res;
+		}
+		// check whether the user is already linked to a Duckiebot
+		$res2 = self::getDuckiebotLinkedToUser($username);
+		if( !$res2['success'] ){
+			return $res2;
+		}
+		if( !is_null($res2['data']) ){
+			$res['data'] = sprintf('The user account `%s` is already linked to a Duckiebot. Release it first.', $username);
+			return $res;
+		}
+		// check whether the Duckiebot is already linked to another account
+		$res2 = self::getUserLinkedToDuckiebot($bot_name);
+		if( !$res2['success'] ){
+			return $res2;
+		}
+		if( !is_null($res2['data']) ){
+			$res['data'] = sprintf('The Duckiebot `%s` is already linked to a user account.', $bot_name);
+			return $res;
+		}
+		// check whether the user exists, if it does not, create a new one
+		$user_exists = self::userExists($username);
+		if( !$user_exists ){
+			$user_file = sprintf( __DIR__.'/../users/accounts/%s.json', $username );
+			$user_info = new JsonDB( $user_file );
+			// copy info to JSON
+			foreach( self::getUserLogged() as $key => $val ){
+				$user_info.set( $key, $val );
+			}
+			$user_info.set( 'role', 'user' );
+			$res2 = $user_info.commit();
+			if( !$res2['success'] ){
+				return $res2;
+			}
+		}
+		// link Duckiebot to user account
+		$associations_dir = __DIR__."/../users/associations";
+		// create command
+		$cmd = sprintf("touch %s/%s.%s", $associations_dir, $username, $bot_name);
+		// execute the command and parse the output
+		$output = [];
+		$retval = -100;
+		exec( $cmd, $output, $retval );
+		if( $retval != 0 ){
+			$res['data'] = array_pop($output);
+			return $res;
+		}
+		// update the info about the user within the system
+		$_SESSION['USER_DUCKIEBOT'] = $bot_name;
 		//
-		$res = self::openUserInfo($username);
+		$res['success'] = true;
+		return $res;
+	}//linkDuckiebotToUserAccount
+
+
+	public static function unlinkDuckiebotFromUserAccount( $bot_name ){
+		// get the user account this duckiebot is linked to
+		$res = self::getUserLinkedToDuckiebot($bot_name);
 		if( !$res['success'] ){
 			return $res;
 		}
-		$user_info = $res['data'];
-		//
-		foreach ($info as $key => $val) {
-			$user_info->set($key, $val);
+		$username = $res['data'];
+		// remove the association flag
+		$associations_dir = __DIR__."/../users/associations";
+		// create command
+		$cmd = sprintf("rm -f %s/%s.%s", $associations_dir, $username, $bot_name);
+		// execute the command and parse the output
+		$output = [];
+		$retval = -100;
+		exec( $cmd, $output, $retval );
+		if( $retval != 0 ){
+			return array('success' => false, 'data' => array_pop($output));
 		}
-		$user_info->commit();
-		$_SESSION['USER_RECORD'] = $user_info->asArray();
-		// clear the cache
-		self::clearCacheGroups( 'User' );
+		// update the info about the user within the system
+		unset( $_SESSION['USER_DUCKIEBOT'] );
 		//
-		return array( 'success' => true, 'data' => 'Personal information updated' );
-	}//editPersonalInformation
-
-	public static function editSecurityInformation($username, $info){
-		$res = self::openUserInfo($username);
-		if( !$res['success'] ){
-			return $res;
-		}
-		$user_info = $res['data'];
-		// hash the new password and store it
-		$pwd_hash = self::hash_password($info['password']);
-		$user_info->set('password', $pwd_hash);
-		// invalidate temporary password
-		$user_info->set('temp_password', 'null');
-		$user_info->commit();
-		// clear the cache
-		self::clearCacheGroups( 'User' );
-		//
-		return array( 'success' => true, 'data' => 'Security information updated' );
-	}//editSecurityInformation
+		return array('success' => true, 'data' => null);
+	}//unlinkDuckiebotFromUserAccount
 
 
-	// public static function _addNews($newsData){
-	// 	$query = 'INSERT INTO News(
-	// 				newsID,
-	// 				date,
-	// 				title,
-	// 				writer,
-	// 				content
-	// 			) VALUES (
-	// 				DEFAULT,
-	// 				NOW(),
-	// 				\''. self::escape_string($newsData['title']) .'\',
-	// 				\''. self::escape_string($newsData['writer']) .'\',
-	// 				\''. self::escape_string($newsData['content']) .'\'
-	// 			)';
-	// 	//
-	// 	$res = self::execINSERT( $query );
-	// 	//
-	// 	if( $res['success'] ){
-	// 		// clear the cache
-	// 		self::clearCacheGroups( 'News' );
-	// 	}
-	// 	//
-	// 	return $res;
-	// }//addNews
-	//
-	// public static function _editNews($newsID, $newsData){
-	// 	array_assoc_filter( $newsData , array('date', 'title', 'writer', 'content') );
-	// 	//
-	// 	if( sizeof($newsData) <= 0 ){
-	// 		return array( 'success' => true, 'data' => 'Niente da modificare' );
-	// 	}
-	// 	//
-	// 	$update = self::arrayToUpdateQueryString( $newsData );
-	// 	//
-	// 	$query = 'UPDATE News SET '.$update.' WHERE newsID=\''. self::escape_string($newsID).'\'';
-	// 	//
-	// 	$res = self::execUPDATE( $query );
-	// 	//
-	// 	if( $res['success'] ){
-	// 		// clear the cache
-	// 		self::clearCacheGroups( 'News' );
-	// 	}
-	// 	//
-	// 	return $res;
-	// }//editNews
-	//
-	// public static function _removeNews($newsID){
-	// 	$query = 'DELETE FROM News WHERE newsID=\''.self::escape_string($newsID).'\'';
-	// 	//
-	// 	$res = self::execDELETE( $query );
-	// 	//
-	// 	if( $res['success'] ){
-	// 		// clear the cache
-	// 		self::clearCacheGroups( 'News' );
-	// 	}
-	// 	//
-	// 	return $res;
-	// }//removeNews
-
-	public static function setUserLastSeen( $username, $timestamp=null ){
-		$timestamp = ( ($timestamp == null)? 'now' : $timestamp );
-		$last_seen = strtotime($timestamp);
-		//
-		$res = self::openUserInfo($username);
-		if( !$res['success'] ){
-			return $res;
-		}
-		//
-		$user_info = $res['data'];
-		$user_info->set('last_seen', $last_seen);
-		$user_info->commit();
-		// clear the cache
-		self::clearCacheGroups( 'User' );
-		//
-		return array( 'success' => true, 'data' => 'Information updated' );
-	}//setUserLastSeen
-
-	public static function generateUserTemporaryPassword($username){
-		$res = self::openUserInfo($username);
-		if( !$res['success'] ){
-			return $res;
-		}
-		$user_info = $res['data'];
-		//
-		$temp_pwd = self::generateRandomString(8);
-		$temp_pwd_hash = self::hash_password($temp_pwd);
-		$user_info->set('temp_password', $temp_pwd_hash);
-		$user_info->commit();
-		// clear the cache
-		self::clearCacheGroups( 'User' );
-		//
-		return array( 'success' => true, 'data' => $temp_pwd );
-	}//generateUserTemporaryPassword
-
-	public static function authenticateURIrequest( $username, $uri, $arguments, $allowTempPassword=false ){
-		// get user information
-		$res = Core::getUserInfoNoAuth( $username, true );
-		if( !$res['success'] ){
-			return $res;
-		}
-		$user_info = $res['data'];
-		// check whether the request is old
-		if( intval($user_info['last_seen']) >= intval($arguments['timestamp']) ){
-			$info = sprintf("%d >= %d", $user_info['last_seen'], $arguments['timestamp']);
-			return array( 'success' => false, 'data' => 'Authentication failed, the request is old '.$info );
-		}
-		// compute HMAC of the given URI
-		$recovery = false;
-		$secret = $res['data']['password'];
-		$hash = md5( base64_encode( hash_hmac('sha256', $uri, $secret, true) ) );
-		//
-		$success = ( strcmp($hash, $arguments['hmac']) == 0 );
-		//
-		if( !$success && $allowTempPassword ){
-			// try to authenticate the user in recovery mode
-			$recovery = true;
-			$secret = $res['data']['temp_password'];
-			$hash = md5( base64_encode( hash_hmac('sha256', $uri, $secret, true) ) );
-			//
-			$success = ( strcmp($hash, $arguments['hmac']) == 0 );
-		}
-		//
-		if( !$success ){
-			return array( 'success' => false, 'data' => 'Authentication failed' );
-		}
-		return array( 'success' => true, 'data' => ['recovery' => $recovery] );
-	}//authenticateURIrequest
-
-
-	// public static function _collectContactRequest( $contactData ){
-	// 	$query = 'INSERT INTO AdministratorMessage(
-	// 				messageID,
-	// 				sender,
-	// 				subject,
-	// 				message,
-	// 				creationTime,
-	// 				phone,
-	// 				email,
-	// 				`read`
-	// 			) VALUES (
-	// 				DEFAULT,
-	// 				\''. self::escape_string($contactData['sender']) .'\',
-	// 				\''. self::escape_string($contactData['subject']) .'\',
-	// 				\''. self::escape_string($contactData['message']) .'\',
-	// 				NOW(),
-	// 				\''. self::escape_string($contactData['phone']) .'\',
-	// 				\''. self::escape_string($contactData['email']) .'\',
-	// 				FALSE
-	// 			)';
-	// 	//
-	// 	$res = self::execINSERT( $query );
-	// 	//
-	// 	if( $res['success'] ){
-	// 		// clear the cache
-	// 		self::clearCacheGroups( 'AdministratorMessage' );
-	// 	}
-	// 	//
-	// 	return $res;
-	// }//collectContactRequest
-	//
-	// public static function _markContactRequestAsRead( $messageID ){
-	// 	$query = 'UPDATE AdministratorMessage SET `read`=TRUE WHERE messageID=\''. self::escape_string($messageID) .'\'';
-	// 	//
-	// 	$res = self::execUPDATE( $query );
-	// 	//
-	// 	if( $res['success'] ){
-	// 		// clear the cache
-	// 		self::clearCacheGroups( 'AdministratorMessage' );
-	// 	}
-	// 	//
-	// 	return $res;
-	// }//markContactRequestAsRead
 
 
 	// =================================================================================================================
@@ -1231,11 +1166,6 @@ class Core{
 		//TODO: implement a logging system here
 	}//collectErrorInformation
 
-	// public static function escape_string( $string ){
-	// 	return self::$mysql->real_escape_string( $string );
-	// }//escape_string
-	//
-
 
 	// =================================================================================================================
 	// =================================================================================================================
@@ -1310,14 +1240,16 @@ class Core{
 		$pages = [
 			'list' => [],
 			'by-id' => [],
+			'by-package' => [],
 			'by-usertype' => [
 				'administrator' => [],
 				'supervisor' => [],
 				'user' => [],
+				'candidate' => [],
 				'guest' => []
 			],
 			'by-menuorder' => [],
-			'by-responsive-priority' => [],
+			'by-responsive-priority' => []
 		];
 		foreach ($jsons as $json) {
 			$page_id = self::_regex_extract_group($json, "/.*pages\/(.+)\/setup.json/", 1);
@@ -1327,6 +1259,10 @@ class Core{
 			array_push( $pages['list'], $page );
 			// by-id
 			$pages['by-id'][$page_id] = $page;
+			// by-package
+			$package = $page['package'];
+			if( !array_key_exists($package, $pages['by-package']) ) $pages['by-package'][$package] = [];
+			array_push( $pages['by-package'][$package], $page );
 			// by-usertype
 			foreach ($page['access'] as $access) {
 				array_push( $pages['by-usertype'][$access], $page );
@@ -1347,154 +1283,6 @@ class Core{
 		//
 		return $pages;
 	}//_load_available_pages
-
-
-
-
-	// private static function intelliSELECT( $query, $keywords=null ) {
-	// 	$until_midnight = strtotime("tomorrow 00:00:00")-time();
-	// 	$res = self::_intelli_select( $query, $keywords );
-	// 	//
-	// 	if( Configuration::$CACHE_ENABLED ){
-	// 		// update statistics
-	// 		if( self::$cache->isExisting('STATS_TOTAL_SELECT_REQS') ){
-	// 			self::$cache->set('STATS_TOTAL_SELECT_REQS', self::$cache->get('STATS_TOTAL_SELECT_REQS')+1, $until_midnight);
-	// 		}else{
-	// 			self::$cache->set('STATS_TOTAL_SELECT_REQS', 1, $until_midnight );
-	// 		}
-	// 		//
-	// 		if( $res['cached']===true ){
-	// 			if( self::$cache->isExisting('STATS_CACHED_SELECT_REQS') ){
-	// 				self::$cache->set('STATS_CACHED_SELECT_REQS', self::$cache->get('STATS_CACHED_SELECT_REQS')+1, $until_midnight);
-	// 			}else{
-	// 				self::$cache->set( 'STATS_TOTAL_SELECT_REQS' , 1, $until_midnight );
-	// 				self::$cache->set( 'STATS_CACHED_SELECT_REQS' , 1, $until_midnight );
-	// 			}
-	// 		}
-	// 	}
-	// 	//
-	// 	return $res;
-	// }//intelliSELECT
-	//
-	// private static function _intelli_select( $query, $keywords=null ) {
-	// 	Configuration::$CACHE_ENABLED = ( self::$cache !== null && self::$cache instanceof phpFastCache );
-	// 	//
-	// 	if( Configuration::$CACHE_ENABLED ){
-	// 		$queryID = md5($query);
-	// 		// cache enabled
-	// 		$uptodate = true;
-	// 		if( is_string($keywords) ) $keywords = array($keywords);
-	// 		//
-	// 		if( is_array($keywords) ){
-	// 			// advanced group-based caching mode
-	// 			foreach( $keywords as $keyword ){
-	// 				$groupID = md5($keyword);
-	// 				if( !is_array($_SESSION['CACHE_GROUPS'][$groupID]) || !in_array( $queryID, $_SESSION['CACHE_GROUPS'][$groupID] ) ){
-	// 					$uptodate = false;
-	// 				}
-	// 			}
-	// 		}else{ /* default (updates-blind) caching mode */ }
-	// 		//
-	// 		if( $uptodate == true ){
-	// 			// read from cache
-	// 			$res = self::$cache->get( $queryID );
-	// 			if( $res == null ){
-	// 				// no results found
-	// 				$res = self::execSELECT( $query );
-	// 				if( $res['success'] ){
-	// 					// set query result into the cache for 600 seconds = 10 minutes
-	// 					self::$cache->set( $queryID , serialize($res) , 600 );
-	// 				}else{ return $res; }
-	// 			}else{
-	// 				// a cached value will be returned
-	// 				$res = unserialize( $res );
-	// 				$res['cached'] = true;
-	// 			}
-	// 		}else{
-	// 			// exec the query
-	// 			$res = self::execSELECT( $query );
-	// 			if( $res['success'] ){
-	// 				// set query result into the cache for 600 seconds = 10 minutes
-	// 				self::$cache->set( $queryID , serialize($res) , 600 );
-	// 			}else{ return $res; }
-	// 			//
-	// 			foreach( $keywords as $keyword ){
-	// 				$groupID = md5($keyword);
-	// 				if( !isset($_SESSION['CACHE_GROUPS'][$groupID]) || !is_array($_SESSION['CACHE_GROUPS'][$groupID]) ){
-	// 					$_SESSION['CACHE_GROUPS'][$groupID] = array();
-	// 				}
-	// 				//
-	// 				if( !in_array($queryID, $_SESSION['CACHE_GROUPS'][$groupID]) ){
-	// 					array_push( $_SESSION['CACHE_GROUPS'][$groupID], $queryID );
-	// 				}
-	// 			}
-	// 		}
-	// 		//
-	// 		return $res;
-	// 	}else{
-	// 		// cache not enabled, use the database
-	// 		$res = self::execSELECT( $query );
-	// 		return $res;
-	// 	}
-	// }//_intelli_select
-	//
-	// private static function execSELECT( $query ){
-	// 	try{
-	// 		$res = self::$mysql->query( $query );
-	// 		if( $res instanceof \mysqli_result ){
-	// 			$array = array();
-	// 			$i = 0;
-	// 			while( $row = $res->fetch_assoc() ){
-	// 				$array[$i] = $row;
-	// 				$i++;
-	// 			}
-	// 			return array( 'success'=>true, 'size'=>$i, 'data'=>$array );
-	// 		}else{
-	// 			return array( 'success'=>false, 'data'=>self::$mysql->error );
-	// 		}
-	// 	}catch(Exception $e){
-	// 		return array( 'success'=>false, 'data'=>self::$mysql->error );
-	// 	}
-	// }//execSELECT
-	//
-	//
-	// private static function execUPDATE( $query ){
-	// 	try{
-	// 		$res = self::$mysql->query( $query );
-	// 		if( $res ){
-	// 			return array( 'success'=>true, 'data'=>null );
-	// 		}else{
-	// 			return array( 'success'=>false, 'data'=>self::$mysql->error );
-	// 		}
-	// 	}catch(Exception $e){
-	// 		return array( 'success'=>false, 'data'=>self::$mysql->error );
-	// 	}
-	// }//execUPDATE
-	//
-	// public static function execINSERT( $query ){ //TODO: private (parse_insert purpose)
-	// 	$res = self::execUPDATE($query);
-	// 	if( $res['success'] ){
-	// 		$res['insertID'] = self::$mysql->insert_id;
-	// 	}
-	// 	return $res;
-	// }//execINSERT
-	//
-	// private static function execDELETE( $query ){
-	// 	return self::execUPDATE($query);
-	// }//execDELETE
-	//
-	// private static function arrayToUpdateQueryString( $array ){
-	// 	$arr = array();
-	// 	foreach( $array as $key => $value ){
-	// 		array_push( $arr, self::_glue( $key, $value ) );
-	// 	}
-	// 	//
-	// 	return implode( ', ', $arr );
-	// }//arrayToUpdateQueryString
-	//
-	// private static function _glue($key, $value){
-	// 	return '`'.$key.'`=\''. self::escape_string($value) .'\'';
-	// }//_glue
 
 }
 

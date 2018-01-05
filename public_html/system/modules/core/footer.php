@@ -1,3 +1,8 @@
+<?php
+// get user info
+$user = \system\classes\Core::getUserLogged();
+?>
+
 <footer id="footer" class="footer navbar-inverse" style="height:50px; color:#c3c3c3">
 
 	<div class="col-md-6 text-left">
@@ -6,9 +11,9 @@
 
 			<li class="dropup">
 
-				<a class="dropdown-toggle cursor-pointer" data-toggle="dropdown" style="padding-top:12px; padding-bottom:0">
+				<a class="dropdown-toggle cursor-pointer" data-toggle="dropdown" style="padding-top:12px; padding-bottom:0; z-index:999999">
 					<span class="glyphicon glyphicon-chevron-up" aria-hidden="true"></span>
-					</span><span class="glyphicon glyphicon-user" aria-hidden="true" style="font-size:30px"></span>
+					<img src="<?php echo $user['picture']; ?>" id="avatar">
 				</a>
 
 				<ul class="dropdown-menu dropup" role="menu" style="background-color:#3c3c3c; color:white">
@@ -37,7 +42,7 @@
 					?>
 					<li class="divider"></li>
 					<!-- Logout button -->
-					<li role="presentation">
+					<li role="presentation" style="margin-bottom:20px">
 						<a role="menuitem" tabindex="-1" href="#"
 						   onclick="userLogOut('<?php echo \system\classes\Configuration::$BASE ?>', '<?php echo \system\classes\Configuration::$BASE_URL ?>', '<?php echo \system\classes\Configuration::$WEBAPI_VERSION ?>', '<?php echo $_SESSION['TOKEN'] ?>');"
 						   style="color:#ffc864" onMouseOver="this.style.color='#000'" onMouseOut="this.style.color='#ffc864'">
@@ -52,11 +57,8 @@
 		</ul>
 
 		<div style="float:left">
-			<?php
-			$user = \system\classes\Core::getUserLogged();
-			?>
 			<p style="margin:0; font-size:16px; margin-top:8px"><strong><?php echo $user['name'] ?></strong></p>
-			<p style="margin:0; font-size:12px; margin-top:-4px"><?php echo $user['username'].' | '.$user['email'] ?></p>
+			<p style="margin:0; font-size:12px; margin-top:-4px"><?php echo $user['email'] ?></p>
 		</div>
 
 	</div>
