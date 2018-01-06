@@ -1,16 +1,6 @@
 <?php
 
-require_once __DIR__.'/../../../templates/tableviewers/TableViewer.php';
-
-
-$base = '';
-$action = 'duckiebots';
-
-// <========================================  CONFIG ==========================
-
-
-$baseurl = $base.'/'.$action;
-
+require_once __DIR__.'/../../templates/tableviewers/TableViewer.php';
 
 // Define Constants
 
@@ -148,7 +138,7 @@ $table = array(
 
 	// <== Here is the Magic Call!
 
-	\system\templates\tableviewers\TableViewer::generateTableViewer( $baseurl, $res, $features, $table );
+	\system\templates\tableviewers\TableViewer::generateTableViewer( \system\classes\Configuration::$PAGE, $res, $features, $table );
 
 	?>
 
@@ -201,7 +191,7 @@ $table = array(
 		<?php
 		$qs = urlencode( base64_encode( toQueryString( array_keys($features), $_GET ) ) );
 		?>
-		var url = "<?php echo \system\classes\Configuration::$BASE ?>duckiebots?<?php echo ( (strlen($qs) > 0)? 'lst='.$qs.'&' : '' ) ?>bot="+duckiebot;
+		var url = "<?php echo \system\classes\Configuration::$BASE ?>duckiebot/"+duckiebot+"?<?php echo ( (strlen($qs) > 0)? 'lst='.$qs.'&' : '' ) ?>";
 		window.location = url;
 	}
 

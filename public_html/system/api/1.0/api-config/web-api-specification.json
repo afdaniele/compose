@@ -95,32 +95,12 @@
         "userprofile" : {
             "enabled" : true,
             "actions" : {
-                "login" : {
-                    "enabled" : true,
-                    "access_level" : "guest",
-                    "read_only_session" : false
-                },
                 "login_with_google" : {
                     "enabled" : true,
                     "access_level" : "guest",
                     "read_only_session" : false
                 },
                 "logout" : {
-                    "enabled" : true,
-                    "access_level" : "logged",
-                    "read_only_session" : false
-                },
-                "recovery" : {
-                    "enabled" : true,
-                    "access_level" : "guest",
-                    "read_only_session" : false
-                },
-                "updatepersonal" : {
-                    "enabled" : true,
-                    "access_level" : "logged",
-                    "read_only_session" : false
-                },
-                "updatekeys" : {
                     "enabled" : true,
                     "access_level" : "logged",
                     "read_only_session" : false

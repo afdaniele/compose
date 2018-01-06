@@ -10,14 +10,14 @@ if( isset($_GET['report']) ){
 		$_SESSION['_ALERT_INFO'] = 'Thanks for reporting the error!';
 	}
 	//
-	\system\classes\Core::redirectTo('dashboard');
+	\system\classes\Core::redirectTo('');
 }else{
 	// mark the ERROR flag
 	$_SESSION['_ERROR_OCCURRED'] = true;
 }
 
 if( !isset($_SESSION['_ERROR_PAGE_MESSAGE']) ){
-	\system\classes\Core::redirectTo('dashboard');
+	\system\classes\Core::redirectTo('');
 }
 
 ?>
@@ -48,7 +48,7 @@ if( !isset($_SESSION['_ERROR_PAGE_MESSAGE']) ){
 		<br/>
 		You can either ignore the error and return to the website or report the error using the orange button in the box below.
 		<br><br>
-		<a href="<?php echo \system\classes\Configuration::$BASE ?>dashboard/" type="button" class="btn btn-info" role="button">Go back to the Dashboard</a>
+		<a href="<?php echo \system\classes\Configuration::$BASE ?>/" type="button" class="btn btn-info" role="button">Go back to the Main page</a>
 	</div>
 
 </div>

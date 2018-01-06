@@ -52,7 +52,7 @@ if( $version == null ){
 	</table>
 
 	<p>
-		Available versions:
+		Versions available:
 		<?php
 		foreach( $web_api_settings['versions'] as $key => $opt ){
 			?>

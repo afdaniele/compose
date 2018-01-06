@@ -2,6 +2,7 @@
     "name" : "Error",
     "package" : "core",
     "menu_entry" : null,
+    "child_pages" : [],
     "access" : [
         "administrator",
         "supervisor",

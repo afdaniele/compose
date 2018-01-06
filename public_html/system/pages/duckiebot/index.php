@@ -1,7 +1,32 @@
 <?php
 
-$duckiebotName = $_GET['bot'];
-//TODO: check whether the Duckiebot exists
+$duckiebotName = null;
+
+if( \system\classes\Core::getUserRole() == 'user' ){
+	$user = \system\classes\Core::getLoggedUser('username');
+	$res = \system\classes\Core::getDuckiebotLinkedToUser( $user );
+	if( !$res['success'] ){
+		\system\classes\Core::throwError(
+			sprintf('Error: "%s"', $res['data'])
+		);
+	}
+	if( is_null($res['data']) ){
+		\system\classes\Core::throwError('Your account is not linked to any Duckiebot');
+	}
+	$duckiebotName = $res['data'];
+}else{
+	$duckiebotName = \system\classes\Configuration::$ACTION;
+	if( strlen($duckiebotName) < 1 ){
+		\system\classes\Core::redirectTo("");
+	}
+}
+
+if( !\system\classes\Core::duckiebotExists($duckiebotName) ){
+	\system\classes\Core::throwError(
+		sprintf('The Duckiebot `%s` does not exist.', $duckiebotName)
+	);
+}
+
 ?>
 
 
@@ -18,8 +43,24 @@ $duckiebotName = $_GET['bot'];
 	</table>
 
 	<?php
+	if(isset($_GET['lst'])){
+		$qs = ( (isset($_GET['lst']))? base64_decode(urldecode($_GET['lst'])) : '' );
+		?>
+		<a role="button"
+			href="<?php echo \system\classes\Configuration::$BASE ?>duckiefleet<?php echo ( (strlen($qs) > 0)? '?'.$qs : '' ) ?>"
+			class="btn btn-info" data-toggle="modal"
+			style="margin-bottom:30px">
+				<span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
+				&nbsp; Go back to the list
+		</a>
+		<?php
+	}
+	?>
+
+	<?php
 	$duckiebotOwner = \system\classes\Core::getDuckiebotOwner($duckiebotName);
 	?>
+
 	<br/>
 	<nav class="navbar navbar-default" role="navigation" style="margin-bottom:36px">
 		<div class="container-fluid" style="padding-left:0; padding-right:0">

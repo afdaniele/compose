@@ -1,16 +1,19 @@
 {
-    "name" : "API",
-    "package" : "core",
+    "name" : "Duckiebot",
+    "package" : "duckietown",
     "menu_entry" : {
-        "order" : 6,
+        "order" : 1,
         "icon" : {
             "type" : "fa",
-            "name" : "code"
+            "name" : "car"
         },
         "responsive" : {
-            "priority" : 50
+            "priority" : -10
         },
-        "exclude_roles" : []
+        "exclude_roles" : [
+            "administrator",
+            "supervisor"
+        ]
     },
     "child_pages" : [],
     "access" : [

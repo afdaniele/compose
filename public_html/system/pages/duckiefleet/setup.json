@@ -5,12 +5,16 @@
         "order" : 1,
         "icon" : {
             "type" : "fa",
-            "name" : "car"
+            "name" : "cubes"
         },
         "responsive" : {
             "priority" : -10
-        }
+        },
+        "exclude_roles" : []
     },
+    "child_pages" : [
+        "duckiebot"
+    ],
     "access" : [
         "administrator",
         "supervisor"

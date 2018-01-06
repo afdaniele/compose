@@ -9,8 +9,10 @@
         },
         "responsive" : {
             "priority" : -100
-        }
+        },
+        "exclude_roles" : []
     },
+    "child_pages" : [],
     "access" : [
         "administrator",
         "supervisor"

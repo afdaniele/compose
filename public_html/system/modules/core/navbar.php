@@ -50,15 +50,18 @@ foreach ($buttons as &$button) {
 
 				// create buttons
 				for ($i = 0; $i < count($pages); $i++) {
-					$is_last = boolval( $i == count($pages)-1 );
 					$elem = $pages[$i];
+					if( in_array($user_role, $elem['menu_entry']['exclude_roles']) )
+						continue;
+					$is_last = boolval( $i == count($pages)-1 );
 					$icon = sprintf('%s %s-%s', $elem['menu_entry']['icon']['type'], $elem['menu_entry']['icon']['type'], $elem['menu_entry']['icon']['name']);
+					$active = (\system\classes\Configuration::$PAGE == $elem['id']) || in_array(\system\classes\Configuration::$PAGE, $elem['child_pages']);
 					//
 					?>
 					<li class="<?php echo (isset($responsive_buttons[$elem['id']]))? 'navbar-'.$responsive_buttons[$elem['id']].'-full-button-component' : '' ?>
-						<?php if(\system\classes\Configuration::$PAGE == $elem['id']) echo 'active'?>" >
+						<?php echo ($active)? 'active' : '' ?>" >
 						<a href="<?php echo \system\classes\Configuration::$BASE . $elem['id'] ?>">
-							<span class="<?php echo $icon ?>" aria-hidden="true"></span> &nbsp;
+							<span class="<?php echo $icon ?>" aria-hidden="true" style="font-size:12pt"></span> &nbsp;
 							<?php echo $elem['name'] ?>
 						</a>
 					</li>
