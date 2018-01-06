@@ -218,6 +218,20 @@ class Core{
 	}//getFilteredPagesList
 
 
+	public static function getPageDetails( $page_id, $attribute=null ){
+		$pages = self::getPagesList('by-id');
+		$page_details = $pages[$page_id];
+		if( is_null($attribute) ){
+			return $page_details;
+		}else{
+			if( is_array($page_details) ){
+				return $page_details[$attribute];
+			}
+			return null;
+		}
+	}//getPageDetails
+
+
 	public static function userExists( $username ){
 		$user_file = sprintf( __DIR__.'/../users/accounts/%s.json', $username );
 		if( file_exists($user_file) ){

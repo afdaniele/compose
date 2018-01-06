@@ -137,6 +137,8 @@
 										</button>
 										<?php
 									}
+									//TODO: complete this
+									echo "//TODO";
 								}else{
 									echo '<span class="glyphicon glyphicon-ban-circle" aria-hidden="true" style="margin-top:2px; color:grey;"></span>';
 								}

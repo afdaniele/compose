@@ -63,8 +63,7 @@ Configuration::$ACTION = $requested_action;
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 	<link rel="icon" href="<?php echo Configuration::$BASE_URL ?>images/favicon.ico">
 
-
-	<title><?php echo Configuration::$SHORT_SITE_LINK.' - Dashboard' ?></title>
+	<title><?php echo Configuration::$SHORT_SITE_NAME.' - '.Core::getPageDetails(Configuration::$PAGE, 'name') ?></title>
 
 	<!-- Bootstrap v3.3.1 by getboostrap.com -->
 	<link href="<?php echo Configuration::$BASE_URL ?>css/bootstrap.min.css" rel="stylesheet" type="text/css" >
@@ -82,11 +81,6 @@ Configuration::$ACTION = $requested_action;
 
 	<!-- Custom CSS -->
 	<link href="<?php echo Configuration::$BASE_URL ?>css/style.css" rel="stylesheet" media="all">
-
-	<!-- TODO: Disable Bootstrap responsive behaviour -->
-	<!-- <link href="<?php echo Configuration::$BASE_URL ?>css/non-responsive.css" rel="stylesheet" media="all"> -->
-
-
 
 
 	<!-- JQuery v1.11.1 by Google -->
@@ -133,10 +127,6 @@ Configuration::$ACTION = $requested_action;
 
 		<?php include(__DIR__."/system/modules/core/alerts.php"); ?>
 
-		<?php
-
-		?>
-
 		<br>
 
 		<!-- Main Container -->
@@ -149,13 +139,13 @@ Configuration::$ACTION = $requested_action;
 
 	</div>
 
-
 	<?php
 	include( 'system/modules/core/modals/loading_modal.php' );
 	include( 'system/modules/core/modals/success_modal.php' );
 	include( 'system/modules/core/modals/yes_no_modal.php' );
 	?>
 
+	<!-- Fixed footer -->
 	<?php
 	include( 'system/modules/core/footer' . ( (Core::isUserLoggedIn())? '' : '_guest' ) . '.php' );
 	?>
@@ -184,10 +174,7 @@ Configuration::$ACTION = $requested_action;
 </body>
 </html>
 
-
 <?php
-
 // IMPORTANT
 Core::close();
-
 ?>
