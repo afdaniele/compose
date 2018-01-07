@@ -1,4 +1,11 @@
 <?php
+# @Author: Andrea F. Daniele <afdaniele>
+# @Date:   Wednesday, December 28th 2016
+# @Email:  afdaniele@ttic.edu
+# @Last modified by:   afdaniele
+# @Last modified time: Saturday, January 6th 2018
+
+
 
 $web_api_settings = loadJSON( 'web-api-settings.json' );
 
@@ -410,7 +417,7 @@ if( $version == null ){
 							A generic Query string has the form:
 						</p>
 						<p style="padding-left:30px">
-							<span class="param">parametro1</span>=<span class="param">valore1</span>&<span class="param">parametro2</span>=<span class="param">valore2</span>&...</span>
+							<span class="param">parameter1</span>=<span class="param">value1</span>&<span class="param">parameter2</span>=<span class="param">value2</span>&...</span>
 						</p>
 						<p>
 							Select a service and an action from the menu on the left hand side of this page to see the list of parameters for a specific action.
