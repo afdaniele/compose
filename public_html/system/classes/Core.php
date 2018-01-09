@@ -54,6 +54,7 @@ class Core{
 
 	private static $packages = null;
 	private static $pages = null;
+	private static $api = null;
 
 	private static $regexes = array(
 		"alphabetic" => "/^[a-zA-Z]+$/",
@@ -114,6 +115,8 @@ class Core{
 			self::$packages = self::_load_available_packages();
 			// load list of available pages
 			self::$pages = self::_load_available_pages();
+			// load list of available API services
+			self::$api = self::_load_API_setup();
 			//
 			self::$initialized = true;
 			return array( 'success' => true, 'data' => null );
@@ -212,6 +215,12 @@ class Core{
 	public static function getPackagesList(){
 		return self::$packages;
 	}//getPackagesList
+
+	/*	Returns the list of API services installed on the platform.
+	*/
+	public static function getAPIsetup(){
+		return self::$api;
+	}//getAPIsetup
 
 	public static function getPagesList( $order=null ){
 		if( is_null($order) || !isset(self::$pages[$order]) ){
@@ -1261,6 +1270,45 @@ class Core{
 	}//_regex_extract_group
 
 
+	public static function _load_API_setup(){
+		$packages = self::getPackagesList();
+		$packages_ids = array_keys( $packages );
+		$api = [];
+		//
+		foreach( $packages_ids as $pkg_id ){
+			$api_services_descriptors = sprintf("%s/../packages/%s/modules/api/*/api-services/specifications/*.json", __DIR__, $pkg_id);
+			$jsons = glob( $api_services_descriptors );
+			//
+			foreach ($jsons as $json) {
+				$api_version = self::_regex_extract_group($json, "/.*api\/(.+)\/api-services\/specifications\/(.+).json/", 1);
+				$api_service_id = self::_regex_extract_group($json, "/.*api\/(.+)\/api-services\/specifications\/(.+).json/", 2);
+				if( !isset($api[$api_version]) ){
+					$api[$api_version] = [
+						'services' => []
+					];
+				}
+				//
+				$api_services_path_regex = sprintf( "/(.+)\/specifications\/%s.json/", $api_service_id );
+				$api_service_executor_path = sprintf(
+					"%s/executors/%s.php",
+					self::_regex_extract_group($json, $api_services_path_regex, 1),
+					$api_service_id
+				);
+				//
+				$api_service = json_decode( file_get_contents($json), true );
+				$api_service['package'] = $pkg_id;
+				$api_service['id'] = $api_service_id;
+				$api_service['executor'] = $api_service_executor_path;
+				$api_service['enabled'] = $api_service['enabled'] && $packages[$pkg_id]['enabled'];
+				//
+				$api[$api_version]['services'][$api_service_id] = $api_service;
+			}
+		}
+		//
+		return $api;
+	}//_load_API_setup
+
+
 	/*	Loads and returns the list of pages available in every package installed on the platform.
 	*TODO: add return description
 	*/
@@ -1340,6 +1388,7 @@ class Core{
 		//
 		return $pkgs;
 	}//_load_available_packages
+
 
 }
 

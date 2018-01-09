@@ -179,7 +179,7 @@
 				<tr style="font-weight:bold">
 					<td class="col-md-1">#</td>
 					<td class="col-md-2">ID</td>
-					<td class="col-md-3">Name</td>
+					<td class="col-md-3">Title</td>
 					<td class="col-md-3">Package</td>
 					<td class="col-md-1">Enabled</td>
 					<td class="col-md-2">Actions</td>
@@ -234,6 +234,29 @@
 		<?php
 		Section::end();
 		?>
+
+
+
+		<br/><br/>
+
+		<?php
+		Section::begin('API');
+		?>
+		<p>
+			The following table reports all the API Services and Actions available on the platform.
+		</p>
+		<div style="padding:10px 0">
+
+			<?php
+			// echoArray(  );
+			// \system\classes\Core::_load_API_setup();
+			?>
+
+		</div>
+		<?php
+		Section::end();
+		?>
+
 
 
 		<br/><br/>

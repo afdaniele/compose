@@ -281,7 +281,7 @@ $total_duckiebots = sizeof( $duckiebots );
 <script type="text/javascript">
 
 	function is_recording_check(){
-		var is_recording_url = '<?php echo \system\classes\Configuration::$BASE_URL ?>web-api/<?php echo \system\classes\Configuration::$WEBAPI_VERSION ?>/server/surveillance_status/json?camera_num=1&token=<?php echo $_SESSION["TOKEN"] ?>';
+		var is_recording_url = '<?php echo \system\classes\Configuration::$BASE_URL ?>web-api/<?php echo \system\classes\Configuration::$WEBAPI_VERSION ?>/surveillance/surveillance_status/json?camera_num=1&token=<?php echo $_SESSION["TOKEN"] ?>';
 		function is_recording_callback( result ){
 			// hide the placeholder and show the container
 			$(document).find('.surveillance-status-placeholder').each(function(){
@@ -296,7 +296,7 @@ $total_duckiebots = sizeof( $duckiebots );
 	}
 
 	function recording_history(){
-		var recording_history_url = '<?php echo \system\classes\Configuration::$BASE_URL ?>web-api/<?php echo \system\classes\Configuration::$WEBAPI_VERSION ?>/server/surveillance_history/json?camera_num=1&type=recording&size=3&token=<?php echo $_SESSION["TOKEN"] ?>';
+		var recording_history_url = '<?php echo \system\classes\Configuration::$BASE_URL ?>web-api/<?php echo \system\classes\Configuration::$WEBAPI_VERSION ?>/surveillance/surveillance_history/json?camera_num=1&type=recording&size=3&token=<?php echo $_SESSION["TOKEN"] ?>';
 		function recording_history_callback( result ){
 			// create records rows
 			$.each(result.data.days, function(day) {
@@ -321,7 +321,7 @@ $total_duckiebots = sizeof( $duckiebots );
 			});
 		}
 		//
-		var recording_history_unlimited_url = '<?php echo \system\classes\Configuration::$BASE_URL ?>web-api/<?php echo \system\classes\Configuration::$WEBAPI_VERSION ?>/server/surveillance_history/json?camera_num=1&type=recording&token=<?php echo $_SESSION["TOKEN"] ?>';
+		var recording_history_unlimited_url = '<?php echo \system\classes\Configuration::$BASE_URL ?>web-api/<?php echo \system\classes\Configuration::$WEBAPI_VERSION ?>/surveillance/surveillance_history/json?camera_num=1&type=recording&token=<?php echo $_SESSION["TOKEN"] ?>';
 		function recording_history_unlimited_callback( result ){
 			// hide the placeholder and show the container
 			$(document).find('.surveillance-recording-chart-placeholder').each(function(){
@@ -357,7 +357,7 @@ $total_duckiebots = sizeof( $duckiebots );
 	}
 
 	function post_processing_history(){
-		var post_processing_history_url = '<?php echo \system\classes\Configuration::$BASE_URL ?>web-api/<?php echo \system\classes\Configuration::$WEBAPI_VERSION ?>/server/surveillance_history/json?camera_num=1&type=post-processing&size=3&token=<?php echo $_SESSION["TOKEN"] ?>';
+		var post_processing_history_url = '<?php echo \system\classes\Configuration::$BASE_URL ?>web-api/<?php echo \system\classes\Configuration::$WEBAPI_VERSION ?>/surveillance/surveillance_history/json?camera_num=1&type=post-processing&size=3&token=<?php echo $_SESSION["TOKEN"] ?>';
 		function post_processing_history_callback( result ){
 			// create records rows
 			$.each(result.data.days, function(day) {
@@ -382,7 +382,7 @@ $total_duckiebots = sizeof( $duckiebots );
 			});
 		}
 		//
-		var post_processing_history_unlimited_url = '<?php echo \system\classes\Configuration::$BASE_URL ?>web-api/<?php echo \system\classes\Configuration::$WEBAPI_VERSION ?>/server/surveillance_history/json?camera_num=1&type=post-processing&token=<?php echo $_SESSION["TOKEN"] ?>';
+		var post_processing_history_unlimited_url = '<?php echo \system\classes\Configuration::$BASE_URL ?>web-api/<?php echo \system\classes\Configuration::$WEBAPI_VERSION ?>/surveillance/surveillance_history/json?camera_num=1&type=post-processing&token=<?php echo $_SESSION["TOKEN"] ?>';
 		function post_processing_history_unlimited_callback( result ){
 			// hide the placeholder and show the container
 			$(document).find('.surveillance-postprocessing-chart-placeholder').each(function(){
@@ -420,7 +420,7 @@ $total_duckiebots = sizeof( $duckiebots );
 
 	function disk_status(){
 		// compose the url
-		var url = '<?php echo \system\classes\Configuration::$BASE_URL ?>web-api/<?php echo \system\classes\Configuration::$WEBAPI_VERSION ?>/server/disk_usage/json?camera_num=1&token=<?php echo $_SESSION["TOKEN"] ?>';
+		var url = '<?php echo \system\classes\Configuration::$BASE_URL ?>web-api/<?php echo \system\classes\Configuration::$WEBAPI_VERSION ?>/surveillance/disk_usage/json?camera_num=1&token=<?php echo $_SESSION["TOKEN"] ?>';
 		//
 		function disk_status_callback(result){
 			var config = {

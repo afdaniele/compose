@@ -1,7 +1,25 @@
 {
+    "global" : {
+        "parameters" : {
+            "embedded" : {
+                "format" : {
+                    "type" : "enum",
+                    "values" : ["json", "xml"],
+                    "details" : "Output format"
+                }
+            },
+            "mandatory" : {
+                "token" : {
+                    "type" : "alphanumeric",
+                    "details" : "Alphanumeric string used to authorize the API call within the current PHP session."
+                }
+            }
+        }
+    },
     "versions" : {
         "1.0" : {
             "enabled" : true
         }
-    }
+    },
+    "webapi-enabled" : true
 }

@@ -1,6 +1,13 @@
 <?php
+# @Author: Andrea F. Daniele <afdaniele>
+# @Date:   Monday, January 8th 2018
+# @Email:  afdaniele@ttic.edu
+# @Last modified by:   afdaniele
+# @Last modified time: Tuesday, January 9th 2018
 
-require_once __DIR__.'/../../../../classes/enum/StringType.php';
+
+
+require_once __DIR__.'/../../../classes/enum/StringType.php';
 
 
 function checkArgument( &$name, &$array, &$details, &$res, $mandatory=true ){
