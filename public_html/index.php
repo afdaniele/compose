@@ -1,4 +1,11 @@
 <?php
+# @Author: Andrea F. Daniele <afdaniele>
+# @Date:   Wednesday, December 28th 2016
+# @Email:  afdaniele@ttic.edu
+# @Last modified by:   afdaniele
+# @Last modified time: Tuesday, January 9th 2018
+
+
 
 require_once 'system/classes/Core.php';
 require_once 'system/classes/Configuration.php';
@@ -117,6 +124,13 @@ Configuration::$ACTION = $requested_action;
 
 <body <?php echo ( (Configuration::$PAGE == 'error')? 'style="background-color:white"' : '' ) ?>>
 
+	<!-- TODO: remove  -->
+	<script type="text/javascript">
+		// put jQuery v1.11.1 in noConflict mode
+		// var jQueryMaster = jQuery.noConflict(true);
+		// window.jQuery = window.$ = jQueryMaster;
+	</script>
+
 	<!-- Fixed navbar -->
 	<?php
 	include( 'system/modules/core/navbar.php' );
@@ -131,7 +145,14 @@ Configuration::$ACTION = $requested_action;
 
 		<!-- Main Container -->
 		<div>
-			<?php include(__DIR__."/system/pages/".Configuration::$PAGE."/index.php"); ?>
+			<?php
+			// include(__DIR__."/system/pages/".Configuration::$PAGE."/index.php");
+			include( Core::getPageDetails(Configuration::$PAGE, 'path')."/index.php" );
+			?>
+
+
+
+
 		</div>
 		<!-- Main Container End -->
 

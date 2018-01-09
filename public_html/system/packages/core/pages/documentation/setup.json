@@ -1,0 +1,23 @@
+{
+    "name" : "Documentation",
+    "package" : "core",
+    "menu_entry" : {
+        "order" : 100,
+        "icon" : {
+            "type" : "glyphicon",
+            "name" : "book"
+        },
+        "responsive" : {
+            "priority" : 100
+        },
+        "exclude_roles" : []
+    },
+    "child_pages" : [],
+    "access" : [
+        "administrator",
+        "supervisor",
+        "user",
+        "guest"
+    ],
+    "enabled" : true
+}

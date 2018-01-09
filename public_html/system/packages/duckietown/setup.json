@@ -1,0 +1,9 @@
+{
+    "name" : "Duckietown",
+    "description" : "Provides functionalities for managing entities in Duckietown (e.g., Duckietown, Duckiebots)",
+    "dependencies" : {
+        "system-packages" : [],
+        "packages" : []
+    },
+    "enabled" : true
+}

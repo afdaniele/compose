@@ -1,0 +1,6 @@
+# exclude everything
+*
+
+# but documentation.php and this file
+!documentation.php
+!.gitignore

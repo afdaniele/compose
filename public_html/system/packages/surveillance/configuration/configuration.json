@@ -1,0 +1,7 @@
+{
+    "disk_dev" : "/dev/sda1",
+    "raw_data_path" : "/mnt/data/duckietown-data/video",
+    "log_data_path" : "/mnt/data/duckietown-data/logs",
+    "webm_data_path" : "/mnt/data/duckietown-data/webm",
+    "activity_data_path" : "/mnt/data/duckietown-data/activity",
+}

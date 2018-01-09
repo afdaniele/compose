@@ -1,0 +1,24 @@
+{
+    "configuration_content" : {
+        "maintenance_mode" : {
+            "type" : "boolean",
+            "default" : false,
+            "details" : "Whether the platform is in maintenance mode"
+        },
+        "main_page_title" : {
+            "type" : "text",
+            "default" : "Welcome",
+            "details" : "Main title on HTML page or App"
+        },
+        "admin_contact_email_address" : {
+            "type" : "email",
+            "default" : "administrator@example.com",
+            "details" : "E-mail address of the administrator"
+        },
+        "cache_enabled" : {
+            "type" : "boolean",
+            "default" : false,
+            "details" : "Cache status"
+        },
+    }
+}

@@ -1,0 +1,30 @@
+{
+    "details" : "Provides the tools for managing PHP sessions on the Web Server",
+    "enabled" : true,
+    "actions" : {
+        "start" : {
+            "details" : "Create a new session",
+            "enabled" : true,
+            "access_level" : [
+                "guest"
+            ],
+            "read_only_session" : false,
+            "parameters" : {
+                "mandatory" : {},
+                "optional" : {}
+            },
+            "return" : {
+                "values" : {
+                    "sessionID" : {
+                        "type" : "alphanumeric",
+                        "details" : "ID of the new session"
+                    },
+                    "token" : {
+                        "type" : "alphanumeric",
+                        "details" : "Authentication token used within this session"
+                    }
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,73 @@
+{
+    "details" : "Provides the tools for managing the pages available on the platform",
+    "enabled" : true,
+	"actions" : {
+		"status" : {
+			"details" : "Returns the status of a given page",
+            "enabled" : true,
+            "access_level" : [
+                "administrator"
+            ],
+            "read_only_session" : true,
+		    "parameters" : {
+		        "mandatory" : {
+		            "id" : {
+		                "type" : "text",
+		                "details" : "ID of the page to query"
+		            }
+		        },
+		        "optional" : {}
+		    },
+		    "return" : {
+		        "values" : {
+		            "id" : {
+                        "type" : "text",
+                        "details" : "ID of the page"
+                    },
+                    "enabled" : {
+                        "type" : "boolean",
+                        "details" : "Whether the page is enabled"
+                    }
+		        }
+		    }
+		},
+		"enable" : {
+			"details" : "Enables a page",
+            "enabled" : true,
+            "access_level" : [
+                "administrator"
+            ],
+            "read_only_session" : true,
+		    "parameters" : {
+		        "mandatory" : {
+                    "id" : {
+		                "type" : "text",
+                        "length" : null,
+		                "details" : "ID of the page to enable"
+		            }
+                },
+		        "optional" : {}
+		    },
+		    "return" : {}
+		},
+        "enable" : {
+			"details" : "Disables a page",
+            "enabled" : true,
+            "access_level" : [
+                "administrator"
+            ],
+            "read_only_session" : true,
+		    "parameters" : {
+		        "mandatory" : {
+                    "id" : {
+		                "type" : "text",
+                        "length" : null,
+		                "details" : "ID of the page to disable"
+		            }
+                },
+		        "optional" : {}
+		    },
+		    "return" : {}
+		}
+	}
+}

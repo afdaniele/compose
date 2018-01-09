@@ -12,6 +12,10 @@
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteRule ^_phpMyAdmin/(.*)$ /_phpMyAdmin/index.php?arg=$1 [QSA,NC,L]
 
+    RewriteRule ^documentation/(.+)\.js$ /data/documentation/$1.js [QSA,NC,L]
+    RewriteRule ^documentation/(.+)\.css$ /data/documentation/$1.css [QSA,NC,L]
+    RewriteRule ^documentation/(.+)\.png$ /data/documentation/$1.png [QSA,NC,L]
+
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteRule ^(.*)$ index.php?arg=$1 [QSA,NC,L]
 

@@ -1,0 +1,20 @@
+{
+    "name" : "Live",
+    "menu_entry" : {
+        "order" : 2,
+        "icon" : {
+            "type" : "glyphicon",
+            "name" : "facetime-video"
+        },
+        "responsive" : {
+            "priority" : 10
+        },
+        "exclude_roles" : []
+    },
+    "child_pages" : [],
+    "access" : [
+        "administrator",
+        "supervisor"
+    ],
+    "enabled" : true
+}

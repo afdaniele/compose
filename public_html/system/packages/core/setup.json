@@ -1,0 +1,9 @@
+{
+    "name" : "Core",
+    "description" : "Provides the core functionalities of the platform",
+    "dependencies" : {
+        "system-packages" : [],
+        "packages" : []
+    },
+    "enabled" : true
+}

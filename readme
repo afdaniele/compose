@@ -2,3 +2,4 @@ Things to install:
 
 - mod_h264 for Apache2: https://wiki.paskvil.com/index.php/Install_Apache_and_PHP_to_do_Secure_h264_Pseudo_Streaming
 - ssh2 for PHP: https://www.allsupported.com/install-php5-ssh2-on-ubuntu-14/
+- doxygen 1.8.6 (used to auto-generate the documentation for the Duckieboard)

@@ -1,3 +1,12 @@
+/**
+ * @Author: Andrea F. Daniele <afdaniele>
+ * @Date:   Wednesday, December 28th 2016
+ * @Email:  afdaniele@ttic.edu
+ * @Last modified by:   afdaniele
+ * @Last modified time: Sunday, January 7th 2018
+ */
+
+
 .container{
     width: 1000px !important;
     margin: auto;
@@ -337,12 +346,6 @@ body{
     text-align: center;
 }
 
-
-
-
-
-
-
 .api-version-label{
     padding:4px 14px;
     padding-left: 16px;
@@ -353,20 +356,24 @@ body{
     font-size: 9pt;
 }
 
-.api-box-container > tbody > tr > td{
+.api-box-container > tbody > tr > td,
+.documentation-box-container > tbody > tr > td{
     padding: 0;
     vertical-align: top;
 }
 
-.api-box-container > tbody > tr > td:first-child{
+.api-box-container > tbody > tr > td:first-child,
+.documentation-box-container > tbody > tr > td:first-child{
     padding-right: 5px;
 }
 
-.api-box-container > tbody > tr > td:last-child{
+.api-box-container > tbody > tr > td:last-child,
+.documentation-box-container > tbody > tr > td:last-child{
     padding-left: 5px;
 }
 
-.api-box{
+.api-box,
+.documentation-box{
     width: 100%;
     -moz-border-radius: 4px;
     -webkit-border-radius: 4px;
@@ -374,6 +381,16 @@ body{
     border: 1px solid #d3d3d3;
     background-color: #ffffff;
     padding: 10px;
+}
+
+.documentation-content-box{
+    height: 100%;
+    display: inline-block;
+    padding: 0 0 10px 0;
+}
+
+.documentation-menu-box{
+    padding: 0;
 }
 
 #services-list h5{
@@ -449,6 +466,7 @@ body{
     height: 100%;
     padding: 0 26px;
     display: inline-block;
+    margin-bottom: 50px;
 }
 
 .api-service-box > div:first-child{

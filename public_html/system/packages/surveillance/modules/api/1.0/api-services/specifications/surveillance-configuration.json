@@ -1,0 +1,56 @@
+{
+    "details" : "Provides the tools for managing the settings",
+    "enabled" : true,
+	"actions" : {
+		"get" : {
+			"details" : "Returns the value of a given parameter",
+            "enabled" : true,
+            "access_level" : [
+                "administrator"
+            ],
+            "read_only_session" : true,
+		    "parameters" : {
+		        "mandatory" : {
+		            "key" : {
+		                "type" : "text",
+		                "details" : "Name of the parameter to query"
+		            }
+		        },
+		        "optional" : {}
+		    },
+		    "return" : {
+		        "values" : {
+		            "value" : {
+                        "type" : "key-dependant",
+                        "details" : "Value of the parameter (Serialized if array)"
+                    }
+		        }
+		    }
+		},
+		"set" : {
+			"details" : "Sets the value of a given parameter",
+            "enabled" : true,
+            "access_level" : [
+                "administrator"
+            ],
+            "read_only_session" : true,
+		    "parameters" : {
+		        "mandatory" : {
+                    "key1=val1" : {
+		                "type" : "text",
+                        "length" : null,
+		                "details" : "Tuple <code>key=val</code>, where <code>key</code> is the name of the parameter to set and <code>val</code> its value"
+		            }
+                },
+		        "optional" : {
+                    "key2=val2&..." : {
+		                "type" : "text",
+                        "length" : null,
+		                "details" : "Sequence of others <code>key=val</code> tuples"
+		            }
+                }
+		    },
+		    "return" : {}
+		}
+	}
+}

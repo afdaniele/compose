@@ -1,4 +1,11 @@
 <?php
+# @Author: Andrea F. Daniele <afdaniele>
+# @Date:   Wednesday, December 28th 2016
+# @Email:  afdaniele@ttic.edu
+# @Last modified by:   afdaniele
+# @Last modified time: Tuesday, January 9th 2018
+
+
 /**
  * Created by PhpStorm.
  * User: andrea
@@ -45,6 +52,7 @@ class Core{
 	// Fields
 	private static $cache = null;
 
+	private static $packages = null;
 	private static $pages = null;
 
 	private static $regexes = array(
@@ -77,7 +85,10 @@ class Core{
 	public static function initCore(){
 		if( !self::$initialized ){
 			mb_internal_encoding("UTF-8");
-			//init configuration
+			// init global variables
+			$GLOBALS['__SYSTEM__DIR__'] = __DIR__.'/../';
+			$GLOBALS['__CORE__DIR__'] = __DIR__.'/../packages/core/';
+			// init configuration
 			$res = Configuration::init();
 			if( !$res['success'] ){
 				return $res;
@@ -99,6 +110,8 @@ class Core{
 				$_SESSION['CACHE_GROUPS'] = array();
 				//
 			}catch(\Exception $e){}
+			// load list of available packages
+			self::$packages = self::_load_available_packages();
 			// load list of available pages
 			self::$pages = self::_load_available_pages();
 			//
@@ -193,6 +206,12 @@ class Core{
 
 	// =================================================================================================================
 	// 2. Getter functions
+
+	/*	Returns the list of packages installed on the platform.
+	*/
+	public static function getPackagesList(){
+		return self::$packages;
+	}//getPackagesList
 
 	public static function getPagesList( $order=null ){
 		if( is_null($order) || !isset(self::$pages[$order]) ){
@@ -1241,9 +1260,13 @@ class Core{
 	    return $matches[$groupNum][0];
 	}//_regex_extract_group
 
+
+	/*	Loads and returns the list of pages available in every package installed on the platform.
+	*TODO: add return description
+	*/
 	private static function _load_available_pages(){
-		$pages_descriptors = __DIR__."/../pages/*/setup.json";
-		$jsons = glob( $pages_descriptors );
+		$packages = self::getPackagesList();
+		$packages_ids = array_keys( $packages );
 		//
 		$pages = [
 			'list' => [],
@@ -1259,21 +1282,30 @@ class Core{
 			'by-menuorder' => [],
 			'by-responsive-priority' => []
 		];
-		foreach ($jsons as $json) {
-			$page_id = self::_regex_extract_group($json, "/.*pages\/(.+)\/setup.json/", 1);
-			$page = json_decode( file_get_contents($json), true );
-			$page['id'] = $page_id;
-			// list
-			array_push( $pages['list'], $page );
-			// by-id
-			$pages['by-id'][$page_id] = $page;
-			// by-package
-			$package = $page['package'];
-			if( !array_key_exists($package, $pages['by-package']) ) $pages['by-package'][$package] = [];
-			array_push( $pages['by-package'][$package], $page );
-			// by-usertype
-			foreach ($page['access'] as $access) {
-				array_push( $pages['by-usertype'][$access], $page );
+		//
+		foreach( $packages_ids as $pkg_id ){
+			$pages_descriptors = sprintf("%s/../packages/%s/pages/*/setup.json", __DIR__, $pkg_id);
+			$jsons = glob( $pages_descriptors );
+			$pages['by-package'][$pkg_id] = [];
+			//
+			foreach ($jsons as $json) {
+				$page_id = self::_regex_extract_group($json, "/.*pages\/(.+)\/setup.json/", 1);
+				$page_path = self::_regex_extract_group($json, "/(.+)\/setup.json/", 1);
+				$page = json_decode( file_get_contents($json), true );
+				$page['package'] = $pkg_id;
+				$page['id'] = $page_id;
+				$page['path'] = $page_path;
+				$page['enabled'] = $page['enabled'] && $packages[$pkg_id]['enabled'];
+				// list
+				array_push( $pages['list'], $page );
+				// by-id
+				$pages['by-id'][$page_id] = $page;
+				// by-package
+				array_push( $pages['by-package'][$pkg_id], $page );
+				// by-usertype
+				foreach ($page['access'] as $access) {
+					array_push( $pages['by-usertype'][$access], $page );
+				}
 			}
 		}
 		// by-menuorder
@@ -1291,6 +1323,23 @@ class Core{
 		//
 		return $pages;
 	}//_load_available_pages
+
+
+	private static function _load_available_packages(){
+		$pkgs_descriptors = __DIR__."/../packages/*/setup.json";
+		$jsons = glob( $pkgs_descriptors );
+		//
+		$pkgs = [];
+		foreach ($jsons as $json) {
+			$pkg_id = self::_regex_extract_group($json, "/.*packages\/(.+)\/setup.json/", 1);
+			$pkg = json_decode( file_get_contents($json), true );
+			$pkg['id'] = $pkg_id;
+			// by-id
+			$pkgs[$pkg_id] = $pkg;
+		}
+		//
+		return $pkgs;
+	}//_load_available_packages
 
 }
 

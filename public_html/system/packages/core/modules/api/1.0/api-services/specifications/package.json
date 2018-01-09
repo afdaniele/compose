@@ -1,0 +1,79 @@
+{
+    "details" : "Provides the tools for managing the packages installed on the platform",
+    "enabled" : true,
+	"actions" : {
+		"status" : {
+			"details" : "Returns the status of a given package",
+            "enabled" : true,
+            "access_level" : [
+                "administrator"
+            ],
+            "read_only_session" : true,
+		    "parameters" : {
+		        "mandatory" : {
+		            "name" : {
+		                "type" : "text",
+		                "details" : "Name of the package to query"
+		            }
+		        },
+		        "optional" : {}
+		    },
+		    "return" : {
+		        "values" : {
+		            "name" : {
+                        "type" : "text",
+                        "details" : "Name of the package"
+                    },
+                    "enabled" : {
+                        "type" : "boolean",
+                        "details" : "Whether the package is enabled"
+                    }
+		        }
+		    }
+		},
+		"enable" : {
+			"details" : "Enables a package",
+            "enabled" : true,
+            "access_level" : [
+                "administrator"
+            ],
+            "read_only_session" : true,
+		    "parameters" : {
+		        "mandatory" : {
+                    "name" : {
+		                "type" : "text",
+                        "length" : null,
+		                "details" : "Name of the package to enable"
+		            }
+                },
+		        "optional" : {
+                    "ignore-pages" : {
+		                "type" : "boolean",
+                        "length" : null,
+		                "details" : "Whether to leave the pages of this package disabled"
+		            }
+                }
+		    },
+		    "return" : {}
+		},
+		"disable" : {
+			"details" : "Disables a package and every module, page and API service it contains",
+            "enabled" : true,
+            "access_level" : [
+                "administrator"
+            ],
+            "read_only_session" : true,
+		    "parameters" : {
+		        "mandatory" : {
+                    "name" : {
+		                "type" : "text",
+                        "length" : null,
+		                "details" : "Name of the package to disable"
+		            }
+                },
+		        "optional" : {}
+		    },
+		    "return" : {}
+		}
+	}
+}
