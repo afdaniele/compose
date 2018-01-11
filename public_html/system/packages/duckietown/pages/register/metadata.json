@@ -1,21 +1,19 @@
 {
-    "name" : "Dashboard",
+    "name" : "Find your Duckiebot",
     "package" : "duckietown",
     "menu_entry" : {
-        "order" : 0,
+        "order" : 1,
         "icon" : {
             "type" : "glyphicon",
-            "name" : "th-large"
+            "name" : "search"
         },
         "responsive" : {
-            "priority" : -100
+            "priority" : 1
         },
         "exclude_roles" : []
     },
     "child_pages" : [],
     "access" : [
-        "administrator",
-        "supervisor"
-    ],
-    "enabled" : true
+        "candidate"
+    ]
 }

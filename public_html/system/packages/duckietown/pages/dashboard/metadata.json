@@ -1,20 +1,20 @@
 {
-    "name" : "Settings",
-    "package" : "core",
+    "name" : "Dashboard",
+    "package" : "duckietown",
     "menu_entry" : {
-        "order" : 4,
+        "order" : 0,
         "icon" : {
             "type" : "glyphicon",
-            "name" : "cog"
+            "name" : "th-large"
         },
         "responsive" : {
-            "priority" : 30
+            "priority" : -100
         },
         "exclude_roles" : []
     },
     "child_pages" : [],
     "access" : [
-        "administrator"
-    ],
-    "enabled" : true
+        "administrator",
+        "supervisor"
+    ]
 }

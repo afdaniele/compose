@@ -20,6 +20,5 @@
         "administrator",
         "supervisor",
         "user"
-    ],
-    "enabled" : true
+    ]
 }

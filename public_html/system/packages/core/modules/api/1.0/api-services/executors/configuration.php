@@ -3,7 +3,7 @@
 # @Date:   Monday, January 8th 2018
 # @Email:  afdaniele@ttic.edu
 # @Last modified by:   afdaniele
-# @Last modified time: Monday, January 8th 2018
+# @Last modified time: Tuesday, January 9th 2018
 
 
 
@@ -18,6 +18,7 @@ function execute( &$service, &$actionName, &$arguments ){
 	//
 	switch( $actionName ){
 		case 'get':
+			//TODO: update this to handle the package name
 			$key = $arguments['key'];
 			//
 			$res = \system\classes\Configuration::get( $key );
@@ -28,6 +29,7 @@ function execute( &$service, &$actionName, &$arguments ){
 			break;
 		//
 		case 'set':
+			//TODO: update this to handle the package name
 			$keys = $service['actions']['get']['parameters']['mandatory']['key']['values'];
 			$k = 0;
 			$error = null;

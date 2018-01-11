@@ -3,13 +3,16 @@
 # @Date:   Wednesday, December 28th 2016
 # @Email:  afdaniele@ttic.edu
 # @Last modified by:   afdaniele
-# @Last modified time: Tuesday, January 9th 2018
+# @Last modified time: Wednesday, January 10th 2018
 
 
 
 
 //error_reporting(E_ALL ^ E_NOTICE); //TODO
 //ini_set('display_errors', 1); //TODO
+
+
+require_once __DIR__.'/../system/environment.php';
 
 
 // unset the control variables
@@ -25,21 +28,21 @@ if( isset($_GET['error']) ){
 
 
 // load core classes and utility
-require_once __DIR__.'/../system/classes/Core.php';
+require_once $GLOBALS['__SYSTEM__DIR__'].'/../system/classes/Core.php';
 use system\classes\Core as Core;
 
 // init Core
 Core::initCore();
 
 
-require_once $__SYSTEM__DIR__.'classes/enum/StringType.php';
+require_once $GLOBALS['__SYSTEM__DIR__'].'classes/enum/StringType.php';
 use system\classes\enum\StringType as StringType;
 
 
-require_once $__SYSTEM__DIR__.'utils/utils.php';
+require_once $GLOBALS['__SYSTEM__DIR__'].'utils/utils.php';
 
 
-require_once $__SYSTEM__DIR__.'classes/Configuration.php';
+require_once $GLOBALS['__SYSTEM__DIR__'].'classes/Configuration.php';
 use system\classes\Configuration as Configuration;
 
 

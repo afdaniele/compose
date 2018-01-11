@@ -3,8 +3,10 @@
 # @Date:   Wednesday, December 28th 2016
 # @Email:  afdaniele@ttic.edu
 # @Last modified by:   afdaniele
-# @Last modified time: Tuesday, January 9th 2018
+# @Last modified time: Wednesday, January 10th 2018
 
+
+require_once 'system/environment.php';
 
 
 require_once 'system/classes/Core.php';
@@ -22,7 +24,7 @@ use system\classes\Configuration as Configuration;
 Core::initCore();
 
 // load the error handler module
-require_once 'system/modules/core/error_handler.php';
+require_once 'system/packages/core/modules/error_handler.php';
 
 // create a Session
 Core::startSession();
@@ -103,7 +105,7 @@ Configuration::$ACTION = $requested_action;
 	<script src="<?php echo Configuration::$BASE_URL ?>js/Chart.min.js"></script>
 
 	<!-- Custom JS -->
-	<script src="<?php echo Configuration::$BASE_URL ?>js/document.js"></script>
+	<script src="<?php echo Configuration::$BASE_URL ?>js/compose.js"></script>
 
 	<!-- Utility JS -->
 	<script src="<?php echo Configuration::$BASE_URL ?>js/md5.js"></script>
@@ -124,35 +126,23 @@ Configuration::$ACTION = $requested_action;
 
 <body <?php echo ( (Configuration::$PAGE == 'error')? 'style="background-color:white"' : '' ) ?>>
 
-	<!-- TODO: remove  -->
-	<script type="text/javascript">
-		// put jQuery v1.11.1 in noConflict mode
-		// var jQueryMaster = jQuery.noConflict(true);
-		// window.jQuery = window.$ = jQueryMaster;
-	</script>
-
 	<!-- Fixed navbar -->
 	<?php
-	include( 'system/modules/core/navbar.php' );
+	include( 'system/packages/core/modules/navbar.php' );
 	?>
 
 	<!-- Begin page content -->
 	<div class="container" style="padding-bottom:15px; margin-top:42px">
 
-		<?php include(__DIR__."/system/modules/core/alerts.php"); ?>
+		<?php include( 'system/packages/core/modules/alerts.php' ); ?>
 
 		<br>
 
 		<!-- Main Container -->
 		<div>
 			<?php
-			// include(__DIR__."/system/pages/".Configuration::$PAGE."/index.php");
 			include( Core::getPageDetails(Configuration::$PAGE, 'path')."/index.php" );
 			?>
-
-
-
-
 		</div>
 		<!-- Main Container End -->
 
@@ -161,14 +151,14 @@ Configuration::$ACTION = $requested_action;
 	</div>
 
 	<?php
-	include( 'system/modules/core/modals/loading_modal.php' );
-	include( 'system/modules/core/modals/success_modal.php' );
-	include( 'system/modules/core/modals/yes_no_modal.php' );
+	include( 'system/packages/core/modules/modals/loading_modal.php' );
+	include( 'system/packages/core/modules/modals/success_modal.php' );
+	include( 'system/packages/core/modules/modals/yes_no_modal.php' );
 	?>
 
 	<!-- Fixed footer -->
 	<?php
-	include( 'system/modules/core/footer' . ( (Core::isUserLoggedIn())? '' : '_guest' ) . '.php' );
+	include( 'system/packages/core/modules/footer' . ( (Core::isUserLoggedIn())? '' : '_guest' ) . '.php' );
 	?>
 
 

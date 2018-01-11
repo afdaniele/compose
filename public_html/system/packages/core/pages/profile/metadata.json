@@ -1,20 +1,21 @@
 {
-    "name" : "Live",
+    "name" : "Profile",
+    "package" : "core",
     "menu_entry" : {
-        "order" : 2,
+        "order" : 5,
         "icon" : {
             "type" : "glyphicon",
-            "name" : "facetime-video"
+            "name" : "align-justify"
         },
         "responsive" : {
-            "priority" : 10
+            "priority" : 40
         },
         "exclude_roles" : []
     },
     "child_pages" : [],
     "access" : [
         "administrator",
-        "supervisor"
-    ],
-    "enabled" : true
+        "supervisor",
+        "user"
+    ]
 }

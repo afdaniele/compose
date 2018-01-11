@@ -3,11 +3,12 @@
 # @Date:   Thursday, October 12th 2017
 # @Email:  afdaniele@ttic.edu
 # @Last modified by:   afdaniele
-# @Last modified time: Tuesday, January 9th 2018
+# @Last modified time: Wednesday, January 10th 2018
 
 
+use \system\packages\surveillance\Surveillance as Surveillance;
 
-require_once $__SYSTEM__DIR__.'templates/tableviewers/TableViewer.php';
+require_once $GLOBALS['__SYSTEM__DIR__'].'templates/tableviewers/TableViewer.php';
 
 
 // Define constants
@@ -64,7 +65,7 @@ $now_minute_int = (int)date('i');
 $now_str = sprintf( "%s.%02d", $now_hour_str, 30*( ($now_minute_int >= 30)? 1 : 0 ) );
 
 // get real-time camera status
-$cameraStatus = \system\classes\Core::getSurveillanceStatus( $camera_num );
+$cameraStatus = Surveillance::getSurveillanceStatus( $camera_num );
 $current_chunk_str = $cameraStatus['chunk'];
 ?>
 
@@ -112,8 +113,8 @@ $current_chunk_str = $cameraStatus['chunk'];
 
 		$month_short = date('M', mktime(0, 0, 0, $month, 10));
 
-		$rec_history = \system\classes\Core::getSurveillanceRecordingHistory( $camera_num, null, $month );
-		$pproc_history = \system\classes\Core::getSurveillancePostProcessingHistory( $camera_num, null, $month );
+		$rec_history = Surveillance::getSurveillanceRecordingHistory( $camera_num, null, $month );
+		$pproc_history = Surveillance::getSurveillancePostProcessingHistory( $camera_num, null, $month );
 
 		$motion_datasets = array();
 		$zero_motion = array_fill(0,$activity_plot_points_per_segment,0);
@@ -162,7 +163,7 @@ $current_chunk_str = $cameraStatus['chunk'];
 										<div class="rotated90ccw" style="margin-left:-5px">No&nbsp;Data</div>
 										<?php
 									}else{
-										$motion_thumbnail = \system\classes\Core::getSurveillanceActivityThumbnail( $camera_num, $date_str );
+										$motion_thumbnail = Surveillance::getSurveillanceActivityThumbnail( $camera_num, $date_str );
 										if( $motion_thumbnail['success'] && isset($motion_thumbnail['data']['thumbnails']) ){
 											$motion_thumbnail = $motion_thumbnail['data']['thumbnails'];
 										}else{

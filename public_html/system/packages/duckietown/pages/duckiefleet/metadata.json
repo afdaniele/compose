@@ -18,6 +18,5 @@
     "access" : [
         "administrator",
         "supervisor"
-    ],
-    "enabled" : true
+    ]
 }

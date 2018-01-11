@@ -1,0 +1,5 @@
+{
+    "details" : "Provides info about the server",
+    "enabled" : true,
+	"actions" : {}
+}

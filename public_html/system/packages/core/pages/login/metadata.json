@@ -1,0 +1,19 @@
+{
+    "name" : "Login",
+    "package" : "core",
+    "menu_entry" : {
+        "order" : -1,
+        "icon" : {
+            "type" : "glyphicon",
+            "name" : "log-in"
+        },
+        "responsive" : {
+            "priority" : 0
+        },
+        "exclude_roles" : []
+    },
+    "child_pages" : [],
+    "access" : [
+        "guest"
+    ]
+}

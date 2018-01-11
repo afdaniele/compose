@@ -1,20 +1,19 @@
 {
-    "name" : "Find your Duckiebot",
-    "package" : "duckietown",
+    "name" : "Live",
     "menu_entry" : {
-        "order" : 1,
+        "order" : 2,
         "icon" : {
             "type" : "glyphicon",
-            "name" : "search"
+            "name" : "facetime-video"
         },
         "responsive" : {
-            "priority" : 1
+            "priority" : 10
         },
         "exclude_roles" : []
     },
     "child_pages" : [],
     "access" : [
-        "candidate"
-    ],
-    "enabled" : true
+        "administrator",
+        "supervisor"
+    ]
 }

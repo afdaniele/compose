@@ -8,6 +8,5 @@
         "supervisor",
         "user",
         "guest"
-    ],
-    "enabled" : true
+    ]
 }

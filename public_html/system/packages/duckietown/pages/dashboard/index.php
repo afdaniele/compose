@@ -3,7 +3,16 @@
 # @Date:   Wednesday, December 28th 2016
 # @Email:  afdaniele@ttic.edu
 # @Last modified by:   afdaniele
-# @Last modified time: Tuesday, January 9th 2018
+# @Last modified time: Wednesday, January 10th 2018
+
+
+require_once $GLOBALS['__PACKAGES__DIR__'].'server/Server.php';
+require_once $GLOBALS['__PACKAGES__DIR__'].'duckietown/Duckietown.php';
+
+use \system\packages\server\Server as Server;
+use \system\packages\duckietown\Duckietown as Duckietown;
+
+
 
 ?>
 
@@ -47,7 +56,7 @@
 
 <?php
 
-$duckiebots = \system\classes\Core::getDuckiebotsCurrentBranch();
+$duckiebots = Duckietown::getDuckiebotsCurrentBranch();
 $total_duckiebots = sizeof( $duckiebots );
 
 ?>
@@ -72,7 +81,7 @@ $total_duckiebots = sizeof( $duckiebots );
 				<div class="col-md-12 text-left" style="padding:6px 12px; height:180px">
 					<div id="server-info-chart-container" style="margin:auto">
 						<?php
-						$server_status = \system\classes\Core::getServerStatus();
+						$server_status = Server::getServerStatus();
 
 						$server_details = array(
 							array( 'name' => "Operating System", 'icon' => "linux", 'value' => $server_status['os_release'] ),

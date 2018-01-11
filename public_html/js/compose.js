@@ -1,3 +1,12 @@
+/**
+ * @Author: Andrea F. Daniele <afdaniele>
+ * @Date:   Wednesday, December 28th 2016
+ * @Email:  afdaniele@ttic.edu
+ * @Last modified by:   afdaniele
+ * @Last modified time: Wednesday, January 10th 2018
+ */
+
+
 window.chartColors = {
     red: 'rgb(255, 99, 132)',
     orange: 'rgb(255, 159, 64)',

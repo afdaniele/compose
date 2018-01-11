@@ -7,7 +7,7 @@
 
 
 
-require_once $__SYSTEM__DIR__.'templates/tableviewers/TableViewer.php';
+require_once $GLOBALS['__SYSTEM__DIR__'].'templates/tableviewers/TableViewer.php';
 
 // Define Constants
 

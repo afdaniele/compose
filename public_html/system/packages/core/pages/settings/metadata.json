@@ -1,23 +1,19 @@
 {
-    "name" : "Documentation",
+    "name" : "Settings",
     "package" : "core",
     "menu_entry" : {
-        "order" : 100,
+        "order" : 4,
         "icon" : {
             "type" : "glyphicon",
-            "name" : "book"
+            "name" : "cog"
         },
         "responsive" : {
-            "priority" : 100
+            "priority" : 30
         },
         "exclude_roles" : []
     },
     "child_pages" : [],
     "access" : [
-        "administrator",
-        "supervisor",
-        "user",
-        "guest"
-    ],
-    "enabled" : true
+        "administrator"
+    ]
 }

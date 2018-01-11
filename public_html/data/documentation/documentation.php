@@ -3,7 +3,7 @@
 # @Date:   Sunday, January 7th 2018
 # @Email:  afdaniele@ttic.edu
 # @Last modified by:   afdaniele
-# @Last modified time: Monday, January 8th 2018
+# @Last modified time: Wednesday, January 10th 2018
 
 $page_file_name = $_GET['file'];
 
@@ -34,6 +34,11 @@ $xpath = new DomXPath($dom);
 	<!-- Bootstrap v3.3.1 by getboostrap.com -->
 	<link href="../../css/style.css" rel="stylesheet" type="text/css" >
 
+	<!-- highlight.js 9.12.0 -->
+	<link rel="stylesheet" href="../../css/highlight.js/arduino-light.css">
+	<script src="../../js/highlight.min.js"></script>
+
+
 	<?php
 	// load CSS files
 	$nodes = $xpath->query('/html/head/link[@type="text/css"]');
@@ -56,6 +61,8 @@ $xpath = new DomXPath($dom);
 	?>
 </head>
 <body>
+
+	<script>hljs.initHighlightingOnLoad();</script>
 
     <style type="text/css">
 		body{
@@ -113,6 +120,14 @@ $xpath = new DomXPath($dom);
 
 		.memitem{
 			margin-bottom: 30px;
+		}
+
+		.paramtype{
+			font-weight: bold;
+		}
+
+		pre code.hljs{
+			padding: 0;
 		}
     </style>
 

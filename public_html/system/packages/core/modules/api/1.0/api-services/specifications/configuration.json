@@ -11,8 +11,14 @@
             "read_only_session" : true,
 		    "parameters" : {
 		        "mandatory" : {
+                    "package" : {
+		                "type" : "text",
+                        "length" : null,
+		                "details" : "Name of the package the parameter to query belongs to"
+		            },
 		            "key" : {
 		                "type" : "text",
+                        "length" : null,
 		                "details" : "Name of the parameter to query"
 		            }
 		        },
@@ -20,8 +26,19 @@
 		    },
 		    "return" : {
 		        "values" : {
+                    "package" : {
+		                "type" : "text",
+                        "length" : null,
+		                "details" : "Name of the package the parameter queried belong to"
+		            },
+                    "key" : {
+		                "type" : "text",
+                        "length" : null,
+		                "details" : "Name of the parameter queried"
+		            },
 		            "value" : {
                         "type" : "key-dependant",
+                        "length" : null,
                         "details" : "Value of the parameter (Serialized if array)"
                     }
 		        }
@@ -36,6 +53,11 @@
             "read_only_session" : true,
 		    "parameters" : {
 		        "mandatory" : {
+                    "package" : {
+		                "type" : "text",
+                        "length" : null,
+		                "details" : "Name of the package the parameter(s) to set belong to"
+		            },
                     "key1=val1" : {
 		                "type" : "text",
                         "length" : null,

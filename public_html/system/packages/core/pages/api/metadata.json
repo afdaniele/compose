@@ -1,14 +1,14 @@
 {
-    "name" : "Profile",
+    "name" : "API",
     "package" : "core",
     "menu_entry" : {
-        "order" : 5,
+        "order" : 6,
         "icon" : {
-            "type" : "glyphicon",
-            "name" : "align-justify"
+            "type" : "fa",
+            "name" : "code"
         },
         "responsive" : {
-            "priority" : 40
+            "priority" : 50
         },
         "exclude_roles" : []
     },
@@ -17,6 +17,5 @@
         "administrator",
         "supervisor",
         "user"
-    ],
-    "enabled" : true
+    ]
 }

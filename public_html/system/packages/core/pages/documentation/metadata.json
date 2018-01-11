@@ -1,20 +1,22 @@
 {
-    "name" : "Login",
+    "name" : "Documentation",
     "package" : "core",
     "menu_entry" : {
-        "order" : -1,
+        "order" : 100,
         "icon" : {
             "type" : "glyphicon",
-            "name" : "log-in"
+            "name" : "book"
         },
         "responsive" : {
-            "priority" : 0
+            "priority" : 100
         },
         "exclude_roles" : []
     },
     "child_pages" : [],
     "access" : [
+        "administrator",
+        "supervisor",
+        "user",
         "guest"
-    ],
-    "enabled" : true
+    ]
 }

@@ -1,4 +1,13 @@
 <?php
+# @Author: Andrea F. Daniele <afdaniele>
+# @Date:   Thursday, October 12th 2017
+# @Email:  afdaniele@ttic.edu
+# @Last modified by:   afdaniele
+# @Last modified time: Wednesday, January 10th 2018
+
+
+
+use \system\packages\surveillance\Surveillance as Surveillance;
 
 // Get the argument `segment`
 $segment = $_GET['segment'];
@@ -9,7 +18,7 @@ parse_str( base64_decode( urldecode($_GET['lst']) ), $qs );
 $camera_num = $qs['camera_num'];
 
 $segment_is_valid = ( preg_match('/[0-9]{4}-[0-9]{2}-[0-9]{2}_[0-9]{2}\.[0-9]{2}/', $segment) === 1 );
-$segment_exists = \system\classes\Core::isWebMSurveillanceSegmentPresent( $camera_num, $segment );
+$segment_exists = Surveillance::isWebMSurveillanceSegmentPresent( $camera_num, $segment );
 
 if( !$segment_is_valid || !$segment_exists ){
 	$_SESSION['_ALERT_WARNING'] = "The segment has not yet been converted to the web-format. The video segments are accessible via web only after the post-processing step.";
@@ -57,10 +66,10 @@ $min = $chunk_parts[1];
 	<div class="text-right" style="width:100%; margin:40px 0 20px 0">
 		<h4 style="display:inline">Downloads:</h4>&nbsp;&nbsp;
 		<a role="button" class="btn btn-primary" style="margin-right:10px" href="<?php echo \system\classes\Configuration::$BASE_URL ?>surveillance_data_1_hd/<?php echo $date ?>/<?php echo $segment ?>.mp4" Download>
-			Download HD (<?php echo \system\classes\Core::sizeOfSurveillanceSegment( $camera_num, $segment ) ?>)
+			Download HD (<?php echo Surveillance::sizeOfSurveillanceSegment( $camera_num, $segment ) ?>)
 		</a>
 		<a role="button" class="btn btn-primary" href="<?php echo \system\classes\Configuration::$BASE_URL ?>surveillance_data_1_sd/<?php echo $date ?>/web_<?php echo $segment ?>.mp4" download>
-			Download SD (<?php echo \system\classes\Core::sizeOfWebMSurveillanceSegment( $camera_num, $segment ) ?>)
+			Download SD (<?php echo Surveillance::sizeOfWebMSurveillanceSegment( $camera_num, $segment ) ?>)
 		</a>
 
 	</div>
