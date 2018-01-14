@@ -54,6 +54,20 @@ of \compose\, where no packages are installed.
 // valid name for a package contains only [a-z0-9]+
 
 
+### Custom images
+
+A package can contain additional images. Images within a container must be stored in
+the folder `./images/`. An image introduced by a package is accessible via the URL
+  `http://![your_website]/data/image.php?package=![package_name]&image=![filename_with_extension]`
+  
+ For example, if the package `server` exports the image `disk_full.png`, the URL of the image
+ will be 
+   `http://![your_website]/data/image.php?package=server&image=disk_full.png`
+ 
+
+
+
+
 // Everything from here on has to be checked and updated
 
 
