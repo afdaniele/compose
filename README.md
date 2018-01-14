@@ -1,10 +1,10 @@
-# \compose\ - A lightweight web-based CMS.
+# <img src="http://compose.afdaniele.com/images/compose-black-logo.svg" height="36px" /> - A lightweight web-based CMS.
 
 ![](http://compose.afdaniele.com/images/compose-black-logo.svg)
 
 
 
-<img src="http://compose.afdaniele.com/images/compose-black-logo.svg" height="24" />
+
 
 
 
