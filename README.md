@@ -2,13 +2,13 @@
 
 
 
-# \compose\ - A lightweight web-based CMS.
+# A lightweight web-based CMS.
 
 
-The \compose\ platform is written in PHP and provides functionalities
-for fast-developing web-based applications on Linux servers.
+**\\compose\\** is a platform written in PHP that provides functionalities
+for fast-developing web applications on Linux servers.
 
-Born to be modular, \compose\ is built around the concept of installable
+Born to be modular, **\\compose\\** is built around the concept of installable
 packages. The built-in Core package is responsible for managing the 
 third-party packages and allows us to install, remove, update, enable/disable
 packages directly from the browser.
@@ -38,7 +38,7 @@ The Core package provides the following functionalities:
 
 ## Packages
 
-Functionalities in \compose\ are provided by installable packages.
+Functionalities in **\\compose\\** are provided by installable packages.
 Each package can add new pages to the platform, new Core functionalities,
 new API services, its own configuration scheme.
 All these functionalities are defined within a package in JSON files. 
@@ -46,9 +46,9 @@ Once a package is installed, all the new functionalities will be handled
 seamlessly by the Core module. The new pages will be instantly available,
 the API services ready to be served, etc.
 
-\compose\ is a powerful tool, so let's take our time and go through all 
+**\\compose\\** is a powerful tool, so let's take our time and go through all 
 its functionalities. Let's start by looking at the simplest configuration
-of \compose\, where no packages are installed.
+of **\\compose\\**, where no packages are installed.
 
 //TODO: show image here
 
@@ -70,11 +70,11 @@ where you replace **your_website** with the name of your website (e.g., *compose
 **package_name** with the name of the package exporting the image (e.g., *my_package*), and 
 **filename_with_extension** the name of the file including its extension (e.g., *image_01.jpg*).
  
-For example, if the package `server` exports the image `disk_full.png`, the URL of the image
-will be 
+For example, if your website with **\\compose\\** is `www.example.com`, and the package `server` 
+exports the image `disk_full.png`, the link to the image will be 
    
 <pre>
-http://<b>your_website</b>/data/image.php?package=<b>server</b>&image=<b>disk_full.png</b>
+http://<b>www.example.com</b>/data/image.php?package=<b>server</b>&image=<b>disk_full.png</b>
 </pre>
 
 
