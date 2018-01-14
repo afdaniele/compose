@@ -1,8 +1,56 @@
-# Duckieboard - A Remote Dashboard for Duckietown
+# \compose\ - A lightweight web-based CMS.
 
-The Duckietown Remote Dashboard (duckieboard) is a web
-platform that provides high level fleet management and
-monitoring capabilities for Duckietown.
+The \compose\ platform is written in PHP and provides functionalities
+for fast-developing web-based applications on Linux servers.
+
+Born to be modular, \compose\ is built around the concept of installable
+packages. The built-in Core package is responsible for managing the 
+third-party packages and allows us to install, remove, update, enable/disable
+packages directly from the browser.
+
+Features:
+- Built-in support for different types of users;
+- 4 types of users supported by default: `guest`, `user`, `supervisor`, `administrator`;
+- Web-based package manager;
+- Web-based pages manager;
+- Web-based API manager;
+- Built-in support for Google Sign-In OAuth 2.0 authentication;
+- Built-in HTTP RESTful API;
+- many more
+
+
+## Core package
+
+The Core package provides the following functionalities:
+- PHP Framework for developing your own application (package)
+- Packages management
+- Pages management
+- RESTful API service module
+- API services management
+- Users management
+- Automatic documentation generation for open-source projects (optional)
+
+
+## Packages
+
+Functionalities in \compose\ are provided by installable packages.
+Each package can add new pages to the platform, new Core functionalities,
+new API services, its own configuration scheme.
+All these functionalities are defined within a package in JSON files. 
+Once a package is installed, all the new functionalities will be handled 
+seamlessly by the Core module. The new pages will be instantly available,
+the API services ready to be served, etc.
+
+\compose\ is a powerful tool, so let's take our time and go through all 
+its functionalities. Let's start by looking at the simplest configuration
+of \compose\, where no packages are installed.
+
+//TODO: show image here
+
+// explain all the pages here and show them as well.
+
+
+// Everything from here on has to be checked and updated
 
 
 ## Setup
