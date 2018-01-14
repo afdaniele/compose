@@ -21,7 +21,7 @@ Features:
 - Web-based API manager;
 - Built-in support for Google Sign-In OAuth 2.0 authentication;
 - Built-in HTTP RESTful API;
-- many more
+- *and many many more...*
 
 
 ## Core package
