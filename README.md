@@ -1,11 +1,10 @@
-# <img src="http://compose.afdaniele.com/images/compose-black-logo.svg" height="36px" /> - A lightweight web-based CMS.
 
-![](http://compose.afdaniele.com/images/compose-black-logo.svg)
-
-
-
+<p style="text-align:center">
+  <img src="http://compose.afdaniele.com/images/compose-black-logo.svg"/>
+</p>
 
 
+# <img src="http://compose.afdaniele.com/images/compose-black-logo.svg" style="height:38px; margin-bottom:-10px;" /> - A lightweight web-based CMS.
 
 
 The \compose\ platform is written in PHP and provides functionalities
