@@ -58,13 +58,21 @@ of \compose\, where no packages are installed.
 
 A package can contain additional images. Images within a container must be stored in
 the folder `./images/`. An image introduced by a package is accessible via the URL
-  `http://![your_website]/data/image.php?package=![package_name]&image=![filename_with_extension]`
   
- For example, if the package `server` exports the image `disk_full.png`, the URL of the image
- will be 
-   `http://![your_website]/data/image.php?package=server&image=disk_full.png`
+<pre>
+http://<b>your_website</b>/data/image.php?package=<b>package_name</b>&image=<b>filename_with_extension</b>
+</pre>
  
-
+where you replace **your_website** with the name of your website (e.g., *compose.afdaniele.com*),
+**package_name** with the name of the package exporting the image (e.g., *my_package*), and 
+**filename_with_extension** the name of the file including its extension (e.g., *image_01.jpg*).
+ 
+For example, if the package `server` exports the image `disk_full.png`, the URL of the image
+will be 
+   
+<pre>
+http://<b>your_website</b>/data/image.php?package=<b>server</b>&image=<b>disk_full.png</b>
+</pre>
 
 
 
