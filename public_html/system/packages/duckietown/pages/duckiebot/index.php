@@ -1,10 +1,20 @@
 <?php
+# @Author: Andrea F. Daniele <afdaniele>
+# @Date:   Tuesday, January 9th 2018
+# @Email:  afdaniele@ttic.edu
+# @Last modified by:   afdaniele
+# @Last modified time: Wednesday, January 10th 2018
+
+
+
+require_once $GLOBALS['__PACKAGES__DIR__'].'duckietown/Duckietown.php';
+use \system\packages\duckietown\Duckietown as Duckietown;
 
 $duckiebotName = null;
 
 if( \system\classes\Core::getUserRole() == 'user' ){
 	$user = \system\classes\Core::getLoggedUser('username');
-	$res = \system\classes\Core::getDuckiebotLinkedToUser( $user );
+	$res = Duckietown::getDuckiebotLinkedToUser( $user );
 	if( !$res['success'] ){
 		\system\classes\Core::throwError(
 			sprintf('Error: "%s"', $res['data'])
@@ -21,7 +31,7 @@ if( \system\classes\Core::getUserRole() == 'user' ){
 	}
 }
 
-if( !\system\classes\Core::duckiebotExists($duckiebotName) ){
+if( !Duckietown::duckiebotExists($duckiebotName) ){
 	\system\classes\Core::throwError(
 		sprintf('The Duckiebot `%s` does not exist.', $duckiebotName)
 	);
@@ -58,7 +68,7 @@ if( !\system\classes\Core::duckiebotExists($duckiebotName) ){
 	?>
 
 	<?php
-	$duckiebotOwner = \system\classes\Core::getDuckiebotOwner($duckiebotName);
+	$duckiebotOwner = Duckietown::getDuckiebotOwner($duckiebotName);
 	?>
 
 	<br/>
@@ -259,7 +269,7 @@ if( !\system\classes\Core::duckiebotExists($duckiebotName) ){
 		'failed' => 'danger'
 	);
 
-	$what_the_duck = \system\classes\Core::getDuckiebotLatestWhatTheDuck($duckiebotName);
+	$what_the_duck = Duckietown::getDuckiebotLatestWhatTheDuck($duckiebotName);
 
 	$wtd = $what_the_duck['duckiebot']; //TODO: add laptops
 

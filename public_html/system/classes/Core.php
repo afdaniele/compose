@@ -3,7 +3,7 @@
 # @Date:   Wednesday, December 28th 2016
 # @Email:  afdaniele@ttic.edu
 # @Last modified by:   afdaniele
-# @Last modified time: Wednesday, January 10th 2018
+# @Last modified time: Saturday, January 13th 2018
 
 namespace system\classes;
 
@@ -102,7 +102,14 @@ class Core{
 			self::$pages = self::_load_available_pages();
 			// load list of available API services
 			self::$api = self::_load_API_setup();
-			//
+			// initialize all the packages
+			foreach( self::$packages as $pkg ){
+				if( !is_null($pkg['core']) ){
+					require_once $pkg['core'];
+					$php_init_command = sprintf( "\system\packages\%s\%s::init();", $pkg['id'], ucfirst($pkg['id']) );
+					eval( $php_init_command );
+				}
+			}
 			self::$initialized = true;
 			return array( 'success' => true, 'data' => null );
 		}else{
@@ -237,14 +244,13 @@ class Core{
 
 	public static function getUserRole(){
 		$user_role = ( self::isUserLoggedIn() )? self::getUserLogged('role') : 'guest';
-		if( $user_role == 'user' ){
-			$bot_name = self::getUserDuckiebot();
-			if( is_null($bot_name) ){
-				return 'candidate';
-			}
-		}
 		return $user_role;
 	}//getUserRole
+
+
+	public static function setUserRole( $user_role ){
+		$_SESSION['USER_RECORD']['role'] = $user_role;
+	}//setUserRole
 
 
 
@@ -327,7 +333,7 @@ class Core{
 			$success = unlink( $package_disabled_flag );
 			return ['success' => $success, 'data' => null];
 		}
-		return ['success' => false, 'data' => null];
+		return ['success' => true, 'data' => null];
 	}//enablePackage
 
 
@@ -347,6 +353,8 @@ class Core{
 	 *		The `data` field contains errors when `success` is `FALSE`.
 	 */
 	public static function disablePackage( $package ){
+		if( $package == 'core' )
+			return ['success' => false, 'data' => 'The Core package cannot be disabled'];
 		$package_meta = sprintf('%s%s/metadata.json', $GLOBALS['__PACKAGES__DIR__'], $package);
 		if( !file_exists($package_meta) ){
 			return ['success' => false, 'data' => sprintf('The package "%s" does not exist', $package)];
@@ -356,7 +364,7 @@ class Core{
 			$success = touch( $package_disabled_flag );
 			return ['success' => $success, 'data' => null];
 		}
-		return ['success' => false, 'data' => null];
+		return ['success' => true, 'data' => null];
 	}//disablePackage
 
 
@@ -376,16 +384,41 @@ class Core{
 	}//getPagesList
 
 	public static function getFilteredPagesList( $order='list', $enabledOnly=false, $accessibleBy=null ){
-		if( !in_array($order, ['list', 'by-id', 'by-menuorder', 'by-responsive-priority']) ){
-			// invalid order
-			return [];
-		}
-		$pages = [];
-		foreach( self::getPagesList($order) as $page ){
-			if( $enabledOnly && !$page['enabled'] ) continue;
-			if( !is_null($accessibleBy) && !in_array($accessibleBy, $page['access']) ) continue;
-			//
-			array_push( $pages, $page );
+		$pages = array();
+		$pages_collection = self::getPagesList($order);
+		if( is_assoc($pages_collection) ){
+			if( $order == 'by-id' ){
+				// collection in which pages are organized in an associative array by-id
+				foreach( $pages_collection as $key => $page ){
+					if( $enabledOnly && !$page['enabled'] ) continue;
+					if( !is_null($accessibleBy) && !in_array($accessibleBy, $page['access']) ) continue;
+					//
+					$pages[$key] = $page;
+				}
+				return $pages;
+			}else{
+				// collection in which pages are organized in sub-categories
+				foreach( $pages_collection as $group_id => $pages_per_group ){
+					$pages_this_group = [];
+					foreach( $pages_per_group as $page ){
+						if( $enabledOnly && !$page['enabled'] ) continue;
+						if( !is_null($accessibleBy) && !in_array($accessibleBy, $page['access']) ) continue;
+						//
+						array_push( $pages_this_group, $page );
+					}
+					$pages[$group_id] = $pages_this_group;
+				}
+				return $pages;
+			}
+		}else{
+			// collection in which pages are arranged in a sequence, no keys
+			foreach( $pages_collection as $page ){
+				if( $enabledOnly && !$page['enabled'] ) continue;
+				if( !is_null($accessibleBy) && !in_array($accessibleBy, $page['access']) ) continue;
+				//
+				array_push( $pages, $page );
+			}
+			return $pages;
 		}
 		return $pages;
 	}//getFilteredPagesList
@@ -464,7 +497,7 @@ class Core{
 			$success = unlink( $page_disabled_flag );
 			return ['success' => $success, 'data' => null];
 		}
-		return ['success' => false, 'data' => null];
+		return ['success' => true, 'data' => null];
 	}//enablePage
 
 
@@ -486,16 +519,18 @@ class Core{
 	 *		The `data` field contains errors when `success` is `FALSE`.
 	 */
 	public static function disablePage( $package, $page ){
+		if( $package == 'core' )
+			return ['success' => false, 'data' => 'Core pages cannot be disabled'];
 		$page_meta = sprintf('%s%s/pages/%s/metadata.json', $GLOBALS['__PACKAGES__DIR__'], $package, $page);
 		if( !file_exists($page_meta) ){
 			return ['success' => false, 'data' => sprintf('The page "%s.%s" does not exist', $package, $page)];
 		}
 		$page_disabled_flag = sprintf('%s%s/pages/%s/disabled.flag', $GLOBALS['__PACKAGES__DIR__'], $package, $page);
-		if( file_exists($page_disabled_flag) ){
+		if( !file_exists($page_disabled_flag) ){
 			$success = touch( $page_disabled_flag );
 			return ['success' => $success, 'data' => null];
 		}
-		return ['success' => false, 'data' => null];
+		return ['success' => true, 'data' => null];
 	}//disablePage
 
 
@@ -538,7 +573,7 @@ class Core{
 		if( $exit_code != 0 ){
 			$hash = 'ND';
 		}else{
-			$hash = $hash[0];
+			$hash = substr( $hash[0], 0, 7 );
 		}
 		//
 		return $hash;
@@ -758,13 +793,7 @@ class Core{
 			'list' => [],
 			'by-id' => [],
 			'by-package' => [],
-			'by-usertype' => [
-				'administrator' => [],
-				'supervisor' => [],
-				'user' => [],
-				'candidate' => [],
-				'guest' => []
-			],
+			'by-usertype' => [],
 			'by-menuorder' => [],
 			'by-responsive-priority' => []
 		];
@@ -790,6 +819,7 @@ class Core{
 				array_push( $pages['by-package'][$pkg_id], $page );
 				// by-usertype
 				foreach ($page['access'] as $access) {
+					if( !isset($pages['by-usertype'][$access]) ) $pages['by-usertype'][$access] = [];
 					array_push( $pages['by-usertype'][$access], $page );
 				}
 			}
@@ -818,8 +848,11 @@ class Core{
 		$pkgs = [];
 		foreach ($jsons as $json) {
 			$pkg_id = self::_regex_extract_group($json, "/.*packages\/(.+)\/metadata.json/", 1);
+			$pkg_path = self::_regex_extract_group($json, "/(.+)\/metadata.json/", 1);
 			$pkg = json_decode( file_get_contents($json), true );
 			$pkg['id'] = $pkg_id;
+			$pkg_core_file = sprintf( "%s/%s.php", $pkg_path, ucfirst($pkg_id) );
+			$pkg['core'] = ( file_exists($pkg_core_file) )? $pkg_core_file : null;
 			$pkg['enabled'] = self::isPackageEnabled($pkg_id);
 			// by-id
 			$pkgs[$pkg_id] = $pkg;

@@ -1,9 +1,0 @@
-{
-    "name" : "Surveillance",
-    "package" : "duckietown",
-    "configuration" : {
-        "file" : "surveillance.json",
-        "content" : {}
-    },
-    "enabled" : true
-}

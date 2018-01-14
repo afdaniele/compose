@@ -11,18 +11,18 @@
             "read_only_session" : true,
 		    "parameters" : {
 		        "mandatory" : {
-		            "name" : {
+		            "id" : {
 		                "type" : "text",
-		                "details" : "Name of the package to query"
+		                "details" : "ID of the package to query"
 		            }
 		        },
 		        "optional" : {}
 		    },
 		    "return" : {
 		        "values" : {
-		            "name" : {
+		            "package" : {
                         "type" : "text",
-                        "details" : "Name of the package"
+                        "details" : "ID of the package"
                     },
                     "enabled" : {
                         "type" : "boolean",
@@ -40,10 +40,10 @@
             "read_only_session" : true,
 		    "parameters" : {
 		        "mandatory" : {
-                    "name" : {
+                    "id" : {
 		                "type" : "text",
                         "length" : null,
-		                "details" : "Name of the package to enable"
+		                "details" : "ID of the package to enable"
 		            }
                 },
 		        "optional" : {
@@ -65,10 +65,10 @@
             "read_only_session" : true,
 		    "parameters" : {
 		        "mandatory" : {
-                    "name" : {
+                    "id" : {
 		                "type" : "text",
                         "length" : null,
-		                "details" : "Name of the package to disable"
+		                "details" : "ID of the package to disable"
 		            }
                 },
 		        "optional" : {}

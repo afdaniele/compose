@@ -3,17 +3,21 @@
 # @Date:   Sunday, December 31st 2017
 # @Email:  afdaniele@ttic.edu
 # @Last modified by:   afdaniele
-# @Last modified time: Wednesday, January 10th 2018
+# @Last modified time: Saturday, January 13th 2018
 
 
 
 namespace system\packages\duckietown;
 
 require_once $GLOBALS['__SYSTEM__DIR__'].'classes/Core.php';
-require_once $GLOBALS['__SYSTEM__DIR__'].'classes/Configuration.php';
+use \system\classes\Core as Core;
 
-use \system\classes\Core;
-use \system\classes\Configuration;
+require_once $GLOBALS['__SYSTEM__DIR__'].'classes/Configuration.php';
+use \system\classes\Configuration as Configuration;
+
+require_once $GLOBALS['__SYSTEM__DIR__'].'classes/Utils.php';
+use \system\classes\Utils as Utils;
+
 
 /**
 *   Module for managing entities in Duckietown (e.g., Duckietown, Duckiebots)
@@ -39,6 +43,14 @@ class Duckietown{
 	public static function init(){
 		if( !self::$initialized ){
 			// do stuff
+			$user_role = ( Core::isUserLoggedIn() )? Core::getUserLogged('role') : 'guest';
+			if( $user_role == 'user' ){
+				$bot_name = self::getUserDuckiebot();
+				if( is_null($bot_name) ){
+					Core::setUserRole('candidate');
+				}
+			}
+			//
 			return array( 'success' => true, 'data' => null );
 		}else{
 			return array( 'success' => true, 'data' => "Module already initialized!" );
@@ -79,10 +91,10 @@ class Duckietown{
 		if( isset($_SESSION['USER_DUCKIEBOT']) ){
 			return $_SESSION['USER_DUCKIEBOT'];
 		}
-		$username = self::getUserLogged('username');
+		$username = Core::getUserLogged('username');
 		$res = self::getDuckiebotLinkedToUser($username);
 		if( !$res['success'] ){
-			self::throwError($res['data']);
+			Core::throwError($res['data']);
 		}
 		$_SESSION['USER_DUCKIEBOT'] = $res['data'];
 		return $_SESSION['USER_DUCKIEBOT'];
@@ -151,7 +163,7 @@ class Duckietown{
 		// get stream content
 		$stream_content = stream_get_contents( $return_stream );
 		// get exit code
-		$exit_code = self::_regex_extract_group($stream_content, "/.*__EXIT_CODE_([0-9]+).*/", 1);
+		$exit_code = Utils::regex_extract_group($stream_content, "/.*__EXIT_CODE_([0-9]+).*/", 1);
 		$stream_content = trim( preg_replace( "/.*__EXIT_CODE_([0-9]+).*/", "", $stream_content, 1 ) );
 		// create response object
 		$res['success'] = true;
@@ -223,16 +235,16 @@ class Duckietown{
 				if( strlen($interface_str) <= 10 ) continue;
 				$interface_str = trim( $interface_str );
 				// get interface name
-				$interface_name = trim( self::_regex_extract_group($interface_str, "/(.+) Link encap:.*/", 1) );
+				$interface_name = trim( Utils::regex_extract_group($interface_str, "/(.+) Link encap:.*/", 1) );
 				// get interface MAC address
-				$interface_mac = self::_regex_extract_group($interface_str, "/.*HWaddr ([a-z0-9:]{17}).*/", 1);
+				$interface_mac = Utils::regex_extract_group($interface_str, "/.*HWaddr ([a-z0-9:]{17}).*/", 1);
 				if( $interface_mac == null ){
 					$interface_mac = 'ND';
 				}
 				// get status and IP address
 				$interface_connected = true;
-				$interface_IP = self::_regex_extract_group($interface_str, "/.*inet addr:([0-9\.]+).*/", 1);
-				$interface_mask = self::_regex_extract_group($interface_str, "/.*Mask:([0-9\.]+).*/", 1);
+				$interface_IP = Utils::regex_extract_group($interface_str, "/.*inet addr:([0-9\.]+).*/", 1);
+				$interface_mask = Utils::regex_extract_group($interface_str, "/.*Mask:([0-9\.]+).*/", 1);
 				if( $interface_IP == null ){
 					$interface_IP = 'ND';
 					$interface_mask = 'ND';
@@ -316,14 +328,14 @@ class Duckietown{
 			// search for the Edimax (w configuration)
 			$device_ids = implode( "|", Configuration::$DUCKIEBOT_W_CONFIG_DEVICE_VID_PID_LIST );
 			$regex = sprintf("/.* ID (%s) .*/", $device_ids);
-			$wireless_device_id = self::_regex_extract_group($res['data'], $regex, 1);
+			$wireless_device_id = Utils::regex_extract_group($res['data'], $regex, 1);
 			if( !is_null($wireless_device_id) ){
 				$configuration['w'] = true;
 			}
 			// search for the USB Drive (d configuration)
 			$device_ids = implode( "|", Configuration::$DUCKIEBOT_D_CONFIG_DEVICE_VID_PID_LIST );
 			$regex = sprintf("/.* ID (%s) .*/", $device_ids);
-			$storage_device_id = self::_regex_extract_group($res['data'], $regex, 1);
+			$storage_device_id = Utils::regex_extract_group($res['data'], $regex, 1);
 			if( !is_null($storage_device_id) ){
 				$configuration['d'] = true;
 			}
@@ -528,12 +540,12 @@ class Duckietown{
 			'data' => null
 		);
 		// check whether there is a user logged in
-		if( !self::isUserLoggedIn() ){
+		if( !Core::isUserLoggedIn() ){
 			$res['data'] = 'You must be logged in to link a Duckiebot to your account';
 			return $res;
 		}
 		// get the username of the current user
-		$username = self::getUserLogged('username');
+		$username = Core::getUserLogged('username');
 		// check whether the Duckiebot exists
 		if( !self::duckiebotExists($bot_name) ){
 			$res['data'] = sprintf('Duckiebot `%s` not found', $bot_name);
@@ -558,12 +570,12 @@ class Duckietown{
 			return $res;
 		}
 		// check whether the user exists, if it does not, create a new one
-		$user_exists = self::userExists($username);
+		$user_exists = Core::userExists($username);
 		if( !$user_exists ){
 			$user_file = sprintf( __DIR__.'/../users/accounts/%s.json', $username );
 			$user_info = new JsonDB( $user_file );
 			// copy info to JSON
-			foreach( self::getUserLogged() as $key => $val ){
+			foreach( Core::getUserLogged() as $key => $val ){
 				$user_info.set( $key, $val );
 			}
 			$user_info.set( 'role', 'user' );

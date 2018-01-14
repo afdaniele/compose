@@ -1,3 +1,18 @@
+<?php
+
+# @Author: Andrea F. Daniele <afdaniele>
+# @Date:   Tuesday, January 9th 2018
+# @Email:  afdaniele@ttic.edu
+# @Last modified by:   afdaniele
+# @Last modified time: Wednesday, January 10th 2018
+
+
+
+require_once $GLOBALS['__PACKAGES__DIR__'].'duckietown/Duckietown.php';
+use \system\packages\duckietown\Duckietown as Duckietown;
+
+?>
+
 <div style="width:100%; margin:auto">
 
 	<table style="width:100%; border-bottom:1px solid #ddd; margin-bottom:32px">

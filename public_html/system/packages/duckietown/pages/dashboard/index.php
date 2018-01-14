@@ -7,11 +7,10 @@
 
 
 require_once $GLOBALS['__PACKAGES__DIR__'].'server/Server.php';
-require_once $GLOBALS['__PACKAGES__DIR__'].'duckietown/Duckietown.php';
-
 use \system\packages\server\Server as Server;
-use \system\packages\duckietown\Duckietown as Duckietown;
 
+require_once $GLOBALS['__PACKAGES__DIR__'].'duckietown/Duckietown.php';
+use \system\packages\duckietown\Duckietown as Duckietown;
 
 
 ?>

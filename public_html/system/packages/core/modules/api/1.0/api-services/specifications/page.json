@@ -11,6 +11,11 @@
             "read_only_session" : true,
 		    "parameters" : {
 		        "mandatory" : {
+                    "package" : {
+		                "type" : "text",
+                        "length" : null,
+		                "details" : "ID of the package the page to query belongs to"
+		            },
 		            "id" : {
 		                "type" : "text",
 		                "details" : "ID of the page to query"
@@ -20,6 +25,11 @@
 		    },
 		    "return" : {
 		        "values" : {
+                    "package" : {
+		                "type" : "text",
+                        "length" : null,
+		                "details" : "ID of the package the page belongs to"
+		            },
 		            "id" : {
                         "type" : "text",
                         "details" : "ID of the page"
@@ -40,6 +50,11 @@
             "read_only_session" : true,
 		    "parameters" : {
 		        "mandatory" : {
+                    "package" : {
+		                "type" : "text",
+                        "length" : null,
+		                "details" : "ID of the package the page to enable belongs to"
+		            },
                     "id" : {
 		                "type" : "text",
                         "length" : null,
@@ -50,7 +65,7 @@
 		    },
 		    "return" : {}
 		},
-        "enable" : {
+        "disable" : {
 			"details" : "Disables a page",
             "enabled" : true,
             "access_level" : [
@@ -59,6 +74,11 @@
             "read_only_session" : true,
 		    "parameters" : {
 		        "mandatory" : {
+                    "package" : {
+		                "type" : "text",
+                        "length" : null,
+		                "details" : "ID of the package the page to disable belongs to"
+		            },
                     "id" : {
 		                "type" : "text",
                         "length" : null,

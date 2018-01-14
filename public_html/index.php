@@ -3,12 +3,13 @@
 # @Date:   Wednesday, December 28th 2016
 # @Email:  afdaniele@ttic.edu
 # @Last modified by:   afdaniele
-# @Last modified time: Wednesday, January 10th 2018
+# @Last modified time: Saturday, January 13th 2018
 
 
+// load constants
 require_once 'system/environment.php';
 
-
+// load core libraries
 require_once 'system/classes/Core.php';
 require_once 'system/classes/Configuration.php';
 require_once 'system/classes/enum/EmailTemplates.php';
@@ -17,24 +18,25 @@ require_once 'system/templates/forms/forms.php';
 require_once 'system/templates/sections/sections.php';
 require_once 'system/templates/paginators/paginators.php';
 
-use system\classes\Core as Core;
-use system\classes\Configuration as Configuration;
-
-// init Core
-Core::initCore();
-
 // load the error handler module
 require_once 'system/packages/core/modules/error_handler.php';
 
+// simplify namespaces
+use system\classes\Core as Core;
+use system\classes\Configuration as Configuration;
+
 // create a Session
 Core::startSession();
+
+// init Core
+Core::initCore();
 
 // get info about the current user
 $user_role = Core::getUserRole();
 
 // get the list of pages the current user has access to
-$pagesList = Core::getPagesList('by-usertype');
-$availablePages = array_map( function($p){ return $p['id']; }, $pagesList[$user_role] );
+$pagesList = Core::getFilteredPagesList( 'list', true, $user_role );
+$availablePages = array_map( function($p){ return $p['id']; }, $pagesList );
 $defaultPage = [
 	'administrator' => 'dashboard',
 	'supervisor' => 'dashboard',
@@ -42,6 +44,12 @@ $defaultPage = [
 	'candidate' => 'register',
 	'guest' => 'login'
 ];
+
+//TODO: move this to the metadata
+foreach( ['administrator', 'supervisor'] as $who ){
+	if( !in_array($defaultPage[$who], $availablePages) )
+		$defaultPage[$who] = 'profile';
+}
 
 // parse arguments
 $args = explode( '/', strtolower($_GET['arg']) );
@@ -158,7 +166,7 @@ Configuration::$ACTION = $requested_action;
 
 	<!-- Fixed footer -->
 	<?php
-	include( 'system/packages/core/modules/footer' . ( (Core::isUserLoggedIn())? '' : '_guest' ) . '.php' );
+	include( 'system/packages/core/modules/footer.php' );
 	?>
 
 

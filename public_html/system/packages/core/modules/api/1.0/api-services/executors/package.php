@@ -18,25 +18,35 @@ function execute( &$service, &$actionName, &$arguments ){
 	//
 	switch( $actionName ){
 		case 'status':
-			
+			$is_enabled = Core::isPackageEnabled( $arguments['id'] );
+			$data = [
+				'package' => $arguments['id'],
+				'enabled' => $is_enabled
+			];
 			//
-			return array( 'code' => 200, 'status' => 'OK', 'data' => null );
+			return response200OK( $data );
 			break;
 		//
 		case 'enable':
-			//TODO
+			$res = Core::enablePackage( $arguments['id'] );
+			if( !$res['success'] ){
+				return response400BadRequest( $res['data'] );
+			}
 			//
-			return array( 'code' => 200, 'status' => 'OK', 'data' => null );
+			return response200OK( null );
 			break;
 		//
 		case 'disable':
-			//TODO
+			$res = Core::disablePackage( $arguments['id'] );
+			if( !$res['success'] ){
+				return response400BadRequest( $res['data'] );
+			}
 			//
-			return array( 'code' => 200, 'status' => 'OK', 'data' => null );
+			return response200OK( null );
 			break;
 		//
 		default:
-			return array( 'code' => 404, 'status' => 'Not Found', 'message' => "The command '".$actionName."' was not found" );
+			return response400NotFound( sprintf("The command '%s' was not found", $actionName) );
 			break;
 	}
 }//execute

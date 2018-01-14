@@ -3,7 +3,7 @@
 # @Date:   Monday, January 8th 2018
 # @Email:  afdaniele@ttic.edu
 # @Last modified by:   afdaniele
-# @Last modified time: Tuesday, January 9th 2018
+# @Last modified time: Wednesday, January 10th 2018
 
 
 
@@ -159,5 +159,34 @@ function getArgument( &$arguments, $name ){
 function filelog( &$string ){
 	file_put_contents( __DIR__.'/../../log/logger.log', $string /*, FILE_APPEND | LOCK_EX */ );
 }//log
+
+
+
+
+function _createResponseArray( $code, $status, $message, $data ){
+	return array(
+		'code' => $code,
+		'status' => $status,
+		'message' => $message,
+		'data' => $data
+	);
+}//_createResponseArray
+
+
+function response200OK( $data ){
+	return _createResponseArray( 200, 'OK', null, $data );
+}//response200OK
+
+function response400BadRequest( $message ){
+	return _createResponseArray( 400, 'Bad Request', $message, null );
+}//response400BadRequest
+
+function response400NotFound( $message ){
+	return _createResponseArray( 404, 'Not Found', $message, null );
+}//response400NotFound
+
+function response500InternalServerError( $message ){
+	return _createResponseArray( 500, 'Internal Server Error', $message, null );
+}//response500InternalServerError
 
 ?>

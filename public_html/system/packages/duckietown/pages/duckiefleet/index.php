@@ -3,9 +3,11 @@
 # @Date:   Tuesday, January 9th 2018
 # @Email:  afdaniele@ttic.edu
 # @Last modified by:   afdaniele
-# @Last modified time: Tuesday, January 9th 2018
+# @Last modified time: Wednesday, January 10th 2018
 
 
+require_once $GLOBALS['__PACKAGES__DIR__'].'duckietown/Duckietown.php';
+use \system\packages\duckietown\Duckietown as Duckietown;
 
 require_once $GLOBALS['__SYSTEM__DIR__'].'templates/tableviewers/TableViewer.php';
 
@@ -101,7 +103,7 @@ $table = array(
 	// parse the arguments
 	\system\templates\tableviewers\TableViewer::parseFeatures( $features, $_GET );
 
-	$duckiebots = \system\classes\Core::getDuckiebotsCurrentBranch();
+	$duckiebots = Duckietown::getDuckiebotsCurrentBranch();
 
 	if( $features['keywords']['value'] != null ){
 		$tmp = array();
@@ -130,7 +132,7 @@ $table = array(
 	$duckiebot_owners = array();
 
 	for( $i = 0; $i < sizeof( $duckiebots ); $i++ ){
-		$duckiebot_owner = \system\classes\Core::getDuckiebotOwner( $duckiebots[$i] );
+		$duckiebot_owner = Duckietown::getDuckiebotOwner( $duckiebots[$i] );
 		$duckiebot_owner = strtolower( preg_replace('/ /', '', $duckiebot_owner) );
 		$bot_record = array(
 			'name' => $duckiebots[$i],

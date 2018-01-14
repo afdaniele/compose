@@ -156,12 +156,24 @@ function openAlert( type, messageHTML ){
     $( document ).trigger( "show.bs.alert" );
 }
 
+//TODO: deprecated
 function openAlertObj( type, messageHTML, resultObj ){
     var details = errorsToString( '', resultObj );
     var message = messageHTML + ( (details != '')? '<br/>'+details : '' );
     //
     openAlert( type, message );
 }
+
+//TODO: deprecated
+function errorsToString( str, result ){
+    if( result.code == 400 && result.hasOwnProperty('data') && result.data.hasOwnProperty('errors') ){
+        // generate an error string
+        for( var key in result.data.errors ){
+            str = str + '<span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span> &nbsp;&nbsp;&nbsp;' + result.data.errors[key] + '<br/>';
+        }
+    }
+    return str;
+}//errorsToString
 
 function closeAlert( ){
     // hide
@@ -228,7 +240,7 @@ function userLogInWithGoogle( baseurl, apiversion, token, id_token ){
         }else{
             // error
             hidePleaseWait();
-            openAlertObj( 'danger', result.message, result );
+            openAlert( 'danger', result.message );
         }
     }, error:function( jqXHR, textStatus, errorThrown ){
         hidePleaseWait();
@@ -251,7 +263,7 @@ function userLogOut( baseurl, apiversion, token, successFcn ){
         }else{
             // error
             hidePleaseWait();
-            openAlertObj( 'danger', 'An error occurred while trying to log you out. Please, retry.' );
+            openAlert( 'danger', 'An error occurred while trying to log you out. Please, retry.' );
         }
     }, error:function(){
         hidePleaseWait();
@@ -265,16 +277,6 @@ function showSuccessDialog( duration, funct ) {
         funct();
     } , duration );
 }
-
-function errorsToString( str, result ){
-    if( result.code == 400 && result.hasOwnProperty('data') && result.data.hasOwnProperty('errors') ){
-        // generate an error string
-        for( var key in result.data.errors ){
-            str = str + '<span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span> &nbsp;&nbsp;&nbsp;' + result.data.errors[key] + '<br/>';
-        }
-    }
-    return str;
-}//errorsToString
 
 function printElement(elem){
     html2canvas($(elem), {
@@ -337,7 +339,7 @@ function callAPI( url, successDialog, reload, funct, silentMode, suppressErrors,
             //open an alert
             hidePleaseWait();
             if( !suppressErrors ){
-                openAlertObj( 'danger', result.message, result );
+                openAlert( 'danger', result.message );
             }
         }
     }, error:function( jqXHR, textStatus, errorThrown ){
