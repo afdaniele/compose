@@ -1,8 +1,0 @@
-{
-    "name" : "Surveillance",
-    "description" : "Provides functionalities for live-streaming from cameras and offline footage download and streaming playback",
-    "dependencies" : {
-        "system-packages" : [],
-        "packages" : []
-    }
-}

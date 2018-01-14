@@ -1,8 +1,0 @@
-{
-    "name" : "Server",
-    "description" : "Provides functionalities for interacting with the server",
-    "dependencies" : {
-        "system-packages" : [],
-        "packages" : []
-    }
-}

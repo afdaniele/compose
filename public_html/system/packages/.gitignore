@@ -1,5 +1,6 @@
 # ignore everything
-#*
+*
 
 # but this file
+!core/*
 !.gitignore
