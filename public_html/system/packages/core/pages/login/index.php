@@ -1,3 +1,12 @@
+<?php
+# @Author: Andrea F. Daniele <afdaniele>
+# @Date:   Tuesday, January 9th 2018
+# @Email:  afdaniele@ttic.edu
+# @Last modified by:   afdaniele
+# @Last modified time: Saturday, January 13th 2018
+
+?>
+
 <section>
 	<div class="container login">
 		<div class="row" style="width:480px; margin:auto">
@@ -6,9 +15,7 @@
 					<h3 style="margin-top:0"><strong><span class="glyphicon glyphicon-lock" aria-hidden="true"></span> &nbsp;Sign in</strong></h3>
 				</div>
 				<div class="col-md-8">
-					<a id="duckietownLogo" href="http://duckietown.org" target="_blank">
-						<img src="<?php echo \system\classes\Configuration::$BASE_URL ?>images/logo.png">
-					</a>
+					<img id="loginLogo" src="<?php echo \system\classes\Configuration::$BASE_URL ?>images/logo.png">
 				</div>
 				<br>
 				<br>
@@ -24,7 +31,7 @@
 				<legend style="margin-top:4px"></legend>
 
 				<p style="color:grey">
-					Duckieboard uses the <a href="https://developers.google.com/identity/">Google Sign-In API</a>
+					<?php echo \system\classes\Configuration::$SHORT_SITE_NAME ?> uses the <a href="https://developers.google.com/identity/">Google Sign-In API</a>
 					authentication service.
 				</p>
 

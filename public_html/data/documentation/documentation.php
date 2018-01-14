@@ -3,7 +3,7 @@
 # @Date:   Sunday, January 7th 2018
 # @Email:  afdaniele@ttic.edu
 # @Last modified by:   afdaniele
-# @Last modified time: Wednesday, January 10th 2018
+# @Last modified time: Saturday, January 13th 2018
 
 $page_file_name = $_GET['file'];
 
@@ -32,7 +32,7 @@ $xpath = new DomXPath($dom);
 	<base href="../../documentation/" target="_top">
 
 	<!-- Bootstrap v3.3.1 by getboostrap.com -->
-	<link href="../../css/style.css" rel="stylesheet" type="text/css" >
+	<link href="../../css/compose.css" rel="stylesheet" type="text/css" >
 
 	<!-- highlight.js 9.12.0 -->
 	<link rel="stylesheet" href="../../css/highlight.js/arduino-light.css">

@@ -1,4 +1,11 @@
 <?php
+# @Author: Andrea F. Daniele <afdaniele>
+# @Date:   Tuesday, January 9th 2018
+# @Email:  afdaniele@ttic.edu
+# @Last modified by:   afdaniele
+# @Last modified time: Saturday, January 13th 2018
+
+
 
 // get pages
 $pages_list = \system\classes\Core::getPagesList();
@@ -35,7 +42,13 @@ foreach ($buttons as &$button) {
 				<span class="icon-bar"></span>
 				<span class="icon-bar"></span>
 			</button>
-			<a class="navbar-brand" href="<?php echo \system\classes\Configuration::$BASE ?>" style="padding-right:0"><b><?php echo \system\classes\Configuration::$SHORT_SITE_NAME ?></b></a>
+			<a class="navbar-brand" href="<?php echo \system\classes\Configuration::$BASE ?>" style="padding-right:0">
+				<b>
+					<img src="<?php echo \system\classes\Configuration::$BASE_URL ?>/images/logo.svg" style="max-height:26px"></img>
+					&nbsp;
+					<?php echo \system\classes\Configuration::$SHORT_SITE_NAME ?>
+				</b>
+			</a>
 		</div>
 		<div id="navbar" class="collapse navbar-collapse">
 

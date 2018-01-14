@@ -3,7 +3,7 @@
  * @Date:   Wednesday, December 28th 2016
  * @Email:  afdaniele@ttic.edu
  * @Last modified by:   afdaniele
- * @Last modified time: Sunday, January 7th 2018
+ * @Last modified time: Saturday, January 13th 2018
  */
 
 
@@ -285,8 +285,9 @@ body{
     margin-right: auto;
 }
 
-#duckietownLogo img{
-    width: 70px;
+#loginLogo{
+    max-width: 250px;
+    max-height: 64px;
     float: right;
 }
 

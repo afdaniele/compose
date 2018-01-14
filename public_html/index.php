@@ -97,7 +97,7 @@ Configuration::$ACTION = $requested_action;
 	<link href="<?php echo Configuration::$BASE_URL ?>css/sticky-footer-navbar.css" rel="stylesheet" media="all">
 
 	<!-- Custom CSS -->
-	<link href="<?php echo Configuration::$BASE_URL ?>css/style.css" rel="stylesheet" media="all">
+	<link href="<?php echo Configuration::$BASE_URL ?>css/compose.css" rel="stylesheet" media="all">
 
 
 	<!-- JQuery v1.11.1 by Google -->
