@@ -1,6 +1,6 @@
 # \compose\ - A lightweight web-based CMS.
 
-![](http://compose.afdaniele.com/images/compose-black-logo.svg | height=22)
+![](http://compose.afdaniele.com/images/compose-black-logo.svg)
 
 The \compose\ platform is written in PHP and provides functionalities
 for fast-developing web-based applications on Linux servers.
