@@ -5,7 +5,7 @@
 # A lightweight web-based CMS.
 
 
-**\\compose\\** is a platform written in PHP that provides functionalities
+**\\compose\\** is a CMS platform written in PHP that provides functionalities
 for fast-developing web applications on Linux servers.
 
 Born to be modular, **\\compose\\** is built around the concept of installable
@@ -18,9 +18,9 @@ Features:
 - 4 types of users supported by default: `guest`, `user`, `supervisor`, `administrator`;
 - Web-based package manager;
 - Web-based pages manager;
-- Web-based API manager;
 - Built-in support for Google Sign-In OAuth 2.0 authentication;
 - Built-in HTTP RESTful API;
+- Error handler;
 - *and many many more...*
 
 
