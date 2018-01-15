@@ -3,7 +3,7 @@
 # @Date:   Monday, January 8th 2018
 # @Email:  afdaniele@ttic.edu
 # @Last modified by:   afdaniele
-# @Last modified time: Wednesday, January 10th 2018
+# @Last modified time: Sunday, January 14th 2018
 
 
 
@@ -173,7 +173,7 @@ function _createResponseArray( $code, $status, $message, $data ){
 }//_createResponseArray
 
 
-function response200OK( $data ){
+function response200OK( $data=null ){
 	return _createResponseArray( 200, 'OK', null, $data );
 }//response200OK
 
@@ -181,9 +181,9 @@ function response400BadRequest( $message ){
 	return _createResponseArray( 400, 'Bad Request', $message, null );
 }//response400BadRequest
 
-function response400NotFound( $message ){
+function response404NotFound( $message ){
 	return _createResponseArray( 404, 'Not Found', $message, null );
-}//response400NotFound
+}//response404NotFound
 
 function response500InternalServerError( $message ){
 	return _createResponseArray( 500, 'Internal Server Error', $message, null );

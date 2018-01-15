@@ -3,7 +3,7 @@
 # @Date:   Monday, January 8th 2018
 # @Email:  afdaniele@ttic.edu
 # @Last modified by:   afdaniele
-# @Last modified time: Wednesday, January 10th 2018
+# @Last modified time: Sunday, January 14th 2018
 
 
 
@@ -46,7 +46,7 @@ function execute( &$service, &$actionName, &$arguments ){
 			break;
 		//
 		default:
-			return response400NotFound( sprintf("The command '%s' was not found", $actionName) );
+			return response404NotFound( sprintf("The command '%s' was not found", $actionName) );
 			break;
 	}
 }//execute

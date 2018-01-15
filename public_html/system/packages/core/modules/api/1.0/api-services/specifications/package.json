@@ -1,10 +1,8 @@
 {
     "details" : "Provides the tools for managing the packages installed on the platform",
-    "enabled" : true,
 	"actions" : {
 		"status" : {
 			"details" : "Returns the status of a given package",
-            "enabled" : true,
             "access_level" : [
                 "administrator"
             ],
@@ -33,7 +31,6 @@
 		},
 		"enable" : {
 			"details" : "Enables a package",
-            "enabled" : true,
             "access_level" : [
                 "administrator"
             ],
@@ -58,7 +55,6 @@
 		},
 		"disable" : {
 			"details" : "Disables a package and every module, page and API service it contains",
-            "enabled" : true,
             "access_level" : [
                 "administrator"
             ],

@@ -1,24 +1,28 @@
 {
     "configuration_content" : {
         "maintenance_mode" : {
+            "title" : "Mainteinance mode",
             "type" : "boolean",
             "default" : false,
             "details" : "Whether the platform is in maintenance mode"
         },
-        "main_page_title" : {
+        "navbar_title" : {
+            "title" : "Navbar title",
             "type" : "text",
             "default" : "Welcome",
-            "details" : "Main title on HTML page or App"
+            "details" : "Text in the header of the navbar"
         },
         "admin_contact_email_address" : {
+            "title" : "Administrator e-mail address",
             "type" : "email",
             "default" : "administrator@example.com",
             "details" : "E-mail address of the administrator"
         },
         "cache_enabled" : {
+            "title" : "Use cache",
             "type" : "boolean",
             "default" : false,
             "details" : "Cache status"
-        },
+        }
     }
 }

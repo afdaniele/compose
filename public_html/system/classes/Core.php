@@ -3,7 +3,7 @@
 # @Date:   Wednesday, December 28th 2016
 # @Email:  afdaniele@ttic.edu
 # @Last modified by:   afdaniele
-# @Last modified time: Saturday, January 13th 2018
+# @Last modified time: Monday, January 15th 2018
 
 namespace system\classes;
 
@@ -13,6 +13,7 @@ require_once __DIR__.'/../environment.php';
 require_once __DIR__.'/libs/booleanval.php';
 // structure
 require_once __DIR__.'/Configuration.php';
+require_once __DIR__.'/EditableConfiguration.php';
 require_once __DIR__.'/Utils.php';
 require_once __DIR__.'/enum/StringType.php';
 require_once __DIR__.'/enum/EmailTemplates.php';
@@ -50,6 +51,9 @@ class Core{
 	private static $packages = null;
 	private static $pages = null;
 	private static $api = null;
+	private static $settings = null;
+
+	private static $registered_user_types = [];
 
 	private static $regexes = array(
 		"alphabetic" => "/^[a-zA-Z]+$/",
@@ -74,11 +78,22 @@ class Core{
 	public static function initCore(){
 		if( !self::$initialized ){
 			mb_internal_encoding("UTF-8");
+			//
 			// init configuration
 			$res = Configuration::init();
 			if( !$res['success'] ){
 				return $res;
 			}
+			//
+			// load list of available packages
+			self::$packages = self::_load_available_packages();
+			// load list of available pages
+			self::$pages = self::_load_available_pages();
+			// load list of available API services
+			self::$api = self::_load_API_setup();
+			// load package-specific settings
+			self::$settings = self::_load_packages_settings();
+			//
 			// load email templates
 			EmailTemplates::init();
 			// enable cache
@@ -96,12 +111,7 @@ class Core{
 				$_SESSION['CACHE_GROUPS'] = array();
 				//
 			}catch(\Exception $e){}
-			// load list of available packages
-			self::$packages = self::_load_available_packages();
-			// load list of available pages
-			self::$pages = self::_load_available_pages();
-			// load list of available API services
-			self::$api = self::_load_API_setup();
+			//
 			// initialize all the packages
 			foreach( self::$packages as $pkg ){
 				if( !is_null($pkg['core']) ){
@@ -253,6 +263,10 @@ class Core{
 	}//setUserRole
 
 
+	public static function getUserTypesList(){
+		return self::$registered_user_types;
+	}//getUserTypesList
+
 
 	// =======================================================================================================
 	// Packages management functions
@@ -368,6 +382,123 @@ class Core{
 	}//disablePackage
 
 
+	/** Returns the settings for a given package as an instance of \system\classes\EditableConfiguration.
+	 *
+	 *	@param string $package_name
+	 *		the ID of the package to retrieve the settings for.
+	 *
+	 *	@retval mixed
+	 *		If the package is installed, it returns an associative array of the form
+	 *	<pre><code class="php">[
+	 *		"success" => boolean, 	// whether the configuration was successfully loaded
+	 *		"data" => mixed 		// instance of EditableConfiguration or a string error message
+	 *	]</code></pre>
+	 *		where, the `success` field indicates whether the function succeded.
+	 *		The `data` field contains a string with the error when `success` is `FALSE`.
+	 *		If the package is not installed, the function returns `NULL`.
+	 */
+	public static function getPackageSettings( $package_name ){
+		if( key_exists( $package_name, self::$settings ) ){
+			return self::$settings[$package_name];
+		}
+		return null;
+	}//getPackageSettings
+
+
+	/** Returns the settings for a given package as an associative array.
+	 *
+	 *	@param string $package_name
+	 *		the ID of the package to retrieve the settings for.
+	 *
+	 *	@retval mixed
+	 *		If the function succeeds, it returns an associative array of the form
+	 *	<pre><code class="php">[
+	 *		"key" => "value",
+	 *		... 				// other entries
+	 *	]</code></pre>
+	 *		where, `key` can ba any configuration key exported by the package
+	 *		and `value` its value.
+	 *		If the package is not installed, the function returns `NULL`.
+	 *		If an error occurred while reading the configuration of the given
+	 *		package, a `string` containing the error is returned.
+	 */
+	public static function getPackageSettingsAsArray( $package_name ){
+		if( key_exists( $package_name, self::$settings ) ){
+			if( self::$settings[$package_name]['success'] ){
+				return self::$settings[$package_name]['data']->asArray();
+			}
+			return self::$settings[$package_name]['data'];
+		}
+		return null;
+	}//getPackageSettingsAsArray
+
+
+	/** Returns the value of the given setting key for the given package.
+	 *
+	 *	@param string $package_name
+	 *		the ID of the package the setting key belongs to;
+	 *
+	 *	@param string $key
+	 *		the setting key to retrieve;
+	 *
+	 *	@param string $default_value
+	 *		the default value returned if the key does not exist.
+	 *		DEFAULT = null;
+	 *
+	 *	@retval mixed
+	 *		If the function succeeds, it returns the value of the setting key specified.
+	 *		If the package is not installed or an error occurred while reading the
+	 *		configuration for the given package, `NULL` is returned.
+	 */
+	public static function getSetting( $package_name, $key, $default_value=null ){
+		if( key_exists( $package_name, self::$settings ) ){
+			if( self::$settings[$package_name]['success'] ){
+				$res = self::$settings[$package_name]['data']->get( $key, $default_value );
+				if( !$res['success'] )
+					return null;
+				return $res['data'];
+			}
+			return null;
+		}
+		return null;
+	}//getSetting
+
+
+	/** Sets the value for the given setting key of the given package.
+	 *
+	 *	@param string $package_name
+	 *		the ID of the package the setting key belongs to;
+	 *
+	 *	@param string $key
+	 *		the setting key to set the value for;
+	 *
+	 *	@param string $value
+	 *		the new value to store in the package's settings;
+	 *
+	 *	@retval mixed
+	 *		If the function succeeds, it returns `TRUE`.
+	 *		If the package is not installed, the function returns `NULL`.
+	 *		If an error occurred while writing the configuration of the given
+	 *		package, a `string` containing the error is returned.
+	 */
+	public static function setSetting( $package_name, $key, $value ){
+		if( key_exists( $package_name, self::$settings ) ){
+			if( self::$settings[$package_name]['success'] ){
+				// update the key,value pair
+				$res = self::$settings[$package_name]['data']->set( $key, $value );
+				if( !$res['success'] ) return $res['data'];
+				// commit the new configuration
+				$res = self::$settings[$package_name]['data']->commit();
+				if( !$res['success'] ) return $res['data'];
+				// success
+				return true;
+			}
+			return self::$settings[$package_name]['data']; // error message
+		}
+		return null;
+	}//setSetting
+
+
 
 
 
@@ -391,7 +522,7 @@ class Core{
 				// collection in which pages are organized in an associative array by-id
 				foreach( $pages_collection as $key => $page ){
 					if( $enabledOnly && !$page['enabled'] ) continue;
-					if( !is_null($accessibleBy) && !in_array($accessibleBy, $page['access']) ) continue;
+					if( !is_null($accessibleBy) && !in_array($accessibleBy, $page['access_level']) ) continue;
 					//
 					$pages[$key] = $page;
 				}
@@ -402,7 +533,7 @@ class Core{
 					$pages_this_group = [];
 					foreach( $pages_per_group as $page ){
 						if( $enabledOnly && !$page['enabled'] ) continue;
-						if( !is_null($accessibleBy) && !in_array($accessibleBy, $page['access']) ) continue;
+						if( !is_null($accessibleBy) && !in_array($accessibleBy, $page['access_level']) ) continue;
 						//
 						array_push( $pages_this_group, $page );
 					}
@@ -414,7 +545,7 @@ class Core{
 			// collection in which pages are arranged in a sequence, no keys
 			foreach( $pages_collection as $page ){
 				if( $enabledOnly && !$page['enabled'] ) continue;
-				if( !is_null($accessibleBy) && !in_array($accessibleBy, $page['access']) ) continue;
+				if( !is_null($accessibleBy) && !in_array($accessibleBy, $page['access_level']) ) continue;
 				//
 				array_push( $pages, $page );
 			}
@@ -462,7 +593,7 @@ class Core{
 	 *	@param string $page
 	 *		the name of the page to check.
 	 *	@retval boolean
-	 *		whether the package is enabled.
+	 *		whether the page is enabled.
 	 */
 	public static function isPageEnabled( $package, $page ){
 		$page_disabled_flag = sprintf('%s%s/pages/%s/disabled.flag', $GLOBALS['__PACKAGES__DIR__'], $package, $page);
@@ -546,6 +677,210 @@ class Core{
 	}//getAPIsetup
 
 
+	/** Returns whether the given API service is installed on the platform.
+	 *
+	 *	@param string $api_version
+	 *		the version of the API the service to check belongs to;
+	 *
+	 *	@param string $service_name
+	 *		the name of the API service to check;
+	 *
+	 *	@retval boolean
+	 * 		whether the API service exists;
+	 */
+	public static function APIserviceExists( $api_version, $service_name ){
+		$api_setup = self::getAPIsetup();
+		return isset($api_setup[$api_version]) && isset($api_setup[$api_version]['services'][$service_name]);
+	}//APIserviceExists
+
+
+	/** Returns whether the specified API service is enabled.
+	 *
+	 *	If the API service does not exist, the function will return `FALSE`.
+	 *
+	 *	@param string $api_version
+	 *		the version of the API the service to check belongs to;
+	 *
+	 *	@param string $service_name
+	 *		the name of the API service to check;
+	 *
+	 *	@retval boolean
+	 *		whether the API service exists and is enabled;
+	 */
+	public static function isAPIserviceEnabled( $api_version, $service_name ){
+		if( !self::APIserviceExists($api_version, $service_name) ) return false;
+		$service_disabled_flag = sprintf('%sapi/%s/flags/%s.disabled.flag', $GLOBALS['__SYSTEM__DIR__'], $api_version, $service_name);
+		return !file_exists($service_disabled_flag);
+	}//isAPIserviceEnabled
+
+
+	/** Enables an API service.
+	 *
+	 *	@param string $api_version
+	 *		the version of the API the service to enable belongs to;
+	 *
+	 *	@param string $service_name
+	 *		the name of the API service to enable;
+	 *
+	 *	@retval array
+	 *		a status array of the form
+	 *	<pre><code class="php">[
+	 *		"success" => boolean, 	// whether the function succeded
+	 *		"data" => mixed 		// error message or NULL
+	 *	]</code></pre>
+	 *		where, the `success` field indicates whether the function succeded.
+	 *		The `data` field contains errors when `success` is `FALSE`.
+	 */
+	public static function enableAPIservice( $api_version, $service_name ){
+		if( !self::APIserviceExists($api_version, $service_name) )
+			return ['success' => false, 'data' => sprintf('The API service "%s(v%s)" does not exist', $service_name, $api_version)];
+		$service_disabled_flag = sprintf('%sapi/%s/flags/%s.disabled.flag', $GLOBALS['__SYSTEM__DIR__'], $api_version, $service_name);
+		if( file_exists($service_disabled_flag) ){
+			$success = unlink( $service_disabled_flag );
+			return ['success' => $success, 'data' => null];
+		}
+		return ['success' => true, 'data' => null];
+	}//enableAPIservice
+
+
+	/** Disables an API service.
+	 *
+	 *	@param string $api_version
+	 *		the version of the API the service to disable belongs to;
+	 *
+	 *	@param string $service_name
+	 *		the name of the API service to disable;
+	 *
+	 *	@retval array
+	 *		a status array of the form
+	 *	<pre><code class="php">[
+	 *		"success" => boolean, 	// whether the function succeded
+	 *		"data" => mixed 		// error message or NULL
+	 *	]</code></pre>
+	 *		where, the `success` field indicates whether the function succeded.
+	 *		The `data` field contains errors when `success` is `FALSE`.
+	 */
+	public static function disableAPIservice( $api_version, $service_name ){
+		if( !self::APIserviceExists($api_version, $service_name) )
+			return ['success' => false, 'data' => sprintf('The API service "%s(v%s)" does not exist', $service_name, $api_version)];
+		$service_disabled_flag = sprintf('%sapi/%s/flags/%s.disabled.flag', $GLOBALS['__SYSTEM__DIR__'], $api_version, $service_name);
+		if( !file_exists($service_disabled_flag) ){
+			$success = touch( $service_disabled_flag );
+			return ['success' => $success, 'data' => null];
+		}
+		return ['success' => true, 'data' => null];
+	}//disableAPIservice
+
+
+	/** Returns whether the given API action is installed on the platform.
+	 *
+	 *	@param string $api_version
+	 *		the version of the API the action to check belongs to;
+	 *
+	 *	@param string $service_name
+	 *		the name of the API service the action to check belongs to;
+	 *
+	 *	@param string $action_name
+	 *		the name of the API action to check;
+	 *
+	 *	@retval boolean
+	 * 		whether the API action exists;
+	 */
+	public static function APIactionExists( $api_version, $service_name, $action_name ){
+		$api_setup = self::getAPIsetup();
+		return isset($api_setup[$api_version])
+			&& isset($api_setup[$api_version]['services'][$service_name])
+			&& isset($api_setup[$api_version]['services'][$service_name]['actions'][$action_name]);
+	}//APIactionExists
+
+
+	/** Returns whether the specified API action is enabled.
+	 *
+	 *	If the API action does not exist, the function will return `FALSE`.
+	 *
+	 *	@param string $api_version
+	 *		the version of the API the action to check belongs to;
+	 *
+	 *	@param string $service_name
+	 *		the name of the API service the action to check belongs to;
+	 *
+	 *	@param string $action_name
+	 *		the name of the API action to check;
+	 *
+	 *	@retval boolean
+	 *		whether the API action exists and is enabled;
+	 */
+	public static function isAPIactionEnabled( $api_version, $service_name, $action_name ){
+		if( !self::APIactionExists($api_version, $service_name, $action_name) ) return false;
+		$action_disabled_flag = sprintf('%sapi/%s/flags/%s.%s.disabled.flag', $GLOBALS['__SYSTEM__DIR__'], $api_version, $service_name, $action_name);
+		return !file_exists($action_disabled_flag);
+	}//isAPIactionEnabled
+
+
+	/** Enables an API action.
+	 *
+	 *	@param string $api_version
+	 *		the version of the API the action to enable belongs to;
+	 *
+	 *	@param string $service_name
+	 *		the name of the API service the action to enable belongs to;
+	 *
+	 *	@param string $action_name
+	 *		the name of the API action to enable;
+	 *
+	 *	@retval array
+	 *		a status array of the form
+	 *	<pre><code class="php">[
+	 *		"success" => boolean, 	// whether the function succeded
+	 *		"data" => mixed 		// error message or NULL
+	 *	]</code></pre>
+	 *		where, the `success` field indicates whether the function succeded.
+	 *		The `data` field contains errors when `success` is `FALSE`.
+	 */
+	public static function enableAPIaction( $api_version, $service_name, $action_name ){
+		if( !self::APIactionExists($api_version, $service_name, $action_name) )
+			return ['success' => false, 'data' => sprintf('The API action "%s.%s(v%s)" does not exist', $service_name, $action_name, $api_version)];
+		$action_disabled_flag = sprintf('%sapi/%s/flags/%s.%s.disabled.flag', $GLOBALS['__SYSTEM__DIR__'], $api_version, $service_name, $action_name);
+		if( file_exists($action_disabled_flag) ){
+			$success = unlink( $action_disabled_flag );
+			return ['success' => $success, 'data' => null];
+		}
+		return ['success' => true, 'data' => null];
+	}//enableAPIaction
+
+
+	/** Disables an API action.
+	 *
+	 *	@param string $api_version
+	 *		the version of the API the action to disable belongs to;
+	 *
+	 *	@param string $service_name
+	 *		the name of the API service the action to disable belongs to;
+	 *
+	 *	@param string $action_name
+	 *		the name of the API action to disable;
+	 *
+	 *	@retval array
+	 *		a status array of the form
+	 *	<pre><code class="php">[
+	 *		"success" => boolean, 	// whether the function succeded
+	 *		"data" => mixed 		// error message or NULL
+	 *	]</code></pre>
+	 *		where, the `success` field indicates whether the function succeded.
+	 *		The `data` field contains errors when `success` is `FALSE`.
+	 */
+	public static function disableAPIaction( $api_version, $service_name, $action_name ){
+		if( !self::APIactionExists($api_version, $service_name, $action_name) )
+			return ['success' => false, 'data' => sprintf('The API action "%s.%s(v%s)" does not exist', $service_name, $action_name, $api_version)];
+		$action_disabled_flag = sprintf('%sapi/%s/flags/%s.%s.disabled.flag', $GLOBALS['__SYSTEM__DIR__'], $api_version, $service_name, $action_name);
+		if( !file_exists($action_disabled_flag) ){
+			$success = touch( $action_disabled_flag );
+			return ['success' => $success, 'data' => null];
+		}
+		return ['success' => true, 'data' => null];
+	}//disableAPIaction
+
+
 
 
 	// =======================================================================================================
@@ -568,16 +903,50 @@ class Core{
 	}//getSiteName
 
 
-	public static function getCodebaseHash(){
+	/** Returns the hash identifying the version of the codebase.
+	 * 	This corresponds to the commit ID on git.
+	 *
+	 *	@param boolean $long_hash
+	 *		whether to return the short hash (first 7 digits) or the long (full) commit hash.
+	 *		DEFAULT = false (7-digits commit hash).
+	 *
+	 *	@retval string
+	 *		alphanumeric hash of the commit currently fetched on the server
+	 */
+	public static function getCodebaseHash( $long_hash=false ){
 		exec( 'git log -1 --format="%H"', $hash, $exit_code );
 		if( $exit_code != 0 ){
 			$hash = 'ND';
 		}else{
-			$hash = substr( $hash[0], 0, 7 );
+			$hash = ($long_hash)? $hash[0] : substr( $hash[0], 0, 7 );
 		}
 		//
 		return $hash;
 	}//getCodebaseHash
+
+
+	/** Returns the URL to the remote origin of the codebase.
+	 * 	This corresponds to the origin saved in the git configuration of the local repository.
+	 *
+	 *	@retval string
+	 *		URL to the remote origin of the codebase.
+	 */
+	public static function getCodebaseRemoteOrigin(){
+		exec( 'git config --get remote.origin.url', $hash, $exit_code );
+		if( $exit_code != 0 ){
+			$hash = 'ND';
+		}else{
+			if( strpos($hash[0], ":") === false ){
+				return $hash[0];
+			}else{
+				$pattern = "/[^@]+@([^:]+):(.*)/";
+				preg_match_all($pattern, $hash[0], $matches);
+				$hash = sprintf( "http://%s/%s.git", $matches[1][0], $matches[2][0] );
+			}
+		}
+		//
+		return $hash;
+	}//getCodebaseRemoteOrigin
 
 
 	public static function redirectTo( $resource ){
@@ -743,38 +1112,81 @@ class Core{
 	}//_regex_extract_group
 
 
+	public static function _load_packages_settings(){
+		$packages = self::getPackagesList();
+		$packages_ids = array_keys( $packages );
+		$settings = [];
+		//
+		foreach( $packages_ids as $pkg_id ){
+			$pkg_settings = new EditableConfiguration( $pkg_id );
+			$res = $pkg_settings->sanityCheck();
+			if( !$res['success'] ){
+				$settings[$pkg_id] = $res;
+			}else{
+				$settings[$pkg_id] = [
+					'success' => true,
+					'data' => $pkg_settings
+				];
+			}
+		}
+		//
+		return $settings;
+	}//_load_packages_settings
+
+
 	public static function _load_API_setup(){
 		$packages = self::getPackagesList();
 		$packages_ids = array_keys( $packages );
+		// load global settings for API
+		$global_api_setts_file = sprintf("%s/../api/web-api-settings.json", __DIR__);
+		$global_api_setts = json_decode( file_get_contents($global_api_setts_file), true );
+		// create resulting object
 		$api = [];
+		foreach( $global_api_setts['versions'] as $v => $v_specs ){
+			$api[$v] = [
+				'services' => [],
+				'global' => $global_api_setts['global'],
+				'enabled' => $v_specs['enabled']
+			];
+		}
 		//
-		foreach( $packages_ids as $pkg_id ){
-			$api_services_descriptors = sprintf("%s/../packages/%s/modules/api/*/api-services/specifications/*.json", __DIR__, $pkg_id);
-			$jsons = glob( $api_services_descriptors );
-			//
-			foreach ($jsons as $json) {
-				$api_version = self::_regex_extract_group($json, "/.*api\/(.+)\/api-services\/specifications\/(.+).json/", 1);
-				$api_service_id = self::_regex_extract_group($json, "/.*api\/(.+)\/api-services\/specifications\/(.+).json/", 2);
-				if( !isset($api[$api_version]) ){
-					$api[$api_version] = [
-						'services' => []
-					];
+		foreach( $api as $api_version => &$api_v_specs ){
+			$api_v_enabled = $api_v_specs['enabled'];
+			foreach( $packages_ids as $pkg_id ){
+				$api_services_descriptors = sprintf("%s/../packages/%s/modules/api/%s/api-services/specifications/*.json", __DIR__, $pkg_id, $api_version);
+				$jsons = glob( $api_services_descriptors );
+				//
+				foreach ($jsons as $json) {
+					$api_service_id = self::_regex_extract_group($json, "/.*api\/(.+)\/api-services\/specifications\/(.+).json/", 2);
+					//
+					$api_services_path_regex = sprintf( "/(.+)\/specifications\/%s.json/", $api_service_id );
+					$api_service_executor_path = sprintf(
+						"%s/executors/%s.php",
+						self::_regex_extract_group($json, $api_services_path_regex, 1),
+						$api_service_id
+					);
+					//
+					$api_service = json_decode( file_get_contents($json), true );
+					$api_service['package'] = $pkg_id;
+					$api_service['id'] = $api_service_id;
+					$api_service['executor'] = $api_service_executor_path;
+					// check whether the service is enabled
+					$api_service_disabled_flag = sprintf('%sapi/%s/flags/%s.disabled.flag', $GLOBALS['__SYSTEM__DIR__'], $api_version, $api_service_id);
+					$api_service['enabled'] = !file_exists($api_service_disabled_flag);
+					$api_service['enabled'] = $api_v_enabled && $packages[$pkg_id]['enabled'] && $api_service['enabled'];
+					//
+					foreach ($api_service['actions'] as $api_action_id => &$api_action) {
+						$api_action_disabled_flag = sprintf('%sapi/%s/flags/%s.%s.disabled.flag', $GLOBALS['__SYSTEM__DIR__'], $api_version, $api_service_id, $api_action_id);
+						$api_action['enabled'] = !file_exists($api_action_disabled_flag);
+						$api_action['enabled'] = $api_service['enabled'] && $api_action['enabled'];
+						// collect user types
+						self::$registered_user_types = array_unique(
+							array_merge(self::$registered_user_types, $api_action['access_level'])
+						);
+					}
+					//
+					$api_v_specs['services'][$api_service_id] = $api_service;
 				}
-				//
-				$api_services_path_regex = sprintf( "/(.+)\/specifications\/%s.json/", $api_service_id );
-				$api_service_executor_path = sprintf(
-					"%s/executors/%s.php",
-					self::_regex_extract_group($json, $api_services_path_regex, 1),
-					$api_service_id
-				);
-				//
-				$api_service = json_decode( file_get_contents($json), true );
-				$api_service['package'] = $pkg_id;
-				$api_service['id'] = $api_service_id;
-				$api_service['executor'] = $api_service_executor_path;
-				$api_service['enabled'] = $packages[$pkg_id]['enabled'] && $api_service['enabled'];
-				//
-				$api[$api_version]['services'][$api_service_id] = $api_service;
 			}
 		}
 		//
@@ -818,10 +1230,14 @@ class Core{
 				// by-package
 				array_push( $pages['by-package'][$pkg_id], $page );
 				// by-usertype
-				foreach ($page['access'] as $access) {
+				foreach ($page['access_level'] as $access) {
 					if( !isset($pages['by-usertype'][$access]) ) $pages['by-usertype'][$access] = [];
 					array_push( $pages['by-usertype'][$access], $page );
 				}
+				// collect user types
+				self::$registered_user_types = array_unique(
+					array_merge(self::$registered_user_types, $page['access_level'])
+				);
 			}
 		}
 		// by-menuorder

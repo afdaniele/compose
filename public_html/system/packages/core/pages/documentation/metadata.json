@@ -13,7 +13,7 @@
         "exclude_roles" : []
     },
     "child_pages" : [],
-    "access" : [
+    "access_level" : [
         "administrator",
         "supervisor",
         "user",

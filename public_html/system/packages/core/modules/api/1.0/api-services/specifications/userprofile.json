@@ -1,10 +1,8 @@
 {
     "details" : "Provides the tools for authenticating a user on the platform",
-    "enabled" : true,
 	"actions" : {
         "login_with_google" : {
 			"details" : "Authenticates a user on the platform using the Google Sign-In OAuth2 authentication system",
-            "enabled" : true,
             "access_level" : [
                 "guest"
             ],
@@ -24,8 +22,7 @@
 			}
 		},
         "logout" : {
-            "details" : "Close the current session and logs out the user of the platform",
-            "enabled" : true,
+            "details" : "Closes the current session and logs out the user from the platform",
             "access_level" : [
                 "administrator",
                 "supervisor",

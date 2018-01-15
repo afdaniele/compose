@@ -3,7 +3,7 @@
 # @Date:   Wednesday, December 28th 2016
 # @Email:  afdaniele@ttic.edu
 # @Last modified by:   afdaniele
-# @Last modified time: Wednesday, January 10th 2018
+# @Last modified time: Sunday, January 14th 2018
 
 
 
@@ -12,20 +12,13 @@
 //ini_set('display_errors', 1); //TODO
 
 
-require_once __DIR__.'/../system/environment.php';
-
-
-// unset the control variables
-//TODO: to be checked
-$_GET['ADMIN_LOGGED'] = false;
-unset( $_GET['ADMIN_ID'] );
-//
-
-
-if( isset($_GET['error']) ){
+// error received from .htaccess due to an invalid API url
+if( isset($_GET['__error__']) ){
 	sendResponse( 400, 'Bad Request', 'Invalid API call, please check and retry!', 'plaintext', null );
 }
 
+// load constants
+require_once __DIR__.'/../system/environment.php';
 
 // load core classes and utility
 require_once $GLOBALS['__SYSTEM__DIR__'].'/../system/classes/Core.php';
@@ -100,19 +93,19 @@ if( !$webapi_settings["webapi-enabled"] ){
 
 
 // 1. parse 'format' argument
-if( !isset($_GET['format']) || !is_string($_GET['format']) || strlen($_GET['format']) <= 0 || !in_array( $_GET['format'], $webapi_settings['global']['parameters']['embedded']['format']['values'] ) ){
+if( !isset($_GET['__format__']) || !is_string($_GET['__format__']) || strlen($_GET['__format__']) <= 0 || !in_array( $_GET['__format__'], $webapi_settings['global']['parameters']['embedded']['format']['values'] ) ){
 	// error : not provided or unrecognized format
 	sendResponse( 400, 'Bad Request', 'Unknown response format', 'plaintext', null );
 }
-$format = $_GET['format'];
+$format = $_GET['__format__'];
 
 
 // 2. parse 'apiversion' argument
-if( !isset($_GET['apiversion']) || !is_string($_GET['apiversion']) || strlen($_GET['apiversion']) <= 0 || !isset($webapi_settings['versions'][$_GET['apiversion']]) ){
+if( !isset($_GET['__apiversion__']) || !is_string($_GET['__apiversion__']) || strlen($_GET['__apiversion__']) <= 0 || !isset($webapi_settings['versions'][$_GET['__apiversion__']]) ){
 	// error : not provided or unrecognized apiversion
 	sendResponse( 400, 'Bad Request', 'Invalid API version', $format, null );
 }else{
-	$version = $_GET['apiversion'];
+	$version = $_GET['__apiversion__'];
 	if( !$webapi_settings['versions'][$version]['enabled'] ){
 		// the web-api-$version is too old and it has been deprecated, please upgrade your client
 		sendResponse( 426, 'Upgrade Required', "The requested API is not supported anymore. Please upgrade your application and retry.", $format, null );
@@ -121,7 +114,7 @@ if( !isset($_GET['apiversion']) || !is_string($_GET['apiversion']) || strlen($_G
 
 // load web-api specifications
 $webapi = Core::getAPIsetup();
-$version = $_GET['apiversion'];
+$version = $_GET['__apiversion__'];
 $webapi = $webapi[$version];
 
 // // load web-api specifications
@@ -147,7 +140,7 @@ $authorized = false;
 
 
 // 2. parse 'token' argument
-if( isset($_GET['service']) && isset($_GET['action']) && $_GET['service']=='session' && $_GET['action']=='start' ){
+if( isset($_GET['__service__']) && isset($_GET['__action__']) && $_GET['__service__']=='session' && $_GET['__action__']=='start' ){
 	$authorized = true;
 }else{
 	if( !isset($_GET['token']) || !is_string($_GET['token']) || strlen($_GET['token']) !== 16 || !StringType::isValid( $_GET['token'], StringType::$ALPHANUMERIC ) ){
@@ -162,11 +155,11 @@ $token = $_GET['token'];
 
 
 // 4. check for requested service
-if( !isset($_GET['service']) || !is_string($_GET['service']) || strlen($_GET['service']) <= 0 || !array_key_exists( strtolower($_GET['service']), $webapi['services'] ) ){
+if( !isset($_GET['__service__']) || !is_string($_GET['__service__']) || strlen($_GET['__service__']) <= 0 || !array_key_exists( strtolower($_GET['__service__']), $webapi['services'] ) ){
 	// error : unrecognized service
-	sendResponse( 404, 'Not Found', "The service '".$_GET['service']."' was not found", $format, null );
+	sendResponse( 404, 'Not Found', "The service '".$_GET['__service__']."' was not found", $format, null );
 }
-$serviceName = strtolower($_GET['service']);
+$serviceName = strtolower($_GET['__service__']);
 $service = $webapi['services'][$serviceName];
 
 
@@ -178,18 +171,18 @@ if( !$service['enabled'] ){
 
 
 // 6. check for requested action
-if( !isset($_GET['action']) || !is_string($_GET['action']) || strlen($_GET['action']) <= 0 || !array_key_exists( strtolower($_GET['action']), $service['actions'] ) ){
+if( !isset($_GET['__action__']) || !is_string($_GET['__action__']) || strlen($_GET['__action__']) <= 0 || !array_key_exists( strtolower($_GET['__action__']), $service['actions'] ) ){
 	// error : unrecognized action
-	sendResponse( 404, 'Not Found', "The command '".$_GET['action']."' was not found", $format, null );
+	sendResponse( 404, 'Not Found', "The action '".$_GET['__action__']."' was not found", $format, null );
 }
-$actionName = strtolower($_GET['action']);
+$actionName = strtolower($_GET['__action__']);
 $action = $service['actions'][$actionName];
 
 
 // 7. check for action availability
 if( !$action['enabled'] ){
 	// error : the requested action is temporarily down
-	sendResponse( 503, 'Service Unavailable', "The requested command ('".$actionName."') was disabled by the administrator", $format, null );
+	sendResponse( 503, 'Service Unavailable', "The requested action ('".$actionName."') was disabled by the administrator", $format, null );
 }
 
 
@@ -210,13 +203,6 @@ if( $need_login ){
 	$authorized = true;
 }
 
-
-
-//TODO: check this stuff
-if( Core::isUserLoggedIn() ){
-	$_GET['ADMIN_LOGGED'] = true;
-	$_GET['ADMIN_ID'] = Core::getUserLogged('username');
-}
 //
 if( !$authorized ){
 	// error : authorization failed

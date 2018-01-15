@@ -3,7 +3,7 @@
 # @Date:   Monday, January 8th 2018
 # @Email:  afdaniele@ttic.edu
 # @Last modified by:   afdaniele
-# @Last modified time: Tuesday, January 9th 2018
+# @Last modified time: Sunday, January 14th 2018
 
 
 
@@ -18,50 +18,53 @@ function execute( &$service, &$actionName, &$arguments ){
 	//
 	switch( $actionName ){
 		case 'get':
-			//TODO: update this to handle the package name
-			$key = $arguments['key'];
+			if( !Core::packageExists( $arguments['package'] ) )
+				return response400BadRequest( sprintf('The package "%s" does not exist', $arguments['package']) );
 			//
-			$res = \system\classes\Configuration::get( $key );
+			$res = Core::getPackageSettings( $arguments['package'] );
+			if( !$res['success'] )
+				return response500InternalServerError( $res['data'] );
 			//
-			if( !$res['success'] ) return array( 'code' => 500, 'status' => 'Internal Server Error', 'message' => $res['data'] );
+			$setts = $res['data'];
+			$res = $setts->get( $arguments['key'] );
+			if( !$res['success'] )
+				return response500InternalServerError( $res['data'] );
 			//
-			return array( 'code' => 200, 'status' => 'OK', 'data' => array( 'value' => $res['data'] ) );
+			return response200OK( [
+				 'package' => $arguments['package'],
+				 'key' => $arguments['key'],
+				 'value' => $res['data']
+			] );
 			break;
 		//
 		case 'set':
-			//TODO: update this to handle the package name
-			$keys = $service['actions']['get']['parameters']['mandatory']['key']['values'];
-			$k = 0;
-			$error = null;
-			$success = true;
-			foreach( $keys as $key ){
-				if( isset($arguments[$key]) ){
-					$val = $arguments[$key];
-					//
-					$res = \system\classes\Configuration::set( $key, $val );
-					//
-					$k++;
-					//
-					if( !$res['success'] ){
-						$success = false;
-						$error = $res['data'];
-						break;
-					}
-				}
+			$package_name = $arguments['package'];
+			unset( $arguments['package'] );
+			// get editable settings for the package
+			if( !Core::packageExists( $package_name ) )
+				return response400BadRequest( sprintf('The package "%s" does not exist', $package_name ) );
+			//
+			$res = Core::getPackageSettings( $package_name );
+			if( !$res['success'] )
+				return response500InternalServerError( $res['data'] );
+			//
+			$setts = $res['data'];
+			// got through the arguments and try to store them in the configuration
+			foreach( $arguments as $key => $value ){
+				$res = $setts->set( $key, $value );
+				if( !$res['success'] )
+					return response500InternalServerError( $res['data'] );
 			}
+			// commit changes to disk
+			$res = $setts->commit();
+			if( !$res['success'] )
+				return response500InternalServerError( $res['data'] );
 			//
-			if( $k == 0 ) return array( 'code' => 400, 'status' => 'Bad Request', 'message' => 'Nothing to change' );
-			//
-			if( !$success ) return array( 'code' => 500, 'status' => 'Internal Server Error', 'message' => $error );
-			//
-			$res = \system\classes\Configuration::commit();
-			if( !$res['success'] ) return array( 'code' => 500, 'status' => 'Internal Server Error', 'message' => $res['data'] );
-			//
-			return array( 'code' => 200, 'status' => 'OK' );
+			return response200OK();
 			break;
 		//
 		default:
-			return array( 'code' => 404, 'status' => 'Not Found', 'message' => "The command '".$actionName."' was not found" );
+			return response404NotFound( sprintf("The command '%s' was not found", $actionName) );
 			break;
 	}
 }//execute

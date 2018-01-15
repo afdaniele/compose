@@ -3,7 +3,7 @@
  * @Date:   Wednesday, December 28th 2016
  * @Email:  afdaniele@ttic.edu
  * @Last modified by:   afdaniele
- * @Last modified time: Wednesday, January 10th 2018
+ * @Last modified time: Sunday, January 14th 2018
  */
 
 
@@ -17,7 +17,7 @@ window.chartColors = {
     grey: 'rgb(201, 203, 207)'
 };
 
-var range = function(start, end, step) {
+function range (start, end, step) {
     var range = [];
     var typeofStart = typeof start;
     var typeofEnd = typeof end;
@@ -54,39 +54,19 @@ var range = function(start, end, step) {
     return range;
 }
 
-// enable popovers
-$(function () {
-    try{
-        $('[data-toggle="popover"]').popover();
-    }catch( e ){}
-});
-
-// disable popover on click
-$(document).on("click", "a", function(){ $(this).popover('hide'); });
-
-// close all popovers when opening a modal dialog
-$(document).on("show.bs.modal", '.modal', function(){
-    $(document).find('.popover').each(function() {
-        $(this).popover('hide');
-    });
-});
-
-// Enable Tooltips
-$(function () {
-    try{
-        $('[data-toggle~="tooltip"]').tooltip()
-    }catch( e ){}
-});
-
 // open popover after 'showDelay' ms and keep it visible for 'duration' ms
-function openPop( targetID, title, content, placement, showDelay, duration, fixed ){
+function openPop( targetID, title, content, placement, showDelay, duration, fixed, closeOthers ){
     if(typeof(fixed)==='undefined') fixed = false;
+    if( closeOthers == undefined ) closeOthers = false;
+    //
+    if( closeOthers )
+        closeAllPops();
     //
     var target = $( '#'+targetID );
     target.popover({
         animation: true,
         html: true,
-        title: '<span class="text-danger"><strong>'+title+'</strong></span>'+
+        title: '<span class="text-danger">'+title+'</span>&nbsp;&nbsp;&nbsp;'+
             '<button type="button" id="close" class="close" onclick="$(&quot;#'+targetID+'&quot;).popover(&quot;hide&quot;);">&times;</button>',
         content: content,
         container: 'body',
@@ -97,6 +77,13 @@ function openPop( targetID, title, content, placement, showDelay, duration, fixe
     if( !fixed ){
         setTimeout(function(){  target.popover('destroy'); }, showDelay+duration);
     }
+}
+
+// close all popovers
+function closeAllPops(){
+    $(document).find('.popover').each(function() {
+        $(this).popover('hide');
+    });
 }
 
 // enable popover on hover event
@@ -156,25 +143,6 @@ function openAlert( type, messageHTML ){
     $( document ).trigger( "show.bs.alert" );
 }
 
-//TODO: deprecated
-function openAlertObj( type, messageHTML, resultObj ){
-    var details = errorsToString( '', resultObj );
-    var message = messageHTML + ( (details != '')? '<br/>'+details : '' );
-    //
-    openAlert( type, message );
-}
-
-//TODO: deprecated
-function errorsToString( str, result ){
-    if( result.code == 400 && result.hasOwnProperty('data') && result.data.hasOwnProperty('errors') ){
-        // generate an error string
-        for( var key in result.data.errors ){
-            str = str + '<span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span> &nbsp;&nbsp;&nbsp;' + result.data.errors[key] + '<br/>';
-        }
-    }
-    return str;
-}//errorsToString
-
 function closeAlert( ){
     // hide
     $('#page_alert_container').css('display', 'none');
@@ -199,31 +167,6 @@ function hidePleaseWait() {
     $('#pleaseWaitModal').modal('hide');
 };
 
-$(document).on('ready', function(){
-    $('.modal-vertical-centered').on('show.bs.modal', centerModal);
-    $(window).on("resize", function () {
-        $('.modal-vertical-centered:visible').each(centerModal);
-    });
-    // re-configure the modals
-    // Modals (updated from [data-toggle~="modal"])
-    $(document).on('click.modal.data-api', '[data-toggle~="dialog"]', function (e) {
-        var targetID = $(this).data('target');
-        //
-        var $this = $(this)
-            , href = $this.attr('href')
-            , $target = $($this.attr('data-target') || (href && href.replace(/.*(?=#[^\s]+$)/, ''))) //strip for ie7
-            , option = $target.data('modal') ? 'toggle' : $.extend({ remote:!/#/.test(href) && href }, $target.data(), $this.data());
-        //
-        $target.modal(option, this);
-        $target.one('hide', function () {
-            $this.focus()
-        });
-    });
-});
-
-
-
-/* UserProfile functions */
 
 function userLogInWithGoogle( baseurl, apiversion, token, id_token ){
     showPleaseWait();
@@ -438,15 +381,6 @@ function serializeForm( formID, excludeDisabled ){
     return ( (str.length > 0)? str.slice(1) : str );
 }//serializeForm
 
-// form element to associative array
-$.fn.toAssociativeArray = function() {
-    var formData = {};
-    this.find('[name]').each(function() {
-        formData[this.name] = this.value;
-    })
-    return formData;
-};
-
 function money( num ){
     return parseFloat(Math.round(num * 100) / 100).toFixed(2);
 }//money
@@ -461,3 +395,60 @@ function hmsToSeconds( str ){
     //
     return s;
 }//hmsToSeconds
+
+
+
+// form element to associative array
+$.fn.toAssociativeArray = function() {
+    var formData = {};
+    this.find('[name]').each(function() {
+        formData[this.name] = this.value;
+    })
+    return formData;
+};
+
+// enable popovers
+$(function () {
+    try{
+        $('[data-toggle="popover"]').popover();
+    }catch( e ){}
+});
+
+// disable popover on click
+$(document).on("click", "a", function(){ $(this).popover('hide'); });
+
+// close all popovers when opening a modal dialog
+$(document).on("show.bs.modal", '.modal', function(){
+    $(document).find('.popover').each(function() {
+        $(this).popover('hide');
+    });
+});
+
+// Enable Tooltips
+$(function () {
+    try{
+        $('[data-toggle~="tooltip"]').tooltip()
+    }catch( e ){}
+});
+
+$(document).on('ready', function(){
+    $('.modal-vertical-centered').on('show.bs.modal', centerModal);
+    $(window).on("resize", function () {
+        $('.modal-vertical-centered:visible').each(centerModal);
+    });
+    // re-configure the modals
+    // Modals (updated from [data-toggle~="modal"])
+    $(document).on('click.modal.data-api', '[data-toggle~="dialog"]', function (e) {
+        var targetID = $(this).data('target');
+        //
+        var $this = $(this)
+            , href = $this.attr('href')
+            , $target = $($this.attr('data-target') || (href && href.replace(/.*(?=#[^\s]+$)/, ''))) //strip for ie7
+            , option = $target.data('modal') ? 'toggle' : $.extend({ remote:!/#/.test(href) && href }, $target.data(), $this.data());
+        //
+        $target.modal(option, this);
+        $target.one('hide', function () {
+            $this.focus()
+        });
+    });
+});

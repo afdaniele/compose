@@ -1,10 +1,8 @@
 {
     "details" : "Provides the tools for managing the pages available on the platform",
-    "enabled" : true,
 	"actions" : {
 		"status" : {
 			"details" : "Returns the status of a given page",
-            "enabled" : true,
             "access_level" : [
                 "administrator"
             ],
@@ -43,7 +41,6 @@
 		},
 		"enable" : {
 			"details" : "Enables a page",
-            "enabled" : true,
             "access_level" : [
                 "administrator"
             ],
@@ -67,7 +64,6 @@
 		},
         "disable" : {
 			"details" : "Disables a page",
-            "enabled" : true,
             "access_level" : [
                 "administrator"
             ],

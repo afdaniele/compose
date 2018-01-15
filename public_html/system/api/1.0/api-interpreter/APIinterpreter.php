@@ -3,7 +3,7 @@
 # @Date:   Wednesday, December 28th 2016
 # @Email:  afdaniele@ttic.edu
 # @Last modified by:   afdaniele
-# @Last modified time: Tuesday, January 9th 2018
+# @Last modified time: Sunday, January 14th 2018
 
 
 
@@ -118,18 +118,24 @@ class APIinterpreter {
 		}
 		require_once $executorPath;
 
+		// 6. clean up the arguments (very important)
+		unset( $arguments['__apiversion__'] );
+		unset( $arguments['__service__'] );
+		unset( $arguments['__action__'] );
+		unset( $arguments['__format__'] );
+		unset( $arguments['token'] );
 
-		// 6. execute the action
+		// 7. execute the action
 		$result = execute( $service, $actionName, $arguments, $format );
 
 
-		// 7. format the result content
+		// 8. format the result content
 		if( isset($result['data']) ){
 			formatResult( $result['data'], $action['return']['values'] );
 		}
 
 
-		// 8. format the response
+		// 9. format the response
 		require_once __DIR__.'/../../formatter/'.$format.'_formatter.php';
 		$data = formatData( $result );
 		$result['data'] = $data;
@@ -141,7 +147,7 @@ class APIinterpreter {
 		// ==================================================================================================================
 
 
-		// 8. return the action execution result
+		// 10. return the action execution result
 		return $result;
 
 	}//interpret

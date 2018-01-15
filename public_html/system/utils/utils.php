@@ -1,4 +1,11 @@
 <?php
+# @Author: Andrea F. Daniele <afdaniele>
+# @Date:   Wednesday, December 28th 2016
+# @Email:  afdaniele@ttic.edu
+# @Last modified by:   afdaniele
+# @Last modified time: Sunday, January 14th 2018
+
+
 
 
 function validate( $values, $types, $mandatory=null, $keys=null ){
@@ -125,7 +132,7 @@ function format( $val, $type ){
 		case 'money':
 			return toMoneyString( $val, true );
 		case 'boolean':
-			return ( (booleanval($val))? '<span class="glyphicon glyphicon-ok-sign" aria-hidden="true" style="color:green; margin-top:5px" data-toggle="tooltip" data-placement="bottom" title="On"></span>' : '<span class="glyphicon glyphicon-remove-sign" aria-hidden="true" style="color:red; margin-top:5px" data-toggle="tooltip" data-placement="bottom" title="Off"></span>' );
+			return ( (booleanval($val))? '<span class="glyphicon glyphicon-ok-sign" aria-hidden="true" style="color:green" data-toggle="tooltip" data-placement="right" title="On"></span>' : '<span class="glyphicon glyphicon-remove-sign" aria-hidden="true" style="color:red" data-toggle="tooltip" data-placement="right" title="Off"></span>' );
 		case 'date':
 			return date_format(date_create($val), 'd-m-Y');
 		case 'datetime':

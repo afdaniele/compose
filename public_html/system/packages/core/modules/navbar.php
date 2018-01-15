@@ -3,7 +3,7 @@
 # @Date:   Tuesday, January 9th 2018
 # @Email:  afdaniele@ttic.edu
 # @Last modified by:   afdaniele
-# @Last modified time: Saturday, January 13th 2018
+# @Last modified time: Sunday, January 14th 2018
 
 
 
@@ -46,7 +46,7 @@ foreach ($buttons as &$button) {
 				<b>
 					<img src="<?php echo \system\classes\Configuration::$BASE_URL ?>/images/logo.svg" style="max-height:26px"></img>
 					&nbsp;
-					<?php echo \system\classes\Configuration::$SHORT_SITE_NAME ?>
+					<?php echo \system\classes\Core::getSetting('core', 'navbar_title') ?>
 				</b>
 			</a>
 		</div>

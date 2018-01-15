@@ -3,23 +3,41 @@
 # @Date:   Wednesday, December 28th 2016
 # @Email:  afdaniele@ttic.edu
 # @Last modified by:   afdaniele
-# @Last modified time: Saturday, January 13th 2018
+# @Last modified time: Monday, January 15th 2018
+
 
 ?>
 
 <style type="text/css">
 
-	#settings .tab-content{
-		background-color: white;
-		border-bottom: 1px solid #ddd;
-		display: inline-block;
-	    width: 100%;
-	    padding: 30px;
+	.panel-default > .panel-heading{
+		text-shadow: 0 1px 0 #fff;
+	    background-image: -webkit-linear-gradient(top, #fff 0%, #e0e0e0 100%);
+	    background-image:      -o-linear-gradient(top, #fff 0%, #e0e0e0 100%);
+	    background-image: -webkit-gradient(linear, left top, left bottom, from(#fff), to(#e0e0e0));
+	    background-image:         linear-gradient(to bottom, #fff 0%, #e0e0e0 100%);
+	    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffffffff', endColorstr='#ffe0e0e0', GradientType=0);
+	    filter: progid:DXImageTransform.Microsoft.gradient(enabled = false);
+	    background-repeat: repeat-x;
+	    border-color: #dbdbdb;
+	    border-color: #ccc;
 	}
 
-	.nav-tabs>li>a{
-		border: 1px solid #ddd;
+	.panel-default > .panel-heading > a{
 		color: inherit;
+		text-decoration: none;
+	}
+
+	.panel-group .panel{
+		border: 1px solid #d8d7d7;
+	}
+
+	.panel-group .panel .panel-heading{
+		border-bottom: 1px solid #d8d7d7;
+	}
+
+	.panel-group .panel .panel-body{
+		padding: 30px 40px;
 	}
 
 </style>
@@ -38,52 +56,114 @@
 	</table>
 
 
-	<div id="settings">
-		<!-- Nav tabs -->
-		<ul class="nav nav-tabs" role="tablist">
-			<li role="presentation" class="active">
-				<a href="#general" aria-controls="general" role="tab" data-toggle="tab">General</a>
-			</li>
-			<li role="presentation">
-				<a href="#packages" aria-controls="packages" role="tab" data-toggle="tab">Packages</a>
-			</li>
-			<li role="presentation">
-				<a href="#pages" aria-controls="pages" role="tab" data-toggle="tab">Pages</a>
-			</li>
-			<li role="presentation">
-				<a href="#api" aria-controls="api" role="tab" data-toggle="tab">API</a>
-			</li>
-			<?php
-			//TODO: check which package exports settings and create a tab here
-			?>
-		</ul>
+	<?php
 
-		<!-- Tab panes -->
-		<div class="tab-content">
-			<div role="tabpanel" class="tab-pane active" id="general">
-				<?php
-				include_once "sections/general.php";
-				?>
-			</div>
-			<div role="tabpanel" class="tab-pane" id="packages">
-				<?php
-				include_once "sections/packages.php";
-				?>
-			</div>
-			<div role="tabpanel" class="tab-pane" id="pages">
-				<?php
-				include_once "sections/pages.php";
-				?>
-			</div>
-			<div role="tabpanel" class="tab-pane" id="api">
-				<?php
-				include_once "sections/api.php";
-				?>
+	include_once "sections/general.php";
+	include_once "sections/packages.php";
+	include_once "sections/pages.php";
+	include_once "sections/api.php";
+	include_once "sections/package_specific.php";
+	include_once "sections/codebase.php";
+
+
+	$settings_tabs = [
+		0 => [
+			'id' => 'general',
+			'title' => 'General',
+			'icon' => 'fa fa-sliders',
+			'content' => settings_custom_package_tab,
+			'content_args' => ['core', \system\classes\Core::getPackageSettings('core')]
+		],
+		1 => [
+			'id' => 'packages',
+			'title' => 'Installed Packages',
+			'icon' => 'fa fa-cubes',
+			'content' => settings_packages_tab,
+			'content_args' => null
+		],
+		2 => [
+			'id' => 'pages',
+			'title' => 'Pages',
+			'icon' => 'fa fa-file-text-o',
+			'content' => settings_pages_tab,
+			'content_args' => null
+		],
+		3 => [
+			'id' => 'api',
+			'title' => 'API End-points',
+			'icon' => 'fa fa-sitemap',
+			'content' => settings_api_tab,
+			'content_args' => null
+		],
+		4 => [
+			'id' => 'cache',
+			'title' => 'Cache system',
+			'icon' => 'fa fa-history',
+			'content' => settings_cache_tab,
+			'content_args' => null
+		],
+		100 => [
+			'id' => 'codebase',
+			'title' => 'Codebase',
+			'icon' => 'fa fa-code',
+			'content' => settings_codebase_tab,
+			'content_args' => null
+		]
+	];
+
+
+	$i = 10;
+	foreach (\system\classes\Core::getPackagesList() as $pkg_id => $pkg) {
+		if( $pkg_id == 'core' ) continue;
+		$pkg_setts = \system\classes\Core::getPackageSettings( $pkg_id );
+		if( $pkg_setts['success'] && !$pkg_setts['data']->is_configurable() ) continue;
+		$settings_tabs[$i] = [
+			'id' => 'package_'.$pkg_id,
+			'title' => 'Package: <b>'.$pkg['name'].'</b>',
+			'icon' => 'fa fa-cube',
+			'content' => settings_custom_package_tab,
+			'content_args' => [$pkg_id, $pkg_setts]
+		];
+		$i += 1;
+	}
+	?>
+
+	<div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+		<?php
+		$tab_idxs = array_keys($settings_tabs);
+		sort( $tab_idxs );
+		foreach( $tab_idxs as $tab_idx) {
+			$settings_tab = $settings_tabs[$tab_idx];
+			$header = $settings_tab['id'].'_header';
+			$collapse = $settings_tab['id'].'_collapse';
+			?>
+			<div class="panel panel-default">
+				<div class="panel-heading" role="tab" id="<?php echo $header ?>">
+					<a class="<?php echo ($tab_idx !== 0)? 'collapsed' : '' ?>" role="button" data-toggle="collapse" data-parent="#accordion" href="#<?php echo $collapse ?>" aria-expanded="true" aria-controls="<?php echo $collapse ?>">
+						<h4 class="panel-title">
+							<span class="<?php echo $settings_tab['icon'] ?>" aria-hidden="true"></span>
+							&nbsp;
+							<?php echo $settings_tab['title'] ?>
+							<!--  -->
+							<span id="<?php echo $settings_tab['id'] ?>_unsaved_changes_mark" style="float:right; color:darkorange; font-size:11pt; display:none">
+								Unsaved changes &nbsp;
+								<span class="fa fa-exclamation-triangle" aria-hidden="true"></span>
+							</span>
+						</h4>
+					</a>
+				</div>
+				<div id="<?php echo $collapse ?>" class="panel-collapse collapse <?php echo ($tab_idx == 0)? 'in' : '' ?>" role="tabpanel" aria-labelledby="<?php echo $header ?>">
+					<div class="panel-body">
+						<?php
+						call_user_func( $settings_tab['content'], $settings_tab['content_args'], $settings_tab['id'] );
+						?>
+					</div>
+				</div>
 			</div>
 			<?php
-			//TODO: check which package exports settings and create a tab-content here
-			?>
-		</div>
+		}
+		?>
+
 
 	</div>
 

@@ -3,32 +3,30 @@
 # @Date:   Wednesday, December 28th 2016
 # @Email:  afdaniele@ttic.edu
 # @Last modified by:   afdaniele
-# @Last modified time: Tuesday, January 9th 2018
+# @Last modified time: Monday, January 15th 2018
 
 
-
-$web_api_settings = loadJSON( 'web-api-settings.json' );
+$api_setup = \system\classes\Core::getAPIsetup();
 
 // parse the version argument
-$version = ( ( isset($_GET['version']) && in_array(strtolower($_GET['version']), array_keys($web_api_settings['versions']), true) )? strtolower($_GET['version']) : ( (!isset($_GET['version']))? \system\classes\Configuration::$WEBAPI_VERSION : null ) );
+$version = ( ( isset($_GET['version']) && in_array(strtolower($_GET['version']), array_keys($api_setup), true) )? strtolower($_GET['version']) : ( (!isset($_GET['version']))? \system\classes\Configuration::$WEBAPI_VERSION : null ) );
 if( $version == null ){
 	// The required version is not valid
 	\system\classes\Core::redirectTo( 'api?version='.\system\classes\Configuration::$WEBAPI_VERSION );
 }else{
-	// load the specific API data
-	$web_api_specification = loadJSON( $version.'/api-config/web-api-specification.json' );
+	$web_api_specification = $api_setup[$version];
 
 	$sget = ( (isset($_GET['service']) && in_array($_GET['service'], array_keys($web_api_specification['services'])) )? $_GET['service'] : null );
 	$aget = ( ($sget !== null && isset($_GET['action']) && in_array($_GET['action'], array_keys($web_api_specification['services'][$sget]['actions'])) )? $_GET['action'] : null );
 
 	// load the api-service-specifications
-	$service_specification = ( ($sget !== null)? loadJSON( $version.'/api-services/specifications/'.$sget.'.json' ) : array() );
+	$service_specification = ( ($sget !== null)? $web_api_specification['services'][$sget] : array() );
 	$action_specification = $service_specification['actions'][$aget];
 
 	$action_specification['parameters']['mandatory'] = array_merge( $web_api_specification['global']['parameters']['mandatory'], $action_specification['parameters']['mandatory'] );
 
 	// if the APIvXX is offLine then also its services are offLine
-	if( $sget!== null && !$web_api_settings['versions'][$version]['enabled'] ){
+	if( $sget!== null && !$web_api_specification['enabled'] ){
 		$web_api_specification['services'][$sget]['enabled'] = false;
 	}
 
@@ -37,7 +35,7 @@ if( $version == null ){
 		$web_api_specification['services'][$sget]['actions'][$aget]['enabled'] = false;
 	}
 
-	$api_enabled = $web_api_settings['versions'][$version]['enabled'];
+	$api_enabled = $web_api_specification['enabled'];
 	$service_enabled = $web_api_specification['services'][$sget]['enabled'];
 	$action_enabled = $web_api_specification['services'][$sget]['actions'][$aget]['enabled'];
 
@@ -60,8 +58,9 @@ if( $version == null ){
 
 	<p>
 		Versions available:
+		&nbsp;
 		<?php
-		foreach( $web_api_settings['versions'] as $key => $opt ){
+		foreach( $api_setup as $key => $_ ){
 			?>
 			<span class="label label-<?php echo ( ($version == $key)? 'primary' : 'default' ) ?> api-version-label">
 					<a href="<?php echo \system\classes\Configuration::$BASE.'api?version='.$key ?>">
@@ -662,7 +661,7 @@ if( $version == null ){
 					</li>
 					<ul>
 						<li>
-							<a href="#restrictions">Usage limits</a>
+							<a href="#restrictions">Access privileges</a>
 						</li>
 						<li>
 							<a href="#request">How to execute it</a>
@@ -714,42 +713,37 @@ if( $version == null ){
 		<div class="api-service-subsection">
 			<a class="anchor" id="restrictions"></a>
 			<h3>
-				Usage limits
+				Access privileges
 			</h3>
 			<div>
 				<p>
-					The following table shows who can execute the <span class="mono emph"><?php echo $sget ?></span>/<span class="mono emph"><?php echo $aget ?></span> action and whether the user has to be authenticated in order to be able to access it.
+					The following table shows the access privileges needed to be able to execute the action <span class="mono emph"><?php echo $sget ?></span>/<span class="mono emph"><?php echo $aget ?></span>.
 				</p>
 
 				<table class="table-rounded gray-table table-text-centered" style="width:450px; margin:auto; margin-top:20px">
 					<thead>
 					<tr>
 						<th>
-							Requester
+							Access level
 						</th>
 						<th>
-							Guest
-						</th>
-						<th>
-							Authenticated
+							Authorized to execute
 						</th>
 					</tr>
 					</thead>
 					<tbody>
 					<?php
-					$who = array( 'administrator' => 'Administrator', 'visitor' => 'Visitor' );
+					$who = \system\classes\Core::getUserTypesList();
 
-					foreach( array_keys($who) as $w ){
+					foreach( $who as $w ){
+						$granted = in_array($w, $action_specification['access_level']);
 						?>
 						<tr>
 							<td>
-								<?php echo $who[$w] ?>
+								<?php echo ucfirst($w) ?>
 							</td>
 							<td>
-								<span class="glyphicon glyphicon-<?php echo ( ( $access_level == 'guest' )? 'ok-sign on' : 'minus-sign off' ) ?>"></span>
-							</td>
-							<td>
-								<span class="glyphicon glyphicon-<?php echo ( ( $access_level == 'logged' )? 'ok-sign on' : 'minus-sign off' ) ?>"></span>
+								<span class="glyphicon glyphicon-<?php echo ( $granted )? 'ok-sign on' : 'minus-sign off' ?>"></span>
 							</td>
 						</tr>
 					<?php
@@ -1036,20 +1030,6 @@ if( $version == null ){
 <?php
 
 // Utility functions
-
-function loadJSON( $file ){
-	$apis_path = __DIR__.'/../../api/';
-	//
-	$content = file_get_contents( $apis_path . $file );
-	//
-	if( $content == false ){
-		//error
-		\system\classes\Core::throwError( 'Error: file \'./'.$file.'\' not found!' );
-		return array();
-	}else{
-		return json_decode( $content, true );
-	}
-}//loadJSON
 
 
 function arrayToPrettyJson( $data, $level ){

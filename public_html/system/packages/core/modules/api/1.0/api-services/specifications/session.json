@@ -1,10 +1,8 @@
 {
     "details" : "Provides the tools for managing PHP sessions on the Web Server",
-    "enabled" : true,
     "actions" : {
         "start" : {
             "details" : "Create a new session",
-            "enabled" : true,
             "access_level" : [
                 "guest"
             ],

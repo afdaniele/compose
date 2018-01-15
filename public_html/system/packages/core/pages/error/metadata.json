@@ -3,7 +3,7 @@
     "package" : "core",
     "menu_entry" : null,
     "child_pages" : [],
-    "access" : [
+    "access_level" : [
         "administrator",
         "supervisor",
         "user",
