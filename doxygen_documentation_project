@@ -858,7 +858,9 @@ FILE_PATTERNS          = *.c \
                          *.vhd \
                          *.vhdl \
                          *.ucf \
-                         *.qsf
+                         *.qsf \
+                         *.js \
+                         *.json
 
 # The RECURSIVE tag can be used to specify whether or not subdirectories should
 # be searched for input files as well.
@@ -876,12 +878,9 @@ RECURSIVE              = YES
 EXCLUDE                = public_html/_phpMyAdmin \
                          public_html/phpMyAdmin \
                          public_html/_icon \
-                         public_html/system/classes/_libphonenumber \
                          public_html/system/classes/PHPMailer \
-                         public_html/system/classes/_skebbysms \
                          public_html/system/classes/phpfastcache \
                          public_html/system/classes/yaml \
-                         public_html/system/classes/_Statistics.php \
                          public_html/system/utils/Mobile_Detect.php \
                          public_html/system/classes/google_api_php_client
 
