@@ -3,7 +3,7 @@
 # @Date:   Monday, January 8th 2018
 # @Email:  afdaniele@ttic.edu
 # @Last modified by:   afdaniele
-# @Last modified time: Monday, January 8th 2018
+# @Last modified time: Monday, January 15th 2018
 
 
 
@@ -33,7 +33,10 @@ function execute( &$service, &$actionName, &$arguments ){
 			break;
 		//
 		case 'logout':
-			Core::logOutUser();
+			$res = Core::logOutUser();
+			if( !$res['success'] ){
+				 array( 'code' => 500, 'status' => 'Internal Server Error', 'message' => $res['data'] );
+			}
 			// success
 			return array( 'code' => 200, 'status' => 'OK' );
 			break;

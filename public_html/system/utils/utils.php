@@ -3,7 +3,7 @@
 # @Date:   Wednesday, December 28th 2016
 # @Email:  afdaniele@ttic.edu
 # @Last modified by:   afdaniele
-# @Last modified time: Sunday, January 14th 2018
+# @Last modified time: Monday, January 15th 2018
 
 
 
@@ -149,6 +149,12 @@ function format( $val, $type ){
 			break;
 		case 'placeholder':
 			return '<div id="_format_placeholder_'.$val.'"><img src="'.\system\classes\Configuration::$BASE_URL.'images/loading_blue.gif" style="width:22px; height:22px;"></div>';
+			break;
+		case 'avatar_image_small':
+			return sprintf('<img src="%s" class="formatted-avatar formatted-avatar-small">', $val);
+			break;
+		case 'avatar_image':
+			return sprintf('<img src="%s" class="formatted-avatar">', $val);
 			break;
 		default:
 			return $val.'';

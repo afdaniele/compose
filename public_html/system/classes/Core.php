@@ -35,27 +35,19 @@ use system\classes\enum\EmailTemplates;
 use system\classes\enum\StringType;
 use system\classes\jsonDB\JsonDB;
 
-
+/** Core module of the platform <b>\\compose\\</b>.
+ */
 class Core{
-	/**
-	 * Construct won't be called inside this class and is uncallable from
-	 * the outside. This prevents instantiating this class.
-	 * This is by purpose, because we want a static class.
-	 */
 
 	private static $initialized = false;
-
-	// Fields
 	private static $cache = null;
-
 	private static $packages = null;
 	private static $pages = null;
 	private static $api = null;
 	private static $settings = null;
-
 	private static $registered_user_types = [];
 
-	private static $regexes = array(
+	private static $STRING_TYPES_REGEX = [
 		"alphabetic" => "/^[a-zA-Z]+$/",
 		"alphanumeric" => "/^[a-zA-Z0-9]+$/",
 		"alphanumeric_s" => "/^[a-zA-Z0-9\\s]+$/",
@@ -63,7 +55,16 @@ class Core{
 		"password" => "/^[a-zA-Z0-9_.-]+$/",
 		"text" => "/^[\\w\\D\\s_.,-]*$/",
 		"email" => "/^[a-zA-Z0-9_.-]+@[a-zA-Z0-9-]+.[a-zA-Z0-9-.]+$/"
-	);
+	];
+
+	private static $USER_ACCOUNT_TEMPLATE = [
+		"username" => "string: Google (numeric) user ID",
+		"name" => "string: Full name of the user",
+		"email" => "string: Email address",
+		"picture" => "string: Link to google account picture (provided by Google Sign-In)",
+		"role" => "string: Access level of the user",
+		"active" => "boolean: Whether the user is allowed to login and use the platform"
+	];
 
 
 	//Disable the constructor
@@ -75,6 +76,19 @@ class Core{
 	// =======================================================================================================
 	// Initilization and session management functions
 
+
+	/** Initializes the Core module.
+	 *	It is the first function to call when using the Core module.
+	 *
+	 *	@retval array
+	 *		a status array of the form
+	 *	<pre><code class="php">[
+	 *		"success" => boolean, 	// whether the function succeded
+	 *		"data" => mixed 		// error message or NULL
+	 *	]</code></pre>
+	 *		where, the `success` field indicates whether the function succeded.
+	 *		The `data` field contains an error string when `success` is `FALSE`.
+	 */
 	public static function initCore(){
 		if( !self::$initialized ){
 			mb_internal_encoding("UTF-8");
@@ -128,11 +142,29 @@ class Core{
 	}//initCore
 
 
+	/** Terminates the Core module.
+	 *	It is responsible for committing unsaved changes to the disk or closing open connections (e.g., mySQL)
+	 *	before leaving.
+	 *
+	 *	@retval array
+	 *		a status array of the form
+	 *	<pre><code class="php">[
+	 *		"success" => boolean, 	// whether the function succeded
+	 *		"data" => mixed 		// error message or NULL
+	 *	]</code></pre>
+	 *		where, the `success` field indicates whether the function succeded.
+	 *		The `data` field contains an error string when `success` is `FALSE`.
+	 */
 	public static function close(){
 		return array( 'success' => true, 'data' => null );
 	}//close
 
 
+	/** Creates a new PHP Session and assigns a new randomly generated 16-digits authorization token to it.
+	 *
+	 *	@retval boolean
+	 *		`TRUE` if the function succeded, `FALSE` otherwise
+	 */
 	public static function startSession(){
 		session_start();
 		if( !isset($_SESSION['TOKEN']) ){
@@ -150,6 +182,21 @@ class Core{
 	// =======================================================================================================
 	// Users management functions
 
+	/** Logs in a user using the Google Sign-In OAuth 2.0 authentication procedure.
+	 *
+	 *	@param string $id_token
+	 *		id_token returned by the Google Identity Sign-In tool,
+	 *		(for more info check: https://developers.google.com/identity/sign-in/web/reference#gapiauth2authresponse);
+	 *
+	 *	@retval array
+	 *		a status array of the form
+	 *	<pre><code class="php">[
+	 *		"success" => boolean, 	// whether the function succeded
+	 *		"data" => mixed 		// error message or NULL
+	 *	]</code></pre>
+	 *		where, the `success` field indicates whether the function succeded.
+	 *		The `data` field contains an error string when `success` is `FALSE`.
+	 */
 	public static function logInUserWithGoogle( $id_token ){
 		if( $_SESSION['USER_LOGGED'] ){
 			return array( 'success' => false, 'data' => 'You are already logged in!' );
@@ -168,18 +215,22 @@ class Core{
 			    "email" => $payload['email'],
 				"picture" => $payload['picture'],
 			    "role" => "user",
-			    "branch" => Configuration::$DUCKIEFLEET_BRANCH,
 				"active" => true
 			];
 			// look for a pre-existing user profile
-			$res = self::userExists($userid);
-			if( $res['success'] ){
+			$user_exists = self::userExists($userid);
+			if( $user_exists ){
 				// there exists a user profile, load info
 				$res = self::openUserInfo($userid);
 				if( !$res['success'] ){
 					return $res;
 				}
 				$user_info = $res['data']->asArray();
+			}else{
+				$res = self::createNewUserAccount($userid, $user_info);
+				if( !$res['success'] ){
+					return $res;
+				}
 			}
 			//
 			$_SESSION['USER_LOGGED'] = true;
@@ -194,14 +245,97 @@ class Core{
 	}//logInUserWithGoogle
 
 
+	/** Creates a new user account.
+	 *
+	 *	@param string $user_id
+	 *		string containing the (numeric) user id provided by Google Sign-In;
+	 *
+	 *	@param array $user_info
+	 *		array containing information about the new user. This array
+	 *		has to contain at least all the keys defined in $USER_ACCOUNT_TEMPLATE;
+	 *
+	 *	@retval array
+	 *		a status array of the form
+	 *	<pre><code class="php">[
+	 *		"success" => boolean, 	// whether the function succeded
+	 *		"data" => mixed 		// error message or NULL
+	 *	]</code></pre>
+	 *		where, the `success` field indicates whether the function succeded.
+	 *		The `data` field contains an error string when `success` is `FALSE`.
+	 */
+	public static function createNewUserAccount( $user_id, $user_info ){
+		$user_exists = self::userExists($user_id);
+		if( $user_exists ){
+			return ['success' => false, 'data' => sprintf('The user `%s` already exists', $user_id) ];
+		}
+		// validate user info
+		$mandatory_fields = array_keys( self::$USER_ACCOUNT_TEMPLATE );
+		foreach( $mandatory_fields as $field) {
+			if( !isset($user_info[$field]) ){
+				return ['success' => false, 'data' => sprintf('The field "%s" is required for a new user account', $field)];
+			}
+		}
+		// create a new user account on the server
+		$user_file = sprintf( $GLOBALS['__SYSTEM__DIR__'].'/users/accounts/%s.json', $user_id );
+		$user_obj = new JsonDB( $user_file );
+		// copy info to jsonDB
+		foreach( $user_info as $key => $val ){
+			$user_obj->set( $key, $val );
+		}
+		// commit new user to the disk
+		$res = $user_obj->commit();
+		if( !$res['success'] ){
+			return $res;
+		}
+		//
+		return ['success' => true, 'data' => null ];
+	}//createNewUserAccount
+
+
+	/** Returns whether a user is currently logged in.
+	 *
+	 *	@retval boolean
+	 *		whether a user is currently logged in;
+	 */
 	public static function isUserLoggedIn(){
 		return ( isset($_SESSION['USER_LOGGED'])? $_SESSION['USER_LOGGED'] : false );
 	}//isUserLoggedIn
 
 
+	/** Returns the list of users registered on the platform.
+	 *	A user is automatically registered when s/he logs in with google.
+	 *
+	 *	@retval array
+	 *		list of user ids. The user id of a user is the numeric user id assigned by Google;
+	 */
+	public static function getUsersList(){
+		$users_file_descriptors = sprintf("%s/users/accounts/*.json", $GLOBALS['__SYSTEM__DIR__']);
+		$jsons = glob( $users_file_descriptors );
+		//
+		$users = [];
+		foreach ($jsons as $json) {
+			$user_id = self::_regex_extract_group($json, "/.*users\/accounts\/(.+).json/", 1);
+			array_push( $users, $user_id );
+		}
+		return $users;
+	}//getUsersList
+
+
+	/** Logs out the user from the platform.
+	 *	If the user is not logged in yet, the function will return an error status.
+	 *
+	 *	@retval array
+	 *		a status array of the form
+	 *	<pre><code class="php">[
+	 *		"success" => boolean, 	// whether the function succeded
+	 *		"data" => mixed 		// error message or NULL
+	 *	]</code></pre>
+	 *		where, the `success` field indicates whether the function succeded.
+	 *		The `data` field contains an error string when `success` is `FALSE`.
+	 */
 	public static function logOutUser(){
 		if( !$_SESSION['USER_LOGGED'] ){
-			return array( 'success' => false, 'data' => 'User not logged in yet!' );
+			return ['success' => false, 'data' => 'User not logged in yet!'];
 		}
 		//
 		$_SESSION['USER_LOGGED'] = false;
@@ -209,60 +343,146 @@ class Core{
 		unset( $_SESSION['USER_DUCKIEBOT'] );
 		self::regenerateSessionID();
 		//
-		return true;
+		return ['success' => true, 'data' => null];
 	}//logOutUser
 
 
-	public static function userExists( $username ){
-		$user_file = sprintf( __DIR__.'/../users/accounts/%s.json', $username );
-		if( file_exists($user_file) ){
-			return array( 'success' => true, 'data' => null );
-		}else{
-			return array( 'success' => false, 'data' => 'User "'.$username.'" not found!' );
-		}
+	/** Checks whether a user account exists.
+	 *
+	 *	@param string $user_id
+	 *		string containing the (numeric) user id provided by Google Sign-In;
+	 *
+	 *	@retval boolean
+	 *		whether a user account with the specified user id exists;
+	 */
+	public static function userExists( $user_id ){
+		$user_file = sprintf( __DIR__.'/../users/accounts/%s.json', $user_id );
+		return file_exists($user_file);
 	}//userExists
 
 
-	public static function openUserInfo( $username ){
-		$user_file = sprintf( __DIR__.'/../users/accounts/%s.json', $username );
+	/** Opens the user account record for the user specified in write-mode.
+	 *	This function returns an instance of the class \\system\\classes\\jsonDB\\JsonDB
+	 *	containing the information about the user specified.
+	 *
+	 *	@param string $user_id
+	 *		string containing the (numeric) user id provided by Google Sign-In;
+	 *
+	 *	@retval array
+	 *		a status array of the form
+	 *	<pre><code class="php">[
+	 *		"success" => boolean, 	// whether the function succeded
+	 *		"data" => mixed 		// error message or instance of \\system\\classes\\jsonDB\\JsonDB
+	 *	]</code></pre>
+	 *		where, the `success` field indicates whether the function succeded.
+	 *		The `data` field contains an error string when `success` is `FALSE`,
+	 *		otherwise it will contain an instance of the class \\system\\classes\\jsonDB\\JsonDB
+	 *		containing the information about the user specified.
+	 *		The JsonDB object will contain at least the keys specified in $USER_ACCOUNT_TEMPLATE.
+	 *		See the documentation for the class JsonDB to understand how to edit and commit information.
+	 */
+	public static function openUserInfo( $user_id ){
+		$user_file = sprintf( __DIR__.'/../users/accounts/%s.json', $user_id );
 		$user_info = null;
 		if( file_exists($user_file) ){
 			// load user information
 			$user_info = new JsonDB( $user_file );
 		}else{
-			return array( 'success' => false, 'data' => 'User "'.$username.'" not found!' );
+			return array( 'success' => false, 'data' => 'User "'.$user_id.'" not found!' );
 		}
 		//
 		$static_user_info = $user_info->asArray();
-		foreach (["username","name","email","picture","role","branch","active"] as $field) {
+		$mandatory_fields = array_keys( self::$USER_ACCOUNT_TEMPLATE );
+		foreach( $mandatory_fields as $field) {
 			if( !isset($static_user_info[$field]) ){
-				return array( 'success' => false, 'data' => 'The descriptor file for the user "'.$username.'" is corrupted! Contact the administrator' );
+				return array( 'success' => false, 'data' => 'The descriptor file for the user "'.$user_id.'" is corrupted! Contact the administrator' );
 			}
 		}
-		if( strcmp($static_user_info['username'], $username) != 0 ){
-			return array( 'success' => false, 'data' => 'The descriptor file for the user "'.$username.'" is corrupted! Contact the administrator' );
+		if( strcmp($static_user_info['username'], $user_id) != 0 ){
+			return array( 'success' => false, 'data' => 'The descriptor file for the user "'.$user_id.'" is corrupted! Contact the administrator' );
 		}
 		//
 		return array( 'success' => true, 'data' => $user_info );
 	}//openUserInfo
 
 
+	/** Returns the user account record for the user specified.
+	 *	Unlike openUserInfo(), this function returns a read-only copy of the user account.
+	 *
+	 *	@param string $user_id
+	 *		string containing the (numeric) user id provided by Google Sign-In;
+	 *
+	 *	@retval array
+	 *		a status array of the form
+	 *	<pre><code class="php">[
+	 *		"success" => boolean, 	// whether the function succeded
+	 *		"data" => mixed 		// error message or associative array
+	 *	]</code></pre>
+	 *		where, the `success` field indicates whether the function succeded.
+	 *		The `data` field contains an error string when `success` is `FALSE`,
+	 *		otherwise it will contain an associative array containing the information about the user specified.
+	 *		The associative array in `data` will contain at least the keys specified in $USER_ACCOUNT_TEMPLATE.
+	 */
+	public static function getUserInfo( $user_id ){
+		$res = self::openUserInfo( $user_id );
+		if( !$res['success'] ){
+			return $res;
+		}
+		//
+		return array( 'success' => true, 'data' => $res['data']->asArray() );
+	}//getUserInfo
+
+
+	/** Returns the user account record of the user currently logged in.
+	 *
+	 *	@param string $field
+	 *		(optional) name of the field to retrieve from the user account. It can be any of the keys specified
+	 *		in $USER_ACCOUNT_TEMPLATE;
+	 *
+	 *	@retval mixed
+	 *		If no user is currently logged in, returns `NULL`;
+	 *		If `$field`=`NULL`, returns associative array containing the information about the user currently
+	 *		logged in (similar to getUserInfo());
+	 *		If a value for `$field` is passed, only the value of the field specified is returned (e.g., name).
+	 */
 	public static function getUserLogged( $field=null ){
 		return (isset($_SESSION['USER_RECORD'])) ? ( ($field==null) ? $_SESSION['USER_RECORD'] : $_SESSION['USER_RECORD'][$field] ) : null;
 	}//getUserLogged
 
 
+	/** Returns the role of the user that is currently using the platform.
+	 *
+	 *	@retval string
+	 *		role of the user that is currently using the platform. It can be any of the default roles
+	 *		defined by <b>\\compose\\</b> or any other role registered by third-party packages. A list
+	 *		of all the user roles registered can be retrieved using the function getUserTypesList();
+	 */
 	public static function getUserRole(){
 		$user_role = ( self::isUserLoggedIn() )? self::getUserLogged('role') : 'guest';
 		return $user_role;
 	}//getUserRole
 
 
+	/** Sets the user role of the user that is currently using the platform.
+	 *	NOTE: this function does not update the user account of the current user permanently. This change
+	 *	will be lost once the session is closed.
+	 *
+	 *	@param string $user_role
+	 *		role to assign to the current user;
+	 *
+	 *	@retval void
+	 */
 	public static function setUserRole( $user_role ){
 		$_SESSION['USER_RECORD']['role'] = $user_role;
 	}//setUserRole
 
 
+	/** Returns the list of all user roles known to the platform. It includes all the user roles defined
+	 *	by <b>\\compose\\</b> plus all the user roles introduced by third-party packages.
+	 *
+	 *	@retval array
+	 *		list of unique strings. Each string represents a different user role;
+	 */
 	public static function getUserTypesList(){
 		return self::$registered_user_types;
 	}//getUserTypesList
@@ -277,12 +497,12 @@ class Core{
 	 * 		an associative array of the form
 	 *	<pre><code class="php">[
 	 *		"package_id" => [
-	 *			"id" : string, 					// ID of the package
+	 *			"id" : string, 					// ID of the package (identical to package_id)
 	 *			"name" : string,				// name of the package
      *			"description" : string,			// brief description of the package
      *			"dependencies" : [
  	 *				"system-packages" : [],		// list of system packages required by the package
-	 *				"packages" : []				// list of \compose\ packages required by the package
+	 *				"packages" : []				// list of \\compose\\ packages required by the package
      *			],
 	 *			"enabled" : boolean				// whether the package is enabled
 	 *		],
@@ -298,6 +518,7 @@ class Core{
 	 *
 	 *	@param string $package
 	 *		the name of the package to check.
+	 *
 	 *	@retval boolean
 	 * 		whether the package exists.
 	 */
@@ -313,6 +534,7 @@ class Core{
 	 *
 	 *	@param string $package
 	 *		the name of the package to check.
+	 *
 	 *	@retval boolean
 	 *		whether the package is enabled.
 	 */
@@ -328,6 +550,7 @@ class Core{
 	 *
 	 *	@param string $package
 	 *		the name of the package to enable.
+	 *
 	 *	@retval array
 	 *		a status array of the form
 	 *	<pre><code class="php">[
@@ -335,7 +558,7 @@ class Core{
 	 *		"data" => mixed 		// error message or NULL
 	 *	]</code></pre>
 	 *		where, the `success` field indicates whether the function succeded.
-	 *		The `data` field contains errors when `success` is `FALSE`.
+	 *		The `data` field contains an error string when `success` is `FALSE`.
 	 */
 	public static function enablePackage( $package ){
 		$package_meta = sprintf('%s%s/metadata.json', $GLOBALS['__PACKAGES__DIR__'], $package);
@@ -364,7 +587,7 @@ class Core{
 	 *		"data" => mixed 		// error message or NULL
 	 *	]</code></pre>
 	 *		where, the `success` field indicates whether the function succeded.
-	 *		The `data` field contains errors when `success` is `FALSE`.
+	 *		The `data` field contains an error string when `success` is `FALSE`.
 	 */
 	public static function disablePackage( $package ){
 		if( $package == 'core' )
@@ -616,7 +839,7 @@ class Core{
 	 *		"data" => mixed 		// error message or NULL
 	 *	]</code></pre>
 	 *		where, the `success` field indicates whether the function succeded.
-	 *		The `data` field contains errors when `success` is `FALSE`.
+	 *		The `data` field contains an error string when `success` is `FALSE`.
 	 */
 	public static function enablePage( $package, $page ){
 		$page_meta = sprintf('%s%s/pages/%s/metadata.json', $GLOBALS['__PACKAGES__DIR__'], $package, $page);
@@ -647,7 +870,7 @@ class Core{
 	 *		"data" => mixed 		// error message or NULL
 	 *	]</code></pre>
 	 *		where, the `success` field indicates whether the function succeded.
-	 *		The `data` field contains errors when `success` is `FALSE`.
+	 *		The `data` field contains an error string when `success` is `FALSE`.
 	 */
 	public static function disablePage( $package, $page ){
 		if( $package == 'core' )
@@ -729,7 +952,7 @@ class Core{
 	 *		"data" => mixed 		// error message or NULL
 	 *	]</code></pre>
 	 *		where, the `success` field indicates whether the function succeded.
-	 *		The `data` field contains errors when `success` is `FALSE`.
+	 *		The `data` field contains an error string when `success` is `FALSE`.
 	 */
 	public static function enableAPIservice( $api_version, $service_name ){
 		if( !self::APIserviceExists($api_version, $service_name) )
@@ -758,7 +981,7 @@ class Core{
 	 *		"data" => mixed 		// error message or NULL
 	 *	]</code></pre>
 	 *		where, the `success` field indicates whether the function succeded.
-	 *		The `data` field contains errors when `success` is `FALSE`.
+	 *		The `data` field contains an error string when `success` is `FALSE`.
 	 */
 	public static function disableAPIservice( $api_version, $service_name ){
 		if( !self::APIserviceExists($api_version, $service_name) )
@@ -835,7 +1058,7 @@ class Core{
 	 *		"data" => mixed 		// error message or NULL
 	 *	]</code></pre>
 	 *		where, the `success` field indicates whether the function succeded.
-	 *		The `data` field contains errors when `success` is `FALSE`.
+	 *		The `data` field contains an error string when `success` is `FALSE`.
 	 */
 	public static function enableAPIaction( $api_version, $service_name, $action_name ){
 		if( !self::APIactionExists($api_version, $service_name, $action_name) )
@@ -867,7 +1090,7 @@ class Core{
 	 *		"data" => mixed 		// error message or NULL
 	 *	]</code></pre>
 	 *		where, the `success` field indicates whether the function succeded.
-	 *		The `data` field contains errors when `success` is `FALSE`.
+	 *		The `data` field contains an error string when `success` is `FALSE`.
 	 */
 	public static function disableAPIaction( $api_version, $service_name, $action_name ){
 		if( !self::APIactionExists($api_version, $service_name, $action_name) )
@@ -1006,22 +1229,22 @@ class Core{
 
 
 	public static function isAlphabetic( $string, $length=null ){
-		return ( preg_match(self::$regexes['alphabetic'], $string) == 1 ) && ( ($length == null)? true : ($length==strlen($string)) );
+		return ( preg_match(self::$STRING_TYPES_REGEX['alphabetic'], $string) == 1 ) && ( ($length == null)? true : ($length==strlen($string)) );
 	}//isAlphabetic
 
 
 	public static function isNumeric( $string, $length=null ){
-		return ( preg_match(self::$regexes['numeric'], $string) == 1 ) && ( ($length == null)? true : ($length==strlen($string)) );
+		return ( preg_match(self::$STRING_TYPES_REGEX['numeric'], $string) == 1 ) && ( ($length == null)? true : ($length==strlen($string)) );
 	}//isNumeric
 
 
 	public static function isAlphaNumeric( $string, $length=null ){
-		return ( preg_match(self::$regexes['alphanumeric'], $string) == 1 ) && ( ($length == null)? true : ($length==strlen($string)) );
+		return ( preg_match(self::$STRING_TYPES_REGEX['alphanumeric'], $string) == 1 ) && ( ($length == null)? true : ($length==strlen($string)) );
 	}//isAlphaNumeric
 
 
 	public static function isAvalidEmailAddress( $string, $length=null ){
-		return ( preg_match(self::$regexes['email'], $string) == 1 ) && ( ($length == null)? true : ($length==strlen($string)) );
+		return ( preg_match(self::$STRING_TYPES_REGEX['email'], $string) == 1 ) && ( ($length == null)? true : ($length==strlen($string)) );
 	}//isAvalidEmailAddress
 
 

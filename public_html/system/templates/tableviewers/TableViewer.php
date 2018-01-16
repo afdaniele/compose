@@ -1,4 +1,11 @@
 <?php
+# @Author: Andrea F. Daniele <afdaniele>
+# @Date:   Wednesday, December 28th 2016
+# @Email:  afdaniele@ttic.edu
+# @Last modified by:   afdaniele
+# @Last modified time: Monday, January 15th 2018
+
+
 /**
  * Created by PhpStorm.
  * User: andrea
@@ -409,7 +416,7 @@ class TableViewer {
 					foreach( $table['layout'] as $key => $column ){
 						if( !$column['show'] ) continue;
 						?>
-						<th class="col-<?php echo $column['width']; ?> text-center"><?php echo $column['translation'] ?></th>
+						<th class="col-<?php echo $column['width']; ?> text-<?php echo $column['align']; ?>"><?php echo $column['translation'] ?></th>
 					<?php
 					}
 					//
@@ -541,7 +548,7 @@ class TableViewer {
 												<?php echo ( (isset($action['color']))? 'style="color:'.$action['color'].'"' : '' ) ?>
 												>
 											</span>
-											<?php echo ( (isset($action['text']))? ' '.$action['text'] : '' ) ?>
+											<?php echo ( (isset($action['text']))? '&nbsp;'.$action['text'] : '' ) ?>
 										</button>
 									<?php
 									}

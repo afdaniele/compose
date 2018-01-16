@@ -3,7 +3,7 @@
  * @Date:   Wednesday, December 28th 2016
  * @Email:  afdaniele@ttic.edu
  * @Last modified by:   afdaniele
- * @Last modified time: Sunday, January 14th 2018
+ * @Last modified time: Monday, January 15th 2018
  */
 
 
@@ -25,6 +25,18 @@ footer #avatar{
     width: 60px;
     margin-top: -30px;
     border: 1px solid black;
+}
+
+.formatted-avatar,
+.formatted-avatar-small{
+    border-radius: 50%;
+    width: 60px;
+    border: 1px solid lightgrey;
+}
+
+.formatted-avatar-small{
+    width: 30px;
+    margin-top: -4px;
 }
 
 #profile_page_avatar #avatar{

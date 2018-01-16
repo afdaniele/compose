@@ -3,7 +3,7 @@
 # @Date:   Saturday, January 13th 2018
 # @Email:  afdaniele@ttic.edu
 # @Last modified by:   afdaniele
-# @Last modified time: Saturday, January 13th 2018
+# @Last modified time: Monday, January 15th 2018
 
 
 // get info
@@ -22,13 +22,17 @@ if( !file_exists($imagePath) ){
 
 // open the file in a binary mode
 $fp = fopen($imagePath, 'rb');
+$fsize = filesize($imagePath);
 
 // get info about the image
 $imageInfo = getimagesize($imagePath);
 
+// clean buffer
+ob_clean();
+
 // send the right headers
-header( sprintf("Content-Type: %s", $imageInfo['mime']) );
-header( sprintf("Content-Length: %s", filesize($imagePath)) );
+header( sprintf("Content-Type: %s", $imageInfo['mime']), true );
+header( sprintf("Content-Length: %s", $fsize), true );
 
 // dump the picture and stop the script
 fpassthru($fp);
