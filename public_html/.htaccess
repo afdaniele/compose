@@ -9,6 +9,10 @@
     RewriteRule ^web-api/(.+)/(.+)$ /web-api/index.php?__error__=1 [QSA,NC,L]
     RewriteRule ^web-api/(.+)/$ /web-api/index.php?__error__=1 [QSA,NC,L]
 
+    RewriteRule ^image.php$ /scripts/image.php [QSA,NC,L]
+    RewriteRule ^css.php$ /scripts/css.php [QSA,NC,L]
+    RewriteRule ^js.php$ /scripts/js.php [QSA,NC,L]
+
     RewriteRule ^documentation/(.+)\.js$ /data/documentation/$1.js [QSA,NC,L]
     RewriteRule ^documentation/(.+)\.css$ /data/documentation/$1.css [QSA,NC,L]
     RewriteRule ^documentation/(.+)\.png$ /data/documentation/$1.png [QSA,NC,L]
