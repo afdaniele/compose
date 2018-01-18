@@ -1,6 +1,7 @@
 {
     "maintenance_mode" : false,
 	"navbar_title": "Duckietown @ TTIC",
+    "logo" : "https://raw.githubusercontent.com/afdaniele/compose/master/public_html/images/compose-white-logo.svg",
 	"admin_contact_email_address": "afdaniele@ttic.edu",
 	"cache_enabled": false
 }

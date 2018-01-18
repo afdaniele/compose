@@ -3,7 +3,7 @@
 # @Date:   Tuesday, January 9th 2018
 # @Email:  afdaniele@ttic.edu
 # @Last modified by:   afdaniele
-# @Last modified time: Sunday, January 14th 2018
+# @Last modified time: Wednesday, January 17th 2018
 
 
 
@@ -42,12 +42,18 @@ foreach ($buttons as &$button) {
 				<span class="icon-bar"></span>
 				<span class="icon-bar"></span>
 			</button>
-			<a class="navbar-brand" href="<?php echo \system\classes\Configuration::$BASE ?>" style="padding-right:0">
-				<b>
-					<img src="<?php echo \system\classes\Configuration::$BASE_URL ?>/images/logo.svg" style="max-height:26px"></img>
-					&nbsp;
-					<?php echo \system\classes\Core::getSetting('core', 'navbar_title') ?>
-				</b>
+			<a class="navbar-brand" href="<?php echo \system\classes\Configuration::$BASE ?>" style="padding:5px 15px">
+				<table>
+					<tr>
+						<td>
+							<img src="<?php echo \system\classes\Core::getSetting('core', 'logo') ?>"></img>
+						</td>
+						<td>
+							<h3 style="margin:-15px 0 0 5px">&nbsp;<?php echo \system\classes\Core::getSetting('core', 'navbar_title') ?></h3>
+						</td>
+					</tr>
+				</table>
+
 			</a>
 		</div>
 		<div id="navbar" class="collapse navbar-collapse">
@@ -67,7 +73,7 @@ foreach ($buttons as &$button) {
 					if( in_array($user_role, $elem['menu_entry']['exclude_roles']) )
 						continue;
 					$is_last = boolval( $i == count($pages)-1 );
-					$icon = sprintf('%s %s-%s', $elem['menu_entry']['icon']['type'], $elem['menu_entry']['icon']['type'], $elem['menu_entry']['icon']['name']);
+					$icon = sprintf('%s %s-%s', $elem['menu_entry']['icon']['class'], $elem['menu_entry']['icon']['class'], $elem['menu_entry']['icon']['name']);
 					$active = (\system\classes\Configuration::$PAGE == $elem['id']) || in_array(\system\classes\Configuration::$PAGE, $elem['child_pages']);
 					//
 					?>
@@ -96,7 +102,7 @@ foreach ($buttons as &$button) {
 						<?php
 						foreach ($responsive_buttons as $id => $width) {
 							$elem = $pages_list['by-id'][$id];
-							$icon = sprintf('%s %s-%s', $elem['menu_entry']['icon']['type'], $elem['menu_entry']['icon']['type'], $elem['menu_entry']['icon']['name']);
+							$icon = sprintf('%s %s-%s', $elem['menu_entry']['icon']['class'], $elem['menu_entry']['icon']['class'], $elem['menu_entry']['icon']['name']);
 							?>
 							<li class="navbar-<?php echo $width ?>-responsive-button-component">
 								<a href="<?php echo \system\classes\Configuration::$BASE . $id ?>">

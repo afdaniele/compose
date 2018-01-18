@@ -12,6 +12,12 @@
             "default" : "Welcome",
             "details" : "Text in the header of the navbar"
         },
+        "logo" : {
+            "title" : "Application logo",
+            "type" : "text",
+            "default" : "https://raw.githubusercontent.com/afdaniele/compose/master/public_html/images/compose-white-logo.svg",
+            "details" : "Logo of the web application"
+        },
         "admin_contact_email_address" : {
             "title" : "Administrator e-mail address",
             "type" : "email",
