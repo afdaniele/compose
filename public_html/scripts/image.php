@@ -3,7 +3,7 @@
 # @Date:   Saturday, January 13th 2018
 # @Email:  afdaniele@ttic.edu
 # @Last modified by:   afdaniele
-# @Last modified time: Monday, January 15th 2018
+# @Last modified time: Tuesday, January 16th 2018
 
 
 // get info
@@ -26,6 +26,9 @@ $fsize = filesize($imagePath);
 
 // get info about the image
 $imageInfo = getimagesize($imagePath);
+if( strpos($imageName, '.svg') !== false ){
+    $imageInfo['mime'] = 'image/svg+xml';
+}
 
 // clean buffer
 ob_clean();
