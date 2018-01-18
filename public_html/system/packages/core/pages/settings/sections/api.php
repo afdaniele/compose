@@ -3,7 +3,7 @@
 # @Date:   Saturday, January 13th 2018
 # @Email:  afdaniele@ttic.edu
 # @Last modified by:   afdaniele
-# @Last modified time: Monday, January 15th 2018
+# @Last modified time: Wednesday, January 17th 2018
 
 ?>
 
@@ -170,7 +170,13 @@ function settings_api_tab(){
                                                         </button>
                                                         &nbsp;
                                                         <?php
-                                                        if($api_service_desc['enabled']){
+                                                        if( $api_service == 'api' ){
+                                                            ?>
+                                                            <span style="padding:0 28px">
+                                                                <span class="glyphicon glyphicon-ban-circle" aria-hidden="true" style="color:lightgray"></span>
+                                                            </span>
+                                                            <?php
+                                                        }elseif( $api_service_desc['enabled'] ){
                                                             ?>
                                                             <button type="button" class="btn btn-xs btn-warning api-service-disable-button"
                                                                 data-version="<?php echo $api_version ?>"
@@ -183,6 +189,7 @@ function settings_api_tab(){
                                                         }else{
                                                             ?>
                                                             <button type="button" class="btn btn-xs btn-success api-service-enable-button"
+                                                                style="padding: 0 7px"
                                                                 data-version="<?php echo $api_version ?>"
                                                                 data-service="<?php echo $api_service ?>"
                                                                 >
@@ -233,7 +240,13 @@ function settings_api_tab(){
                                                             </button>
                                                             &nbsp;
                                                             <?php
-                                                            if($api_action_desc['enabled']){
+                                                            if( $api_service == 'api' && in_array($api_action, ['service_enable', 'action_enable']) ){
+                                                                ?>
+                                                                <span style="padding:0 28px">
+                                                                    <span class="glyphicon glyphicon-ban-circle" aria-hidden="true" style="color:lightgray"></span>
+                                                                </span>
+                                                                <?php
+                                                            }elseif($api_action_desc['enabled']){
                                                                 ?>
                                                                 <button type="button" class="btn btn-xs btn-warning api-action-disable-button"
                                                                     data-version="<?php echo $api_version ?>"
@@ -247,6 +260,7 @@ function settings_api_tab(){
                                                             }else{
                                                                 ?>
                                                                 <button type="button" class="btn btn-xs btn-success api-action-enable-button"
+                                                                    style="padding: 0 7px"
                                                                     data-version="<?php echo $api_version ?>"
                                                                     data-service="<?php echo $api_service ?>"
                                                                     data-action="<?php echo $api_action ?>"
