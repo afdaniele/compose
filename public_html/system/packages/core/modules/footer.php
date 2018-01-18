@@ -3,7 +3,7 @@
 # @Date:   Tuesday, January 9th 2018
 # @Email:  afdaniele@ttic.edu
 # @Last modified by:   afdaniele
-# @Last modified time: Saturday, January 13th 2018
+# @Last modified time: Wednesday, January 17th 2018
 
 
 ?>
@@ -81,7 +81,7 @@ function footer_user_menu(){
 				);
 
 				foreach($pages as &$elem) {
-					$icon = sprintf('%s %s-%s', $elem['menu_entry']['icon']['type'], $elem['menu_entry']['icon']['type'], $elem['menu_entry']['icon']['name']);
+					$icon = sprintf('%s %s-%s', $elem['menu_entry']['icon']['class'], $elem['menu_entry']['icon']['class'], $elem['menu_entry']['icon']['name']);
 					?>
 					<li role="presentation">
 						<a role="menuitem" tabindex="-1"
