@@ -4,7 +4,7 @@
     "menu_entry" : {
         "order" : 100,
         "icon" : {
-            "type" : "glyphicon",
+            "class" : "glyphicon",
             "name" : "book"
         },
         "responsive" : {
