@@ -3,7 +3,7 @@
 # @Date:   Wednesday, December 28th 2016
 # @Email:  afdaniele@ttic.edu
 # @Last modified by:   afdaniele
-# @Last modified time: Monday, January 15th 2018
+# @Last modified time: Wednesday, January 17th 2018
 
 namespace system\classes;
 
@@ -58,12 +58,45 @@ class Core{
 	];
 
 	private static $USER_ACCOUNT_TEMPLATE = [
-		"username" => "string: Google (numeric) user ID",
-		"name" => "string: Full name of the user",
-		"email" => "string: Email address",
-		"picture" => "string: Link to google account picture (provided by Google Sign-In)",
-		"role" => "string: Access level of the user",
-		"active" => "boolean: Whether the user is allowed to login and use the platform"
+		"username" => ["string", "Google (numeric) user ID"],
+		"name" => ["string", "Full name of the user"],
+		"email" => ["string", "Email address"],
+		"picture" => ["string", "Link to google account picture (provided by Google Sign-In)"],
+		"role" => ["string", "Access level of the user"],
+		"active" => ["boolean", "Whether the user is allowed to login and use the platform"]
+	];
+
+	private static $PAGE_METADATA_TEMPLATE = [
+		"name" => ["string", "Name of the page"],
+		"package" => ["string", "ID of the package the page belongs to"],
+		"menu_entry" => [
+			"__type" => "associative_array",
+			"__details" => "Associative array containing info about the menu entry for the page",
+			"order" => ["float", "The order of the page on the top menu bar (smallest number = leftmost entry)"],
+			"icon" => [
+				"__type" => "associative_array",
+				"__details" => "Associative array containing info about the menu entry for the page",
+				"class" => ["text", "Class of the icon (e.g., glyphicon)",
+				"name" => ["text", "ID of the icon to use (e.g., car)"]
+			],
+			"responsive" => [
+				"__type" => "associative_array",
+				"__details" => "Associative array containing info about how the responsiveness of the menu entry for small devices",
+				"priority" => ["float", "Priority with which the menu entry will be contracted (highest number = contracted first)"
+			],
+			"exclude_roles" => [
+				"__type" => "array",
+				"__details" => "List of user roles for which this page icon should be hidden"
+			]
+		],
+		"child_pages" => [
+			"__type" => "array",
+			"__details" => "The menu entry of the page will be highlighted if the current page matches the `name` of this class or any ID in this list"
+		],
+		"access_level"  => [
+			"__type" => "array",
+			"__details" => "List of user roles for which this page is accessible"
+		]
 	];
 
 
@@ -984,6 +1017,9 @@ class Core{
 	 *		The `data` field contains an error string when `success` is `FALSE`.
 	 */
 	public static function disableAPIservice( $api_version, $service_name ){
+		// avoid disabling things that cannot be re-enabled
+		if( $service_name == 'api' )
+			return ['success' => false, 'data' => sprintf('The API service "%s" cannot be disabled', $service_name)];
 		if( !self::APIserviceExists($api_version, $service_name) )
 			return ['success' => false, 'data' => sprintf('The API service "%s(v%s)" does not exist', $service_name, $api_version)];
 		$service_disabled_flag = sprintf('%sapi/%s/flags/%s.disabled.flag', $GLOBALS['__SYSTEM__DIR__'], $api_version, $service_name);
@@ -1093,6 +1129,9 @@ class Core{
 	 *		The `data` field contains an error string when `success` is `FALSE`.
 	 */
 	public static function disableAPIaction( $api_version, $service_name, $action_name ){
+		// avoid disabling things that cannot be re-enabled
+		if( $service_name == 'api' && in_array($action_name, ['service_enable', 'action_enable']) )
+			return ['success' => false, 'data' => sprintf('The API action "%s.%s" cannot be disabled', $service_name, $action_name)];
 		if( !self::APIactionExists($api_version, $service_name, $action_name) )
 			return ['success' => false, 'data' => sprintf('The API action "%s.%s(v%s)" does not exist', $service_name, $action_name, $api_version)];
 		$action_disabled_flag = sprintf('%sapi/%s/flags/%s.%s.disabled.flag', $GLOBALS['__SYSTEM__DIR__'], $api_version, $service_name, $action_name);
