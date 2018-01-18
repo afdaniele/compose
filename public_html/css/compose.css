@@ -23,6 +23,7 @@ legend{
 footer #avatar{
     border-radius: 50%;
     width: 60px;
+    height: 60px;
     margin-top: -30px;
     border: 1px solid black;
 }
