@@ -51,7 +51,7 @@ Once a package is installed, all the new functionalities will be handled
 seamlessly by the Core module. The new pages will be instantly available,
 the API services ready to be served, etc.
 
-**\\compose\\** is a powerful tool, so let's take our time and go through all
+<!-- **\\compose\\** is a powerful tool, so let's take our time and go through all
 its functionalities. Let's start by looking at the simplest configuration
 of **\\compose\\**, where no packages are installed.
 
@@ -95,39 +95,6 @@ in the base path of your website. Do not use this
 directory for your custom images, use packages instead.
 
 
-### Custom CSS Stylesheets
-
-<!-- A package can contain additional images.
-Package-specific images must be stored in
-the directory `./images/` in the base path of the
-package itself. An image introduced by a package is accessible via the URL
-
-<pre>
-http://<b>your_website</b>/image.php?package=<b>package_name</b>&image=<b>filename_with_extension</b>
-</pre>
-
-where you replace **your_website** with the hostname
-of your website (e.g., *compose.afdaniele.com*),
-**package_name** with the name of the package containing
-the image to load (e.g., *my_package*), and
-**filename_with_extension** with the name of the file
-including its extension (e.g., *image_01.jpg*).
-
-For example, if you installed **\\compose\\** on your
-website `www.example.com`, and the package `server`
-contains the image `disk_full.png`, the link to the
-image will be
-
-<pre>
-http://<b>www.example.com</b>/image.php?package=<b>server</b>&image=<b>disk_full.png</b>
-</pre>
-
-NOTE: All the images released with **\\compose\\**
-are directly accessible from the directory `./images/`
-in the base path of your website. Do not use this
-directory for your custom images, use packages instead. -->
-
-
 // Everything from here on has to be checked and updated
 
 
@@ -160,4 +127,4 @@ sudo chgrp www-data public_html/system/config/configuration.json
 ```bash
 chmod 664 public_html/system/users/*
 sudo chgrp www-data public_html/system/users/*
-```
+``` -->
