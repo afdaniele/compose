@@ -5,8 +5,8 @@
 # A lightweight web-based CMS.
 
 
-**\\compose\\** is a CMS platform written in PHP that provides functionalities
-for fast-developing web applications on Linux servers.
+**\\compose\\** is a CMS (Content Management System) platform written in PHP that 
+provides functionalities for fast-developing web applications on Linux servers.
 
 Born to be modular, **\\compose\\** is built around the concept of installable
 packages. The built-in Core package is responsible for managing the
