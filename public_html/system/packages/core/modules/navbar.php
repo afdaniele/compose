@@ -3,7 +3,7 @@
 # @Date:   Tuesday, January 9th 2018
 # @Email:  afdaniele@ttic.edu
 # @Last modified by:   afdaniele
-# @Last modified time: Thursday, January 18th 2018
+# @Last modified time: Monday, January 22nd 2018
 
 
 
@@ -13,17 +13,29 @@ $pages_list = \system\classes\Core::getPagesList();
 // get info about the current user
 $user_role = \system\classes\Core::getUserRole();
 
-// define responsive parameters
-$responsive_min_width = 700;
-$responsive_width_per_button = 80;
-
-// assign limit widths to the responsive buttons
+// get list of visible buttons
 $buttons = \system\classes\Core::getFilteredPagesList(
 	'by-responsive-priority',
 	true /* enabledOnly */,
 	$user_role /* accessibleBy */
 );
 
+// count non-responsive buttons
+$non_responsive_btns = 0;
+foreach ($buttons as &$button) {
+	if( $button['menu_entry']['responsive']['priority'] < 0 ){
+		$non_responsive_btns += 1;
+	}
+}
+
+// define responsive parameters
+$responsive_width_per_button = 120;
+$responsive_min_width =
+	300 + // logo and name
+	$responsive_width_per_button * $non_responsive_btns + // non responsive buttons
+	120; // logout button
+
+// assign limit widths to the responsive buttons
 $responsive_buttons = [];
 $responsive_current_width = $responsive_min_width;
 foreach ($buttons as &$button) {
@@ -32,6 +44,7 @@ foreach ($buttons as &$button) {
 		$responsive_buttons[ $button['id'] ] = $responsive_current_width;
 	}
 }
+echo $responsive_min_width;
 ?>
 
 <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
