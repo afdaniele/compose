@@ -9,7 +9,7 @@
 for fast-developing web applications on Linux servers.
 
 Born to be modular, **\\compose\\** is built around the concept of installable
-packages. The built-in Core package is responsible for managing the 
+packages. The built-in Core package is responsible for managing the
 third-party packages and allows us to install, remove, update, enable/disable
 packages directly from the browser.
 
@@ -18,10 +18,15 @@ Features:
 - 4 types of users supported by default: `guest`, `user`, `supervisor`, `administrator`;
 - Web-based package manager;
 - Web-based pages manager;
+- Web-based RESTful API end-points manager;
 - Built-in support for Google Sign-In OAuth 2.0 authentication;
-- Built-in HTTP RESTful API;
+- Built-in HTTP RESTful API service;
 - Error handler;
+- Graphics based on [Bootstrap (v3.3.1)](https://getbootstrap.com/docs/3.3/getting-started/);
 - *and many many more...*
+
+
+## Architecture
 
 
 ## Core package
@@ -41,12 +46,12 @@ The Core package provides the following functionalities:
 Functionalities in **\\compose\\** are provided by installable packages.
 Each package can add new pages to the platform, new Core functionalities,
 new API services, its own configuration scheme.
-All these functionalities are defined within a package in JSON files. 
-Once a package is installed, all the new functionalities will be handled 
+All these functionalities are defined within a package in JSON files.
+Once a package is installed, all the new functionalities will be handled
 seamlessly by the Core module. The new pages will be instantly available,
 the API services ready to be served, etc.
 
-**\\compose\\** is a powerful tool, so let's take our time and go through all 
+**\\compose\\** is a powerful tool, so let's take our time and go through all
 its functionalities. Let's start by looking at the simplest configuration
 of **\\compose\\**, where no packages are installed.
 
@@ -59,24 +64,68 @@ of **\\compose\\**, where no packages are installed.
 
 ### Custom images
 
-A package can contain additional images. Images within a container must be stored in
-the folder `./images/`. An image introduced by a package is accessible via the URL
-  
+A package can contain additional images.
+Package-specific images must be stored in
+the directory `./images/` in the base path of the
+package itself. An image introduced by a package is accessible via the URL
+
 <pre>
-http://<b>your_website</b>/data/image.php?package=<b>package_name</b>&image=<b>filename_with_extension</b>
-</pre>
- 
-where you replace **your_website** with the name of your website (e.g., *compose.afdaniele.com*),
-**package_name** with the name of the package exporting the image (e.g., *my_package*), and 
-**filename_with_extension** the name of the file including its extension (e.g., *image_01.jpg*).
- 
-For example, if your website with **\\compose\\** is `www.example.com`, and the package `server` 
-exports the image `disk_full.png`, the link to the image will be 
-   
-<pre>
-http://<b>www.example.com</b>/data/image.php?package=<b>server</b>&image=<b>disk_full.png</b>
+http://<b>your_website</b>/image.php?package=<b>package_name</b>&image=<b>filename_with_extension</b>
 </pre>
 
+where you replace **your_website** with the hostname
+of your website (e.g., *compose.afdaniele.com*),
+**package_name** with the name of the package containing
+the image to load (e.g., *my_package*), and
+**filename_with_extension** with the name of the file
+including its extension (e.g., *image_01.jpg*).
+
+For example, if you installed **\\compose\\** on your
+website `www.example.com`, and the package `server`
+contains the image `disk_full.png`, the link to the
+image will be
+
+<pre>
+http://<b>www.example.com</b>/image.php?package=<b>server</b>&image=<b>disk_full.png</b>
+</pre>
+
+NOTE: All the images released with **\\compose\\**
+are directly accessible from the directory `./images/`
+in the base path of your website. Do not use this
+directory for your custom images, use packages instead.
+
+
+### Custom CSS Stylesheets
+
+<!-- A package can contain additional images.
+Package-specific images must be stored in
+the directory `./images/` in the base path of the
+package itself. An image introduced by a package is accessible via the URL
+
+<pre>
+http://<b>your_website</b>/image.php?package=<b>package_name</b>&image=<b>filename_with_extension</b>
+</pre>
+
+where you replace **your_website** with the hostname
+of your website (e.g., *compose.afdaniele.com*),
+**package_name** with the name of the package containing
+the image to load (e.g., *my_package*), and
+**filename_with_extension** with the name of the file
+including its extension (e.g., *image_01.jpg*).
+
+For example, if you installed **\\compose\\** on your
+website `www.example.com`, and the package `server`
+contains the image `disk_full.png`, the link to the
+image will be
+
+<pre>
+http://<b>www.example.com</b>/image.php?package=<b>server</b>&image=<b>disk_full.png</b>
+</pre>
+
+NOTE: All the images released with **\\compose\\**
+are directly accessible from the directory `./images/`
+in the base path of your website. Do not use this
+directory for your custom images, use packages instead. -->
 
 
 // Everything from here on has to be checked and updated
