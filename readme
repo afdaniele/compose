@@ -3,3 +3,50 @@ Things to install:
 - mod_h264 for Apache2: https://wiki.paskvil.com/index.php/Install_Apache_and_PHP_to_do_Secure_h264_Pseudo_Streaming
 - ssh2 for PHP: https://www.allsupported.com/install-php5-ssh2-on-ubuntu-14/
 - doxygen 1.8.6 (used to auto-generate the documentation for the Duckieboard)
+
+
+Things to talk about in the documentation:
+    - how to retrieve package-specific images
+        - installed in packages/*/images
+        - accessed via HOSTNAME/image.php?package=<s>&image=<s>
+
+    - how to retrieve package-specific CSS files
+        - installed in packages/*/css
+        - accessed via HOSTNAME/css.php?package=<s>&stylesheet=<s>
+
+    - how to retrieve package-specific JS files
+        - installed in packages/*/js
+        - accessed via HOSTNAME/js.php?package=<s>&script=<s>
+
+
+
+Things to add later in the development:
+
+
+    [ ] - v2.0
+        [ ] - switch to Bootstrap 4.X
+
+
+    [ ] - v1.0
+        [ ] - clean up the code
+        [ ] - finish documentation for \system\classes\
+
+    [ ] - v0.9
+        [ ] - add API Keys to user profile
+            [ ] - implement multi API keys per user with per key enabled API actions
+
+    [ ] - v0.8
+        [ ] - add cache system
+            [ ] - cache Core::$packages
+            [ ] - cache Core::$pages
+            [ ] - cache Core::$api
+            [ ] - cache Core::$registered_user_types
+
+        [ ] - [core > settings] page
+            [ ] - enable/disable API end-points does not reload the page but change status/buttons seamlessly
+
+    [ ] - v0.7
+        [ ] - first release
+        [ ] - move doxygen documentation to a package
+            [ ] - add configuration to doxygen package and add DOC_INPUT entry to specify which folder(s) to write the doc on
+        [ ] - fix responsiveness of the navbar, $responsive_min_width should be computed based on the number of responsive menu entries
