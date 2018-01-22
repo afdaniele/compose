@@ -76,13 +76,13 @@ class Core{
 			"icon" => [
 				"__type" => "associative_array",
 				"__details" => "Associative array containing info about the menu entry for the page",
-				"class" => ["text", "Class of the icon (e.g., glyphicon)",
+				"class" => ["text", "Class of the icon (e.g., glyphicon)"],
 				"name" => ["text", "ID of the icon to use (e.g., car)"]
 			],
 			"responsive" => [
 				"__type" => "associative_array",
 				"__details" => "Associative array containing info about how the responsiveness of the menu entry for small devices",
-				"priority" => ["float", "Priority with which the menu entry will be contracted (highest number = contracted first)"
+				"priority" => ["float", "Priority with which the menu entry will be contracted (highest number = contracted first)"]
 			],
 			"exclude_roles" => [
 				"__type" => "array",
