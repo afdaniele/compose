@@ -44,7 +44,6 @@ foreach ($buttons as &$button) {
 		$responsive_buttons[ $button['id'] ] = $responsive_current_width;
 	}
 }
-echo $responsive_min_width;
 ?>
 
 <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
