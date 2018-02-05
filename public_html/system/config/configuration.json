@@ -1,8 +1,0 @@
-{
-	"maintenance_mode" : false,
-	"main_page_title": "Duckietown @ TTIC",
-	"admin_contact_email_address": "afdaniele@ttic.edu",
-	"cache_enabled": false,
-	"camera_1_enabled" : true,
-	"camera_2_enabled" : false
-}
