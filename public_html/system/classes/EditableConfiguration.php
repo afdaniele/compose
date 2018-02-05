@@ -33,7 +33,6 @@ class EditableConfiguration {
 			return;
 		}
 		// load configuration metadata. This file must be always present.
-		$this->is_configurable = true;
 		if( !file_exists($configuration_details_file) ){
 			$this->error_state = sprintf('The configuration metadata for the package "%s" does not exist or is corrupted.', $package_name);
 			return;
@@ -43,6 +42,12 @@ class EditableConfiguration {
 			$this->error_state = sprintf('The configuration metadata for the package "%s" is corrupted.', $package_name);
 			return;
 		}
+		// if the metadata defines no parameters, then the package is simply not configurable
+		if( count($this->configuration_details['configuration_content']) <= 0 ){
+			$this->is_configurable = false;
+			return;
+		}
+		$this->is_configurable = true;
 		// try to load the custom settings from 'configuration.json' if it exists.
 		$this->jsondb_config_file = $jsondb_config_file;
 		$this->jsondb = new JsonDB( $this->jsondb_config_file );
