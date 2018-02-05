@@ -3,7 +3,7 @@
 # @Date:   Tuesday, January 9th 2018
 # @Email:  afdaniele@ttic.edu
 # @Last modified by:   afdaniele
-# @Last modified time: Monday, January 22nd 2018
+# @Last modified time: Friday, January 26th 2018
 
 
 
@@ -54,14 +54,14 @@ foreach ($buttons as &$button) {
 				<span class="icon-bar"></span>
 				<span class="icon-bar"></span>
 			</button>
-			<a class="navbar-brand" href="<?php echo \system\classes\Configuration::$BASE ?>" style="padding:5px 15px">
+			<a class="navbar-brand" href="<?php echo \system\classes\Configuration::$BASE ?>" style="padding:10px 15px">
 				<table>
 					<tr>
 						<td>
-							<img src="<?php echo \system\classes\Core::getSetting('core', 'logo') ?>"></img>
+							<img id="navbarLogo" src="<?php echo \system\classes\Core::getSetting('core', 'logo_white') ?>"></img>
 						</td>
-						<td>
-							<h3 style="margin:-15px 0 0 5px">&nbsp;<?php echo \system\classes\Core::getSetting('core', 'navbar_title') ?></h3>
+						<td style="vertical-align:top">
+							<h3 style="margin:0 0 0 15px">&nbsp;<?php echo \system\classes\Core::getSetting('core', 'navbar_title') ?></h3>
 						</td>
 					</tr>
 				</table>
