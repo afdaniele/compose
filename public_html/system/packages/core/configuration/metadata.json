@@ -12,11 +12,17 @@
             "default" : "Welcome",
             "details" : "Text in the header of the navbar"
         },
-        "logo" : {
-            "title" : "Application logo",
+        "logo_white" : {
+            "title" : "Application logo (white version)",
             "type" : "text",
-            "default" : "https://raw.githubusercontent.com/afdaniele/compose/master/public_html/images/compose-white-logo.svg",
-            "details" : "Logo of the web application"
+            "default" : "http://compose.afdaniele.com/images/compose-white-logo.svg",
+            "details" : "Logo of the web application (light version for dark backgrounds)"
+        },
+        "logo_black" : {
+            "title" : "Application logo (dark version)",
+            "type" : "text",
+            "default" : "http://compose.afdaniele.com/images/compose-black-logo.svg",
+            "details" : "Logo of the web application (dark version for light backgrounds)"
         },
         "admin_contact_email_address" : {
             "title" : "Administrator e-mail address",
