@@ -3,7 +3,7 @@
 # @Date:   Tuesday, January 9th 2018
 # @Email:  afdaniele@ttic.edu
 # @Last modified by:   afdaniele
-# @Last modified time: Saturday, January 13th 2018
+# @Last modified time: Friday, January 26th 2018
 
 ?>
 
@@ -15,7 +15,7 @@
 					<h3 style="margin-top:0"><strong><span class="glyphicon glyphicon-lock" aria-hidden="true"></span> &nbsp;Sign in</strong></h3>
 				</div>
 				<div class="col-md-8">
-					<img id="loginLogo" src="<?php echo \system\classes\Configuration::$BASE_URL ?>images/logo.png">
+					<img id="loginLogo" src="<?php echo \system\classes\Core::getSetting( 'core', 'logo_black' ) ?>"/>
 				</div>
 				<br>
 				<br>
