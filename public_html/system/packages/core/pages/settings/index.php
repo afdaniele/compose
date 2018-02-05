@@ -3,7 +3,7 @@
 # @Date:   Wednesday, December 28th 2016
 # @Email:  afdaniele@ttic.edu
 # @Last modified by:   afdaniele
-# @Last modified time: Monday, January 15th 2018
+# @Last modified time: Sunday, February 4th 2018
 
 
 ?>
@@ -76,7 +76,7 @@
 		],
 		1 => [
 			'id' => 'packages',
-			'title' => 'Installed Packages',
+			'title' => 'Packages',
 			'icon' => 'fa fa-cubes',
 			'content' => settings_packages_tab,
 			'content_args' => null
