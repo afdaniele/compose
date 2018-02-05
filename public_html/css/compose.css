@@ -3,7 +3,7 @@
  * @Date:   Wednesday, December 28th 2016
  * @Email:  afdaniele@ttic.edu
  * @Last modified by:   afdaniele
- * @Last modified time: Monday, January 15th 2018
+ * @Last modified time: Friday, January 26th 2018
  */
 
 
@@ -300,8 +300,13 @@ body{
 
 #loginLogo{
     max-width: 250px;
-    max-height: 64px;
+    max-height: 32px;
     float: right;
+}
+
+#navbarLogo{
+    max-width: 150px;
+    max-height: 60px;
 }
 
 .badge-text{
