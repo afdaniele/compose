@@ -108,12 +108,12 @@ class Core{
 			"__sample_item" => [
 				"__type" => "associative_array",
 				"__details" => "Associative array containing (parameter_detail, parameter_value) pairs for the setting parameter",
-				"__sample_key" : ["string", "Parameter key"],
+				"__sample_key" => ["string", "Parameter key"],
 				"__sample_value" => [
-					"title" : ["string", "Name of the setting parameter"],
-		            "type" : ["string", "Type of the parameter (e.g., string, boolean, integer)"],
-		            "default" : ["_same_as_type", "Default value of this parameter"],
-		            "details" : ["string", "A longer description of the parameter"]
+					"title" => ["string", "Name of the setting parameter"],
+		            "type" => ["string", "Type of the parameter (e.g., string, boolean, integer)"],
+		            "default" => ["_same_as_type", "Default value of this parameter"],
+		            "details" => ["string", "A longer description of the parameter"]
 				]
 			]
 		]
