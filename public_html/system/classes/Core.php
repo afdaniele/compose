@@ -3,7 +3,7 @@
 # @Date:   Wednesday, December 28th 2016
 # @Email:  afdaniele@ttic.edu
 # @Last modified by:   afdaniele
-# @Last modified time: Sunday, February 4th 2018
+# @Last modified time: Monday, February 5th 2018
 
 namespace system\classes;
 
@@ -541,6 +541,7 @@ class Core{
 	}//getUserTypesList
 
 
+
 	// =======================================================================================================
 	// Packages management functions
 
@@ -776,6 +777,29 @@ class Core{
 
 
 
+	// =======================================================================================================
+	// Package-specific resources functions
+
+
+	/** Returns the URL to a package-specific image.
+	 *
+	 *	@param string $image_file_with_extension
+	 *		Filename of the image (including extension);
+	 *
+	 *	@param string $package_name
+	 *		(optional) Name of the package the requested image belongs to. Default is 'core';
+	 *
+	 *	@retval string
+	 *		URL of the image.
+	 */
+	public static function getImageURL( $image_file_with_extension, $package_name="core" ){
+		if( $package_name == "core" ){
+			// TODO: return placeholder if the image does not exist (only for core case, image.php does the same)
+			return sprintf("%s/images/%s", Configuration::$BASE_URL, $image_file_with_extension );
+		}else{
+			return sprintf("%s/image.php?package=%s&image=%s", Configuration::$BASE, $package_name, $image_file_with_extension );
+		}
+	}//getImageURL
 
 
 
@@ -1207,28 +1231,82 @@ class Core{
 	}//getCodebaseHash
 
 
-	/** Returns the URL to the remote origin of the codebase.
-	 * 	This corresponds to the origin saved in the git configuration of the local repository.
+	/** Returns information about the current codebase (e.g., git user, git repository, remote URL, etc.)
 	 *
-	 *	@retval string
-	 *		URL to the remote origin of the codebase.
+	 *	@retval array
+	 *		An array containing info about the codebase with the following details:
+	 *	<pre><code class="php">[
+	 *		"git_owner" => string, 			// username of the owner of the git repository
+	 *		"git_repo" => string, 			// name of the repository
+	 *		"git_host" => string, 			// hostname of the remote git server
+	 *		"git_remote_url" => string, 	// url to the remote repository
+	 *		"head_hash" => string, 			// short commit hash of the head of the local repository
+	 *		"head_full_hash" => string, 	// full commit hash of the head of the local repository
+	 *		"head_tag" => mixed 			// tag associated to the head. null if no tag is found
+	 *		"latest_tag" => mixed 			// latest tag (going back in time) this codebase is based on. null if no tag is found.
+	 *	]</code></pre>
+	 *
 	 */
-	public static function getCodebaseRemoteOrigin(){
-		exec( 'git config --get remote.origin.url', $hash, $exit_code );
+	public static function getCodebaseInfo(){
+		$codebase_info = [
+			'git_owner' => 'ND',
+			'git_repo' => 'ND',
+			'git_host' => 'ND',
+			'git_remote_url' => 'ND',
+			'head_hash' => self::getCodebaseHash(),
+			'head_full_hash' => self::getCodebaseHash(true),
+			'head_tag' => 'ND',
+			'latest_tag' => 'ND'
+		];
+		exec( 'git config --get remote.origin.url', $info, $exit_code );
 		if( $exit_code != 0 ){
-			$hash = 'ND';
+			$codebase_info['git_user'] = 'GIT_ERROR';
+			$codebase_info['git_repo'] = 'GIT_ERROR';
 		}else{
-			if( strpos($hash[0], ":") === false ){
-				return $hash[0];
+			if( strcasecmp( substr($info[0], 0, 4), "http") == 0 ){
+				// the remote URL is in the format "http(s)://<user>@<host>/<owner>/<repo>.git"
+				$pattern = "/http(s)?:\/\/[^@]+@([^:]+)\/(.*)\/(.*)\.git/";
+				preg_match_all($pattern, $info[0], $matches);
+				$codebase_info['git_host'] = $matches[2][0];
+				$codebase_info['git_owner'] = $matches[3][0];
+				$codebase_info['git_repo'] = $matches[4][0];
+				$codebase_info['git_remote_url'] = sprintf( "http%s://%s/%s/%s.git",
+					$matches[1][0],
+					$codebase_info['git_host'],
+					$codebase_info['git_owner'],
+					$codebase_info['git_repo']
+				);
 			}else{
-				$pattern = "/[^@]+@([^:]+):(.*)/";
-				preg_match_all($pattern, $hash[0], $matches);
-				$hash = sprintf( "http://%s/%s.git", $matches[1][0], $matches[2][0] );
+				// the remote URL is in the format "git@<host>:<owner>/<repo>"
+				$pattern = "/[^@]+@([^:]+):(.*)\/(.*)/";
+				preg_match_all($pattern, $info[0], $matches);
+				$codebase_info['git_host'] = $matches[1][0];
+				$codebase_info['git_owner'] = $matches[2][0];
+				$codebase_info['git_repo'] = $matches[3][0];
+				$codebase_info['git_remote_url'] = sprintf( "http://%s/%s/%s.git",
+					$codebase_info['git_host'],
+					$codebase_info['git_owner'],
+					$codebase_info['git_repo']
+				);
 			}
 		}
+		// get tag associated to the head (if any)
+		exec( 'git tag --contains HEAD', $tag, $exit_code );
+		if( $exit_code != 0 ){
+			$codebase_info['head_tag'] = 'GIT_ERROR';
+		}else{
+			$cb_tag = trim($tag[0]);
+			$codebase_info['head_tag'] = (strlen($cb_tag) <= 0)? null : $cb_tag;
+		}
+		// get closest tag going back in time (if any)
+		exec( 'git describe --abbrev=0 --tags', $latest_tag, $exit_code );
+		if( $exit_code != 0 ){
+			$latest_cb_tag = trim($latest_tag[0]);
+			$codebase_info['latest_tag'] = (strlen($latest_cb_tag) <= 0)? null : $latest_cb_tag;
+		}
 		//
-		return $hash;
-	}//getCodebaseRemoteOrigin
+		return $codebase_info;
+	}//getCodebaseInfo
 
 
 	public static function redirectTo( $resource ){
