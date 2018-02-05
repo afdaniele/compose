@@ -3,7 +3,7 @@
 # @Date:   Wednesday, December 28th 2016
 # @Email:  afdaniele@ttic.edu
 # @Last modified by:   afdaniele
-# @Last modified time: Wednesday, January 17th 2018
+# @Last modified time: Sunday, February 4th 2018
 
 namespace system\classes;
 
@@ -76,8 +76,8 @@ class Core{
 			"icon" => [
 				"__type" => "associative_array",
 				"__details" => "Associative array containing info about the menu entry for the page",
-				"class" => ["text", "Class of the icon (e.g., glyphicon)"],
-				"name" => ["text", "ID of the icon to use (e.g., car)"]
+				"class" => ["string", "Class of the icon (e.g., glyphicon)"],
+				"name" => ["string", "ID of the icon to use (e.g., car)"]
 			],
 			"responsive" => [
 				"__type" => "associative_array",
@@ -91,11 +91,31 @@ class Core{
 		],
 		"child_pages" => [
 			"__type" => "array",
-			"__details" => "The menu entry of the page will be highlighted if the current page matches the `name` of this class or any ID in this list"
+			"__details" => "The menu entry of the page will be highlighted if the current page matches the `name` of this class or any ID in this list",
+			"__sample_item" => ["string", "ID of a child page"]
 		],
 		"access_level"  => [
 			"__type" => "array",
-			"__details" => "List of user roles for which this page is accessible"
+			"__details" => "List of user roles for which this page is accessible",
+			"__sample_item" => ["string", "User role to grand access to"]
+		]
+	];
+
+	private static $PACKAGE_SETTINGS_METADATA_TEMPLATE = [
+		"configuration_content" => [
+			"__type" => "associative_array",
+			"__details" => "Associative array containing (parameter_key, parameter_details) pairs for the package",
+			"__sample_item" => [
+				"__type" => "associative_array",
+				"__details" => "Associative array containing (parameter_detail, parameter_value) pairs for the setting parameter",
+				"__sample_key" : ["string", "Parameter key"],
+				"__sample_value" => [
+					"title" : ["string", "Name of the setting parameter"],
+		            "type" : ["string", "Type of the parameter (e.g., string, boolean, integer)"],
+		            "default" : ["_same_as_type", "Default value of this parameter"],
+		            "details" : ["string", "A longer description of the parameter"]
+				]
+			]
 		]
 	];
 
