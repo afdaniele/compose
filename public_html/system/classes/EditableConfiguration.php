@@ -3,7 +3,7 @@
 # @Date:   Saturday, January 13th 2018
 # @Email:  afdaniele@ttic.edu
 # @Last modified by:   afdaniele
-# @Last modified time: Sunday, January 14th 2018
+# @Last modified time: Sunday, February 4th 2018
 
 
 namespace system\classes;
@@ -32,11 +32,8 @@ class EditableConfiguration {
 			$this->is_configurable = false;
 			return;
 		}
+		// load configuration metadata. This file must be always present.
 		$this->is_configurable = true;
-		if( !file_exists($jsondb_config_file) ){
-			$this->error_state = sprintf('The configuration file for the package "%s" does not exist or is corrupted.', $package_name);
-			return;
-		}
 		if( !file_exists($configuration_details_file) ){
 			$this->error_state = sprintf('The configuration metadata for the package "%s" does not exist or is corrupted.', $package_name);
 			return;
@@ -46,8 +43,22 @@ class EditableConfiguration {
 			$this->error_state = sprintf('The configuration metadata for the package "%s" is corrupted.', $package_name);
 			return;
 		}
+		// try to load the custom settings from 'configuration.json' if it exists.
 		$this->jsondb_config_file = $jsondb_config_file;
 		$this->jsondb = new JsonDB( $this->jsondb_config_file );
+		// If it doesn't exist, create a new one and use the default values from the metadata file
+		if( !file_exists($jsondb_config_file) ){
+			// create new file
+			foreach ($this->configuration_details['configuration_content'] as $key => $value) {
+				$this->jsondb->set( $key, $value['default'] );
+			}
+			// (try to) write the file to disk
+			$res = $this->jsondb->commit();
+			if( !$res['success'] ){
+				$this->error_state = $res['data'];
+				return;
+			}
+		}
 	}//__construct
 
 
