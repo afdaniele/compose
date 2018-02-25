@@ -27,26 +27,55 @@ Things to add later in the development:
         [ ] - switch to Bootstrap 4.X
 
 
+    [ ] - v1.1
+        [ ] - allow the specification of auxiliary libraries to load for specific pages in the page metadata file
+            [ ] - make jquery-ui.{css, js} available as auxiliary library and remove it from the duckietown package
+
     [ ] - v1.0
         [ ] - clean up the code
         [ ] - finish documentation for \system\classes\
+        [ ] - add setup page for \compose\
+        [ ] - add setup pages for newly installed packages
 
     [ ] - v0.9
         [ ] - add API Keys to user profile
             [ ] - implement multi API keys per user with per key enabled API actions
 
-    [ ] - v0.8
         [ ] - add cache system
             [ ] - cache Core::$packages
             [ ] - cache Core::$pages
             [ ] - cache Core::$api
             [ ] - cache Core::$registered_user_types
 
-        [ ] - [core > settings] page
-            [ ] - enable/disable API end-points does not reload the page but change status/buttons seamlessly
+        [ ] - implement maintenance mode
+            [ ] - all the pages will be redirected to maintenance (add it as new page in the core package)
 
-    [ ] - v0.7
-        [ ] - first release
-        [ ] - move doxygen documentation to a package
-            [ ] - add configuration to doxygen package and add DOC_INPUT entry to specify which folder(s) to write the doc on
-        [ ] - fix responsiveness of the navbar, $responsive_min_width should be computed based on the number of responsive menu entries
+        [ ] - implement package-specific data
+            [ ] - the package template has now the dirs /data/private and /data/public
+            [ ] - all the current packages are updated
+
+    [ ] - v0.8
+        [X] - [core > settings] page
+            [X] - enable/disable API end-points does reload the page but the user will be taken to the previous spot
+                [X] - refreshing page does not take the user back to General but to the previous tab
+
+        [X] - change the way the package configuration files are handled
+            [X] - if configuration metadata is empty, then the package is considered not configurable
+            [X] - configuration.json will not be in the repo anymore, it will only be present in deploy
+            [X] - configuration.json, if not present, will be created while loading the configuration of the packages and will contain a copy of the default values from the metadata file
+            [X] - configuration.json will be ignored in the main .gitignore of any package repository
+            [X] - configuration.json will be unstaged from
+                [X] - \compose\ core package
+                [X] - duckietown package
+                [X] - surveillance package
+                [X] - server package
+                [X] - doxygen package
+
+        [X] - fixed logo dimension in navbar
+        [X] - the platform supports white and black logos
+        [X] - add utility function Core::getImageURL
+
+    [X] - v0.7
+        [X] - first release
+        [X] - move doxygen documentation to a package
+        [X] - fix responsiveness of the navbar, $responsive_min_width should be computed based on the number of responsive menu entries
