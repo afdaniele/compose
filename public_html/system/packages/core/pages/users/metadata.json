@@ -1,0 +1,19 @@
+{
+    "name" : "Users",
+    "package" : "core",
+    "menu_entry" : {
+        "order" : 3,
+        "icon" : {
+            "class" : "fa",
+            "name" : "group"
+        },
+        "responsive" : {
+            "priority" : 35
+        },
+        "exclude_roles" : []
+    },
+    "child_pages" : [],
+    "access_level" : [
+        "administrator"
+    ]
+}
