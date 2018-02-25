@@ -35,21 +35,14 @@ Core::initCore();
 $user_role = Core::getUserRole();
 
 // get the list of pages the current user has access to
-$pagesList = Core::getFilteredPagesList( 'list', true, $user_role );
-$availablePages = array_map( function($p){ return $p['id']; }, $pagesList );
-$defaultPage = [
-	'administrator' => 'dashboard',
-	'supervisor' => 'dashboard',
-	'user' => 'profile',
-	'candidate' => 'register',
-	'guest' => 'login'
-];
+$pages_list = Core::getFilteredPagesList( 'list', true, $user_role );
+$available_pages = array_map( function($p){ return $p['id']; }, $pages_list );
+$factory_default_page = Core::getFactoryDefaultPagePerRole( $user_role );
 
-//TODO: move this to the metadata
-foreach( ['administrator', 'supervisor'] as $who ){
-	if( !in_array($defaultPage[$who], $availablePages) )
-		$defaultPage[$who] = 'profile';
-}
+// get default page
+$default_page = Core::getSetting( 'core', $user_role.'_default_page', $default_value=$factory_default_page );
+if( !in_array($default_page, $available_pages) )
+	$default_page = $factory_default_page;
 
 // parse arguments
 $args = explode( '/', strtolower($_GET['arg']) );
@@ -58,9 +51,9 @@ $requested_action = (count($args) > 1 && $args[1]!=='') ? $args[1] : $_GET['acti
 $requested_action = ($requested_action !== '')? $requested_action : NULL;
 
 // redirect to default page if the page is invalid
-if( $requested_page == '' || !in_array($requested_page, $availablePages) ){
+if( $requested_page == '' || !in_array($requested_page, $available_pages) ){
 	// invalid page
-	$redirect_page = $defaultPage[$user_role];
+	$redirect_page = $default_page;
 	Core::redirectTo( $redirect_page );
 }
 

@@ -54,7 +54,9 @@ Things to add later in the development:
             [ ] - the package template has now the dirs /data/private and /data/public
             [ ] - all the current packages are updated
 
-    [ ] - v0.8
+        [X] - it is possible to chose the default page for each user role in the settings menu
+
+    [X] - v0.8
         [X] - [core > settings] page
             [X] - enable/disable API end-points does reload the page but the user will be taken to the previous spot
                 [X] - refreshing page does not take the user back to General but to the previous tab

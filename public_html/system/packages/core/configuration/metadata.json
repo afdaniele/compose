@@ -35,6 +35,38 @@
             "type" : "boolean",
             "default" : false,
             "details" : "Cache status"
+        },
+        "guest_default_page" : {
+            "title" : "Default page: Guest",
+            "type" : "enum",
+            "default" : "login",
+            "details" : "The page the guest will be redirected to when no page is specified",
+            "enum_filler_fcn_name" : "_pages_avail_to_role",
+            "enum_filler_fcn_args" : [ "guest" ]
+        },
+        "user_default_page" : {
+            "title" : "Default page: User",
+            "type" : "enum",
+            "default" : "profile",
+            "details" : "The page the user will be redirected to when no page is specified",
+            "enum_filler_fcn_name" : "_pages_avail_to_role",
+            "enum_filler_fcn_args" : [ "user" ]
+        },
+        "supervisor_default_page" : {
+            "title" : "Default page: Supervisor",
+            "type" : "enum",
+            "default" : "profile",
+            "details" : "The page the supervisor will be redirected to when no page is specified",
+            "enum_filler_fcn_name" : "_pages_avail_to_role",
+            "enum_filler_fcn_args" : [ "supervisor" ]
+        },
+        "administrator_default_page" : {
+            "title" : "Default page: Administrator",
+            "type" : "enum",
+            "default" : "profile",
+            "details" : "The page the administrator will be redirected to when no page is specified",
+            "enum_filler_fcn_name" : "_pages_avail_to_role",
+            "enum_filler_fcn_args" : [ "administrator" ]
         }
     }
 }

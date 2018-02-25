@@ -5,6 +5,7 @@
 # @Last modified by:   afdaniele
 # @Last modified time: Sunday, February 4th 2018
 
+include_once __DIR__.'/utils/enum_fillers.php';
 
 function create_row( $settings_entry_id, $settings_entry, $settings_entry_value ){
     ?>
@@ -35,6 +36,42 @@ function create_row( $settings_entry_id, $settings_entry, $settings_entry_value 
                     <?php
                     break;
                     //
+                case 'enum':
+                    $enum_filler_fcn_name = $settings_entry['enum_filler_fcn_name'];
+                    $enum_filler_fcn_args = $settings_entry['enum_filler_fcn_args'];
+                    $enum_content = $enum_filler_fcn_name( $enum_filler_fcn_args );
+                    ?>
+                    <select name="<?php echo $settings_entry_id ?>" class="form-control">
+                        <?php
+                        $selected_found = False;
+                        foreach ($enum_content as $c) {
+                            if( $c['id'] == '_not_found' )
+                                continue;
+                            $current_is_selected = boolval( strcmp($settings_entry_value, $c['value']) == 0 );
+                            echo sprintf(
+                                '<option value="%s" %s>%s</option>',
+                                $c['value'],
+                                $current_is_selected ? 'selected' : '',
+                                $c['label']
+                            );
+                            $selected_found = $selected_found || $current_is_selected;
+                        }
+                        if( !$selected_found ){
+                            $not_found_entry = [];
+                            foreach ($enum_content as $c) {
+                                if( $c['id'] == '_not_found' )
+                                    $not_found_entry = $c;
+                            }
+                            ?>
+                            <option value="<?php echo $not_found_entry['value'] ?>" selected>
+                                <?php echo $not_found_entry['label'] ?>
+                            </option>
+                            <?php
+                        }
+                        ?>
+                    </select>
+                    <?php
+                    break;
                 default:
                     echo sprintf("ERROR, unknown type (%s)", $settings_entry['type']);
                     break;

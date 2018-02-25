@@ -965,6 +965,19 @@ class Core{
 	}//disablePage
 
 
+	public static function getFactoryDefaultPagePerRole( $user_role ){
+		$default_page_per_role = [
+			'administrator' => 'profile',
+			'supervisor' => 'profile',
+			'user' => 'profile',
+			'guest' => 'login'
+		];
+		if( in_array($user_role, array_keys($default_page_per_role) ) ){
+			return $default_page_per_role[$user_role];
+		}
+		return 'NO_DEFAULT_PAGE_FOR_USER_ROLE';
+	}//getFactoryDefaultPagePerRole
+
 
 
 	// =======================================================================================================
