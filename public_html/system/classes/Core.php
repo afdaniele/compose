@@ -1301,6 +1301,8 @@ class Core{
 		// get closest tag going back in time (if any)
 		exec( 'git describe --abbrev=0 --tags', $latest_tag, $exit_code );
 		if( $exit_code != 0 ){
+			$codebase_info['latest_tag'] = 'GIT_ERROR';
+		}else{
 			$latest_cb_tag = trim($latest_tag[0]);
 			$codebase_info['latest_tag'] = (strlen($latest_cb_tag) <= 0)? null : $latest_cb_tag;
 		}
