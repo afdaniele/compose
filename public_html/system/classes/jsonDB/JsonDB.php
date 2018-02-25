@@ -47,6 +47,11 @@ class JsonDB {
 
 	public function commit(){
 		$file_content = self::prettyPrint(json_encode( $this->json ));
+		$is_present = file_exists( $this->file );
+		$is_writable = is_writable( $this->file );
+    	if( $is_present === true && $is_writable === false ){
+            return array('success' => false, 'data' => 'The configuration file `'.$this->file.'` is not writable.');
+		}
 		try{
 			$res = file_put_contents( $this->file, $file_content );
 			if( $res === false ){
