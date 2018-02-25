@@ -1,0 +1,192 @@
+{
+    "details" : "Provides the tools for managing the API end-points available on the platform",
+	"actions" : {
+		"service_status" : {
+			"details" : "Returns the status of a given API service",
+            "access_level" : [
+                "administrator"
+            ],
+            "read_only_session" : true,
+		    "parameters" : {
+		        "mandatory" : {
+                    "version" : {
+		                "type" : "text",
+                        "length" : null,
+		                "details" : "Version of the API the service to query belongs to"
+		            },
+		            "service" : {
+		                "type" : "text",
+                        "length" : null,
+		                "details" : "Name of the API service to query"
+		            }
+		        },
+		        "optional" : {}
+		    },
+		    "return" : {
+		        "values" : {
+                    "version" : {
+		                "type" : "text",
+		                "details" : "Version of the API the service belongs to"
+		            },
+		            "service" : {
+		                "type" : "text",
+		                "details" : "Name of the API service queried"
+		            },
+                    "enabled" : {
+                        "type" : "boolean",
+                        "details" : "Whether the API service is enabled"
+                    }
+		        }
+		    }
+		},
+		"service_enable" : {
+			"details" : "Enables an API service",
+            "access_level" : [
+                "administrator"
+            ],
+            "read_only_session" : true,
+		    "parameters" : {
+		        "mandatory" : {
+                    "version" : {
+		                "type" : "text",
+                        "length" : null,
+		                "details" : "Version of the API the service to enable belongs to"
+		            },
+		            "service" : {
+		                "type" : "text",
+                        "length" : null,
+		                "details" : "Name of the API service to enable"
+		            }
+                },
+		        "optional" : {}
+		    },
+		    "return" : {}
+		},
+        "service_disable" : {
+			"details" : "Disables an API service",
+            "access_level" : [
+                "administrator"
+            ],
+            "read_only_session" : true,
+		    "parameters" : {
+		        "mandatory" : {
+                    "version" : {
+		                "type" : "text",
+                        "length" : null,
+		                "details" : "Version of the API the service to query belongs to"
+		            },
+		            "service" : {
+		                "type" : "text",
+                        "length" : null,
+		                "details" : "Name of the API service to query"
+		            }
+                },
+		        "optional" : {}
+		    },
+		    "return" : {}
+		},
+        "action_status" : {
+			"details" : "Returns the status of a given API action",
+            "access_level" : [
+                "administrator"
+            ],
+            "read_only_session" : true,
+		    "parameters" : {
+		        "mandatory" : {
+                    "version" : {
+		                "type" : "text",
+                        "length" : null,
+		                "details" : "Version of the API the action to query belongs to"
+		            },
+		            "service" : {
+		                "type" : "text",
+                        "length" : null,
+		                "details" : "Name of the API service the action to query belongs to"
+		            },
+		            "action" : {
+		                "type" : "text",
+                        "length" : null,
+		                "details" : "Name of the API action to query"
+		            }
+		        },
+		        "optional" : {}
+		    },
+		    "return" : {
+		        "values" : {
+                    "version" : {
+		                "type" : "text",
+		                "details" : "Version of the API the action belongs to"
+		            },
+		            "service" : {
+		                "type" : "text",
+		                "details" : "Name of the API service the action belongs to"
+		            },
+		            "action" : {
+		                "type" : "text",
+		                "details" : "Name of the API action queried"
+		            },
+                    "enabled" : {
+                        "type" : "boolean",
+                        "details" : "Whether the API action is enabled"
+                    }
+		        }
+		    }
+		},
+		"action_enable" : {
+			"details" : "Enables an API action",
+            "access_level" : [
+                "administrator"
+            ],
+            "read_only_session" : true,
+		    "parameters" : {
+		        "mandatory" : {
+                    "version" : {
+		                "type" : "text",
+                        "length" : null,
+		                "details" : "Version of the API the action to enable belongs to"
+		            },
+		            "service" : {
+		                "type" : "text",
+                        "length" : null,
+		                "details" : "Name of the API service the action to enable belongs to"
+		            },
+		            "action" : {
+		                "type" : "text",
+                        "length" : null,
+		                "details" : "Name of the API action to enable"
+		            }
+                },
+		        "optional" : {}
+		    },
+		    "return" : {}
+		},
+        "action_disable" : {
+			"details" : "Disables an API action",
+            "access_level" : [
+                "administrator"
+            ],
+            "read_only_session" : true,
+		    "parameters" : {
+		        "mandatory" : {
+                    "version" : {
+		                "type" : "text",
+                        "length" : null,
+		                "details" : "Version of the API the action to disable belongs to"
+		            },
+		            "service" : {
+		                "type" : "text",
+                        "length" : null,
+		                "details" : "Name of the API service the action to disable belongs to"
+		            },
+		            "action" : {
+		                "type" : "text",
+                        "length" : null,
+		                "details" : "Name of the API action to disable"
+		            }
+                },
+		        "optional" : {}
+		    },
+		    "return" : {}
+		}
+	}
+}
