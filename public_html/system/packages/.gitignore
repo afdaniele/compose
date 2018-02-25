@@ -1,6 +1,7 @@
 # ignore everything
-*
+/*
 
 # but this file and the core package
-!core/*
+!/core
+!/core/*
 !.gitignore
