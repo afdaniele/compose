@@ -1,7 +1,7 @@
 {
     "configuration_content" : {
         "maintenance_mode" : {
-            "title" : "Mainteinance mode",
+            "title" : "Mainteinance mode (NOT YET IMPLEMENTED)",
             "type" : "boolean",
             "default" : false,
             "details" : "Whether the platform is in maintenance mode"
@@ -31,7 +31,7 @@
             "details" : "E-mail address of the administrator"
         },
         "cache_enabled" : {
-            "title" : "Use cache",
+            "title" : "Use cache (NOT YET IMPLEMENTED)",
             "type" : "boolean",
             "default" : false,
             "details" : "Cache status"
