@@ -5,7 +5,7 @@
 # A lightweight web-based CMS.
 
 
-**\\compose\\** is a CMS (Content Management System) platform written in PHP that 
+**\\compose\\** is a CMS (Content Management System) platform written in PHP that
 provides functionalities for fast-developing web applications on Linux servers.
 
 Born to be modular, **\\compose\\** is built around the concept of installable
@@ -116,15 +116,7 @@ server.
 
 ### Step-by-Step setup
 
-- Give Apache write access to the configuration file
+- Give Apache write access to the users' files
 ```bash
-chmod 664 public_html/system/config/configuration.json
-sudo chgrp www-data public_html/system/config/configuration.json
+sudo usermod -a -G <your_username> www-data
 ```
-
-
-- Give Apache write access to the users files
-```bash
-chmod 664 public_html/system/users/*
-sudo chgrp www-data public_html/system/users/*
-``` -->
