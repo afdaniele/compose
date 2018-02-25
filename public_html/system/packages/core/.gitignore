@@ -1,0 +1,6 @@
+# v0.8 ->
+configuration/configuration.json
+
+# v0.7 ->
+.DS_Store
+*disabled.flag
