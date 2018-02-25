@@ -40,7 +40,7 @@
 		padding: 30px 40px;
 	}
 
-	.form-control{
+	select.form-control{
 		height: 26px !important;
 	}
 
