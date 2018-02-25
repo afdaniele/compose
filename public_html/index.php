@@ -55,6 +55,7 @@ foreach( ['administrator', 'supervisor'] as $who ){
 $args = explode( '/', strtolower($_GET['arg']) );
 $requested_page = $args[0];
 $requested_action = (count($args) > 1 && $args[1]!=='') ? $args[1] : $_GET['action'];
+$requested_action = ($requested_action !== '')? $requested_action : NULL;
 
 // redirect to default page if the page is invalid
 if( $requested_page == '' || !in_array($requested_page, $availablePages) ){
