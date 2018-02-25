@@ -3,7 +3,7 @@
 # @Date:   Wednesday, December 28th 2016
 # @Email:  afdaniele@ttic.edu
 # @Last modified by:   afdaniele
-# @Last modified time: Sunday, February 4th 2018
+# @Last modified time: Monday, February 5th 2018
 
 
 ?>
@@ -95,13 +95,14 @@
 			'content' => settings_api_tab,
 			'content_args' => null
 		],
-		4 => [
-			'id' => 'cache',
-			'title' => 'Cache system',
-			'icon' => 'fa fa-history',
-			'content' => settings_cache_tab,
-			'content_args' => null
-		],
+		// TODO: will be implemented in v1.0
+		// 4 => [
+		// 	'id' => 'cache',
+		// 	'title' => 'Cache system',
+		// 	'icon' => 'fa fa-history',
+		// 	'content' => settings_cache_tab,
+		// 	'content_args' => null
+		// ],
 		100 => [
 			'id' => 'codebase',
 			'title' => 'Codebase',
@@ -139,7 +140,7 @@
 			?>
 			<div class="panel panel-default">
 				<div class="panel-heading" role="tab" id="<?php echo $header ?>">
-					<a class="<?php echo ($tab_idx !== 0)? 'collapsed' : '' ?>" role="button" data-toggle="collapse" data-parent="#accordion" href="#<?php echo $collapse ?>" aria-expanded="true" aria-controls="<?php echo $collapse ?>">
+					<a id="collapse_a_<?php echo $collapse ?>" class="collapsed collapse_a" role="button" data-toggle="collapse" data-parent="#accordion" href="#<?php echo $collapse ?>" aria-expanded="true" aria-controls="<?php echo $collapse ?>">
 						<h4 class="panel-title">
 							<span class="<?php echo $settings_tab['icon'] ?>" aria-hidden="true"></span>
 							&nbsp;
@@ -168,3 +169,19 @@
 	</div>
 
 </div>
+
+<script type="text/javascript">
+	// append hash to URL so that if we reload the page we can go back to the previous tab
+	$('.collapse').on('shown.bs.collapse', function () {
+		location.hash = 'sel:{0}'.format( $(this).attr('id') );
+	});
+
+	$(document).ready(function(){
+		var collapsible_id = location.hash.replace('#sel:', '');
+		if( collapsible_id.length > 2 && collapsible_id !== 'general_collapse' ){
+			// show selected tab
+			$('#collapse_a_'+collapsible_id).trigger( 'click' );
+		}
+	});
+
+</script>
