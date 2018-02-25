@@ -1264,12 +1264,12 @@ class Core{
 			$codebase_info['git_repo'] = 'GIT_ERROR';
 		}else{
 			if( strcasecmp( substr($info[0], 0, 4), "http") == 0 ){
-				// the remote URL is in the format "http(s)://<user>@<host>/<owner>/<repo>.git"
-				$pattern = "/http(s)?:\/\/[^@]+@([^:]+)\/(.*)\/(.*)\.git/";
+				// the remote URL is in the format "http(s)://(<user>@)<host>/<owner>/<repo>.git"
+				$pattern = "/http(s)?:\/\/([^@]+@)?([^:]+)\/(.*)\/(.*)\.git/";
 				preg_match_all($pattern, $info[0], $matches);
-				$codebase_info['git_host'] = $matches[2][0];
-				$codebase_info['git_owner'] = $matches[3][0];
-				$codebase_info['git_repo'] = $matches[4][0];
+				$codebase_info['git_host'] = $matches[3][0];
+				$codebase_info['git_owner'] = $matches[4][0];
+				$codebase_info['git_repo'] = $matches[5][0];
 				$codebase_info['git_remote_url'] = sprintf( "http%s://%s/%s/%s.git",
 					$matches[1][0],
 					$codebase_info['git_host'],
