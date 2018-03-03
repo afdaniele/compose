@@ -54,7 +54,7 @@ Things to add later in the development:
             [ ] - the package template has now the dirs /data/private and /data/public
             [ ] - all the current packages are updated
 
-        [X] - it is possible to chose the default page for each user role in the settings menu
+        [X] - it is possible to choose the default page for each user role in the settings menu
 
     [X] - v0.8
         [X] - [core > settings] page
