@@ -782,6 +782,7 @@ class Core{
 
 
 	/** Returns the URL to a package-specific image.
+	 *	The image file must in the directory `/images` of the package.
 	 *
 	 *	@param string $image_file_with_extension
 	 *		Filename of the image (including extension);
@@ -790,7 +791,7 @@ class Core{
 	 *		(optional) Name of the package the requested image belongs to. Default is 'core';
 	 *
 	 *	@retval string
-	 *		URL of the image.
+	 *		URL to the requested image.
 	 */
 	public static function getImageURL( $image_file_with_extension, $package_name="core" ){
 		if( $package_name == "core" ){
@@ -800,6 +801,48 @@ class Core{
 			return sprintf("%s/image.php?package=%s&image=%s", Configuration::$BASE, $package_name, $image_file_with_extension );
 		}
 	}//getImageURL
+
+
+	/** Returns the URL to a package-specific Java-Script file.
+	 *	The JS file must in the directory `/js` of the package.
+	 *
+	 *	@param string $js_file_with_extension
+	 *		Filename of the Java-Script file (including extension);
+	 *
+	 *	@param string $package_name
+	 *		(optional) Name of the package the requested Java-Script file belongs to. Default is 'core';
+	 *
+	 *	@retval string
+	 *		URL to the requested Java-Script file.
+	 */
+	public static function getJSscriptURL( $js_file_with_extension, $package_name="core" ){
+		if( $package_name == "core" ){
+			return sprintf("%s/js/%s", Configuration::$BASE_URL, $js_file_with_extension );
+		}else{
+			return sprintf("%s/js.php?package=%s&script=%s", Configuration::$BASE, $package_name, $js_file_with_extension );
+		}
+	}//getJSscriptURL
+
+
+	/** Returns the URL to a package-specific CSS file.
+	 *	The CSS file must in the directory `/css` of the package.
+	 *
+	 *	@param string $css_file_with_extension
+	 *		Filename of the CSS file (including extension);
+	 *
+	 *	@param string $package_name
+	 *		(optional) Name of the package the requested CSS file belongs to. Default is 'core';
+	 *
+	 *	@retval string
+	 *		URL to the requested CSS file.
+	 */
+	public static function getCSSstylesheetURL( $css_file_with_extension, $package_name="core" ){
+		if( $package_name == "core" ){
+			return sprintf("%s/css/%s", Configuration::$BASE_URL, $css_file_with_extension );
+		}else{
+			return sprintf("%s/css.php?package=%s&stylesheet=%s", Configuration::$BASE, $package_name, $css_file_with_extension );
+		}
+	}//getCSSstylesheetURL
 
 
 

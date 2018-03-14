@@ -90,6 +90,8 @@ class EditableConfiguration {
 			if( $this->jsondb->contains($key) ){
 				$val = $this->jsondb->get($key, $default);
 				return array('success' => true, 'data' => $val);
+			}elseif( array_key_exists($key, $this->configuration_details['configuration_content']) ){
+				return array('success' => true, 'data' => '');
 			}else{
 				return array('success' => false, 'data' => sprintf('Parameter "%s" unknown', $key));
 			}
@@ -100,7 +102,7 @@ class EditableConfiguration {
 
 	public function set( $key, $val ){
 		if( $this->jsondb != null ){
-			if( $this->jsondb->contains($key) ){
+			if( array_key_exists($key, $this->configuration_details['configuration_content']) ){
 				$this->jsondb->set($key, $val);
 				return array('success' => true );
 			}
