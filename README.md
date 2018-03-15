@@ -38,7 +38,6 @@ The Core package provides the following functionalities:
 - RESTful API service module
 - API services management
 - Users management
-- Automatic documentation generation for open-source projects (optional)
 
 
 ## Packages
@@ -56,6 +55,12 @@ its functionalities. Let's start by looking at the simplest configuration
 of **\\compose\\**, where no packages are installed.
 
 //TODO: show image here
+
+
+//TODO: package names reserved: core, public, documentation
+//TODO: valid package names contain only [a-z0-9_-]
+
+
 
 // explain all the pages here and show them as well.
 
@@ -116,7 +121,17 @@ server.
 
 ### Step-by-Step setup
 
-- Give Apache write access to the users' files
+#### Give Apache write access to the users' files
+
+- Find the user PHP is running under, let's call it <php_user>. To do so, create a PHP file with the code
+```php
+<?php
+echo `whoami`;
+?>
+```
+and open it in your browser.
+
+- Add <php_user> to your user's group
 ```bash
-sudo usermod -a -G <your_username> www-data
+sudo usermod -a -G <your_username> <php_user>
 ```
