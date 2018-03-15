@@ -558,6 +558,13 @@ class Core{
  	 *				"system-packages" : [],		// list of system packages required by the package
 	 *				"packages" : []				// list of \\compose\\ packages required by the package
      *			],
+	 *			"url_rewrite" : [
+	 *				"<rule_id>" : [
+	 *					"pattern" : string,		// regex of the rule for the URI to be compared against
+	 *					"replace" : string		// replacement template string using group-specific variables (e.g., $1)
+	 *				],
+	 *				...
+ 	 *			]
 	 *			"enabled" : boolean				// whether the package is enabled
 	 *		],
 	 *		... 								// other packages
@@ -712,11 +719,11 @@ class Core{
 
 	/** Returns the value of the given setting key for the given package.
 	 *
-	 *	@param string $package_name
-	 *		the ID of the package the setting key belongs to;
-	 *
 	 *	@param string $key
 	 *		the setting key to retrieve;
+	 *
+	 *	@param string $package_name
+	 *		(optional) Name of the package the requested setting belongs to. Default is 'core';
 	 *
 	 *	@param string $default_value
 	 *		the default value returned if the key does not exist.
@@ -727,7 +734,7 @@ class Core{
 	 *		If the package is not installed or an error occurred while reading the
 	 *		configuration for the given package, `NULL` is returned.
 	 */
-	public static function getSetting( $package_name, $key, $default_value=null ){
+	public static function getSetting( $key, $package_name='core', $default_value=null ){
 		if( key_exists( $package_name, self::$settings ) ){
 			if( self::$settings[$package_name]['success'] ){
 				$res = self::$settings[$package_name]['data']->get( $key, $default_value );

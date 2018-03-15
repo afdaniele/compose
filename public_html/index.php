@@ -14,6 +14,7 @@ require_once 'system/classes/Core.php';
 require_once 'system/classes/Configuration.php';
 require_once 'system/classes/enum/EmailTemplates.php';
 require_once 'system/utils/utils.php';
+require_once 'system/utils/URLrewrite.php';
 require_once 'system/templates/forms/forms.php';
 require_once 'system/templates/sections/sections.php';
 require_once 'system/templates/paginators/paginators.php';
@@ -24,6 +25,7 @@ require_once 'system/packages/core/modules/error_handler.php';
 // simplify namespaces
 use system\classes\Core as Core;
 use system\classes\Configuration as Configuration;
+use system\utils\URLrewrite as URLrewrite;
 
 // create a Session
 Core::startSession();
@@ -40,7 +42,7 @@ $available_pages = array_map( function($p){ return $p['id']; }, $pages_list );
 $factory_default_page = Core::getFactoryDefaultPagePerRole( $user_role );
 
 // get default page
-$default_page = Core::getSetting( 'core', $user_role.'_default_page', $default_value=$factory_default_page );
+$default_page = Core::getSetting( $user_role.'_default_page', $default_value=$factory_default_page );
 if( !in_array($default_page, $available_pages) )
 	$default_page = $factory_default_page;
 
@@ -59,6 +61,8 @@ if( $requested_page == '' || !in_array($requested_page, $available_pages) ){
 
 Configuration::$PAGE = $requested_page;
 Configuration::$ACTION = $requested_action;
+
+URLrewrite::match();
 
 ?>
 
@@ -90,6 +94,9 @@ Configuration::$ACTION = $requested_action;
 	<!-- Utility CSS -->
 	<link href="<?php echo Configuration::$BASE_URL ?>css/sticky-footer-navbar.css" rel="stylesheet" media="all">
 
+	<!-- HighlightJS Arduino-light CSS v9.12.0 -->
+	<link href="<?php echo Configuration::$BASE_URL ?>css/highlight.js/arduino-light.css" rel="stylesheet" media="all">
+
 	<!-- Custom CSS -->
 	<link href="<?php echo Configuration::$BASE_URL ?>css/compose.css" rel="stylesheet" media="all">
 
@@ -99,6 +106,9 @@ Configuration::$ACTION = $requested_action;
 
 	<!-- videoJS v5.19 by videojs.com -->
 	<script src="<?php echo Configuration::$BASE_URL ?>js/video.min.js"></script>
+
+	<!-- HighlightJS v9.12.0 by highlightjs.org -->
+	<script src="<?php echo Configuration::$BASE_URL ?>js/highlight.min.js"></script>
 
 	<!-- momentJS v2.18.1 by momentjs.com -->
 	<script src="<?php echo Configuration::$BASE_URL ?>js/moment.js"></script>
