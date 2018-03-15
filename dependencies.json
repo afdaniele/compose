@@ -25,7 +25,8 @@
     ],
     "apt" : [
         "libssh2-1-dev",
-        "libssh2-php"
+        { "14.04" : "libssh2-php", "16.04" : "php-ssh2" },
+        "php7.0-mbstring"
     ],
     "symlinks" : [
         "public_html/surveillance_data_1_sd => $(surveillance_1_webm_data_path)",
