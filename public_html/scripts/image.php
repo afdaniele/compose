@@ -11,7 +11,7 @@ $packageName = $_GET['package'];
 $imageName = $_GET['image'];
 
 // make sure package and image names do not contain illegal characters
-$packageName = preg_replace('/[^a-z0-9_]/', '', $packageName);
+$packageName = preg_replace('/[^a-z0-9_-]/', '', $packageName);
 $imageName = preg_replace('/[^a-zA-Z0-9_.-]/', '', $imageName);
 
 // check whether the image exists

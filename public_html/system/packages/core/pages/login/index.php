@@ -15,7 +15,7 @@
 					<h3 style="margin-top:0"><strong><span class="glyphicon glyphicon-lock" aria-hidden="true"></span> &nbsp;Sign in</strong></h3>
 				</div>
 				<div class="col-md-8">
-					<img id="loginLogo" src="<?php echo \system\classes\Core::getSetting( 'core', 'logo_black' ) ?>"/>
+					<img id="loginLogo" src="<?php echo \system\classes\Core::getSetting( 'logo_black' ) ?>"/>
 				</div>
 				<br>
 				<br>

@@ -58,10 +58,10 @@ foreach ($buttons as &$button) {
 				<table>
 					<tr>
 						<td>
-							<img id="navbarLogo" src="<?php echo \system\classes\Core::getSetting('core', 'logo_white') ?>"></img>
+							<img id="navbarLogo" src="<?php echo \system\classes\Core::getSetting('logo_white') ?>"></img>
 						</td>
 						<td style="vertical-align:top">
-							<h3 style="margin:0 0 0 15px">&nbsp;<?php echo \system\classes\Core::getSetting('core', 'navbar_title') ?></h3>
+							<h3 style="margin:0 0 0 15px">&nbsp;<?php echo \system\classes\Core::getSetting('navbar_title') ?></h3>
 						</td>
 					</tr>
 				</table>

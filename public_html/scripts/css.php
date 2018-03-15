@@ -11,7 +11,7 @@ $packageName = $_GET['package'];
 $styleFile = $_GET['stylesheet'];
 
 // make sure package and stylesheet names do not contain illegal characters
-$packageName = preg_replace('/[^a-z0-9_]/', '', $packageName);
+$packageName = preg_replace('/[^a-z0-9_-]/', '', $packageName);
 $styleFile = preg_replace('/[^a-zA-Z0-9_.-]/', '', $styleFile);
 
 // check whether the stylesheet exists
