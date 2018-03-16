@@ -137,10 +137,18 @@ function footer_credits( $float ){
 			</td>
 
 			<td id="footer_developer_credit">
+				<?php
+				$codebase_info = \system\classes\Core::getCodebaseInfo();
+				$codebase_hash = $codebase_info['head_hash'];
+				$codebase_tag = $codebase_info['head_tag'];
+				$codebase_latest_tag = $codebase_info['latest_tag'];
+				$codebase_tag = ( strcasecmp($codebase_tag, $codebase_latest_tag) === 0 )? $codebase_tag : 'devel';
+				$codebase_str = ( in_array($codebase_tag, ['ND', 'GIT_ERROR', null]) )? '' : sprintf("%s | ", $codebase_tag);
+				?>
 				<p>
 					<strong>developed by</strong> &nbsp; <a href="http://www.afdaniele.com" style="color:white">Andrea F. Daniele</a>
 					<br/>
-					<strong>serial</strong> &nbsp; <span style="font-family:monospace">git|<?php echo \system\classes\Core::getCodebaseHash(); ?></span>
+					<strong>serial</strong> &nbsp; <span style="font-family:monospace">git | <?php echo $codebase_str.$codebase_hash ?></span>
 				</p>
 			</td>
 		</tr>
