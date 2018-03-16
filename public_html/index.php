@@ -61,6 +61,8 @@ if( $requested_page == '' || !in_array($requested_page, $available_pages) ){
 
 Configuration::$PAGE = $requested_page;
 Configuration::$ACTION = $requested_action;
+Configuration::$ARG1 = (count($args) > 2 && $args[2] !== '') ? $args[2] : null;
+Configuration::$ARG2 = (count($args) > 3 && $args[3] !== '') ? $args[3] : null;
 
 URLrewrite::match();
 
@@ -84,6 +86,7 @@ URLrewrite::match();
 	<link href="<?php echo Configuration::$BASE_URL ?>css/bootstrap.min.css" rel="stylesheet" type="text/css" >
 	<link href="<?php echo Configuration::$BASE_URL ?>css/bootstrap-switch.min.css" rel="stylesheet" type="text/css" >
 	<link href="<?php echo Configuration::$BASE_URL ?>css/bootstrap-theme.min.css" rel="stylesheet" type="text/css" >
+	<link href="<?php echo Configuration::$BASE_URL ?>css/bootstrap-callout.css" rel="stylesheet" type="text/css" >
 
 	<!-- FontAwesome v4.7 by fontawesome.io -->
 	<link rel="stylesheet" href="<?php echo Configuration::$BASE_URL ?>css/font-awesome/css/font-awesome.min.css">

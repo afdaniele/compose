@@ -28,6 +28,8 @@ class Configuration {
 	public static $BASE;
 	public static $PAGE;
 	public static $ACTION;
+	public static $ARG1;
+	public static $ARG2;
 	public static $SHORT_SITE_NAME;
 	public static $SHORT_SITE_LINK;
 
