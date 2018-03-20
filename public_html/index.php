@@ -40,9 +40,15 @@ $user_role = Core::getUserRole();
 $pages_list = Core::getFilteredPagesList( 'list', true, $user_role );
 $available_pages = array_map( function($p){ return $p['id']; }, $pages_list );
 $factory_default_page = Core::getFactoryDefaultPagePerRole( $user_role );
+if( strcmp($factory_default_page, "NO_DEFAULT_PAGE_FOR_USER_ROLE") == 0 )
+	if( $user_role == 'guest' ){
+		$factory_default_page = 'login(TODO)'; //TODO: remove TODO
+	}else{
+		$factory_default_page = 'profile';
+	}
 
 // get default page
-$default_page = Core::getSetting( $user_role.'_default_page', $default_value=$factory_default_page );
+$default_page = Core::getSetting( $user_role.'_default_page', 'core', $factory_default_page );
 if( !in_array($default_page, $available_pages) )
 	$default_page = $factory_default_page;
 
@@ -147,14 +153,14 @@ URLrewrite::match();
 	?>
 
 	<!-- Begin page content -->
-	<div class="container" style="padding-bottom:15px; margin-top:42px">
+	<div id="page_container" class="container" style="padding-bottom:15px; margin-top:42px">
 
 		<?php include( 'system/packages/core/modules/alerts.php' ); ?>
 
 		<br>
 
 		<!-- Main Container -->
-		<div>
+		<div id="page_canvas">
 			<?php
 			include( Core::getPageDetails(Configuration::$PAGE, 'path')."/index.php" );
 			?>
