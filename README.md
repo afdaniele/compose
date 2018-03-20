@@ -1,9 +1,4 @@
-<img src="http://compose.afdaniele.com/images/compose-black-logo.svg"/>
-
-
-
-# A lightweight web-based CMS.
-
+# **\\compose\\**  -  A lightweight web-based CMS
 
 **\\compose\\** is a CMS (Content Management System) platform written in PHP that
 provides functionalities for fast-developing web applications on Linux servers.
@@ -11,8 +6,10 @@ provides functionalities for fast-developing web applications on Linux servers.
 Born to be modular, **\\compose\\** is built around the concept of installable
 packages. The built-in Core package is responsible for managing the
 third-party packages and allows us to install, remove, update, enable/disable
-packages directly from the browser.
+packages and single components such as API End-points or Pages directly from
+the browser.
 
+<!-- REF to Bootstrap v3.3.1 -->
 Features:
 - Built-in support for different types of users;
 - 4 types of users supported by default: `guest`, `user`, `supervisor`, `administrator`;
@@ -28,110 +25,17 @@ Features:
 
 ## Architecture
 
-
-## Core package
-
-The Core package provides the following functionalities:
-- PHP Framework for developing your own application (package)
-- Packages management
-- Pages management
-- RESTful API service module
-- API services management
-- Users management
+You can use **\\compose\\** out-of-the-box, though there is not much to see or
+do until you create or install packages. **\\compose\\** is designed to be
+modular with a built-in `core` package that provides all the functionalities needed for
+managing additional packages and their components. A `Configuration` class provides
+functionalities for managing settings for both the `core` package and other
+additional packages.
+The [RESTful](https://restfulapi.net/) API module in **\\compose\\** offers an easy
+way for packages to export API end-points accessible via HTTP.
 
 
-## Packages
+## Documentation
 
-Functionalities in **\\compose\\** are provided by installable packages.
-Each package can add new pages to the platform, new Core functionalities,
-new API services, its own configuration scheme.
-All these functionalities are defined within a package in JSON files.
-Once a package is installed, all the new functionalities will be handled
-seamlessly by the Core module. The new pages will be instantly available,
-the API services ready to be served, etc.
-
-<!-- **\\compose\\** is a powerful tool, so let's take our time and go through all
-its functionalities. Let's start by looking at the simplest configuration
-of **\\compose\\**, where no packages are installed.
-
-//TODO: show image here
-
-
-//TODO: package names reserved: core, public, documentation
-//TODO: valid package names contain only [a-z0-9_-]
-
-
-
-// explain all the pages here and show them as well.
-
-// valid name for a package contains only [a-z0-9]+
-
-
-### Custom images
-
-A package can contain additional images.
-Package-specific images must be stored in
-the directory `./images/` in the base path of the
-package itself. An image introduced by a package is accessible via the URL
-
-<pre>
-http://<b>your_website</b>/image.php?package=<b>package_name</b>&image=<b>filename_with_extension</b>
-</pre>
-
-where you replace **your_website** with the hostname
-of your website (e.g., *compose.afdaniele.com*),
-**package_name** with the name of the package containing
-the image to load (e.g., *my_package*), and
-**filename_with_extension** with the name of the file
-including its extension (e.g., *image_01.jpg*).
-
-For example, if you installed **\\compose\\** on your
-website `www.example.com`, and the package `server`
-contains the image `disk_full.png`, the link to the
-image will be
-
-<pre>
-http://<b>www.example.com</b>/image.php?package=<b>server</b>&image=<b>disk_full.png</b>
-</pre>
-
-NOTE: All the images released with **\\compose\\**
-are directly accessible from the directory `./images/`
-in the base path of your website. Do not use this
-directory for your custom images, use packages instead.
-
-
-// Everything from here on has to be checked and updated
-
-
-## Setup
-
-### Fast setup
-
-You can setup the platform using the script provided
-by running
-
-```bash
-sh ./setup.sh
-```
-
-**Note:** The setup script needs sudo permissions to give
-the ownership of certain configuration files to the Apache
-server.
-
-
-### Step-by-Step setup
-
-#### Give Apache write access to the users' files
-
-- Find the user PHP is running under, let's call it <php_user>. To do so, create a PHP file with the code
-```php
-<?php
-echo `whoami`;
-?>
-```
-and open it in your browser.
-
-- Add <php_user> to your user's group
-```bash
-sudo usermod -a -G <your_username> <php_user>
-```
+Check the [Full Documentation](http://compose.afdaniele.com/docs/latest/) if you want to
+learn more about **\\compose\\**
