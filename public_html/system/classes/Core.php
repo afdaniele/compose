@@ -181,7 +181,7 @@ class Core{
 			//
 			// initialize all the packages
 			foreach( self::$packages as $pkg ){
-				if( !is_null($pkg['core']) ){
+				if( $pkg['enabled'] && !is_null($pkg['core']) ){
 					require_once $pkg['core'];
 					$php_init_command = sprintf( "\system\packages\%s\%s::init();", $pkg['id'], ucfirst($pkg['id']) );
 					eval( $php_init_command );
@@ -739,12 +739,12 @@ class Core{
 			if( self::$settings[$package_name]['success'] ){
 				$res = self::$settings[$package_name]['data']->get( $key, $default_value );
 				if( !$res['success'] )
-					return null;
+					return $default_value;
 				return $res['data'];
 			}
-			return null;
+			return $default_value;
 		}
-		return null;
+		return $default_value;
 	}//getSetting
 
 
