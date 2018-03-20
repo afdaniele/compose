@@ -3,3 +3,6 @@
 
 # but this file
 !.gitignore
+
+#TODO: include temporarily the public data for the showdown package, this will be removed with the version v1.0 of compose
+!showdown
