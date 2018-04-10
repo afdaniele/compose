@@ -14,7 +14,7 @@ will guide through all the steps needed to prepare you Linux environment for hos
 **\\compose\\** is designed to work on Linux servers. No official support is provided
 for Microsoft Windows OS or Mac OS X.
 This guide is based on [Ubuntu 16.04 LTS](http://releases.ubuntu.com/16.04/) but the
-instructions should be valid for any Debian-based distribution of Linux. For other
+instructions should be valid for any Debian-based distribution. For other
 Linux distributions, you may need to adapt the commands below to your Operating
 System.
 
@@ -240,6 +240,13 @@ to save the changes and close the editor.
 
 NOTE: In the configuration file above, make sure that the suffix `/public_html/` is appended to the end of
 your `COMPOSE_ROOT`.
+
+
+Restart Apache to put these changes into effect.
+
+```plain
+sudo systemctl restart apache2
+```
 
 
 ## Install \\compose\\
