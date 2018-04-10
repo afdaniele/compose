@@ -45,8 +45,10 @@ In this simple case we are defining only one rule with ID `images_rule` that
 rewrites all the URIs that match the RegEx `pattern` by using the template string `replace`.
 Specifically, any URI of the form `/data/images/*` will be redirected (rewritten)
 to, thus served by the web server as `/public_data/jpegs/*` where the portion of the
-string identified by the asterisk in the pattern will be copied to the replace the
-asterisk in the replace template string.
+string identified by the asterisk in the `pattern` will be copied to the replace the
+asterisk in the `replace` string. The placeholder `$1` in the `replace` part of the rule
+indicates the content of the *first* group in the `pattern`. Groups in the pattern
+string (indicated by parenthesis) are enumerated from left to right.
 
 For example, the URI
 ```
@@ -58,7 +60,7 @@ will be rewritten as
 /public_data/jpegs/example.jpg
 ```
 
-and then passed to the web server that will serve the request and return the image to you.
+where `$1 = "example.jpg"`.
 
 
 NOTE: The RegEx `pattern` must be a PHP regular expression in

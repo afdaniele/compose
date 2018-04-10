@@ -25,12 +25,11 @@ provides functionalities for fast-developing web applications on Linux servers.
     - [URL structure](url-structure)
     - [HTML Layout](html-layout)
     - [Settings](settings)
-    - [Core API Documentation](FAKELINK#core-api-documentation)
     - [Code flow](FAKELINK#code-flow)
     - [Packages](packages)
     - [Pages](FAKELINK#pages)
     - [Core package](FAKELINK#core-package)
-    - [Users](FAKELINK#coreapackage)
+    - [Users](FAKELINK#users)
     - [Install packages](FAKELINK#install-packages)
 
 - Intermediate
