@@ -36,6 +36,9 @@ Things to add later in the development:
         [ ] - finish documentation for \system\classes\
         [ ] - add setup page for \compose\
         [ ] - add setup pages for newly installed packages
+        [ ] - add support for package-specific configurable parameters in URL-rewrite rules (e.g., $(param docs_dir))
+        [ ] - when an admin is logged in, query github and get the versions of all the packages that are compatible with the current version of \compose\
+            [ ] - define somehow pkg <-> compose compatibility maps
 
     [ ] - v0.9
         [ ] - add API Keys to user profile
@@ -53,6 +56,17 @@ Things to add later in the development:
         [ ] - implement package-specific data
             [ ] - the package template has now the dirs /data/private and /data/public
             [ ] - all the current packages are updated
+            [ ] - to be re-designed, public data is now moved to /data/<package_name>/
+
+        [ ] - add the Google Sign-In API client ID to the list of configurable parameters for the core package
+
+        [ ] - return error when trying to enable a page that belongs to a disabled package. Right now it says it succeeded but the status does not change
+
+        [ ] - fix the anchor bug in doxygen documentation. Due to the iframe, the anchors do not work if attached to the URL, only later clicks work
+
+        [ ] - add a fake HTML page to the main level of the repo that tells the user to re-check the DocumentRoot and append /public_html/ to it.
+
+        [X] - fix bug with guest not being redirected to default page but always to login
 
         [X] - it is possible to choose the default page for each user role in the settings menu
 

@@ -559,9 +559,9 @@ class Core{
 	 *				"packages" : []				// list of \\compose\\ packages required by the package
      *			],
 	 *			"url_rewrite" : [
-	 *				"<rule_id>" : [
+	 *				"rule_id" : [
 	 *					"pattern" : string,		// regex of the rule for the URI to be compared against
-	 *					"replace" : string		// replacement template string using group-specific variables (e.g., $1)
+	 *					"replace" : string		// replacement template using group-specific variables (e.g., $1)
 	 *				],
 	 *				...
  	 *			]
@@ -1306,7 +1306,7 @@ class Core{
 	 *		"head_hash" => string, 			// short commit hash of the head of the local repository
 	 *		"head_full_hash" => string, 	// full commit hash of the head of the local repository
 	 *		"head_tag" => mixed 			// tag associated to the head. null if no tag is found
-	 *		"latest_tag" => mixed 			// latest tag (going back in time) this codebase is based on. null if no tag is found.
+	 *		"latest_tag" => mixed 			// latest tag (back in time) of codebase. null if no tag is found.
 	 *	]</code></pre>
 	 *
 	 */

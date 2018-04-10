@@ -1,0 +1,11 @@
+This is a checklist for what to do before creating a new release:
+
+[ ] - change the version in `doxygen_documentation_project`
+    PROJECT_NUMBER         = X.Y
+
+[ ] - copy the documentation from /data/showdown/vX.Y to /data/showdown/vX.Z
+    where X.Y is the latest release and X.Z the new release
+
+[ ] - update the symlink in the documentation, from vX.Y to vX.Z
+
+[ ] -

@@ -1,5 +1,5 @@
 {
-    "name" : "API",
+    "name" : "RESTful API",
     "package" : "core",
     "menu_entry" : {
         "order" : 6,

@@ -50,7 +50,7 @@ if( $version == null ){
 
 		<tr>
 			<td style="width:100%">
-				<h2>API Documentation</h2>
+				<h2>RESTful API Documentation</h2>
 			</td>
 		</tr>
 
