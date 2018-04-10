@@ -51,6 +51,11 @@ provides functionalities for fast-developing web applications on Linux servers.
     - [Page Metadata Requirements](standards#page-metadata-requirements)
     - [Configuration Metadata Requirements](standards#configuration-metadata-requirements)
 
+- Code Reference (PHP Classes)
+    - [\system\classes\Core](classsystem_1_1classes_1_1_core)
+    - [\system\classes\Configuration](classsystem_1_1classes_1_1_configuration)
+    - [\system\classes\EditableConfiguration](classsystem_1_1classes_1_1_editable_configuration)
+
 - [Troubleshooting](troubleshooting)
 
 

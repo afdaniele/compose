@@ -8,16 +8,15 @@ http(s):// <BASE> / <PAGE> / <ACTION> / <ARG1> / <ARG2> ? <QUERY_STRING>
 
 For example, the URL
 
-<!-- REF to the current version v0.9 -->
 ```http
-http://compose.afdaniele.com/docs/v0.9/url-structure
+http://compose.afdaniele.com/docs/latest/url-structure
 ```
 
 has
 
 - **BASE** = compose.afdaniele.com
 - **PAGE** = docs
-- **ACTION** = v0.9
+- **ACTION** = latest
 - **ARG1** = url-structure
 - **ARG2** = NONE
 - **QUERY_STRING** = NONE
