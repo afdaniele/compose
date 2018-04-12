@@ -16,7 +16,6 @@ provides functionalities for fast-developing web applications on Linux servers.
     - [Test](setup#test)
     - [Configure](setup#configure)
 
-
 - [Libraries](libraries)
     - [Javascript libraries](libraries#javascript-libraries)
     - [CSS libraries](libraries#css-libraries)
@@ -39,11 +38,10 @@ provides functionalities for fast-developing web applications on Linux servers.
     - [Package configuration](FAKELINK#package-configuration)
     - [Show alert](FAKELINK#show-alert)
     - [Show error page](FAKELINK#show-error-page)
-    - [Custom users](FAKELINK#custom-users)  <!-- TODO: make sure this link is not used and replace with following -->
-    - [Register new user type](FAKELINK#register-new-user-type)
 
 - Advanced
     - [URL Rewrite](url-rewrite)
+    - [Register new user type](FAKELINK#register-new-user-type)
 
 - [Standards](standards)
     - [Package Metadata Requirements](standards#package-metadata-requirements)

@@ -148,7 +148,7 @@ It is also possible to add package-specific user types. For example, if you
 are creating a package for your company, you may want to create a user type
 for each role in your company, so that your application can distinguish
 between the "manager" and the "secretary" and show them different data.
-Visit the page [Custom users](FAKELINK#custom-users)
+Visit the page [Register new user type](FAKELINK#register-new-user-type)
 if you want to learn more about how to register new user types in **\\compose\\**.
 
 
