@@ -31,7 +31,7 @@ foreach ($buttons as &$button) {
 // define responsive parameters
 $responsive_width_per_button = 120;
 $responsive_min_width =
-	300 + // logo and name
+	400 + // logo and name
 	$responsive_width_per_button * $non_responsive_btns + // non responsive buttons
 	120; // logout button
 
