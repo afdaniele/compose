@@ -13,7 +13,7 @@ require_once __DIR__.'/../../../classes/enum/StringType.php';
 function checkArgument( &$name, &$array, &$details, &$res, $mandatory=true ){
 	if( !isset($array[$name]) ){
 		if( $mandatory ){
-			$param_desc = ( (isset(\system\classes\Configuration::$TRAN[$name]))? '\''.$name.'\'' . ' (' .\system\classes\Configuration::$TRAN[$name]. ')' : '\''.$name.'\'' );
+			$param_desc = sprintf("'%s'", $name);
 			$res = array( 'code' => 400, 'status' => 'Bad Request', 'message' => "The parameter ".$param_desc." is mandatory" );
 			return false;
 		}else{
@@ -30,7 +30,7 @@ function checkArgument( &$name, &$array, &$details, &$res, $mandatory=true ){
 	$length = ((isset($details['length']) && $details['length'] !== null)? $details['length'] : false);
 	//
 	if( !($length === false) && strlen($array[$name]) !== $length ){
-		$param_desc = ( (isset(\system\classes\Configuration::$TRAN[$name]))? '\''.$name.'\'' . ' (' .\system\classes\Configuration::$TRAN[$name]. ')' : '\''.$name.'\'' );
+		$param_desc = sprintf("'%s'", $name);
 		$res = array( 'code' => 400, 'status' => 'Bad Request', 'message' => "The value of the ".$param_desc." parameter is not valid" );
 		return false;
 	}
@@ -38,13 +38,13 @@ function checkArgument( &$name, &$array, &$details, &$res, $mandatory=true ){
 	if( $type == 'enum' ){
 		$enum = $details['values'];
 		if( !in_array( $array[$name], $enum ) ){
-			$param_desc = ( (isset(\system\classes\Configuration::$TRAN[$name]))? '\''.$name.'\'' . ' (' .\system\classes\Configuration::$TRAN[$name]. ')' : '\''.$name.'\'' );
+			$param_desc = sprintf("'%s'", $name);
 			$res = array( 'code' => 400, 'status' => 'Bad Request', 'message' => "Illegal value for the ".$param_desc." parameter. Allowed values are ['".implode('\', \'', $enum)."']" );
 			return false;
 		}
 	}else{
 		if( !\system\classes\enum\StringType::isValid($array[$name], \system\classes\enum\StringType::byName($type) ) ){
-			$param_desc = ( (isset(\system\classes\Configuration::$TRAN[$name]))? '\''.$name.'\'' . ' (' .\system\classes\Configuration::$TRAN[$name]. ')' : '\''.$name.'\'' );
+			$param_desc = sprintf("'%s'", $name);
 			$res = array( 'code' => 400, 'status' => 'Bad Request', 'message' => "The value of the ".$param_desc." parameter is not valid" );
 			return false;
 		}
@@ -53,7 +53,7 @@ function checkArgument( &$name, &$array, &$details, &$res, $mandatory=true ){
 	if( isset($details['domain']) && is_array($details['domain']) && sizeof($details['domain']) == 2 ){
 		$domain = $details['domain'];
 		if( $array[$name] < floatval($domain[0]) || $array[$name] > floatval($domain[1]) ){
-			$param_desc = ( (isset(\system\classes\Configuration::$TRAN[$name]))? '\''.$name.'\'' . ' (' .\system\classes\Configuration::$TRAN[$name]. ')' : '\''.$name.'\'' );
+			$param_desc = sprintf("'%s'", $name);
 			$res = array( 'code' => 400, 'status' => 'Bad Request', 'message' => "Illegal value for the ".$param_desc." parameter. Allowed values are [{$domain[0]},{$domain[1]}]" );
 			return false;
 		}

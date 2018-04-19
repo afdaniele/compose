@@ -287,7 +287,7 @@ class TableViewer {
 										if( sizeof($tags4) > 0 ){
 											for( $i = 0; $i < sizeof($tags4); $i++ ){
 												?>
-												<li><a href="<?php echo $querystrings['tag'].'tag='.$tags4[$i] ?>"><?php echo ( (isset(Configuration::$TRAN[$tags4[$i]]))? Configuration::$TRAN[$tags4[$i]] : ucfirst($tags4[$i]) ) ?></a></li>
+												<li><a href="<?php echo $querystrings['tag'].'tag='.$tags4[$i] ?>"><?php echo ucfirst($tags4[$i]) ?></a></li>
 											<?php
 											}
 											if( sizeof($features['tag']['values']) > 4 ){
@@ -356,7 +356,7 @@ class TableViewer {
 							$keywords_queryString = $querystrings['keywords'];
 							//
 							echo 'Active filters:'.
-								( ($tagfilter_in_use)? '&nbsp; <span class="glyphicon glyphicon-tag" aria-hidden="true"></span><a href="#"> '.( (isset(Configuration::$TRAN[$features_values['tag']]))? Configuration::$TRAN[$features_values['tag']] : ucfirst($features_values['tag']) ).'</a> (<a href="'.$tag_queryString.'" style="color:red"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></a>)' : '' ) .
+								( ($tagfilter_in_use)? '&nbsp; <span class="glyphicon glyphicon-tag" aria-hidden="true"></span><a href="#"> '.ucfirst($features_values['tag']).'</a> (<a href="'.$tag_queryString.'" style="color:red"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></a>)' : '' ) .
 								( ($tagfilter_in_use && $keywordsfilter_in_use)? ' , &nbsp;' : '&nbsp; '  ) .
 								( ($keywordsfilter_in_use)? '<span class="glyphicon glyphicon-search" aria-hidden="true"></span><a href="#"> "'.$features_values['keywords'].'"</a> (<a href="'.$keywords_queryString.'" style="color:red"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></a>)' : '' );
 						}
