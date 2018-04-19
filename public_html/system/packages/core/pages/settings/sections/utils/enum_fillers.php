@@ -27,6 +27,20 @@ function _pages_avail_to_role( $args ){
     );
     // return list
     return $availablePages;
-}
+}//_pages_avail_to_role
+
+
+function _static_enum( $args ){
+    return array_map(
+        function($a){
+            return [
+                'id' => $a,
+                'value' => $a,
+                'label' => $a
+            ];
+        },
+        $args
+    );
+}//_static_enum
 
 ?>
