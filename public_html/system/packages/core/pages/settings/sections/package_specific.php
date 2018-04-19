@@ -125,7 +125,10 @@ function settings_custom_package_tab( $package_settings, $settings_tab_id ){
                             $settings_values = $package_setts_res['data']->asArray();
                             $metadata = $package_setts_res['data']->getMetadata();
                             foreach ($metadata['configuration_content'] as $settings_entry_id => $settings_entry) {
-                                $settings_entry_value = $settings_values[$settings_entry_id];
+                                $settings_entry_value =
+                                    array_key_exists($settings_entry_id, $settings_values)?
+                                    $settings_values[$settings_entry_id] :
+                                    ( is_null($settings_entry['default'])? '' : $settings_entry['default'] );
                                 create_row( $settings_entry_id, $settings_entry, $settings_entry_value );
                             }
                         }
