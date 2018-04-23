@@ -88,7 +88,7 @@ URLrewrite::match();
 
 	<title><?php echo Configuration::$SHORT_SITE_NAME.' - '.Core::getPageDetails(Configuration::$PAGE, 'name') ?></title>
 
-	<!-- Bootstrap v3.3.1 by getboostrap.com -->
+	<!-- Bootstrap v3.3.1 by getbootstrap.com -->
 	<link href="<?php echo Configuration::$BASE_URL ?>css/bootstrap.min.css" rel="stylesheet" type="text/css" >
 	<link href="<?php echo Configuration::$BASE_URL ?>css/bootstrap-switch.min.css" rel="stylesheet" type="text/css" >
 	<link href="<?php echo Configuration::$BASE_URL ?>css/bootstrap-theme.min.css" rel="stylesheet" type="text/css" >

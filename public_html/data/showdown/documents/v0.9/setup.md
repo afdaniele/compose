@@ -164,6 +164,8 @@ Install the dependencies by running the following command.
 sudo apt install git php libapache2-mod-php php-mcrypt php-mysql php7.0-mbstring
 ```
 
+NOTE: Make sure to install PHP-7.0 or newer. **\\compose\\** does not work with older versions of PHP.
+
 
 ### Step 8: Enable Apache modules
 
