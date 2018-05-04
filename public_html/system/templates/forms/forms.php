@@ -75,15 +75,15 @@ function generateForm( $method='post', $action=null, $formID=null, $labelName, $
 
 
 
-
-function generateFormByLayout( &$layout, $formID=null, $method=null, $action=null, &$values=array() ){
-	$formTag = ( $formID != null || ( $method != null && $action != null ) );
+// $layout is a dictionary { k => val, ... }, with val.keys() = [name, editable, type, placeholder, value, html]
+function generateFormByLayout( &$layout, $formID=null, $formClass=null, $method=null, $action=null, &$values=array() ){
+	$formTag = ( $formID != null || $formClass != null || ( $method != null && $action != null ) );
 	//
-	echo ($formTag)? '<form class="form-horizontal" ' . ( ($formID != null)? 'id="'.$formID.'"' : '' ) . ' role="form" method="'.$method.'" ' . ( ($action != null)? 'action="'.$action.'"' : '' ) . '>' : '';
+	echo ($formTag)? '<form class="form-horizontal '. ( ($formClass != null)? $formClass : '' ) .'" ' . ( ($formID != null)? 'id="'.$formID.'"' : '' ) . ' role="form" method="'.$method.'" ' . ( ($action != null)? 'action="'.$action.'"' : '' ) . '>' : '';
 	// =>
 	foreach( $layout as $key => $field ){
-		echo '<div class="form-group" style="margin-bottom:4px">';
-		echo '<label class="col-md-4 control-label">'.$field['translation'].'</label>';
+		echo '<div class="form-group" style="margin: 10px 0">';
+		echo '<label class="col-md-4 control-label">'.$field['name'].'</label>';
 		echo '<div class="col-md-6">';
 		//
 		if( $field['editable'] ){
@@ -104,6 +104,10 @@ function generateFormByLayout( &$layout, $formID=null, $method=null, $action=nul
 					break;
 				case 'boolean':
 					$object = 'checkbox';
+					break;
+				case 'numeric':
+					$object = 'input';
+					$type = 'number';
 					break;
 				default:
 					$object = 'input';
@@ -128,7 +132,20 @@ function generateFormByLayout( &$layout, $formID=null, $method=null, $action=nul
 					//
 					break;
 				case 'checkbox':
-					echo '<input type="checkbox" style="margin-top:12px" id="'.$key.'" name="'.$key.'" '.( (booleanval($values[$key]) == true)? 'checked' : '' ).' '.$field['html'].$disabled.'>';
+					echo sprintf('<input type="checkbox"
+                        class="switch"
+                        data-size="mini"
+						id="%s"
+                        name="%s"
+                        %s
+						%s
+						%s >',
+						$key,
+						$key,
+						( (booleanval($values[$key]) == true)? 'checked' : '' ),
+						$field['html'],
+						$disabled
+				 	);
 					//
 					break;
 				default:break;
