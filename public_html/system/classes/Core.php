@@ -14,6 +14,7 @@ require_once __DIR__.'/libs/booleanval.php';
 // structure
 require_once __DIR__.'/Configuration.php';
 require_once __DIR__.'/EditableConfiguration.php';
+require_once __DIR__.'/Database.php';
 require_once __DIR__.'/Utils.php';
 require_once __DIR__.'/enum/StringType.php';
 require_once __DIR__.'/enum/EmailTemplates.php';
@@ -34,6 +35,13 @@ use \phpfastcache;
 use system\classes\enum\EmailTemplates;
 use system\classes\enum\StringType;
 use system\classes\jsonDB\JsonDB;
+use system\classes\Database;
+
+
+define('INFO', 0);
+define('WARNING', 1);
+define('ERROR', 2);
+
 
 /** Core module of the platform <b>\\compose\\</b>.
  */
@@ -44,6 +52,8 @@ class Core{
 	private static $packages = null;
 	private static $pages = null;
 	private static $api = null;
+	private static $verbose = False;
+	private static $debug = False;
 	private static $settings = null;
 	private static $registered_user_types = [];
 
@@ -163,25 +173,33 @@ class Core{
 			//
 			// load email templates
 			EmailTemplates::init();
-			// enable cache
-			try{
-				if( Configuration::$CACHE_ENABLED ){
-					try{
-						self::$cache = phpFastCache(Configuration::$CACHE_SYSTEM);
-					}catch(Exception $e){
-						self::$cache = null;
-						Configuration::$CACHE_ENABLED = false;
-					}
-				}
-				//
-				Configuration::$CACHE_ENABLED = ( self::$cache !== null && self::$cache instanceof phpFastCache );
-				$_SESSION['CACHE_GROUPS'] = array();
-				//
-			}catch(\Exception $e){}
+
+
+			// TODO: Configuration::$CACHE_ENABLED is no longer available
+			// // enable cache
+			// try{
+			// 	if( Configuration::$CACHE_ENABLED ){
+			// 		try{
+			// 			self::$cache = phpFastCache(Configuration::$CACHE_SYSTEM);
+			// 		}catch(Exception $e){
+			// 			self::$cache = null;
+			// 			Configuration::$CACHE_ENABLED = false;
+			// 		}
+			// 	}
+			// 	//
+			// 	Configuration::$CACHE_ENABLED = ( self::$cache !== null && self::$cache instanceof phpFastCache );
+			// 	$_SESSION['CACHE_GROUPS'] = array();
+			// 	//
+			// }catch(\Exception $e){}
+
+
 			//
 			// initialize all the packages
 			foreach( self::$packages as $pkg ){
-				if( $pkg['enabled'] && !is_null($pkg['core']) ){
+				if( !$pkg['enabled'] )
+					continue;
+				// initialize package Core class
+				if( !is_null($pkg['core']) ){
 					require_once $pkg['core'];
 					$php_init_command = sprintf( "\system\packages\%s\%s::init();", $pkg['id'], ucfirst($pkg['id']) );
 					eval( $php_init_command );
@@ -193,6 +211,42 @@ class Core{
 			return array( 'success' => true, 'data' => "Core already initialized!" );
 		}
 	}//initCore
+
+
+	public static function loadPackagesModules( $module_family=null, $pkg_id=null ){
+		foreach( self::$packages as $pkg ){
+			if( !$pkg['enabled'] || ( !is_null($pkg_id) && $pkg_id != $pkg['id'] ) )
+				continue;
+			// load package modules
+			self::log( INFO, "<br><br>Loading modules for package '%s'", $pkg['id'] );
+			foreach( $pkg['modules'] as $module_fam => $module_scripts ){
+				if( !is_null($module_family) && $module_family != $module_fam )
+					continue;
+				foreach( $module_scripts as $module_script ){
+					self::log( INFO, "<br>=> Loading '%s'", $module_script );
+					// check file
+					if( !file_exists($module_script) ){
+						self::log( WARNING, "Renderer script '%s' does not exist", $module_script );
+						continue;
+					}
+					// load module
+					require_once $module_script;
+					self::log( INFO, "Renderer script '%s' successfully loaded", $module_script );
+				}
+			}
+		}
+	}//loadPackagesModules
+
+
+	public static function getClasses( $parent_class=null ){
+		$classes = [];
+		foreach( get_declared_classes() as $class ){
+		    if( !is_null($parent_class) && !is_subclass_of($class, $parent_class) )
+				continue;
+			array_push( $classes, $class );
+		}
+		return $classes;
+	}//getClasses
 
 
 	/** Terminates the Core module.
@@ -329,19 +383,9 @@ class Core{
 			}
 		}
 		// create a new user account on the server
-		$user_file = sprintf( $GLOBALS['__SYSTEM__DIR__'].'/users/accounts/%s.json', $user_id );
-		$user_obj = new JsonDB( $user_file );
-		// copy info to jsonDB
-		foreach( $user_info as $key => $val ){
-			$user_obj->set( $key, $val );
-		}
-		// commit new user to the disk
-		$res = $user_obj->commit();
-		if( !$res['success'] ){
-			return $res;
-		}
-		//
-		return ['success' => true, 'data' => null ];
+		$users_db = new Database('core', 'users');
+		$res = $users_db->write($user_id, $user_info);
+		return $res;
 	}//createNewUserAccount
 
 
@@ -362,15 +406,10 @@ class Core{
 	 *		list of user ids. The user id of a user is the numeric user id assigned by Google;
 	 */
 	public static function getUsersList(){
-		$users_file_descriptors = sprintf("%s/users/accounts/*.json", $GLOBALS['__SYSTEM__DIR__']);
-		$jsons = glob( $users_file_descriptors );
-		//
-		$users = [];
-		foreach ($jsons as $json) {
-			$user_id = self::_regex_extract_group($json, "/.*users\/accounts\/(.+).json/", 1);
-			array_push( $users, $user_id );
-		}
-		return $users;
+		// open users DB
+		$users_db = new Database('core', 'users');
+		// get list of users
+		return $users_db->list_keys();
 	}//getUsersList
 
 
@@ -409,8 +448,10 @@ class Core{
 	 *		whether a user account with the specified user id exists;
 	 */
 	public static function userExists( $user_id ){
-		$user_file = sprintf( __DIR__.'/../users/accounts/%s.json', $user_id );
-		return file_exists($user_file);
+		// open users DB
+		$users_db = new Database('core', 'users');
+		// return whether the user exists
+		return $users_db->key_exists($user_id);
 	}//userExists
 
 
@@ -435,15 +476,17 @@ class Core{
 	 *		See the documentation for the class JsonDB to understand how to edit and commit information.
 	 */
 	public static function openUserInfo( $user_id ){
-		$user_file = sprintf( __DIR__.'/../users/accounts/%s.json', $user_id );
-		$user_info = null;
-		if( file_exists($user_file) ){
-			// load user information
-			$user_info = new JsonDB( $user_file );
-		}else{
+		// open users DB
+		$users_db = new Database('core', 'users');
+		// make sure that the user exists
+		if( !$users_db->key_exists($user_id) )
 			return array( 'success' => false, 'data' => 'User "'.$user_id.'" not found!' );
-		}
-		//
+		// load user info
+		$res = $users_db->get_entry($user_id);
+		if( !$res['success'] )
+			return $res;
+		$user_info = $res['data'];
+		// sanity check on user entry
 		$static_user_info = $user_info->asArray();
 		$mandatory_fields = array_keys( self::$USER_ACCOUNT_TEMPLATE );
 		foreach( $mandatory_fields as $field) {
@@ -1258,10 +1301,13 @@ class Core{
 	public static function getStatistics(){
 		$statistics = array();
 		//
-		Configuration::$CACHE_ENABLED = ( self::$cache !== null && self::$cache instanceof phpFastCache );
-		// cache stats
-		$statistics['STATS_TOTAL_SELECT_REQS'] = ( (Configuration::$CACHE_ENABLED && self::$cache->isExisting('STATS_TOTAL_SELECT_REQS'))? self::$cache->get( 'STATS_TOTAL_SELECT_REQS' ) : 1 );
-		$statistics['STATS_CACHED_SELECT_REQS'] = ( (Configuration::$CACHE_ENABLED && self::$cache->isExisting('STATS_CACHED_SELECT_REQS'))? self::$cache->get( 'STATS_CACHED_SELECT_REQS' ) : 1 );
+
+		// TODO: Configuration::$CACHE_ENABLED is no longer available
+		// Configuration::$CACHE_ENABLED = ( self::$cache !== null && self::$cache instanceof phpFastCache );
+		// // cache stats
+		// $statistics['STATS_TOTAL_SELECT_REQS'] = ( (Configuration::$CACHE_ENABLED && self::$cache->isExisting('STATS_TOTAL_SELECT_REQS'))? self::$cache->get( 'STATS_TOTAL_SELECT_REQS' ) : 1 );
+		// $statistics['STATS_CACHED_SELECT_REQS'] = ( (Configuration::$CACHE_ENABLED && self::$cache->isExisting('STATS_CACHED_SELECT_REQS'))? self::$cache->get( 'STATS_CACHED_SELECT_REQS' ) : 1 );
+
 		//
 		return $statistics;
 	}//getStatistics
@@ -1470,14 +1516,7 @@ class Core{
 	}//collectErrorInformation
 
 
-	// =================================================================================================================
-	// =================================================================================================================
-	//
-	//
-	// Private functions
-
-
-	private static function generateRandomString( $length ) {
+	public static function generateRandomString( $length ) {
 		$chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
 		$count = mb_strlen($chars);
 		//
@@ -1487,6 +1526,31 @@ class Core{
 		}
 		return $result;
 	}//generateRandomString
+
+
+	public static function verbose( $verbose_flag=True ){
+		self::$verbose = $verbose_flag;
+	}//verbose
+
+
+	public static function debug( $debug_flag=True ){
+		self::$debug = $debug_flag;
+	}//debug
+
+
+	public static function log( $type, $message, ...$args ){
+		if( self::$debug ){
+			echo vsprintf( $message, $args );
+			echo '<br>';
+		}
+	}//log
+
+
+	// =================================================================================================================
+	// =================================================================================================================
+	//
+	//
+	// Private functions
 
 	private static function clearCacheGroups( $keywords ){
 		if( is_string($keywords) ) $keywords = array($keywords);
@@ -1695,12 +1759,25 @@ class Core{
 			$pkg_core_file = sprintf( "%s/%s.php", $pkg_path, ucfirst($pkg_id) );
 			$pkg['core'] = ( file_exists($pkg_core_file) )? $pkg_core_file : null;
 			$pkg['enabled'] = self::isPackageEnabled($pkg_id);
+			// load modules
+			self::_load_package_modules_list($pkg_id, $pkg);
 			// by-id
 			$pkgs[$pkg_id] = $pkg;
 		}
 		//
 		return $pkgs;
 	}//_load_available_packages
+
+	private static function _load_package_modules_list( &$pkg_id, &$package_descriptor ){
+		$package_descriptor['modules'] = [
+			'renderers/blocks' => []
+		];
+		// load renderers
+		// => block renderers
+		$block_rends_path = sprintf( "%s%s/modules/renderers/blocks/*.php", $GLOBALS['__PACKAGES__DIR__'], $pkg_id );
+		$block_rends = glob( $block_rends_path );
+		$package_descriptor['modules']['renderers/blocks'] = $block_rends;
+	}//_load_package_modules_list
 
 
 }
