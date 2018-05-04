@@ -42,6 +42,7 @@ provides functionalities for fast-developing web applications on Linux servers.
 - Advanced
     - [URL Rewrite](url-rewrite)
     - [Register new user type](FAKELINK#register-new-user-type)
+    - [Plugin Renderers](FAKELINK#plugin-renderers)
 
 - [Standards](standards)
     - [Package Metadata Requirements](standards#package-metadata-requirements)
