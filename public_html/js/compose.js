@@ -396,6 +396,26 @@ function hmsToSeconds( str ){
     return s;
 }//hmsToSeconds
 
+function redirectTo( page, action, arg1, arg2, query_array ){
+    var url = "{0}//{1}/".format( location.protocol, location.host );
+    // append PAGE
+    if( page != null && page != undefined )
+        url += ( url.slice(-1)=='/'? '' : '/' )+page;
+    // append ACTION
+    if( action != null && action != undefined )
+        url += '/'+action;
+    // append arguments
+    if( arg1 != null && arg1 != undefined )
+        url += '/'+arg1;
+    if( arg2 != null && arg2 != undefined )
+        url += '/'+arg2;
+    // create query string
+    if( query_array != null && query_array != undefined )
+        url += '?'+$.param( query_array );
+    // move to new url
+    window.location = url;
+}//redirectTo
+
 
 
 // form element to associative array
