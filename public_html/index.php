@@ -12,6 +12,9 @@ require_once 'system/environment.php';
 // load core libraries
 require_once 'system/classes/Core.php';
 require_once 'system/classes/Configuration.php';
+require_once 'system/classes/Database.php';
+require_once 'system/classes/BlockRenderer.php';
+require_once 'system/classes/MissionControl.php';
 require_once 'system/classes/enum/EmailTemplates.php';
 require_once 'system/utils/utils.php';
 require_once 'system/utils/URLrewrite.php';
