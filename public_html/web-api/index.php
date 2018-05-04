@@ -45,6 +45,10 @@ Configuration::init();
 
 //TODO: this is probably unnecessary since initCore would do the same
 $cache = null;
+
+
+
+// TODO: Configuration::$CACHE_ENABLED is no longer available
 // if( Configuration::$CACHE_ENABLED ){
 // 	// load fast cache system
 // 	require_once __DIR__.'/../system/classes/phpfastcache/phpfastcache.php';
@@ -57,8 +61,8 @@ $cache = null;
 // }
 // //
 // Configuration::$CACHE_ENABLED = ( $cache != null && $cache instanceof phpFastCache );
+// Configuration::$CACHE_ENABLED = false;
 
-Configuration::$CACHE_ENABLED = false;
 
 
 // // load web-api settings
