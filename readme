@@ -54,7 +54,7 @@ Things to add later in the development:
             [ ] - all the pages will be redirected to maintenance (add it as new page in the core package)
 
         [ ] - implement package-specific data
-            [ ] - the package template has now the dirs /data/private and /data/public
+            [ ] - the package template has now the dirs /data/private and /data/public (this has to be changed)
             [ ] - all the current packages are updated
             [ ] - to be re-designed, public data is now moved to /data/<package_name>/
 
@@ -65,6 +65,21 @@ Things to add later in the development:
         [ ] - fix the anchor bug in doxygen documentation. Due to the iframe, the anchors do not work if attached to the URL, only later clicks work
 
         [ ] - add a fake HTML page to the main level of the repo that tells the user to re-check the DocumentRoot and append /public_html/ to it.
+
+        [X] - rewrite the user management by using the new interface Database. User entries will be keys in the database core/users.
+            [ ] - update the documentation so that the position for user entries is updated. It was in system/users before. Make sure it is not reported anywhere.
+
+        [X] - implement Database interface to JSON files in (private) package_name/data/ directory
+            [ ] - write documentation about this interface in showdown
+            [ ] - add the class Database to the doxygen project
+
+        [X] - implement BlockRenderer abstract class for mission control grids
+            [ ] - write documentation about this in showdown
+            [ ] - add the class BlockRenderer to the doxygen project
+
+        [X] - implement MissionControl grids class
+            [ ] - write documentation about this in showdown
+            [ ] - add the class MissionControl to the doxygen project
 
         [X] - fix bug with guest not being redirected to default page but always to login
 
