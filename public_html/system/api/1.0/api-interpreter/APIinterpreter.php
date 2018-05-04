@@ -33,6 +33,10 @@ class APIinterpreter {
 
 		// 1. init
 		$cache = null;
+
+
+
+		// TODO: Configuration::$CACHE_ENABLED is no longer available
 		// if( Configuration::$CACHE_ENABLED ){
 		// 	// load fast cache system
 		// 	require_once __DIR__.'/../../../classes/phpfastcache/phpfastcache.php';
@@ -45,7 +49,9 @@ class APIinterpreter {
 		// }
 		// //
 		// Configuration::$CACHE_ENABLED = ( $cache !== null && $cache instanceof phpFastCache );
-		Configuration::$CACHE_ENABLED = false;
+		// Configuration::$CACHE_ENABLED = false;
+
+
 
 		// 2. load api-service specifications
 		// if( Configuration::$CACHE_ENABLED ){
@@ -140,6 +146,8 @@ class APIinterpreter {
 		$data = formatData( $result );
 		$result['data'] = $data;
 		$result['formatted'] = true;
+		if( !isset($result['message']) )
+			$result['message'] = '';
 
 
 		// ==================================================================================================================
