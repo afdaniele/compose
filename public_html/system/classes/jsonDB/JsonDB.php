@@ -73,7 +73,7 @@ class JsonDB {
 				return array('success' => false, 'data' => 'An error occurred while writing the file. The server reports: ('.$error['message'].')');
 			}else{
 				if( !$is_present )
-					chmod($this->file, 664);
+					chmod($this->file, 0664);
 				return array('success' => true, 'data' => null);
 			}
 		}catch( \Exception $e ){
