@@ -25,6 +25,9 @@ ENV BASEURL="localhost:8080"
 RUN rm -rf /var/www/html
 RUN git clone --depth 1 -b master https://github.com/afdaniele/compose.git /var/www/html
 
+# create configuration file
+RUN cp /var/www/html/public_html/system/config/configuration.default.php /var/www/html/public_html/system/config/configuration.php
+
 # enable mod rewrite
 RUN a2enmod rewrite
 
