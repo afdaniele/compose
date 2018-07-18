@@ -15,6 +15,7 @@ RUN apt-get update && apt-get install -y \
     git \
     # php libraries
     php7.0-mbstring \
+    php7.0-xml \
     # clean the apt cache
     && rm -rf /var/lib/apt/lists/*
 
@@ -23,7 +24,7 @@ ENV BASEURL="localhost:8080"
 
 # replace default app with compose
 RUN rm -rf /var/www/html
-RUN git clone --depth 1 -b master https://github.com/afdaniele/compose.git /var/www/html
+RUN git clone --depth 1 -b v0.9 https://github.com/afdaniele/compose.git /var/www/html
 
 # create configuration file
 RUN cp /var/www/html/public_html/system/config/configuration.default.php /var/www/html/public_html/system/config/configuration.php
