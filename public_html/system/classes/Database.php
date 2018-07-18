@@ -75,6 +75,14 @@ class Database{
         return $keys;
     }//list_keys
 
+    public function size(){
+        // get list of all json files
+        $entry_wild = sprintf('%s/*.json', $this->db_dir);
+        $files = glob( $entry_wild );
+        // return count of list of keys
+        return count( $files );
+    }//size
+
 
 
     // Private functions

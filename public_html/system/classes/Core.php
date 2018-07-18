@@ -382,8 +382,13 @@ class Core{
 				return ['success' => false, 'data' => sprintf('The field "%s" is required for a new user account', $field)];
 			}
 		}
-		// create a new user account on the server
+		// open users DB
 		$users_db = new Database('core', 'users');
+		// create administrator if this is the first user
+		if( $users_db->size() < 1 ){
+			$user_info['role'] = 'administrator';
+		}
+		// create a new user account on the server
 		$res = $users_db->write($user_id, $user_info);
 		return $res;
 	}//createNewUserAccount
