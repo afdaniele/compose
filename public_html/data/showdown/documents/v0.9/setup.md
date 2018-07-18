@@ -190,7 +190,7 @@ Moreover, by default, Apache stores the website under `/var/www/html/`. Run the 
 to change the configuration of the website and enable the URL Rewrite engine.
 
 ```plain
-sudo nano /etc/apache2/sites-enabled/000-default.conf
+sudo nano /etc/apache2/sites-available/000-default.conf
 ```
 
 You should be able to see something like the following.
