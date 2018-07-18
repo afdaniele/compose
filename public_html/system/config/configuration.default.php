@@ -5,20 +5,20 @@ $TIMEZONE = 'America/Chicago';
 date_default_timezone_set($TIMEZONE);
 
 /* Platform URLs settings */
-$SHORT_SITE_NAME = "Duckieboard";
-$SHORT_SITE_LINK = "Duckietown.org";
-$BASE_URL = "http://duckietown.afdaniele.com/";
-$MOBILE_BASE_URL = "http://duckietown.afdaniele.com/";
+$SHORT_SITE_NAME = "Compose";
+$SHORT_SITE_LINK = "Compose";
+$BASE_URL = "http://localhost/";
+$MOBILE_BASE_URL = "http://localhost/";
 
 /* Google Application - Client ID  */
 $GOOGLE_CLIENT_ID = "955196953203-herjcvulrkosa9h5dsapeu7t8a9mjrak.apps.googleusercontent.com";
 
 /* No-Reply email address settings */
-$NOREPLY_MAIL_ADDRESS = 'no-reply@duckietown.org';
-$NOREPLY_MAIL_HOST = 'mail.duckietown.org';
+$NOREPLY_MAIL_ADDRESS = 'no-reply@example.com';
+$NOREPLY_MAIL_HOST = 'mail.example.org';
 $NOREPLY_MAIL_AUTH = true;
-$NOREPLY_MAIL_USERNAME = 'no-reply.duckietown';
-$NOREPLY_MAIL_PASSWORD = 'duckietown';
+$NOREPLY_MAIL_USERNAME = 'no-reply.example';
+$NOREPLY_MAIL_PASSWORD = 'my_password';
 $NOREPLY_MAIL_SECURE_PROTOCOL = 'none';
 $NOREPLY_MAIL_SERVER_PORT = 587;
 
