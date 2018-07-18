@@ -370,7 +370,7 @@ class Core{
 	 *		where, the `success` field indicates whether the function succeded.
 	 *		The `data` field contains an error string when `success` is `FALSE`.
 	 */
-	public static function createNewUserAccount( $user_id, $user_info ){
+	public static function createNewUserAccount( $user_id, &$user_info ){
 		$user_exists = self::userExists($user_id);
 		if( $user_exists ){
 			return ['success' => false, 'data' => sprintf('The user `%s` already exists', $user_id) ];
