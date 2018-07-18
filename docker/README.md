@@ -1,4 +1,4 @@
-# **\\compose\\** in Docker
+# \\compose\\ in Docker
 
 **\\compose\\** is also available as a Docker image.
 
@@ -17,7 +17,7 @@ These are the images that you can pull from your Docker console.
 | v0.9      | afdaniele/compose:xenial0.9   | Ubuntu 16.04.4 LTS    | Apache 2      | 7.0   |
 
 
-## Run image with **\\compose\\** outside the container (suggested)
+## Run image with \\compose\\ outside the container (suggested)
 
 Run
 
@@ -26,7 +26,7 @@ Run
 **NOTE:** If `<PORT>` is `80`, you can use `"BASEURL=<URL>"` instead of `"BASEURL=<URL>:<PORT>"`.
 
 
-## Run image with **\\compose\\** inside the container
+## Run image with \\compose\\ inside the container
 
 **NOTE:** All the changes made in **\\compose\\** will be saved inside the container. If you delete the container without committing, all the changes will be lost.
 

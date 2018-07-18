@@ -1,4 +1,4 @@
-# **\\compose\\**  -  A lightweight web-based CMS
+# \\compose\\  -  A lightweight web-based CMS
 
 **\\compose\\** is a CMS (Content Management System) platform written in PHP that
 provides functionalities for fast-developing web applications on Linux servers.
