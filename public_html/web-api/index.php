@@ -147,7 +147,7 @@ $authorized = false;
 if( isset($_GET['__service__']) && isset($_GET['__action__']) && $_GET['__service__']=='session' && $_GET['__action__']=='start' ){
 	$authorized = true;
 }else{
-	if( !isset($_GET['token']) || !is_string($_GET['token']) || strlen($_GET['token']) !== 16 || !StringType::isValid( $_GET['token'], StringType::$ALPHANUMERIC ) ){
+	if( !isset($_GET['token']) || !is_string($_GET['token']) || !StringType::isValid( $_GET['token'], StringType::ALPHANUMERIC, 16 ) ){
 		// error : token not provided
 		sendResponse( 400, 'Bad Request', 'The token provided is not valid', $format, null );
 	}

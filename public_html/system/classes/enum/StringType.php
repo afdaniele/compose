@@ -12,87 +12,79 @@ namespace system\classes\enum;
 class StringType {
 
 	// constants
-
-	public static $ALPHABETIC = "/^[a-zA-Z]+$/";
-	public static $ALPHABETIC_SPACE = "/^[a-zA-Z\\s]+$/";
-	public static $ALPHANUMERIC = "/^[a-zA-Z0-9]+$/";
-	public static $ALPHANUMERIC_SPACE = "/^[a-zA-Z0-9\\s]+$/";
-	public static $NUMERIC = "/^[0-9]+$/";
-	public static $FLOAT = "/^-?(?:\\d+|\\d*\\.\\d+)$/";
-	public static $PASSWORD = "/^[a-zA-Z0-9_.-]+$/";
-	public static $TEXT = "/^[\\w\\D\\s_.,-:\(\)]*$/";
-	public static $EMAIL = "/^[a-zA-Z0-9_.-]+@[a-zA-Z0-9-]+.[a-zA-Z0-9-.]+$/";
-	public static $KEY = "/^[a-zA-Z_]+$/";
-	public static $VERSION = "/^\\d+\\.\\d+$/";
-
+	const ALPHABETIC = "/^[a-zA-Z]+$/";
+	const ALPHABETIC_SPACE = "/^[a-zA-Z\\s]+$/";
+	const ALPHANUMERIC = "/^[a-zA-Z0-9]+$/";
+	const ALPHANUMERIC_SPACE = "/^[a-zA-Z0-9\\s]+$/";
+	const NUMERIC = "/^[0-9]+$/";
+	const FLOAT = "/^-?(?:\\d+|\\d*\\.\\d+)$/";
+	const PASSWORD = "/^[a-zA-Z0-9_.-]+$/";
+	const TEXT = "/^[\\w\\D\\s_.,-:\(\)]*$/";
+	const EMAIL = "/^[a-zA-Z0-9_.-]+@[a-zA-Z0-9-]+.[a-zA-Z0-9-.]+$/";
+	const KEY = "/^[a-zA-Z_]+$/";
+	const VERSION = "/^\\d+\\.\\d+$/";
 
 
 	// methods
 
-	public static function isValid( $string, $regex ){
-		return ( ($regex === null)? false : (preg_match($regex, $string) == 1) );
+	public static function isValid( $string, $type, $length=null ){
+		if( is_null($type) ) return false;
+		if( is_null($string) ) return false;
+		if( !is_null($length) && $length != strlen($string) ) return false;
+		//
+		return ( preg_match($type, $string) == 1 );
 	}//isValid
 
-	public static function byName( $name ){
+
+	public static function isAlphabetic( $string, $length=null ){
+		return self::isValid($string, self::ALPHABETIC, $length);
+	}//isAlphabetic
+
+
+	public static function isNumeric( $string, $length=null ){
+		return self::isValid($string, self::NUMERIC, $length);
+	}//isNumeric
+
+
+	public static function isAlphaNumeric( $string, $length=null ){
+		return self::isValid($string, self::ALPHANUMERIC, $length);
+	}//isAlphaNumeric
+
+
+	public static function isValidEmailAddress( $string, $length=null ){
+		return self::isValid($string, self::EMAIL, $length);
+	}//isAvalidEmailAddress
+
+
+	public static function getRegexByTypeName( $name ){
 		switch( $name ){
 			case 'alpha':
 			case 'alphabetic':
-				return self::$ALPHABETIC;
+				return self::ALPHABETIC;
 			case 'alphaspace':
-				return self::$ALPHABETIC_SPACE;
+				return self::ALPHABETIC_SPACE;
 			case 'alphanumeric':
-				return self::$ALPHANUMERIC;
+				return self::ALPHANUMERIC;
 			case 'alphanumericspace':
-				return self::$ALPHANUMERIC_SPACE;
+				return self::ALPHANUMERIC_SPACE;
 			case 'boolean':
 			case 'numeric':
-				return self::$NUMERIC;
+				return self::NUMERIC;
 			case 'float':
-				return self::$FLOAT;
+				return self::FLOAT;
 			case 'password':
-				return self::$PASSWORD;
+				return self::PASSWORD;
 			case 'text':
-				return self::$TEXT;
+				return self::TEXT;
 			case 'email':
-				return self::$EMAIL;
+				return self::EMAIL;
 			case 'key':
-				return self::$KEY;
+				return self::KEY;
 			case 'version':
-				return self::$VERSION;
+				return self::VERSION;
 			default:
 				return null;
 		}
-	}//byName
-
-	//TODO: translate
-	public static function getDescription( $type ){
-		switch( $type ){
-			case 'alpha':
-			case 'alphabetic':
-				return 'Puo\' contenere solo lettere';
-			case 'alphaspace':
-				return 'Puo\' contenere solo lettere e spazi';
-			case 'alphanumeric':
-				return 'Puo\' contenere solo lettere e numeri';
-			case 'alphanumericspace':
-				return 'Puo\' contenere solo lettere, numeri e spazi';
-			case 'numeric':
-				return 'Puo\' contenere solo numeri (formato intero)';
-			case 'float':
-				return 'Puo\' contenere solo numeri (formato decimale)';
-			case 'password':
-				return 'Puo\' contenere solo lettere, numeri, e i caratteri \'_-.\'';
-			case 'text':
-				return 'Puo\' contenere solo lettere, numeri, spazi e punteggiatura';
-			case 'email':
-				return 'Deve contenere un indirizzo email valido';
-			case 'key':
-				return 'Puo\' contenere solo lettere ed il carattere _';
-			case 'version':
-				return 'Deve contenere un numero di versione valido';
-			default:
-				return null;
-		}
-	}//getDescription
+	}//getRegexByTypeName
 
 }//StringType

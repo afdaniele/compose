@@ -22,7 +22,7 @@ function validate( $values, $types, $mandatory=null, $keys=null ){
 	if( $keys == null || !is_assoc($values) ){
 		$m = min( sizeof($values), sizeof($types) );
 		for( $i = 0; $i < $m; $i++ ){
-			if( !\system\classes\enum\StringType::isValid($values[$i], \system\classes\enum\StringType::byName($types[$i])) ){
+			if( !\system\classes\enum\StringType::isValid($values[$i], \system\classes\enum\StringType::getRegexByTypeName($types[$i])) ){
 				$key = ( $keys != null )? $keys[$i] : $i;
 				$result[$key] = \system\classes\enum\StringType::getDescription( $types[$i] );
 			}
@@ -32,8 +32,8 @@ function validate( $values, $types, $mandatory=null, $keys=null ){
 		$i = 0;
 		foreach( $keys as $key ){
 			$type = ( (is_assoc($types))? $types[$key] : $types[$i] );
-			if( !\system\classes\enum\StringType::isValid($values[$key], \system\classes\enum\StringType::byName($type)) ){
-				$result[$key] = \system\classes\enum\StringType::getDescription( $type );
+			if( !\system\classes\enum\StringType::isValid($values[$key], \system\classes\enum\StringType::getRegexByTypeName($type)) ){
+				$result[$key] = "FORMAT ERROR, DESCRIPTION NOT IMPLEMENTED";// \system\classes\enum\StringType::getDescription( $type );
 			}
 			$i++;
 		}
@@ -89,13 +89,6 @@ function generateRandomString( $length, $set='alphanumeric' ) {
 }//generateRandomString
 
 
-function toMoneyString( $value, $currencyAppend = false ){
-	if( is_string($value) ) $value = floatval( $value );
-	//
-	return number_format( $value, 2, '.', '') . ( ($currencyAppend)? ' €' : '' );
-}//toMoneyString
-
-
 function is_assoc($array) {
 	return (bool)count(array_filter(array_keys($array), 'is_string'));
 }//is_assoc
@@ -112,6 +105,7 @@ function echoArray( $array ){
 }//echoArray
 
 
+//TODO: This is DEPRECATED, use \system\classes\Formatter instead
 function format( $val, $type ){
 	switch( $type ){
 		case 'alpha':

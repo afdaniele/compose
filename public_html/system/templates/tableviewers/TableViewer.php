@@ -41,7 +41,7 @@ class TableViewer {
 				//
 				switch( $feature['type'] ){
 					case 'integer':
-						if( StringType::isValid($val, StringType::$NUMERIC) ){
+						if( StringType::isValid($val, StringType::NUMERIC) ){
 							$val = intval( $val );
 							if( isset($feature['minValue']) && ( $val < $feature['minValue'] ) ){
 								$val = $feature['default'];
@@ -57,7 +57,7 @@ class TableViewer {
 						}
 						break;
 					case 'float':
-						if( StringType::isValid($val, StringType::$FLOAT) ){
+						if( StringType::isValid($val, StringType::FLOAT) ){
 							$val = floatval( $val );
 							if( isset($feature['minValue']) && ( $val < $feature['minValue'] ) ){
 								$val = $feature['default'];
@@ -73,7 +73,7 @@ class TableViewer {
 						}
 						break;
 					case 'alpha':
-						if( !StringType::isValid($val, StringType::$ALPHABETIC) ){
+						if( !StringType::isValid($val, StringType::ALPHABETIC) ){
 							$val = $feature['default'];
 							$default = true;
 						}

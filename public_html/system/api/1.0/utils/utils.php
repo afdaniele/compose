@@ -43,7 +43,7 @@ function checkArgument( &$name, &$array, &$details, &$res, $mandatory=true ){
 			return false;
 		}
 	}else{
-		if( !\system\classes\enum\StringType::isValid($array[$name], \system\classes\enum\StringType::byName($type) ) ){
+		if( !\system\classes\enum\StringType::isValid($array[$name], \system\classes\enum\StringType::getRegexByTypeName($type) ) ){
 			$param_desc = sprintf("'%s'", $name);
 			$res = array( 'code' => 400, 'status' => 'Bad Request', 'message' => "The value of the ".$param_desc." parameter is not valid" );
 			return false;
