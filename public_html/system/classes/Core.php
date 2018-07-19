@@ -220,7 +220,7 @@ class Core{
 			//
 			// initialize all the packages
 			foreach( self::$packages as $pkg ){
-				if( !$pkg['enabled'] )
+				if( $pkg['id']=='core' || !$pkg['enabled'] )
 					continue;
 				// initialize package Core class
 				if( !is_null($pkg['core']) ){
@@ -1557,7 +1557,7 @@ class Core{
 	public static function collectDebugInfo( $package, $test_id, $test_value, $test_type ){
 		if( !Configuration::$DEBUG ) return;
 		if( !key_exists($package, self::$debugger_data) ) self::$debugger_data[$package] = array();
-
+		// add debug test tuple
 		self::$debugger_data[$package][$test_id] = [ $test_value, $test_type ];
 	}//collectDebugInfo
 

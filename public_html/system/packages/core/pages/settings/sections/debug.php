@@ -28,9 +28,9 @@ function settings_debug_tab(){
                 foreach($pkg_debug as $debug_test_id => $debug_outcome) {
                     ?>
                     <tr>
-                        <td class="col-md-2"><?php echo $pkg_id ?></td>
-                        <td class="col-md-3"><?php echo $debug_test_id ?></td>
-                        <td class="col-md-7"><?php echo Formatter::format( $debug_outcome[0], $debug_outcome[1] ) ?></td>
+                        <td><?php echo $pkg_id ?></td>
+                        <td><?php echo $debug_test_id ?></td>
+                        <td><?php echo Formatter::format( $debug_outcome[0], $debug_outcome[1] ) ?></td>
                     </tr>
                     <?php
                 }
