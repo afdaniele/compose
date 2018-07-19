@@ -44,6 +44,10 @@
 		height: 26px !important;
 	}
 
+	.text-color-red{
+		color: #e63838;
+	}
+
 </style>
 
 
@@ -68,9 +72,11 @@
 	include_once "sections/api.php";
 	include_once "sections/package_specific.php";
 	include_once "sections/codebase.php";
+	include_once "sections/debug.php";
 
 
 	$settings_tabs = [
+		// [0-20] reserved for \compose\ tabs
 		0 => [
 			'id' => 'general',
 			'title' => 'General',
@@ -107,7 +113,13 @@
 		// 	'content' => settings_cache_tab,
 		// 	'content_args' => null
 		// ],
-		100 => [
+
+		// [21-100] reserved for packages
+
+		// [101-400] free to use
+
+		// [501-600] reserved for \compose\ tabs
+		501 => [
 			'id' => 'codebase',
 			'title' => 'Codebase',
 			'icon' => 'fa fa-code',
@@ -116,6 +128,16 @@
 		]
 	];
 
+	if( \system\classes\Configuration::$DEBUG ){
+		// add Debugger tab if the flag is active
+		$settings_tabs[600] = [
+			'id' => 'debug',
+			'title' => '<span class="text-color-red">Debug</span>',
+			'icon' => 'fa fa-bug text-color-red',
+			'content' => settings_debug_tab,
+			'content_args' => null
+		];
+	}
 
 	$i = 10;
 	foreach (\system\classes\Core::getPackagesList() as $pkg_id => $pkg) {

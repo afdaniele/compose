@@ -16,6 +16,7 @@ require_once __DIR__.'/Configuration.php';
 require_once __DIR__.'/EditableConfiguration.php';
 require_once __DIR__.'/Database.php';
 require_once __DIR__.'/Utils.php';
+require_once __DIR__.'/Formatter.php';
 require_once __DIR__.'/enum/StringType.php';
 require_once __DIR__.'/enum/EmailTemplates.php';
 // fast cache system
@@ -36,6 +37,7 @@ use system\classes\enum\EmailTemplates;
 use system\classes\enum\StringType;
 use system\classes\jsonDB\JsonDB;
 use system\classes\Database;
+use system\classes\Formatter;
 
 
 define('INFO', 0);
@@ -55,17 +57,9 @@ class Core{
 	private static $verbose = False;
 	private static $debug = False;
 	private static $settings = null;
+	private static $debugger_data = [];
 	private static $registered_user_types = [];
 
-	private static $STRING_TYPES_REGEX = [
-		"alphabetic" => "/^[a-zA-Z]+$/",
-		"alphanumeric" => "/^[a-zA-Z0-9]+$/",
-		"alphanumeric_s" => "/^[a-zA-Z0-9\\s]+$/",
-		"numeric" => "/^[0-9]+$/",
-		"password" => "/^[a-zA-Z0-9_.-]+$/",
-		"text" => "/^[\\w\\D\\s_.,-]*$/",
-		"email" => "/^[a-zA-Z0-9_.-]+@[a-zA-Z0-9-]+.[a-zA-Z0-9-.]+$/"
-	];
 
 	private static $USER_ACCOUNT_TEMPLATE = [
 		"username" => ["string", "Google (numeric) user ID"],
@@ -81,6 +75,7 @@ class Core{
 		"package" => ["string", "ID of the package the page belongs to"],
 		"menu_entry" => [
 			"__type" => "associative_array",
+			"__nullable" => true,
 			"__details" => "Associative array containing info about the menu entry for the page",
 			"order" => ["float", "The order of the page on the top menu bar (smallest number = leftmost entry)"],
 			"icon" => [
@@ -108,6 +103,34 @@ class Core{
 			"__type" => "array",
 			"__details" => "List of user roles for which this page is accessible",
 			"__sample_item" => ["string", "User role to grand access to"]
+		]
+	];
+
+	private static $PACKAGE_METADATA_TEMPLATE = [
+		"name" => ["string", "Name of the package"],
+	    "description" => ["string", "Textual description of the package"],
+	    "core" => [
+			"__type" => "associative_array",
+			"__nullable" => true,
+			"__details" => "Associative array containing info about an (optional) core module to include",
+			"namespace" => ["string", "Namespace under which the core module is declared. The string '/system/classes/' will be prepended"],
+			"file" => ["string", "Path to the PHP file (extension included) containing the core class to load. The path must be relative to the PACKAGE_ROOT directory"],
+			"class" => ["string", "Name of the class as defined in the core file specified above"]
+		],
+		"dependencies" => [
+			"__type" => "associative_array",
+			"__nullable" => true,
+			"__details" => "Associative array containing info about (optional) package dependencies",
+			"system-packages" => [
+				"__type" => "array",
+				"__details" => "List of system packages required by the package",
+				"__sample_item" => ["string", "Name of the system package to install"]
+			],
+			"packages" => [
+			   "__type" => "array",
+			   "__details" => "List of \compose\ packages required by the package",
+			   "__sample_item" => ["string", "Name of the package to install"]
+		   ]
 		]
 	];
 
@@ -193,6 +216,7 @@ class Core{
 			// }catch(\Exception $e){}
 
 
+
 			//
 			// initialize all the packages
 			foreach( self::$packages as $pkg ){
@@ -200,9 +224,23 @@ class Core{
 					continue;
 				// initialize package Core class
 				if( !is_null($pkg['core']) ){
-					require_once $pkg['core'];
-					$php_init_command = sprintf( "\system\packages\%s\%s::init();", $pkg['id'], ucfirst($pkg['id']) );
-					eval( $php_init_command );
+					self::collectDebugInfo($pkg['id'], 'pkg_core_file_found', file_exists($pkg['core']['file']), Formatter::BOOLEAN);
+					// try to load the core file
+					$file_loaded = include_once $pkg['core']['file'];
+					self::collectDebugInfo($pkg['id'], 'pkg_core_file_loaded', $file_loaded, Formatter::BOOLEAN);
+					if( $file_loaded ){
+						// TODO: do not prepend \system\classes if it is already in $pkg['core']['namespace']
+						$php_init_command = sprintf( "\system\packages\%s\%s::init();", $pkg['core']['namespace'], $pkg['core']['class'] );
+						// try to initialize the package core class
+						try {
+							eval( $php_init_command );
+							self::collectDebugInfo($pkg['id'], 'pkg_core_init_status', true, Formatter::BOOLEAN);
+						} catch (\Error $e) {
+							self::collectDebugInfo($pkg['id'], 'pkg_core_init_status', false, Formatter::BOOLEAN);
+							self::collectDebugInfo($pkg['id'], 'pkg_core_init_error', $e->getMessage(), Formatter::TEXT);
+						}
+					}
+
 				}
 			}
 			self::$initialized = true;
@@ -1425,6 +1463,22 @@ class Core{
 	}//getCodebaseInfo
 
 
+	/** Returns the debugger data
+	 *
+	 *	@retval array
+	 *		An array containing debugging data. The array contains an entry `key`=>`value` for each package
+	 *		that produced debug information, where `key` is the package ID and `value` is an array. Such
+	 *		array contains entries `key`=>`debug_entry`, with `key` a unique identifier of the test, and
+	 *		`debug_entry` a tuple of the form [`test_value`, `test_format`]. `test_value` is the outcome of
+	 *		the test, and `test_format` indicates how the `test_value` should be interpreted. `test_format`
+	 *		contains values from the enum class \system\classes\Formatter.
+	 *
+	 */
+	public static function getDebugInfo(){
+		return self::$debugger_data;
+	}//getDebugInfo
+
+
 	public static function redirectTo( $resource ){
 		echo '<script type="text/javascript">window.open("'.( ( substr($resource,0,4) == 'http' )? '' : Configuration::$BASE ).$resource.'","_top");</script>';
 		die();
@@ -1481,26 +1535,6 @@ class Core{
 	}//sendEMail
 
 
-	public static function isAlphabetic( $string, $length=null ){
-		return ( preg_match(self::$STRING_TYPES_REGEX['alphabetic'], $string) == 1 ) && ( ($length == null)? true : ($length==strlen($string)) );
-	}//isAlphabetic
-
-
-	public static function isNumeric( $string, $length=null ){
-		return ( preg_match(self::$STRING_TYPES_REGEX['numeric'], $string) == 1 ) && ( ($length == null)? true : ($length==strlen($string)) );
-	}//isNumeric
-
-
-	public static function isAlphaNumeric( $string, $length=null ){
-		return ( preg_match(self::$STRING_TYPES_REGEX['alphanumeric'], $string) == 1 ) && ( ($length == null)? true : ($length==strlen($string)) );
-	}//isAlphaNumeric
-
-
-	public static function isAvalidEmailAddress( $string, $length=null ){
-		return ( preg_match(self::$STRING_TYPES_REGEX['email'], $string) == 1 ) && ( ($length == null)? true : ($length==strlen($string)) );
-	}//isAvalidEmailAddress
-
-
 	public static function hash_password( $plain_password ){
 		// create a seed by removing the characters in odd positions from the password
 		$seed = "";
@@ -1516,9 +1550,16 @@ class Core{
 	}//hash_password
 
 
-	public static function collectErrorInformation( $errorData ){
+	public static function collectErrorInfo( $errorData ){
 		//TODO: implement a logging system here
-	}//collectErrorInformation
+	}//collectErrorInfo
+
+	public static function collectDebugInfo( $package, $test_id, $test_value, $test_type ){
+		if( !Configuration::$DEBUG ) return;
+		if( !key_exists($package, self::$debugger_data) ) self::$debugger_data[$package] = array();
+
+		self::$debugger_data[$package][$test_id] = [ $test_value, $test_type ];
+	}//collectDebugInfo
 
 
 	public static function generateRandomString( $length ) {
@@ -1761,8 +1802,19 @@ class Core{
 			$pkg_path = self::_regex_extract_group($json, "/(.+)\/metadata.json/", 1);
 			$pkg = json_decode( file_get_contents($json), true );
 			$pkg['id'] = $pkg_id;
-			$pkg_core_file = sprintf( "%s/%s.php", $pkg_path, ucfirst($pkg_id) );
-			$pkg['core'] = ( file_exists($pkg_core_file) )? $pkg_core_file : null;
+			if( !key_exists('core', $pkg) ){
+				$pkg['core'] = null;
+				$pkg_core_file = sprintf( "%s/%s.php", $pkg_path, ucfirst($pkg_id) );
+				if( file_exists($pkg_core_file) ){
+					$pkg['core'] = [
+						'namespace' => $pkg_id,
+						'file' => sprintf( "%s.php", ucfirst($pkg_id) ),
+						'class' => ucfirst($pkg_id)
+					];
+				}
+			}
+			$pkg['core']['file'] = sprintf( "%s/%s", $pkg_path, $pkg['core']['file'] );
+			// check whether the package is enabled
 			$pkg['enabled'] = self::isPackageEnabled($pkg_id);
 			// load modules
 			self::_load_package_modules_list($pkg_id, $pkg);
