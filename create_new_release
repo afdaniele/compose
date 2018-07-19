@@ -4,8 +4,9 @@ This is a checklist for what to do before creating a new release:
     PROJECT_NUMBER         = X.Y
 
 [ ] - copy the documentation from /data/showdown/vX.Y to /data/showdown/vX.Z
-    where X.Y is the latest release and X.Z the new release
+    where X.Y is the latest release and X.Z is the new release
 
 [ ] - update the symlink in the documentation, from vX.Y to vX.Z
 
-[ ] -
+[ ] - change the destination of the MD files in Settings > Package: Doxygen Documentation to X.Z
+    [ ] - Rebuild the documentation for the new release
