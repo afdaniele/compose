@@ -63,8 +63,7 @@ function execute( &$service, &$actionName, &$arguments ){
 				return response500InternalServerError( $res['data'] );
 			// clear cache
 			$cache = new CacheProxy($package_name);
-			if( $cache::enabled() )
-				$cache->clear();
+			$cache->clear();
 			//
 			return response200OK();
 			break;
