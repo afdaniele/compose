@@ -44,11 +44,18 @@ Things to add later in the development:
         [ ] - add API Keys to user profile
             [ ] - implement multi API keys per user with per key enabled API actions
 
-        [ ] - add cache system
-            [ ] - cache Core::$packages
-            [ ] - cache Core::$pages
-            [ ] - cache Core::$api
-            [ ] - cache Core::$registered_user_types
+        [ ] - the RestfulAPI is now managed by the class \system\classes\RestfulAPI.
+            [X] - update api page
+            [ ] - update api settings page
+            [ ] - update api settings actions
+            [X] - update api executors
+            [ ] - update web-api index file
+
+        [X] - add cache system
+            [X] - cache Core::$packages
+            [X] - cache Core::$pages
+            [X] - cache Core::$api
+            [X] - cache Core::$settings
 
         [ ] - implement maintenance mode
             [ ] - all the pages will be redirected to maintenance (add it as new page in the core package)
@@ -57,6 +64,12 @@ Things to add later in the development:
             [ ] - the package template has now the dirs /data/private and /data/public (this has to be changed)
             [ ] - all the current packages are updated
             [ ] - to be re-designed, public data is now moved to /data/<package_name>/
+                [ ] - automatically create a symlink from /system/packages/<package_name>/data/public/ to /data/<package_name>/
+
+        [ ] - added a list of reserved page names [core, docs, data, error, login, users, settings, api, profile]
+            [ ] - updated the documentation
+
+        [ ] - since $BASE_URL/data/ is now reserved to packages' public data, create a fake page `data` saying that the file was not found, the .htaccess file will activate the page only when the file does not exist
 
         [ ] - add the Google Sign-In API client ID to the list of configurable parameters for the core package
 
@@ -72,6 +85,14 @@ Things to add later in the development:
         [X] - implement Database interface to JSON files in (private) package_name/data/ directory
             [ ] - write documentation about this interface in showdown
             [ ] - add the class Database to the doxygen project
+
+        [X] - removed old users dir /system/users. Users are now stored in /system/packages/core/data/private/users/
+
+        [X] - code refactored so that supported string types and their regex(es) are available from \system\classes\enum\StringType
+
+        [X] - objects and string formatting is now handled by the class \system\classes\Formatter
+
+        [X] - added support for Docker with docker files in the directory \docker
 
         [X] - implement BlockRenderer abstract class for mission control grids
             [ ] - write documentation about this in showdown
