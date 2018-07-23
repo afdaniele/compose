@@ -26,6 +26,6 @@ $NOREPLY_MAIL_SERVER_PORT = 587;
 $WEBAPI_VERSION = '1.0';
 
 /* Caching system settings */
-$CACHE_SYSTEM = 'apc';
+$CACHE_SYSTEM = 'apcu';
 
 ?>
