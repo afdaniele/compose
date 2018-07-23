@@ -16,7 +16,7 @@ class Database{
     function __construct( $package, $database ){
         $this->package = $package;
         $this->database = $database;
-        $this->db_dir = sprintf("%s%s/data/private/%s", $GLOBALS['__PACKAGES__DIR__'], $package, $database);
+        $this->db_dir = sprintf("%s%s/data/private/databases/%s", $GLOBALS['__PACKAGES__DIR__'], $package, $database);
     }//__construct
 
 
