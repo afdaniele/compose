@@ -5,16 +5,16 @@
 # @Last modified by:   afdaniele
 # @Last modified time: Friday, January 26th 2018
 
-
+use \system\classes\Core;
 
 // get pages
-$pages_list = \system\classes\Core::getPagesList();
+$pages_list = Core::getPagesList();
 
 // get info about the current user
-$user_role = \system\classes\Core::getUserRole();
+$user_role = Core::getUserRole();
 
 // get list of visible buttons
-$buttons = \system\classes\Core::getFilteredPagesList(
+$buttons = Core::getFilteredPagesList(
 	'by-responsive-priority',
 	true /* enabledOnly */,
 	$user_role /* accessibleBy */
@@ -58,10 +58,10 @@ foreach ($buttons as &$button) {
 				<table>
 					<tr>
 						<td>
-							<img id="navbarLogo" src="<?php echo \system\classes\Core::getSetting('logo_white') ?>"></img>
+							<img id="navbarLogo" src="<?php echo Core::getSetting('logo_white') ?>"></img>
 						</td>
 						<td style="vertical-align:top">
-							<h3 style="margin:0 0 0 15px">&nbsp;<?php echo \system\classes\Core::getSetting('navbar_title') ?></h3>
+							<h3 style="margin:0 0 0 15px">&nbsp;<?php echo Core::getSetting('navbar_title') ?></h3>
 						</td>
 					</tr>
 				</table>
@@ -73,7 +73,7 @@ foreach ($buttons as &$button) {
 			<ul class="nav navbar-nav navbar-right">
 
 				<?php
-				$pages = \system\classes\Core::getFilteredPagesList(
+				$pages = Core::getFilteredPagesList(
 					'by-menuorder',
 					true /* enabledOnly */,
 					$user_role /* accessibleBy */
@@ -82,6 +82,10 @@ foreach ($buttons as &$button) {
 				// create buttons
 				for ($i = 0; $i < count($pages); $i++) {
 					$elem = $pages[$i];
+					// hide pages if maintenance mode is enabled
+					if( $user_role!='administrator' && Core::getSetting('maintenance_mode','core',true) && $elem['id']!='login' )
+						continue;
+					// hide page if the current user' role is excluded
 					if( in_array($user_role, $elem['menu_entry']['exclude_roles']) )
 						continue;
 					$is_last = boolval( $i == count($pages)-1 );
@@ -130,7 +134,7 @@ foreach ($buttons as &$button) {
 
 				<?php
 				// Add LogOut button if the user is logged in
-				if( \system\classes\Core::isUserLoggedIn() ){
+				if( Core::isUserLoggedIn() ){
 					?>
 					<li style="width:26px; text-align:center; color:white; margin-top:15px; margin-left: 15px">
 						&nbsp;&bull;&nbsp;
@@ -210,7 +214,7 @@ foreach ($buttons as &$button) {
 		gapi.auth2.getAuthInstance().isSignedIn.listen( function(isSignedIn){
 			if( isSignedIn ){
 				<?php
-				if( !\system\classes\Core::isUserLoggedIn() ){
+				if( !Core::isUserLoggedIn() ){
 					?>
 					// sign-in with Google and get the temporary id_token
 					googleUser = gapi.auth2.getAuthInstance().currentUser.get();

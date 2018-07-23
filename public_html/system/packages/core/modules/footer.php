@@ -6,6 +6,8 @@
 # @Last modified time: Wednesday, January 17th 2018
 
 
+use \system\classes\Core;
+
 ?>
 
 <style type="text/css">
@@ -59,7 +61,7 @@
 
 function footer_user_menu(){
 	// get user info
-	$user = \system\classes\Core::getUserLogged();
+	$user = Core::getUserLogged();
 	?>
 	<ul class="nav navbar-nav" style="margin-left:10px;">
 
@@ -73,14 +75,20 @@ function footer_user_menu(){
 			<ul class="dropdown-menu dropup" role="menu" style="background-color:#3c3c3c; color:white">
 				<?php
 				// get pages
-				$user_role = \system\classes\Core::getUserRole();
-				$pages = \system\classes\Core::getFilteredPagesList(
+				$user_role = Core::getUserRole();
+				$pages = Core::getFilteredPagesList(
 					'by-menuorder',
 					true /* enabledOnly */,
 					$user_role /* accessibleBy */
 				);
 
 				foreach($pages as &$elem) {
+					// hide pages if maintenance mode is enabled
+					if( $user_role!='administrator' && Core::getSetting('maintenance_mode','core',true) && $elem['id']!='login' )
+						continue;
+					// hide page if the current user' role is excluded
+					if( in_array($user_role, $elem['menu_entry']['exclude_roles']) )
+						continue;
 					$icon = sprintf('%s %s-%s', $elem['menu_entry']['icon']['class'], $elem['menu_entry']['icon']['class'], $elem['menu_entry']['icon']['name']);
 					?>
 					<li role="presentation">
@@ -138,7 +146,7 @@ function footer_credits( $float ){
 
 			<td id="footer_developer_credit">
 				<?php
-				$codebase_info = \system\classes\Core::getCodebaseInfo();
+				$codebase_info = Core::getCodebaseInfo();
 				$codebase_hash = $codebase_info['head_hash'];
 				$codebase_tag = $codebase_info['head_tag'];
 				$codebase_latest_tag = $codebase_info['latest_tag'];
@@ -169,7 +177,7 @@ function footer_credits( $float ){
 		<tr>
 
 		<?php
-		if( \system\classes\Core::isUserLoggedIn() ){
+		if( Core::isUserLoggedIn() ){
 		?>
 			<td class="text-left">
 				<?php footer_user_menu(); ?>

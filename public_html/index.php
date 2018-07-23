@@ -40,11 +40,16 @@ $requested_action = ($requested_action !== '')? $requested_action : NULL;
 Core::startSession();
 
 // init Core
-$safe_mode = ($requested_page == 'error') || (isset($_GET['safemode']) && boolval($_GET['safemode']));
+$safe_mode = in_array($requested_page, ['error', 'maintenance']);
 Core::init( $safe_mode );
 
 // get info about the current user
 $user_role = Core::getUserRole();
+
+// redirect user to maintenance mode (if necessary)
+if( $user_role!='administrator' &&
+	Core::getSetting('maintenance_mode','core',true) &&
+	!in_array($requested_page, ['login', 'error', 'maintenance']) ) Core::redirectTo('maintenance');
 
 // get the list of pages the current user has access to
 $pages_list = Core::getFilteredPagesList( 'list', true, $user_role );
