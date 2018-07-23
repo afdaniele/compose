@@ -61,9 +61,11 @@ function execute( &$service, &$actionName, &$arguments ){
 			$res = $setts->commit();
 			if( !$res['success'] )
 				return response500InternalServerError( $res['data'] );
-			// clear cache
-			$cache = new CacheProxy($package_name);
-			$cache->clear();
+			// clear both package-specific and core cache
+			$pkg_cache = new CacheProxy($package_name);
+			$pkg_cache->clear();
+			$core_cache = new CacheProxy('core');
+			$core_cache->clear();
 			//
 			return response200OK();
 			break;
