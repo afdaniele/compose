@@ -8,5 +8,6 @@
 // init global variables
 $GLOBALS['__SYSTEM__DIR__'] = __DIR__.'/';
 $GLOBALS['__PACKAGES__DIR__'] = __DIR__.'/packages/';
+$GLOBALS['__DATA__DIR__'] = __DIR__.'/../data/';
 
 ?>
