@@ -14,6 +14,7 @@ use system\classes\enum\CacheTime;
 class RestfulAPI{
 
 	private static $initialized = false;
+	private static $settings = false;
 	private static $configuration = false;
 	private static $cache = null;
 
@@ -45,8 +46,11 @@ class RestfulAPI{
 			// create cache proxy
 			self::$cache = new CacheProxy('api');
 			//
+			// load API settings
+			self::$settings = self::_load_API_settings();
+			//
 			// load API configuration
-			self::$configuration = self::_load_API_setup();
+			self::$configuration = self::_load_API_configuration();
 			//
 			self::$initialized = true;
 			return array( 'success' => true, 'data' => null );
@@ -59,11 +63,40 @@ class RestfulAPI{
 	// =======================================================================================================
 	// API management functions
 
+	/** Returns whether the RESTfulAPI module is initialized.
+	 *
+	 *	@retval boolean
+	 * 		whether the RESTfulAPI module is initialized;
+	 */
+	public static function isInitialized(){
+		return self::$initialized;
+	}//isInitialized
+
+	/*	Returns the setup of the RESTfulAPI module. For more info about the settings
+	 *  check the file `/system/api/web-api-settings.json`.
+	*/
+	public static function getSettings(){
+		return self::$settings;
+	}//getConfiguration
+
+
 	/*	TODO @todo Returns the list of API services installed on the platform.
 	*/
 	public static function getConfiguration(){
 		return self::$configuration;
 	}//getConfiguration
+
+
+	/** Returns whether the RESTfulAPI module is enabled.
+	 *
+	 *	@retval boolean
+	 * 		whether the RESTfulAPI module is enabled;
+	 */
+	public static function webAPIenabled(){
+		if( self::isInitialized() )
+			return self::$settings['webapi-enabled'];
+		throw new \Exception("Module not initialized", 1);
+	}//webAPIenabled
 
 
 	/** Returns whether the given API service is installed on the platform.
@@ -78,7 +111,9 @@ class RestfulAPI{
 	 * 		whether the API service exists;
 	 */
 	public static function serviceExists( $api_version, $service_name ){
-		return isset(self::$configuration[$api_version]) && isset(self::$configuration[$api_version]['services'][$service_name]);
+		if( self::isInitialized() )
+			return isset(self::$configuration[$api_version]) && isset(self::$configuration[$api_version]['services'][$service_name]);
+		throw new \Exception("Module not initialized", 1);
 	}//serviceExists
 
 
@@ -96,6 +131,9 @@ class RestfulAPI{
 	 *		whether the API service exists and is enabled;
 	 */
 	public static function isServiceEnabled( $api_version, $service_name ){
+		if( !self::isInitialized() )
+			throw new \Exception("Module not initialized", 1);
+		//
 		if( !self::serviceExists($api_version, $service_name) ) return false;
 		//TODO: storing this info in a Database and checking using `exists($api_version.'_'.$service_name)` would be more efficient
 		$service_disabled_flag = sprintf('%sapi/%s/flags/%s.disabled.flag', $GLOBALS['__SYSTEM__DIR__'], $api_version, $service_name);
@@ -121,6 +159,9 @@ class RestfulAPI{
 	 *		The `data` field contains an error string when `success` is `FALSE`.
 	 */
 	public static function enableService( $api_version, $service_name ){
+		if( !self::isInitialized() )
+			throw new \Exception("Module not initialized", 1);
+		//
 		if( !self::serviceExists($api_version, $service_name) )
 			return ['success' => false, 'data' => sprintf('The API service "%s(v%s)" does not exist', $service_name, $api_version)];
 		$service_disabled_flag = sprintf('%sapi/%s/flags/%s.disabled.flag', $GLOBALS['__SYSTEM__DIR__'], $api_version, $service_name);
@@ -150,6 +191,9 @@ class RestfulAPI{
 	 *		The `data` field contains an error string when `success` is `FALSE`.
 	 */
 	public static function disableService( $api_version, $service_name ){
+		if( !self::isInitialized() )
+			throw new \Exception("Module not initialized", 1);
+		//
 		// avoid disabling things that cannot be re-enabled
 		if( $service_name == 'api' )
 			return ['success' => false, 'data' => sprintf('The API service "%s" cannot be disabled', $service_name)];
@@ -179,6 +223,9 @@ class RestfulAPI{
 	 * 		whether the API action exists;
 	 */
 	public static function actionExists( $api_version, $service_name, $action_name ){
+		if( !self::isInitialized() )
+			throw new \Exception("Module not initialized", 1);
+		//
 		$api_setup = self::getConfiguration();
 		return isset($api_setup[$api_version])
 			&& isset($api_setup[$api_version]['services'][$service_name])
@@ -203,6 +250,9 @@ class RestfulAPI{
 	 *		whether the API action exists and is enabled;
 	 */
 	public static function isActionEnabled( $api_version, $service_name, $action_name ){
+		if( !self::isInitialized() )
+			throw new \Exception("Module not initialized", 1);
+		//
 		if( !self::actionExists($api_version, $service_name, $action_name) ) return false;
 		$action_disabled_flag = sprintf('%sapi/%s/flags/%s.%s.disabled.flag', $GLOBALS['__SYSTEM__DIR__'], $api_version, $service_name, $action_name);
 		return !file_exists($action_disabled_flag);
@@ -230,6 +280,9 @@ class RestfulAPI{
 	 *		The `data` field contains an error string when `success` is `FALSE`.
 	 */
 	public static function enableAction( $api_version, $service_name, $action_name ){
+		if( !self::isInitialized() )
+			throw new \Exception("Module not initialized", 1);
+		//
 		if( !self::actionExists($api_version, $service_name, $action_name) )
 			return ['success' => false, 'data' => sprintf('The API action "%s.%s(v%s)" does not exist', $service_name, $action_name, $api_version)];
 		$action_disabled_flag = sprintf('%sapi/%s/flags/%s.%s.disabled.flag', $GLOBALS['__SYSTEM__DIR__'], $api_version, $service_name, $action_name);
@@ -262,6 +315,9 @@ class RestfulAPI{
 	 *		The `data` field contains an error string when `success` is `FALSE`.
 	 */
 	public static function disableAction( $api_version, $service_name, $action_name ){
+		if( !self::isInitialized() )
+			throw new \Exception("Module not initialized", 1);
+		//
 		// avoid disabling things that cannot be re-enabled
 		if( $service_name == 'api' && in_array($action_name, ['service_enable', 'action_enable']) )
 			return ['success' => false, 'data' => sprintf('The API action "%s.%s" cannot be disabled', $service_name, $action_name)];
@@ -283,22 +339,32 @@ class RestfulAPI{
 	//
 	// Private functions
 
-	private static function _load_API_setup(){
+	private static function _load_API_settings(){
+		// check if this object is cached
+		$cache_key = "api_settings";
+		if( self::$cache->has( $cache_key ) ) return self::$cache->get( $cache_key );
+		// load global settings
+		$settings_file = sprintf("%s/api/web-api-settings.json", $GLOBALS['__SYSTEM__DIR__']);
+		$settings = json_decode( file_get_contents($settings_file), true );
+		// cache object
+		self::$cache->set( $cache_key, $api, CacheTime::HOURS_24 );
+		//
+		return $settings;
+	}//_load_API_settings
+
+	private static function _load_API_configuration(){
 		// check if this object is cached
 		$cache_key = "api_configuration";
 		if( self::$cache->has( $cache_key ) ) return self::$cache->get( $cache_key );
-		//
+		// get list of packages
 		$packages = Core::getPackagesList();
 		$packages_ids = array_keys( $packages );
-		// load global settings for API
-		$global_api_setts_file = sprintf("%s/../api/web-api-settings.json", __DIR__);
-		$global_api_setts = json_decode( file_get_contents($global_api_setts_file), true );
 		// create resulting object
 		$api = [];
-		foreach( $global_api_setts['versions'] as $v => $v_specs ){
+		foreach( self::$settings['versions'] as $v => $v_specs ){
 			$api[$v] = [
 				'services' => [],
-				'global' => $global_api_setts['global'],
+				'global' => self::$settings['global'],
 				'enabled' => $v_specs['enabled']
 			];
 		}
@@ -347,7 +413,7 @@ class RestfulAPI{
 		self::$cache->set( $cache_key, $api, CacheTime::HOURS_24 );
 		//
 		return $api;
-	}//_load_API_setup
+	}//_load_API_configuration
 
 }//RestfulAPI
 
