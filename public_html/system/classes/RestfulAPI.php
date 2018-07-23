@@ -347,7 +347,7 @@ class RestfulAPI{
 		$settings_file = sprintf("%s/api/web-api-settings.json", $GLOBALS['__SYSTEM__DIR__']);
 		$settings = json_decode( file_get_contents($settings_file), true );
 		// cache object
-		self::$cache->set( $cache_key, $api, CacheTime::HOURS_24 );
+		self::$cache->set( $cache_key, $settings, CacheTime::HOURS_24 );
 		//
 		return $settings;
 	}//_load_API_settings

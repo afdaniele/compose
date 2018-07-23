@@ -37,10 +37,8 @@ RestfulAPI::init();
 //init configuration
 Configuration::init();
 
-
-//TODO: cache?
-$sett_file_content = file_get_contents( __DIR__.'/../system/api/web-api-settings.json' );
-$webapi_settings = json_decode($sett_file_content, true);
+// get API settings
+$webapi_settings = RestfulAPI::getSettings();
 
 
 // 0. verify the web-api current status
@@ -163,7 +161,7 @@ foreach( $_POST as $key => $value ){
 }
 
 // <= LOAD INTERPRETER
-require_once __DIR__.'/../system/api/'.$version.'/api-interpreter/APIinterpreter.php';
+require_once sprintf("%s/api/%s/api-interpreter/APIinterpreter.php", $GLOBALS['__SYSTEM__DIR__'], $version );
 use system\api\apiinterpreter\APIinterpreter as Interpreter;
 
 
@@ -181,7 +179,7 @@ sendResponse( $result['code'], $result['status'], $result['message'], $format, $
 
 
 function sendResponse( $code, $status, $message, $format, $data, $reFormatData=true ){
-	//usleep( 10 /* sec */ * 1000 /* ms */ * 1000 /* us */ );//TODO
+	//usleep( 10 /* sec */ * 1000 /* ms */ * 1000 /* us */ ); //DEBUG only
 	$content_type = array('plaintext' => 'text/plain', 'json' => 'application/json', 'xml' => 'text/xml', 'html' => 'text/html');
 	//
 	if( $reFormatData ){
@@ -191,7 +189,7 @@ function sendResponse( $code, $status, $message, $format, $data, $reFormatData=t
 		if( $message !== null ) $container['message'] = $message;
 		if( $data !== null ) $container['data'] = $data;
 		//
-		require_once __DIR__.'/../system/api/formatter/'.$format.'_formatter.php';
+		require_once $GLOBALS['__SYSTEM__DIR__'].'/api/formatter/'.$format.'_formatter.php';
 		$data = formatData( $container );
 	}
 	//

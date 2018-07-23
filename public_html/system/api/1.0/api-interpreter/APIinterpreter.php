@@ -10,11 +10,11 @@
 namespace system\api\apiinterpreter;
 
 //init configuration
-require_once __DIR__.'/../../../classes/Configuration.php';
-use system\classes\Configuration as Configuration;
+require_once $GLOBALS['__SYSTEM__DIR__'].'/classes/Configuration.php';
+use system\classes\Configuration;
 
-require_once __DIR__.'/../../../classes/Core.php';
-use system\classes\Core as Core;
+require_once $GLOBALS['__SYSTEM__DIR__'].'/classes/Core.php';
+use system\classes\Core;
 
 require_once __DIR__.'/../utils/utils.php';
 
@@ -61,7 +61,6 @@ class APIinterpreter {
 
 
 		// 2. load the executor
-		// $executorPath = __DIR__.'/../api-services/executors/'.$serviceName.'.php';
 		if( !file_exists($executorPath) ){
 			return array( 'code' => 404, 'status' => 'Not Found', 'message' => "The service '".$serviceName."' was not found" );
 		}
