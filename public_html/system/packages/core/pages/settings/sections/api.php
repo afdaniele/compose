@@ -5,10 +5,10 @@
 # @Last modified by:   afdaniele
 # @Last modified time: Wednesday, January 17th 2018
 
-require_once $GLOBALS['__SYSTEM__DIR__'].'/classes/RestfulAPI.php';
+require_once $GLOBALS['__SYSTEM__DIR__'].'/classes/RESTfulAPI.php';
 
 use \system\classes\Core;
-use \system\classes\RestfulAPI;
+use \system\classes\RESTfulAPI;
 ?>
 
 <style type="text/css">
@@ -67,9 +67,9 @@ use \system\classes\RestfulAPI;
 
 <?php
 function settings_api_tab(){
-    RestfulAPI::init();
+    RESTfulAPI::init();
     //
-    $api_setup = RestfulAPI::getConfiguration();
+    $api_setup = RESTfulAPI::getConfiguration();
     $packages_list = array_keys( Core::getPackagesList() );
     ?>
 

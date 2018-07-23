@@ -20,25 +20,25 @@ require_once __DIR__.'/../system/environment.php';
 
 // load core classes and utility
 require_once $GLOBALS['__SYSTEM__DIR__'].'/classes/Core.php';
-require_once $GLOBALS['__SYSTEM__DIR__'].'/classes/RestfulAPI.php';
+require_once $GLOBALS['__SYSTEM__DIR__'].'/classes/RESTfulAPI.php';
 require_once $GLOBALS['__SYSTEM__DIR__'].'/classes/Configuration.php';
 require_once $GLOBALS['__SYSTEM__DIR__'].'/classes/enum/StringType.php';
 require_once $GLOBALS['__SYSTEM__DIR__'].'/utils/utils.php';
 
 use system\classes\Core;
-use system\classes\RestfulAPI;
+use system\classes\RESTfulAPI;
 use system\classes\enum\StringType;
 use system\classes\Configuration;
 
 // init Core
 Core::init();
-RestfulAPI::init();
+RESTfulAPI::init();
 
 //init configuration
 Configuration::init();
 
 // get API settings
-$webapi_settings = RestfulAPI::getSettings();
+$webapi_settings = RESTfulAPI::getSettings();
 
 
 // 0. verify the web-api current status
@@ -69,7 +69,7 @@ if( !isset($_GET['__apiversion__']) || !is_string($_GET['__apiversion__']) || st
 }
 
 // load web-api specifications
-$webapi = RestfulAPI::getConfiguration();
+$webapi = RESTfulAPI::getConfiguration();
 $version = $_GET['__apiversion__'];
 $webapi = $webapi[$version];
 $authorized = false;

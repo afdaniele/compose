@@ -9,9 +9,9 @@ use system\classes\Utils;
 use system\classes\enum\CacheTime;
 
 
-/** RestfulAPI class: provides an interface for configuring the RestfulAPI module.
+/** RESTfulAPI class: provides an interface for configuring the RESTfulAPI module.
  */
-class RestfulAPI{
+class RESTfulAPI{
 
 	private static $initialized = false;
 	private static $settings = false;
@@ -415,6 +415,6 @@ class RestfulAPI{
 		return $api;
 	}//_load_API_configuration
 
-}//RestfulAPI
+}//RESTfulAPI
 
 ?>

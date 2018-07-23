@@ -9,10 +9,10 @@
 
 require_once $GLOBALS['__SYSTEM__DIR__'].'/classes/Core.php';
 require_once $GLOBALS['__SYSTEM__DIR__'].'/classes/Cache.php';
-require_once $GLOBALS['__SYSTEM__DIR__'].'/classes/RestfulAPI.php';
+require_once $GLOBALS['__SYSTEM__DIR__'].'/classes/RESTfulAPI.php';
 use system\classes\Core;
 use system\classes\CacheProxy;
-use system\classes\RestfulAPI;
+use system\classes\RESTfulAPI;
 
 require_once $GLOBALS['__SYSTEM__DIR__'].'/api/1.0/utils/utils.php';
 
@@ -23,7 +23,7 @@ function execute( &$service, &$actionName, &$arguments ){
 	//
 	switch( $actionName ){
 		case 'service_status':
-			$is_enabled = RestfulAPI::isServiceEnabled( $arguments['version'], $arguments['service'] );
+			$is_enabled = RESTfulAPI::isServiceEnabled( $arguments['version'], $arguments['service'] );
 			$data = [
 				'version' => $arguments['version'],
 				'service' => $arguments['service'],
@@ -34,7 +34,7 @@ function execute( &$service, &$actionName, &$arguments ){
 			break;
 		//
 		case 'service_enable':
-			$res = RestfulAPI::enableService( $arguments['version'], $arguments['service'] );
+			$res = RESTfulAPI::enableService( $arguments['version'], $arguments['service'] );
 			if( !$res['success'] ){
 				return response400BadRequest( $res['data'] );
 			}
@@ -44,7 +44,7 @@ function execute( &$service, &$actionName, &$arguments ){
 			break;
 		//
 		case 'service_disable':
-			$res = RestfulAPI::disableService( $arguments['version'], $arguments['service'] );
+			$res = RESTfulAPI::disableService( $arguments['version'], $arguments['service'] );
 			if( !$res['success'] ){
 				return response400BadRequest( $res['data'] );
 			}
@@ -54,7 +54,7 @@ function execute( &$service, &$actionName, &$arguments ){
 			break;
 		//
 		case 'action_status':
-			$is_enabled = RestfulAPI::isActionEnabled( $arguments['version'], $arguments['service'], $arguments['action'] );
+			$is_enabled = RESTfulAPI::isActionEnabled( $arguments['version'], $arguments['service'], $arguments['action'] );
 			$data = [
 				'version' => $arguments['version'],
 				'service' => $arguments['service'],
@@ -66,7 +66,7 @@ function execute( &$service, &$actionName, &$arguments ){
 			break;
 		//
 		case 'action_enable':
-			$res = RestfulAPI::enableAction( $arguments['version'], $arguments['service'], $arguments['action'] );
+			$res = RESTfulAPI::enableAction( $arguments['version'], $arguments['service'], $arguments['action'] );
 			if( !$res['success'] ){
 				return response400BadRequest( $res['data'] );
 			}
@@ -76,7 +76,7 @@ function execute( &$service, &$actionName, &$arguments ){
 			break;
 		//
 		case 'action_disable':
-			$res = RestfulAPI::disableAction( $arguments['version'], $arguments['service'], $arguments['action'] );
+			$res = RESTfulAPI::disableAction( $arguments['version'], $arguments['service'], $arguments['action'] );
 			if( !$res['success'] ){
 				return response400BadRequest( $res['data'] );
 			}
