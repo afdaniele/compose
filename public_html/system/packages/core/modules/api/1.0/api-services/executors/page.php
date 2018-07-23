@@ -8,12 +8,15 @@
 
 
 require_once $GLOBALS['__SYSTEM__DIR__'].'/classes/Core.php';
-use system\classes\Core as Core;
+require_once $GLOBALS['__SYSTEM__DIR__'].'/classes/Cache.php';
+use system\classes\Core;
+use system\classes\CacheProxy;
 
 require_once $GLOBALS['__SYSTEM__DIR__'].'/api/1.0/utils/utils.php';
 
 
 function execute( &$service, &$actionName, &$arguments ){
+	$cache = new CacheProxy('core');
 	$action = $service['actions'][$actionName];
 	//
 	switch( $actionName ){
@@ -32,6 +35,7 @@ function execute( &$service, &$actionName, &$arguments ){
 			if( !$res['success'] ){
 				return response400BadRequest( $res['data'] );
 			}
+			$cache->clear();
 			//
 			return response200OK( null );
 			break;
@@ -41,6 +45,7 @@ function execute( &$service, &$actionName, &$arguments ){
 			if( !$res['success'] ){
 				return response400BadRequest( $res['data'] );
 			}
+			$cache->clear();
 			//
 			return response200OK( null );
 			break;

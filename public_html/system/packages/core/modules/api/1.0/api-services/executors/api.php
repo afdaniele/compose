@@ -11,8 +11,8 @@ require_once $GLOBALS['__SYSTEM__DIR__'].'/classes/Core.php';
 require_once $GLOBALS['__SYSTEM__DIR__'].'/classes/Cache.php';
 require_once $GLOBALS['__SYSTEM__DIR__'].'/classes/RestfulAPI.php';
 use system\classes\Core;
-use system\classes\RestfulAPI;
 use system\classes\CacheProxy;
+use system\classes\RestfulAPI;
 
 require_once $GLOBALS['__SYSTEM__DIR__'].'/api/1.0/utils/utils.php';
 
