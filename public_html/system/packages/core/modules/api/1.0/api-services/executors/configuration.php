@@ -7,12 +7,12 @@
 
 
 
-require_once __DIR__.'/../../../../../../../classes/Core.php';
-require_once __DIR__.'/../../../../../../../classes/Cache.php';
+require_once $GLOBALS['__SYSTEM__DIR__'].'/classes/Core.php';
+require_once $GLOBALS['__SYSTEM__DIR__'].'/classes/Cache.php';
 use system\classes\Core;
 use system\classes\CacheProxy;
 
-require_once __DIR__.'/../../../../../../../api/1.0/utils/utils.php';
+require_once $GLOBALS['__SYSTEM__DIR__'].'/api/1.0/utils/utils.php';
 
 
 function execute( &$service, &$actionName, &$arguments ){

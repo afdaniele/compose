@@ -7,15 +7,18 @@
 
 
 
-require_once __DIR__.'/../../../../../../../classes/Core.php';
-require_once __DIR__.'/../../../../../../../classes/RestfulAPI.php';
+require_once $GLOBALS['__SYSTEM__DIR__'].'/classes/Core.php';
+require_once $GLOBALS['__SYSTEM__DIR__'].'/classes/Cache.php';
+require_once $GLOBALS['__SYSTEM__DIR__'].'/classes/RestfulAPI.php';
 use system\classes\Core;
 use system\classes\RestfulAPI;
+use system\classes\CacheProxy;
 
-require_once __DIR__.'/../../../../../../../api/1.0/utils/utils.php';
+require_once $GLOBALS['__SYSTEM__DIR__'].'/api/1.0/utils/utils.php';
 
 
 function execute( &$service, &$actionName, &$arguments ){
+	$cache = new CacheProxy('api');
 	$action = $service['actions'][$actionName];
 	//
 	switch( $actionName ){
@@ -35,6 +38,7 @@ function execute( &$service, &$actionName, &$arguments ){
 			if( !$res['success'] ){
 				return response400BadRequest( $res['data'] );
 			}
+			$cache->clear();
 			//
 			return response200OK();
 			break;
@@ -44,6 +48,7 @@ function execute( &$service, &$actionName, &$arguments ){
 			if( !$res['success'] ){
 				return response400BadRequest( $res['data'] );
 			}
+			$cache->clear();
 			//
 			return response200OK();
 			break;
@@ -65,6 +70,7 @@ function execute( &$service, &$actionName, &$arguments ){
 			if( !$res['success'] ){
 				return response400BadRequest( $res['data'] );
 			}
+			$cache->clear();
 			//
 			return response200OK();
 			break;
@@ -74,6 +80,7 @@ function execute( &$service, &$actionName, &$arguments ){
 			if( !$res['success'] ){
 				return response400BadRequest( $res['data'] );
 			}
+			$cache->clear();
 			//
 			return response200OK();
 			break;

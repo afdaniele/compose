@@ -7,10 +7,10 @@
 
 
 
-require_once __DIR__.'/../../../../../../../classes/Core.php';
+require_once $GLOBALS['__SYSTEM__DIR__'].'/classes/Core.php';
 use system\classes\Core as Core;
 
-require_once __DIR__.'/../../../../../../../api/1.0/utils/utils.php';
+require_once $GLOBALS['__SYSTEM__DIR__'].'/api/1.0/utils/utils.php';
 
 
 function execute( &$service, &$actionName, &$arguments ){
