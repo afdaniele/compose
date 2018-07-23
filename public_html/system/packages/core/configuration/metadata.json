@@ -31,7 +31,7 @@
             "details" : "E-mail address of the administrator"
         },
         "cache_enabled" : {
-            "title" : "Use cache (NOT YET IMPLEMENTED)",
+            "title" : "Use cache",
             "type" : "boolean",
             "default" : false,
             "details" : "Cache status"
