@@ -30,11 +30,18 @@ use system\classes\Core as Core;
 use system\classes\Configuration as Configuration;
 use system\utils\URLrewrite as URLrewrite;
 
+// parse arguments
+$args = explode( '/', strtolower($_GET['arg']) );
+$requested_page = $args[0];
+$requested_action = (count($args) > 1 && $args[1]!=='') ? $args[1] : $_GET['action'];
+$requested_action = ($requested_action !== '')? $requested_action : NULL;
+
 // create a Session
 Core::startSession();
 
 // init Core
-Core::initCore();
+$safe_mode = ($requested_page == 'error') || (isset($_GET['safemode']) && boolval($_GET['safemode']));
+Core::initCore( $safe_mode );
 
 // get info about the current user
 $user_role = Core::getUserRole();
@@ -54,12 +61,6 @@ if( strcmp($factory_default_page, "NO_DEFAULT_PAGE_FOR_USER_ROLE") == 0 )
 $default_page = Core::getSetting( $user_role.'_default_page', 'core', $factory_default_page );
 if( !in_array($default_page, $available_pages) )
 	$default_page = $factory_default_page;
-
-// parse arguments
-$args = explode( '/', strtolower($_GET['arg']) );
-$requested_page = $args[0];
-$requested_action = (count($args) > 1 && $args[1]!=='') ? $args[1] : $_GET['action'];
-$requested_action = ($requested_action !== '')? $requested_action : NULL;
 
 // redirect to default page if the page is invalid
 if( $requested_page == '' || !in_array($requested_page, $available_pages) ){
