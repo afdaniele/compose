@@ -78,7 +78,7 @@
 		            "service" : {
 		                "type" : "text",
                         "length" : null,
-		                "details" : "Name of the API service to query"
+		                "details" : "Name of the API service to disable"
 		            }
                 },
 		        "optional" : {}

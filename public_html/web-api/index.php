@@ -6,10 +6,8 @@
 # @Last modified time: Sunday, January 14th 2018
 
 
-
-
-//error_reporting(E_ALL ^ E_NOTICE); //TODO
-//ini_set('display_errors', 1); //TODO
+//error_reporting(E_ALL ^ E_NOTICE); //DEBUG only
+//ini_set('display_errors', 1); //DEBUG only
 
 
 // error received from .htaccess due to an invalid API url
@@ -21,11 +19,14 @@ if( isset($_GET['__error__']) ){
 require_once __DIR__.'/../system/environment.php';
 
 // load core classes and utility
-require_once $GLOBALS['__SYSTEM__DIR__'].'/../system/classes/Core.php';
-use system\classes\Core as Core;
+require_once $GLOBALS['__SYSTEM__DIR__'].'/classes/Core.php';
+require_once $GLOBALS['__SYSTEM__DIR__'].'/classes/RestfulAPI.php';
+use system\classes\Core;
+use system\classes\RestfulAPI;
 
 // init Core
 Core::initCore();
+RestfulAPI::init();
 
 
 require_once $GLOBALS['__SYSTEM__DIR__'].'classes/enum/StringType.php';
@@ -117,29 +118,9 @@ if( !isset($_GET['__apiversion__']) || !is_string($_GET['__apiversion__']) || st
 }
 
 // load web-api specifications
-$webapi = Core::getAPIsetup();
+$webapi = RestfulAPI::getConfiguration();
 $version = $_GET['__apiversion__'];
 $webapi = $webapi[$version];
-
-// // load web-api specifications
-// if( Configuration::$CACHE_ENABLED ){
-// 	$webapi = $cache->get( "WEB-API-SPECIFICATION-".$version );
-// 	if( $webapi == null ){
-// 		// read from file
-// 		$spec_file_content = file_get_contents( __DIR__.'/../system/api/'.$version.'/api-config/web-api-specification.json' );
-// 		$webapi = json_decode($spec_file_content, true);
-// 		// save the web-api specifications into the cache for:  60 seconds * 60 minutes * 24 hours = 86400 seconds = 1 day
-// 		$cache->set( "WEB-API-SPECIFICATION-".$version , serialize($webapi) , 86400 );
-// 	}else{
-// 		$webapi = unserialize( $webapi );
-// 	}
-// }else{
-// 	// read from file
-// 	$spec_file_content = file_get_contents( __DIR__.'/../system/api/'.$version.'/api-config/web-api-specification.json' );
-// 	$webapi = json_decode($spec_file_content, true);
-// }
-
-
 $authorized = false;
 
 

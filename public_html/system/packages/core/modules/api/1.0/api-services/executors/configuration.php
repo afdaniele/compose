@@ -8,7 +8,9 @@
 
 
 require_once __DIR__.'/../../../../../../../classes/Core.php';
-use system\classes\Core as Core;
+require_once __DIR__.'/../../../../../../../classes/Cache.php';
+use system\classes\Core;
+use system\classes\CacheProxy;
 
 require_once __DIR__.'/../../../../../../../api/1.0/utils/utils.php';
 
@@ -49,7 +51,7 @@ function execute( &$service, &$actionName, &$arguments ){
 				return response500InternalServerError( $res['data'] );
 			//
 			$setts = $res['data'];
-			// got through the arguments and try to store them in the configuration
+			// go through the arguments and try to store them in the configuration
 			foreach( $arguments as $key => $value ){
 				$res = $setts->set( $key, $value );
 				if( !$res['success'] )
@@ -59,6 +61,10 @@ function execute( &$service, &$actionName, &$arguments ){
 			$res = $setts->commit();
 			if( !$res['success'] )
 				return response500InternalServerError( $res['data'] );
+			// clear cache
+			$cache = new CacheProxy($package_name);
+			if( $cache::enabled() )
+				$cache->clear();
 			//
 			return response200OK();
 			break;

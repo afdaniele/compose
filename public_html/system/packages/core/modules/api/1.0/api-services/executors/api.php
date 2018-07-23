@@ -8,7 +8,9 @@
 
 
 require_once __DIR__.'/../../../../../../../classes/Core.php';
-use system\classes\Core as Core;
+require_once __DIR__.'/../../../../../../../classes/RestfulAPI.php';
+use system\classes\Core;
+use system\classes\RestfulAPI;
 
 require_once __DIR__.'/../../../../../../../api/1.0/utils/utils.php';
 
@@ -18,7 +20,7 @@ function execute( &$service, &$actionName, &$arguments ){
 	//
 	switch( $actionName ){
 		case 'service_status':
-			$is_enabled = Core::isAPIserviceEnabled( $arguments['version'], $arguments['service'] );
+			$is_enabled = RestfulAPI::isServiceEnabled( $arguments['version'], $arguments['service'] );
 			$data = [
 				'version' => $arguments['version'],
 				'service' => $arguments['service'],
@@ -29,7 +31,7 @@ function execute( &$service, &$actionName, &$arguments ){
 			break;
 		//
 		case 'service_enable':
-			$res = Core::enableAPIservice( $arguments['version'], $arguments['service'] );
+			$res = RestfulAPI::enableService( $arguments['version'], $arguments['service'] );
 			if( !$res['success'] ){
 				return response400BadRequest( $res['data'] );
 			}
@@ -38,7 +40,7 @@ function execute( &$service, &$actionName, &$arguments ){
 			break;
 		//
 		case 'service_disable':
-			$res = Core::disableAPIservice( $arguments['version'], $arguments['service'] );
+			$res = RestfulAPI::disableService( $arguments['version'], $arguments['service'] );
 			if( !$res['success'] ){
 				return response400BadRequest( $res['data'] );
 			}
@@ -47,7 +49,7 @@ function execute( &$service, &$actionName, &$arguments ){
 			break;
 		//
 		case 'action_status':
-			$is_enabled = Core::isAPIactionEnabled( $arguments['version'], $arguments['service'], $arguments['action'] );
+			$is_enabled = RestfulAPI::isActionEnabled( $arguments['version'], $arguments['service'], $arguments['action'] );
 			$data = [
 				'version' => $arguments['version'],
 				'service' => $arguments['service'],
@@ -59,7 +61,7 @@ function execute( &$service, &$actionName, &$arguments ){
 			break;
 		//
 		case 'action_enable':
-			$res = Core::enableAPIaction( $arguments['version'], $arguments['service'], $arguments['action'] );
+			$res = RestfulAPI::enableAction( $arguments['version'], $arguments['service'], $arguments['action'] );
 			if( !$res['success'] ){
 				return response400BadRequest( $res['data'] );
 			}
@@ -68,7 +70,7 @@ function execute( &$service, &$actionName, &$arguments ){
 			break;
 		//
 		case 'action_disable':
-			$res = Core::disableAPIaction( $arguments['version'], $arguments['service'], $arguments['action'] );
+			$res = RestfulAPI::disableAction( $arguments['version'], $arguments['service'], $arguments['action'] );
 			if( !$res['success'] ){
 				return response400BadRequest( $res['data'] );
 			}

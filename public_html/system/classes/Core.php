@@ -17,10 +17,10 @@ require_once __DIR__.'/EditableConfiguration.php';
 require_once __DIR__.'/Database.php';
 require_once __DIR__.'/Utils.php';
 require_once __DIR__.'/Formatter.php';
+require_once __DIR__.'/Cache.php';
 require_once __DIR__.'/enum/StringType.php';
 require_once __DIR__.'/enum/EmailTemplates.php';
-// fast cache system
-require_once __DIR__.'/phpfastcache/phpfastcache.php';
+require_once __DIR__.'/enum/CacheTime.php';
 // php-mailer classes
 require_once __DIR__.'/PHPMailer/PHPMailerAutoload.php';
 
@@ -32,12 +32,15 @@ require_once __DIR__.'/jsonDB/JsonDB.php';
 require_once __DIR__.'/google_api_php_client/vendor/autoload.php';
 
 
-use \phpfastcache;
 use system\classes\enum\EmailTemplates;
 use system\classes\enum\StringType;
+use system\classes\enum\CacheTime;
 use system\classes\jsonDB\JsonDB;
 use system\classes\Database;
 use system\classes\Formatter;
+use system\classes\Cache;
+use system\classes\CacheProxy;
+use system\classes\Utils;
 
 
 define('INFO', 0);
@@ -53,7 +56,6 @@ class Core{
 	private static $cache = null;
 	private static $packages = null;
 	private static $pages = null;
-	private static $api = null;
 	private static $verbose = False;
 	private static $debug = False;
 	private static $settings = null;
@@ -169,13 +171,13 @@ class Core{
 	 *	@retval array
 	 *		a status array of the form
 	 *	<pre><code class="php">[
-	 *		"success" => boolean, 	// whether the function succeded
+	 *		"success" => boolean, 	// whether the call succeded
 	 *		"data" => mixed 		// error message or NULL
 	 *	]</code></pre>
-	 *		where, the `success` field indicates whether the function succeded.
+	 *		where, the `success` field indicates whether the call succeded.
 	 *		The `data` field contains an error string when `success` is `FALSE`.
 	 */
-	public static function initCore(){
+	public static function initCore( $safe_mode=false ){
 		if( !self::$initialized ){
 			mb_internal_encoding("UTF-8");
 			//
@@ -185,38 +187,33 @@ class Core{
 				return $res;
 			}
 			//
+			// create cache proxy (cache initialization happens later)
+			self::$cache = new CacheProxy('core');
+			//
+			// load settings for the core module only (needed to initialize the cache)
+			self::$packages = ['core' => null];
+			self::$settings = self::_load_packages_settings( true );
+			//
+			// initialize cache
+			if( self::getSetting('cache_enabled', 'core', false) ){
+				Cache::init();
+			}
+			//
 			// load list of available packages
-			self::$packages = self::_load_available_packages();
+			self::$packages = self::_load_available_packages( $safe_mode );
 			// load list of available pages
-			self::$pages = self::_load_available_pages();
-			// load list of available API services
-			self::$api = self::_load_API_setup();
+			self::$pages = self::_load_available_pages( $safe_mode );
 			// load package-specific settings
-			self::$settings = self::_load_packages_settings();
+			self::$settings = self::_load_packages_settings( $safe_mode );
+			//
+			// safe mode (everything after this point should be optional)
+			if( $safe_mode ){
+				self::$initialized = true;
+				return array( 'success' => true, 'data' => null );
+			}
 			//
 			// load email templates
 			EmailTemplates::init();
-
-
-			// TODO: Configuration::$CACHE_ENABLED is no longer available
-			// // enable cache
-			// try{
-			// 	if( Configuration::$CACHE_ENABLED ){
-			// 		try{
-			// 			self::$cache = phpFastCache(Configuration::$CACHE_SYSTEM);
-			// 		}catch(Exception $e){
-			// 			self::$cache = null;
-			// 			Configuration::$CACHE_ENABLED = false;
-			// 		}
-			// 	}
-			// 	//
-			// 	Configuration::$CACHE_ENABLED = ( self::$cache !== null && self::$cache instanceof phpFastCache );
-			// 	$_SESSION['CACHE_GROUPS'] = array();
-			// 	//
-			// }catch(\Exception $e){}
-
-
-
 			//
 			// initialize all the packages
 			foreach( self::$packages as $pkg ){
@@ -224,20 +221,16 @@ class Core{
 					continue;
 				// initialize package Core class
 				if( !is_null($pkg['core']) ){
-					self::collectDebugInfo($pkg['id'], 'pkg_core_file_found', file_exists($pkg['core']['file']), Formatter::BOOLEAN);
 					// try to load the core file
 					$file_loaded = include_once $pkg['core']['file'];
-					self::collectDebugInfo($pkg['id'], 'pkg_core_file_loaded', $file_loaded, Formatter::BOOLEAN);
 					if( $file_loaded ){
 						// TODO: do not prepend \system\classes if it is already in $pkg['core']['namespace']
 						$php_init_command = sprintf( "\system\packages\%s\%s::init();", $pkg['core']['namespace'], $pkg['core']['class'] );
 						// try to initialize the package core class
 						try {
 							eval( $php_init_command );
-							self::collectDebugInfo($pkg['id'], 'pkg_core_init_status', true, Formatter::BOOLEAN);
 						} catch (\Error $e) {
-							self::collectDebugInfo($pkg['id'], 'pkg_core_init_status', false, Formatter::BOOLEAN);
-							self::collectDebugInfo($pkg['id'], 'pkg_core_init_error', $e->getMessage(), Formatter::TEXT);
+							self::throwError( $e->getMessage() );
 						}
 					}
 
@@ -294,10 +287,10 @@ class Core{
 	 *	@retval array
 	 *		a status array of the form
 	 *	<pre><code class="php">[
-	 *		"success" => boolean, 	// whether the function succeded
+	 *		"success" => boolean, 	// whether the call succeded
 	 *		"data" => mixed 		// error message or NULL
 	 *	]</code></pre>
-	 *		where, the `success` field indicates whether the function succeded.
+	 *		where, the `success` field indicates whether the call succeded.
 	 *		The `data` field contains an error string when `success` is `FALSE`.
 	 */
 	public static function close(){
@@ -308,7 +301,7 @@ class Core{
 	/** Creates a new PHP Session and assigns a new randomly generated 16-digits authorization token to it.
 	 *
 	 *	@retval boolean
-	 *		`TRUE` if the function succeded, `FALSE` otherwise
+	 *		`TRUE` if the call succeded, `FALSE` otherwise
 	 */
 	public static function startSession(){
 		session_start();
@@ -336,10 +329,10 @@ class Core{
 	 *	@retval array
 	 *		a status array of the form
 	 *	<pre><code class="php">[
-	 *		"success" => boolean, 	// whether the function succeded
+	 *		"success" => boolean, 	// whether the call succeded
 	 *		"data" => mixed 		// error message or NULL
 	 *	]</code></pre>
-	 *		where, the `success` field indicates whether the function succeded.
+	 *		where, the `success` field indicates whether the call succeded.
 	 *		The `data` field contains an error string when `success` is `FALSE`.
 	 */
 	public static function logInUserWithGoogle( $id_token ){
@@ -402,10 +395,10 @@ class Core{
 	 *	@retval array
 	 *		a status array of the form
 	 *	<pre><code class="php">[
-	 *		"success" => boolean, 	// whether the function succeded
+	 *		"success" => boolean, 	// whether the call succeded
 	 *		"data" => mixed 		// error message or NULL
 	 *	]</code></pre>
-	 *		where, the `success` field indicates whether the function succeded.
+	 *		where, the `success` field indicates whether the call succeded.
 	 *		The `data` field contains an error string when `success` is `FALSE`.
 	 */
 	public static function createNewUserAccount( $user_id, &$user_info ){
@@ -457,15 +450,15 @@ class Core{
 
 
 	/** Logs out the user from the platform.
-	 *	If the user is not logged in yet, the function will return an error status.
+	 *	If the user is not logged in yet, the call will return an error status.
 	 *
 	 *	@retval array
 	 *		a status array of the form
 	 *	<pre><code class="php">[
-	 *		"success" => boolean, 	// whether the function succeded
+	 *		"success" => boolean, 	// whether the call succeded
 	 *		"data" => mixed 		// error message or NULL
 	 *	]</code></pre>
-	 *		where, the `success` field indicates whether the function succeded.
+	 *		where, the `success` field indicates whether the call succeded.
 	 *		The `data` field contains an error string when `success` is `FALSE`.
 	 */
 	public static function logOutUser(){
@@ -508,10 +501,10 @@ class Core{
 	 *	@retval array
 	 *		a status array of the form
 	 *	<pre><code class="php">[
-	 *		"success" => boolean, 	// whether the function succeded
+	 *		"success" => boolean, 	// whether the call succeded
 	 *		"data" => mixed 		// error message or instance of \\system\\classes\\jsonDB\\JsonDB
 	 *	]</code></pre>
-	 *		where, the `success` field indicates whether the function succeded.
+	 *		where, the `success` field indicates whether the call succeded.
 	 *		The `data` field contains an error string when `success` is `FALSE`,
 	 *		otherwise it will contain an instance of the class \\system\\classes\\jsonDB\\JsonDB
 	 *		containing the information about the user specified.
@@ -554,10 +547,10 @@ class Core{
 	 *	@retval array
 	 *		a status array of the form
 	 *	<pre><code class="php">[
-	 *		"success" => boolean, 	// whether the function succeded
+	 *		"success" => boolean, 	// whether the call succeded
 	 *		"data" => mixed 		// error message or associative array
 	 *	]</code></pre>
-	 *		where, the `success` field indicates whether the function succeded.
+	 *		where, the `success` field indicates whether the call succeded.
 	 *		The `data` field contains an error string when `success` is `FALSE`,
 	 *		otherwise it will contain an associative array containing the information about the user specified.
 	 *		The associative array in `data` will contain at least the keys specified in $USER_ACCOUNT_TEMPLATE.
@@ -625,6 +618,16 @@ class Core{
 	public static function getUserTypesList(){
 		return self::$registered_user_types;
 	}//getUserTypesList
+
+
+	/** Adds a new user role to the list of roles known to the platform.
+	 *
+	 *	@retval void
+	 */
+	public static function registerNewUserType( $new_user_type ){
+		if( !in_array($new_user_type, self::$registered_user_types) )
+			array_push(self::$registered_user_types, $new_user_type);
+	}//registerNewUserType
 
 
 
@@ -701,10 +704,10 @@ class Core{
 	 *	@retval array
 	 *		a status array of the form
 	 *	<pre><code class="php">[
-	 *		"success" => boolean, 	// whether the function succeded
+	 *		"success" => boolean, 	// whether the call succeded
 	 *		"data" => mixed 		// error message or NULL
 	 *	]</code></pre>
-	 *		where, the `success` field indicates whether the function succeded.
+	 *		where, the `success` field indicates whether the call succeded.
 	 *		The `data` field contains an error string when `success` is `FALSE`.
 	 */
 	public static function enablePackage( $package ){
@@ -730,10 +733,10 @@ class Core{
 	 *	@retval array
 	 *		a status array of the form
 	 *	<pre><code class="php">[
-	 *		"success" => boolean, 	// whether the function succeded
+	 *		"success" => boolean, 	// whether the call succeded
 	 *		"data" => mixed 		// error message or NULL
 	 *	]</code></pre>
-	 *		where, the `success` field indicates whether the function succeded.
+	 *		where, the `success` field indicates whether the call succeded.
 	 *		The `data` field contains an error string when `success` is `FALSE`.
 	 */
 	public static function disablePackage( $package ){
@@ -763,7 +766,7 @@ class Core{
 	 *		"success" => boolean, 	// whether the configuration was successfully loaded
 	 *		"data" => mixed 		// instance of EditableConfiguration or a string error message
 	 *	]</code></pre>
-	 *		where, the `success` field indicates whether the function succeded.
+	 *		where, the `success` field indicates whether the call succeded.
 	 *		The `data` field contains a string with the error when `success` is `FALSE`.
 	 *		If the package is not installed, the function returns `NULL`.
 	 */
@@ -1048,10 +1051,10 @@ class Core{
 	 *	@retval array
 	 *		a status array of the form
 	 *	<pre><code class="php">[
-	 *		"success" => boolean, 	// whether the function succeded
+	 *		"success" => boolean, 	// whether the call succeded
 	 *		"data" => mixed 		// error message or NULL
 	 *	]</code></pre>
-	 *		where, the `success` field indicates whether the function succeded.
+	 *		where, the `success` field indicates whether the call succeded.
 	 *		The `data` field contains an error string when `success` is `FALSE`.
 	 */
 	public static function enablePage( $package, $page ){
@@ -1079,10 +1082,10 @@ class Core{
 	 *	@retval array
 	 *		a status array of the form
 	 *	<pre><code class="php">[
-	 *		"success" => boolean, 	// whether the function succeded
+	 *		"success" => boolean, 	// whether the call succeded
 	 *		"data" => mixed 		// error message or NULL
 	 *	]</code></pre>
-	 *		where, the `success` field indicates whether the function succeded.
+	 *		where, the `success` field indicates whether the call succeded.
 	 *		The `data` field contains an error string when `success` is `FALSE`.
 	 */
 	public static function disablePage( $package, $page ){
@@ -1113,228 +1116,6 @@ class Core{
 		}
 		return 'NO_DEFAULT_PAGE_FOR_USER_ROLE';
 	}//getFactoryDefaultPagePerRole
-
-
-
-	// =======================================================================================================
-	// API management functions
-
-	/*	TODO @todo Returns the list of API services installed on the platform.
-	*/
-	public static function getAPIsetup(){
-		return self::$api;
-	}//getAPIsetup
-
-
-	/** Returns whether the given API service is installed on the platform.
-	 *
-	 *	@param string $api_version
-	 *		the version of the API the service to check belongs to;
-	 *
-	 *	@param string $service_name
-	 *		the name of the API service to check;
-	 *
-	 *	@retval boolean
-	 * 		whether the API service exists;
-	 */
-	public static function APIserviceExists( $api_version, $service_name ){
-		$api_setup = self::getAPIsetup();
-		return isset($api_setup[$api_version]) && isset($api_setup[$api_version]['services'][$service_name]);
-	}//APIserviceExists
-
-
-	/** Returns whether the specified API service is enabled.
-	 *
-	 *	If the API service does not exist, the function will return `FALSE`.
-	 *
-	 *	@param string $api_version
-	 *		the version of the API the service to check belongs to;
-	 *
-	 *	@param string $service_name
-	 *		the name of the API service to check;
-	 *
-	 *	@retval boolean
-	 *		whether the API service exists and is enabled;
-	 */
-	public static function isAPIserviceEnabled( $api_version, $service_name ){
-		if( !self::APIserviceExists($api_version, $service_name) ) return false;
-		$service_disabled_flag = sprintf('%sapi/%s/flags/%s.disabled.flag', $GLOBALS['__SYSTEM__DIR__'], $api_version, $service_name);
-		return !file_exists($service_disabled_flag);
-	}//isAPIserviceEnabled
-
-
-	/** Enables an API service.
-	 *
-	 *	@param string $api_version
-	 *		the version of the API the service to enable belongs to;
-	 *
-	 *	@param string $service_name
-	 *		the name of the API service to enable;
-	 *
-	 *	@retval array
-	 *		a status array of the form
-	 *	<pre><code class="php">[
-	 *		"success" => boolean, 	// whether the function succeded
-	 *		"data" => mixed 		// error message or NULL
-	 *	]</code></pre>
-	 *		where, the `success` field indicates whether the function succeded.
-	 *		The `data` field contains an error string when `success` is `FALSE`.
-	 */
-	public static function enableAPIservice( $api_version, $service_name ){
-		if( !self::APIserviceExists($api_version, $service_name) )
-			return ['success' => false, 'data' => sprintf('The API service "%s(v%s)" does not exist', $service_name, $api_version)];
-		$service_disabled_flag = sprintf('%sapi/%s/flags/%s.disabled.flag', $GLOBALS['__SYSTEM__DIR__'], $api_version, $service_name);
-		if( file_exists($service_disabled_flag) ){
-			$success = unlink( $service_disabled_flag );
-			return ['success' => $success, 'data' => null];
-		}
-		return ['success' => true, 'data' => null];
-	}//enableAPIservice
-
-
-	/** Disables an API service.
-	 *
-	 *	@param string $api_version
-	 *		the version of the API the service to disable belongs to;
-	 *
-	 *	@param string $service_name
-	 *		the name of the API service to disable;
-	 *
-	 *	@retval array
-	 *		a status array of the form
-	 *	<pre><code class="php">[
-	 *		"success" => boolean, 	// whether the function succeded
-	 *		"data" => mixed 		// error message or NULL
-	 *	]</code></pre>
-	 *		where, the `success` field indicates whether the function succeded.
-	 *		The `data` field contains an error string when `success` is `FALSE`.
-	 */
-	public static function disableAPIservice( $api_version, $service_name ){
-		// avoid disabling things that cannot be re-enabled
-		if( $service_name == 'api' )
-			return ['success' => false, 'data' => sprintf('The API service "%s" cannot be disabled', $service_name)];
-		if( !self::APIserviceExists($api_version, $service_name) )
-			return ['success' => false, 'data' => sprintf('The API service "%s(v%s)" does not exist', $service_name, $api_version)];
-		$service_disabled_flag = sprintf('%sapi/%s/flags/%s.disabled.flag', $GLOBALS['__SYSTEM__DIR__'], $api_version, $service_name);
-		if( !file_exists($service_disabled_flag) ){
-			$success = touch( $service_disabled_flag );
-			return ['success' => $success, 'data' => null];
-		}
-		return ['success' => true, 'data' => null];
-	}//disableAPIservice
-
-
-	/** Returns whether the given API action is installed on the platform.
-	 *
-	 *	@param string $api_version
-	 *		the version of the API the action to check belongs to;
-	 *
-	 *	@param string $service_name
-	 *		the name of the API service the action to check belongs to;
-	 *
-	 *	@param string $action_name
-	 *		the name of the API action to check;
-	 *
-	 *	@retval boolean
-	 * 		whether the API action exists;
-	 */
-	public static function APIactionExists( $api_version, $service_name, $action_name ){
-		$api_setup = self::getAPIsetup();
-		return isset($api_setup[$api_version])
-			&& isset($api_setup[$api_version]['services'][$service_name])
-			&& isset($api_setup[$api_version]['services'][$service_name]['actions'][$action_name]);
-	}//APIactionExists
-
-
-	/** Returns whether the specified API action is enabled.
-	 *
-	 *	If the API action does not exist, the function will return `FALSE`.
-	 *
-	 *	@param string $api_version
-	 *		the version of the API the action to check belongs to;
-	 *
-	 *	@param string $service_name
-	 *		the name of the API service the action to check belongs to;
-	 *
-	 *	@param string $action_name
-	 *		the name of the API action to check;
-	 *
-	 *	@retval boolean
-	 *		whether the API action exists and is enabled;
-	 */
-	public static function isAPIactionEnabled( $api_version, $service_name, $action_name ){
-		if( !self::APIactionExists($api_version, $service_name, $action_name) ) return false;
-		$action_disabled_flag = sprintf('%sapi/%s/flags/%s.%s.disabled.flag', $GLOBALS['__SYSTEM__DIR__'], $api_version, $service_name, $action_name);
-		return !file_exists($action_disabled_flag);
-	}//isAPIactionEnabled
-
-
-	/** Enables an API action.
-	 *
-	 *	@param string $api_version
-	 *		the version of the API the action to enable belongs to;
-	 *
-	 *	@param string $service_name
-	 *		the name of the API service the action to enable belongs to;
-	 *
-	 *	@param string $action_name
-	 *		the name of the API action to enable;
-	 *
-	 *	@retval array
-	 *		a status array of the form
-	 *	<pre><code class="php">[
-	 *		"success" => boolean, 	// whether the function succeded
-	 *		"data" => mixed 		// error message or NULL
-	 *	]</code></pre>
-	 *		where, the `success` field indicates whether the function succeded.
-	 *		The `data` field contains an error string when `success` is `FALSE`.
-	 */
-	public static function enableAPIaction( $api_version, $service_name, $action_name ){
-		if( !self::APIactionExists($api_version, $service_name, $action_name) )
-			return ['success' => false, 'data' => sprintf('The API action "%s.%s(v%s)" does not exist', $service_name, $action_name, $api_version)];
-		$action_disabled_flag = sprintf('%sapi/%s/flags/%s.%s.disabled.flag', $GLOBALS['__SYSTEM__DIR__'], $api_version, $service_name, $action_name);
-		if( file_exists($action_disabled_flag) ){
-			$success = unlink( $action_disabled_flag );
-			return ['success' => $success, 'data' => null];
-		}
-		return ['success' => true, 'data' => null];
-	}//enableAPIaction
-
-
-	/** Disables an API action.
-	 *
-	 *	@param string $api_version
-	 *		the version of the API the action to disable belongs to;
-	 *
-	 *	@param string $service_name
-	 *		the name of the API service the action to disable belongs to;
-	 *
-	 *	@param string $action_name
-	 *		the name of the API action to disable;
-	 *
-	 *	@retval array
-	 *		a status array of the form
-	 *	<pre><code class="php">[
-	 *		"success" => boolean, 	// whether the function succeded
-	 *		"data" => mixed 		// error message or NULL
-	 *	]</code></pre>
-	 *		where, the `success` field indicates whether the function succeded.
-	 *		The `data` field contains an error string when `success` is `FALSE`.
-	 */
-	public static function disableAPIaction( $api_version, $service_name, $action_name ){
-		// avoid disabling things that cannot be re-enabled
-		if( $service_name == 'api' && in_array($action_name, ['service_enable', 'action_enable']) )
-			return ['success' => false, 'data' => sprintf('The API action "%s.%s" cannot be disabled', $service_name, $action_name)];
-		if( !self::APIactionExists($api_version, $service_name, $action_name) )
-			return ['success' => false, 'data' => sprintf('The API action "%s.%s(v%s)" does not exist', $service_name, $action_name, $api_version)];
-		$action_disabled_flag = sprintf('%sapi/%s/flags/%s.%s.disabled.flag', $GLOBALS['__SYSTEM__DIR__'], $api_version, $service_name, $action_name);
-		if( !file_exists($action_disabled_flag) ){
-			$success = touch( $action_disabled_flag );
-			return ['success' => $success, 'data' => null];
-		}
-		return ['success' => true, 'data' => null];
-	}//disableAPIaction
-
 
 
 
@@ -1372,12 +1153,18 @@ class Core{
 	 *		alphanumeric hash of the commit currently fetched on the server
 	 */
 	public static function getCodebaseHash( $long_hash=false ){
+		// check if this object is cached
+		$cache_key = sprintf( "codebase_hash_%s", $long_hash? 'long' : 'short' );
+		if( self::$cache->has( $cache_key ) ) return self::$cache->get( $cache_key );
+		// hash not present in cache, get it from git
 		exec( 'git log -1 --format="%H"', $hash, $exit_code );
 		if( $exit_code != 0 ){
 			$hash = 'ND';
 		}else{
 			$hash = ($long_hash)? $hash[0] : substr( $hash[0], 0, 7 );
 		}
+		// cache hash
+		self::$cache->set( $cache_key, $hash, CacheTime::HOURS_24 );
 		//
 		return $hash;
 	}//getCodebaseHash
@@ -1400,6 +1187,10 @@ class Core{
 	 *
 	 */
 	public static function getCodebaseInfo(){
+		// check if this object is cached
+		$cache_key = "codebase_info";
+		if( self::$cache->has( $cache_key ) ) return self::$cache->get( $cache_key );
+		// hash not present in cache, get it from git
 		$codebase_info = [
 			'git_owner' => 'ND',
 			'git_repo' => 'ND',
@@ -1458,6 +1249,8 @@ class Core{
 			$latest_cb_tag = trim($latest_tag[0]);
 			$codebase_info['latest_tag'] = (strlen($latest_cb_tag) <= 0)? null : $latest_cb_tag;
 		}
+		// cache object
+		self::$cache->set( $cache_key, $codebase_info, CacheTime::HOURS_24 );
 		//
 		return $codebase_info;
 	}//getCodebaseInfo
@@ -1554,6 +1347,7 @@ class Core{
 		//TODO: implement a logging system here
 	}//collectErrorInfo
 
+
 	public static function collectDebugInfo( $package, $test_id, $test_value, $test_type ){
 		if( !Configuration::$DEBUG ) return;
 		if( !key_exists($package, self::$debugger_data) ) self::$debugger_data[$package] = array();
@@ -1592,67 +1386,29 @@ class Core{
 	}//log
 
 
+
 	// =================================================================================================================
 	// =================================================================================================================
 	//
 	//
 	// Private functions
 
-	private static function clearCacheGroups( $keywords ){
-		if( is_string($keywords) ) $keywords = array($keywords);
-		//
-		foreach( $keywords as $keyword ){
-			$groupID = md5($keyword);
-			//
-			foreach( $_SESSION['CACHE_GROUPS'][$groupID] as $qID ){
-				self::$cache->delete( $qID );
-			}
-			//
-			unset( $_SESSION['CACHE_GROUPS'][$groupID] );
-		}
-	}//clearCacheGroups
-
 	private static function regenerateSessionID( $delete_old_session = false ){
 		session_regenerate_id( $delete_old_session );
 	}//regenerateSessionID
 
-	private static function toAssociativeArray( $data, $key, $target=null ){
-		$res = array();
+
+	private static function _load_packages_settings( $core_only=false ){
+		// check if this object is cached
+		$cache_key = sprintf( "packages_settings%s", $core_only? '_core_only' : '' );
+		if( self::$cache->has( $cache_key ) ) return self::$cache->get( $cache_key );
 		//
-		foreach( $data as $elem ){
-			$res[$elem[$key]] = ( ($target==null)? $elem : $elem[$target] );
-			if( $target == null ){
-				unset( $res[$elem[$key]][$key] );
-			}
-		}
-		//
-		return $res;
-	}//toAssociativeArray
-
-	public static function _getGMTOffset(){
-		$now = new \DateTime();
-		$mins = $now->getOffset() / 60;
-		$sgn = ($mins < 0 ? -1 : 1);
-		$mins = abs($mins);
-		$hrs = floor($mins / 60);
-		$mins -= $hrs * 60;
-		$offset = sprintf('%+d:%02d', $hrs*$sgn, $mins);
-		//
-		return $offset;
-	}//_getGMTOffset
-
-	private static function _regex_extract_group($string, $pattern, $groupNum){
-	    preg_match_all($pattern, $string, $matches);
-	    return $matches[$groupNum][0];
-	}//_regex_extract_group
-
-
-	public static function _load_packages_settings(){
 		$packages = self::getPackagesList();
 		$packages_ids = array_keys( $packages );
 		$settings = [];
-		//
+		// iterate over the packages
 		foreach( $packages_ids as $pkg_id ){
+			if( $core_only && $pkg_id != 'core' ) continue;
 			$pkg_settings = new EditableConfiguration( $pkg_id );
 			$res = $pkg_settings->sanityCheck();
 			if( !$res['success'] ){
@@ -1664,78 +1420,24 @@ class Core{
 				];
 			}
 		}
+		// cache object
+		self::$cache->set( $cache_key, $settings, CacheTime::HOURS_24 );
 		//
 		return $settings;
 	}//_load_packages_settings
 
 
-	public static function _load_API_setup(){
-		$packages = self::getPackagesList();
-		$packages_ids = array_keys( $packages );
-		// load global settings for API
-		$global_api_setts_file = sprintf("%s/../api/web-api-settings.json", __DIR__);
-		$global_api_setts = json_decode( file_get_contents($global_api_setts_file), true );
-		// create resulting object
-		$api = [];
-		foreach( $global_api_setts['versions'] as $v => $v_specs ){
-			$api[$v] = [
-				'services' => [],
-				'global' => $global_api_setts['global'],
-				'enabled' => $v_specs['enabled']
-			];
-		}
-		//
-		foreach( $api as $api_version => &$api_v_specs ){
-			$api_v_enabled = $api_v_specs['enabled'];
-			foreach( $packages_ids as $pkg_id ){
-				$api_services_descriptors = sprintf("%s/../packages/%s/modules/api/%s/api-services/specifications/*.json", __DIR__, $pkg_id, $api_version);
-				$jsons = glob( $api_services_descriptors );
-				//
-				foreach ($jsons as $json) {
-					$api_service_id = self::_regex_extract_group($json, "/.*api\/(.+)\/api-services\/specifications\/(.+).json/", 2);
-					//
-					$api_services_path_regex = sprintf( "/(.+)\/specifications\/%s.json/", $api_service_id );
-					$api_service_executor_path = sprintf(
-						"%s/executors/%s.php",
-						self::_regex_extract_group($json, $api_services_path_regex, 1),
-						$api_service_id
-					);
-					//
-					$api_service = json_decode( file_get_contents($json), true );
-					$api_service['package'] = $pkg_id;
-					$api_service['id'] = $api_service_id;
-					$api_service['executor'] = $api_service_executor_path;
-					// check whether the service is enabled
-					$api_service_disabled_flag = sprintf('%sapi/%s/flags/%s.disabled.flag', $GLOBALS['__SYSTEM__DIR__'], $api_version, $api_service_id);
-					$api_service['enabled'] = !file_exists($api_service_disabled_flag);
-					$api_service['enabled'] = $api_v_enabled && $packages[$pkg_id]['enabled'] && $api_service['enabled'];
-					//
-					foreach ($api_service['actions'] as $api_action_id => &$api_action) {
-						$api_action_disabled_flag = sprintf('%sapi/%s/flags/%s.%s.disabled.flag', $GLOBALS['__SYSTEM__DIR__'], $api_version, $api_service_id, $api_action_id);
-						$api_action['enabled'] = !file_exists($api_action_disabled_flag);
-						$api_action['enabled'] = $api_service['enabled'] && $api_action['enabled'];
-						// collect user types
-						self::$registered_user_types = array_unique(
-							array_merge(self::$registered_user_types, $api_action['access_level'])
-						);
-					}
-					//
-					$api_v_specs['services'][$api_service_id] = $api_service;
-				}
-			}
-		}
-		//
-		return $api;
-	}//_load_API_setup
-
-
 	/*	Loads and returns the list of pages available in every package installed on the platform.
 	*TODO: add return description
 	*/
-	private static function _load_available_pages(){
+	private static function _load_available_pages( $core_only=false ){
+		// check if this object is cached
+		$cache_key = sprintf( "available_pages%s", $core_only? '_core_only' : '' );
+		if( self::$cache->has( $cache_key ) ) return self::$cache->get( $cache_key );
+		//
 		$packages = self::getPackagesList();
 		$packages_ids = array_keys( $packages );
-		//
+		// iterate over the packages
 		$pages = [
 			'list' => [],
 			'by-id' => [],
@@ -1746,13 +1448,14 @@ class Core{
 		];
 		//
 		foreach( $packages_ids as $pkg_id ){
+			if( $core_only && $pkg_id != 'core' ) continue;
 			$pages_descriptors = sprintf("%s%s/pages/*/metadata.json", $GLOBALS['__PACKAGES__DIR__'], $pkg_id);
 			$jsons = glob( $pages_descriptors );
 			$pages['by-package'][$pkg_id] = [];
 			//
 			foreach ($jsons as $json) {
-				$page_id = self::_regex_extract_group($json, "/.*pages\/(.+)\/metadata.json/", 1);
-				$page_path = self::_regex_extract_group($json, "/(.+)\/metadata.json/", 1);
+				$page_id = Utils::regex_extract_group($json, "/.*pages\/(.+)\/metadata.json/", 1);
+				$page_path = Utils::regex_extract_group($json, "/(.+)\/metadata.json/", 1);
 				$page = json_decode( file_get_contents($json), true );
 				$page['package'] = $pkg_id;
 				$page['id'] = $page_id;
@@ -1787,19 +1490,29 @@ class Core{
 			return ($a['menu_entry']['responsive']['priority'] < $b['menu_entry']['responsive']['priority'])? -1 : 1;
 		});
 		$pages['by-responsive-priority'] = $responsive_priority;
+		// cache object
+		self::$cache->set( $cache_key, $pages, CacheTime::HOURS_24 );
 		//
 		return $pages;
 	}//_load_available_pages
 
 
-	private static function _load_available_packages(){
+	private static function _load_available_packages( $core_only=false ){
+		// check if this object is cached
+		$cache_key = sprintf( "available_packages%s", $core_only? '_core_only' : '' );
+		if( self::$cache->has( $cache_key ) ) return self::$cache->get( $cache_key );
+		//
 		$pkgs_descriptors = $GLOBALS['__PACKAGES__DIR__']."*/metadata.json";
 		$jsons = glob( $pkgs_descriptors );
-		//
+		// check if this object is cached
+		$cache_key = sprintf( "available_packages%s", $core_only? '_core_only' : '' );
+		if( self::$cache->has( $cache_key ) ) return self::$cache->get( $cache_key );
+		// iterate over the packages
 		$pkgs = [];
 		foreach ($jsons as $json) {
-			$pkg_id = self::_regex_extract_group($json, "/.*packages\/(.+)\/metadata.json/", 1);
-			$pkg_path = self::_regex_extract_group($json, "/(.+)\/metadata.json/", 1);
+			$pkg_id = Utils::regex_extract_group($json, "/.*packages\/(.+)\/metadata.json/", 1);
+			if( $core_only && $pkg_id != 'core' ) continue;
+			$pkg_path = Utils::regex_extract_group($json, "/(.+)\/metadata.json/", 1);
 			$pkg = json_decode( file_get_contents($json), true );
 			$pkg['id'] = $pkg_id;
 			if( !key_exists('core', $pkg) ){
@@ -1818,12 +1531,29 @@ class Core{
 			$pkg['enabled'] = self::isPackageEnabled($pkg_id);
 			// load modules
 			self::_load_package_modules_list($pkg_id, $pkg);
+			// create public data symlink (if it does not exist)
+			$sym_link = sprintf( "%s%s", $GLOBALS['__DATA__DIR__'], $pkg_id );
+			$sym_link_exists = file_exists($sym_link);
+			self::collectDebugInfo($pkg_id, 'pkg_pubdata_symlink', $sym_link, Formatter::TEXT);
+			self::collectDebugInfo($pkg_id, 'pkg_pubdata_symlink_exists', $sym_link_exists, Formatter::BOOLEAN);
+			if( !$sym_link_exists ){
+				$public_data_dir = sprintf( "%s%s/data/public", $GLOBALS['__PACKAGES__DIR__'], $pkg_id );
+				$pubdata_exists = file_exists($public_data_dir);
+				self::collectDebugInfo($pkg_id, 'pkg_pubdata_dir_exists', $pubdata_exists, Formatter::BOOLEAN);
+				if( $pubdata_exists ){
+					$symlink_success = symlink($public_data_dir, $sym_link);
+					self::collectDebugInfo($pkg_id, 'pkg_create_pubdata_symlink', $symlink_success, Formatter::BOOLEAN);
+				}
+			}
 			// by-id
 			$pkgs[$pkg_id] = $pkg;
 		}
+		// cache object
+		self::$cache->set( $cache_key, $pkgs, CacheTime::HOURS_24 );
 		//
 		return $pkgs;
 	}//_load_available_packages
+
 
 	private static function _load_package_modules_list( &$pkg_id, &$package_descriptor ){
 		$package_descriptor['modules'] = [
@@ -1836,7 +1566,6 @@ class Core{
 		$package_descriptor['modules']['renderers/blocks'] = $block_rends;
 	}//_load_package_modules_list
 
-
-}
+}//Core
 
 ?>

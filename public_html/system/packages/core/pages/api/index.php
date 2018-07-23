@@ -5,8 +5,13 @@
 # @Last modified by:   afdaniele
 # @Last modified time: Monday, January 15th 2018
 
+require_once $GLOBALS['__SYSTEM__DIR__'].'/classes/RestfulAPI.php';
+use system\classes\Core;
+use system\classes\RestfulAPI;
 
-$api_setup = \system\classes\Core::getAPIsetup();
+// initialize RestfulAPI
+RestfulAPI::init();
+$api_setup = RestfulAPI::getConfiguration();
 
 // parse the version argument
 $version = ( ( isset($_GET['version']) && in_array(strtolower($_GET['version']), array_keys($api_setup), true) )? strtolower($_GET['version']) : ( (!isset($_GET['version']))? \system\classes\Configuration::$WEBAPI_VERSION : null ) );

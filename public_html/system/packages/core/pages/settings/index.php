@@ -5,6 +5,9 @@
 # @Last modified by:   afdaniele
 # @Last modified time: Monday, February 5th 2018
 
+use \system\classes\Core;
+use \system\classes\Configuration;
+use \system\classes\Cache;
 
 ?>
 
@@ -66,10 +69,10 @@
 
 	<?php
 
-	include_once "sections/general.php";
 	include_once "sections/packages.php";
 	include_once "sections/pages.php";
 	include_once "sections/api.php";
+	include_once "sections/cache.php";
 	include_once "sections/package_specific.php";
 	include_once "sections/codebase.php";
 	include_once "sections/debug.php";
@@ -82,7 +85,7 @@
 			'title' => 'General',
 			'icon' => 'fa fa-sliders',
 			'content' => settings_custom_package_tab,
-			'content_args' => ['core', \system\classes\Core::getPackageSettings('core')]
+			'content_args' => ['core', Core::getPackageSettings('core')]
 		],
 		1 => [
 			'id' => 'packages',
@@ -105,30 +108,37 @@
 			'content' => settings_api_tab,
 			'content_args' => null
 		],
-		// TODO: will be implemented in v1.0
-		// 4 => [
-		// 	'id' => 'cache',
-		// 	'title' => 'Cache system',
-		// 	'icon' => 'fa fa-history',
-		// 	'content' => settings_cache_tab,
-		// 	'content_args' => null
-		// ],
 
 		// [21-100] reserved for packages
 
 		// [101-400] free to use
 
-		// [501-600] reserved for \compose\ tabs
-		501 => [
+		// #501 reserved for cache tab
+
+		// [502-600] reserved for \compose\ tabs
+		502 => [
 			'id' => 'codebase',
 			'title' => 'Codebase',
 			'icon' => 'fa fa-code',
 			'content' => settings_codebase_tab,
 			'content_args' => null
 		]
+
+		// #600 reserved for debug tab
 	];
 
-	if( \system\classes\Configuration::$DEBUG ){
+	if( Cache::enabled() ){
+		// add cache tab if the flag is active
+		$settings_tabs[501] = [
+			'id' => 'cache',
+			'title' => 'Cache',
+			'icon' => 'fa fa-history',
+			'content' => settings_cache_tab,
+			'content_args' => null
+		];
+	}
+
+	if( Configuration::$DEBUG ){
 		// add Debugger tab if the flag is active
 		$settings_tabs[600] = [
 			'id' => 'debug',
@@ -140,9 +150,9 @@
 	}
 
 	$i = 10;
-	foreach (\system\classes\Core::getPackagesList() as $pkg_id => $pkg) {
+	foreach( Core::getPackagesList() as $pkg_id => $pkg ){
 		if( $pkg_id == 'core' ) continue;
-		$pkg_setts = \system\classes\Core::getPackageSettings( $pkg_id );
+		$pkg_setts = Core::getPackageSettings( $pkg_id );
 		if( $pkg_setts['success'] && !$pkg_setts['data']->is_configurable() ) continue;
 		$settings_tabs[$i] = [
 			'id' => 'package_'.$pkg_id,
@@ -190,8 +200,6 @@
 			<?php
 		}
 		?>
-
-
 	</div>
 
 </div>
@@ -209,5 +217,4 @@
 			$('#collapse_a_'+collapsible_id).trigger( 'click' );
 		}
 	});
-
 </script>
