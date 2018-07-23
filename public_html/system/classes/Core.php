@@ -339,10 +339,10 @@ class Core{
 		if( $_SESSION['USER_LOGGED'] ){
 			return array( 'success' => false, 'data' => 'You are already logged in!' );
 		}
-		// get the Google Client ID for the Google Application 'Duckieboard'
-		$CLIENT_ID = Configuration::$GOOGLE_CLIENT_ID;
 		// verify id_token
-		$client = new \Google_Client(['client_id' => $CLIENT_ID]);
+		$client = new \Google_Client([
+			'client_id' => self::getSetting('google_client_id', 'core')
+		]);
 		$payload = $client->verifyIdToken($id_token);
 		if ($payload) {
 			$userid = $payload['sub'];
@@ -1534,15 +1534,11 @@ class Core{
 			// create public data symlink (if it does not exist)
 			$sym_link = sprintf( "%s%s", $GLOBALS['__DATA__DIR__'], $pkg_id );
 			$sym_link_exists = file_exists($sym_link);
-			self::collectDebugInfo($pkg_id, 'pkg_pubdata_symlink', $sym_link, Formatter::TEXT);
-			self::collectDebugInfo($pkg_id, 'pkg_pubdata_symlink_exists', $sym_link_exists, Formatter::BOOLEAN);
 			if( !$sym_link_exists ){
 				$public_data_dir = sprintf( "%s%s/data/public", $GLOBALS['__PACKAGES__DIR__'], $pkg_id );
 				$pubdata_exists = file_exists($public_data_dir);
-				self::collectDebugInfo($pkg_id, 'pkg_pubdata_dir_exists', $pubdata_exists, Formatter::BOOLEAN);
 				if( $pubdata_exists ){
 					$symlink_success = symlink($public_data_dir, $sym_link);
-					self::collectDebugInfo($pkg_id, 'pkg_create_pubdata_symlink', $symlink_success, Formatter::BOOLEAN);
 				}
 			}
 			// by-id

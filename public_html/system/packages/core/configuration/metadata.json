@@ -30,6 +30,12 @@
             "default" : "administrator@example.com",
             "details" : "E-mail address of the administrator"
         },
+        "google_client_id" : {
+            "title" : "Google Client ID",
+            "type" : "text",
+            "default" : "YOUR_GOOGLE_CLIENT_ID",
+            "details" : "Google Client ID. Obtain one from https://console.developers.google.com/apis/credentials"
+        },
         "cache_enabled" : {
             "title" : "Use cache",
             "type" : "boolean",

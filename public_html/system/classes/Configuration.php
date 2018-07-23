@@ -29,8 +29,6 @@ class Configuration {
 	public static $SHORT_SITE_NAME;
 	public static $SHORT_SITE_LINK;
 
-	public static $GOOGLE_CLIENT_ID;
-
 	public static $NOREPLY_MAIL_ADDRESS;
 	public static $NOREPLY_MAIL_HOST;
 	public static $NOREPLY_MAIL_AUTH;
@@ -77,8 +75,6 @@ class Configuration {
 			self::$BASE = $BASE_URL; //TODO: for language or other link tags
 			self::$SHORT_SITE_NAME = $SHORT_SITE_NAME;
 			self::$SHORT_SITE_LINK = $SHORT_SITE_LINK;
-			//
-			self::$GOOGLE_CLIENT_ID = $GOOGLE_CLIENT_ID;
 			//
 			self::$NOREPLY_MAIL_ADDRESS = $NOREPLY_MAIL_ADDRESS;
 			self::$NOREPLY_MAIL_HOST = $NOREPLY_MAIL_HOST;

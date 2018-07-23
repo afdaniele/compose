@@ -79,10 +79,9 @@ Configuration::$ACTION = $requested_action;
 Configuration::$ARG1 = (count($args) > 2 && $args[2] !== '') ? $args[2] : null;
 Configuration::$ARG2 = (count($args) > 3 && $args[3] !== '') ? $args[3] : null;
 
+// execute URL rewrite
 URLrewrite::match();
-
 ?>
-
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -145,7 +144,7 @@ URLrewrite::match();
 
 	<!-- Google API Library -->
 	<script src="https://apis.google.com/js/platform.js"></script>
-	<meta name="google-signin-client_id" content="<?php echo Configuration::$GOOGLE_CLIENT_ID ?>">
+	<meta name="google-signin-client_id" content="<?php echo Core::getSetting('google_client_id', 'core') ?>">
 
 	<!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
 	<!--[if lt IE 9]>
