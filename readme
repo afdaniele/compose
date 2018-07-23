@@ -46,10 +46,10 @@ Things to add later in the development:
 
         [ ] - the RestfulAPI is now managed by the class \system\classes\RestfulAPI.
             [X] - update api page
-            [ ] - update api settings page
-            [ ] - update api settings actions
+            [X] - update api settings page
+            [X] - update api settings actions
             [X] - update api executors
-            [ ] - update web-api index file
+            [X] - update web-api index file
 
         [X] - add cache system
             [X] - cache Core::$packages

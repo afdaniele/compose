@@ -21,71 +21,24 @@ require_once __DIR__.'/../system/environment.php';
 // load core classes and utility
 require_once $GLOBALS['__SYSTEM__DIR__'].'/classes/Core.php';
 require_once $GLOBALS['__SYSTEM__DIR__'].'/classes/RestfulAPI.php';
+require_once $GLOBALS['__SYSTEM__DIR__'].'/classes/Configuration.php';
+require_once $GLOBALS['__SYSTEM__DIR__'].'/classes/enum/StringType.php';
+require_once $GLOBALS['__SYSTEM__DIR__'].'/utils/utils.php';
+
 use system\classes\Core;
 use system\classes\RestfulAPI;
+use system\classes\enum\StringType;
+use system\classes\Configuration;
 
 // init Core
-Core::initCore();
+Core::init();
 RestfulAPI::init();
-
-
-require_once $GLOBALS['__SYSTEM__DIR__'].'classes/enum/StringType.php';
-use system\classes\enum\StringType as StringType;
-
-
-require_once $GLOBALS['__SYSTEM__DIR__'].'utils/utils.php';
-
-
-require_once $GLOBALS['__SYSTEM__DIR__'].'classes/Configuration.php';
-use system\classes\Configuration as Configuration;
-
 
 //init configuration
 Configuration::init();
 
 
-//TODO: this is probably unnecessary since initCore would do the same
-$cache = null;
-
-
-
-// TODO: Configuration::$CACHE_ENABLED is no longer available
-// if( Configuration::$CACHE_ENABLED ){
-// 	// load fast cache system
-// 	require_once __DIR__.'/../system/classes/phpfastcache/phpfastcache.php';
-// 	try{
-// 		$cache = phpFastCache(Configuration::$CACHE_SYSTEM);
-// 	}catch(Exception $e){
-// 		$cache = null;
-// 		Configuration::$CACHE_ENABLED = false;
-// 	}
-// }
-// //
-// Configuration::$CACHE_ENABLED = ( $cache != null && $cache instanceof phpFastCache );
-// Configuration::$CACHE_ENABLED = false;
-
-
-
-// // load web-api settings
-// if( Configuration::$CACHE_ENABLED ){
-// 	$webapi_settings = $cache->get( "WEB-API-SETTINGS" );
-// 	if( $webapi_settings == null ){
-// 		// read from file
-// 		$sett_file_content = file_get_contents( __DIR__.'/../system/api/web-api-settings.json' );
-// 		$webapi_settings = json_decode($sett_file_content, true);
-// 		// save the web-api settings into the cache for:  60 seconds * 60 minutes * 24 hours = 86400 seconds = 1 day
-// 		$cache->set( "WEB-API-SETTINGS" , serialize($webapi_settings) , 86400 );
-// 	}else{
-// 		$webapi_settings = unserialize( $webapi_settings );
-// 	}
-// }else{
-// 	// read from file
-// 	$sett_file_content = file_get_contents( __DIR__.'/../system/api/web-api-settings.json' );
-// 	$webapi_settings = json_decode($sett_file_content, true);
-// }
-
-// read from file
-//TODO: enable cache
+//TODO: cache?
 $sett_file_content = file_get_contents( __DIR__.'/../system/api/web-api-settings.json' );
 $webapi_settings = json_decode($sett_file_content, true);
 

@@ -177,7 +177,7 @@ class Core{
 	 *		where, the `success` field indicates whether the call succeded.
 	 *		The `data` field contains an error string when `success` is `FALSE`.
 	 */
-	public static function initCore( $safe_mode=false ){
+	public static function init( $safe_mode=false ){
 		if( !self::$initialized ){
 			mb_internal_encoding("UTF-8");
 			//
@@ -241,7 +241,7 @@ class Core{
 		}else{
 			return array( 'success' => true, 'data' => "Core already initialized!" );
 		}
-	}//initCore
+	}//init
 
 
 	public static function loadPackagesModules( $module_family=null, $pkg_id=null ){

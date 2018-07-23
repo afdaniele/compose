@@ -41,7 +41,7 @@ Core::startSession();
 
 // init Core
 $safe_mode = ($requested_page == 'error') || (isset($_GET['safemode']) && boolval($_GET['safemode']));
-Core::initCore( $safe_mode );
+Core::init( $safe_mode );
 
 // get info about the current user
 $user_role = Core::getUserRole();
