@@ -8,10 +8,18 @@
                     "details" : "Output format"
                 }
             },
-            "mandatory" : {
+            "optional" : {
                 "token" : {
                     "type" : "alphanumeric",
-                    "details" : "Alphanumeric string used to authorize the API call within the current PHP session."
+                    "details" : "Alphanumeric string used to authorize the API call within the current PHP session (Web Browser calls only)"
+                },
+                "app_id" : {
+                    "type" : "text",
+                    "details" : "API Application ID used to authorize this call"
+                },
+                "app_secret" : {
+                    "type" : "alphanumeric",
+                    "details" : "API Application alphanumeric secret string used to authorize this call"
                 }
             }
         }
