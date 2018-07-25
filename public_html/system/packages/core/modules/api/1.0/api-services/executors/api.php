@@ -85,6 +85,65 @@ function execute( &$service, &$actionName, &$arguments ){
 			return response200OK();
 			break;
 		//
+		case 'app_create':
+			$endpoints = [];
+			// get one option for each service/action pair
+			foreach( RESTfulAPI::getConfiguration() as $pkg_id => &$pkg_api ){
+			    foreach( $pkg_api['services'] as $service_id => &$service_config ){
+			        foreach( $service_config['actions'] as $action_id => &$action_config ){
+			            $pair = sprintf('%s__%s', $service_id, $action_id);
+						if( isset($arguments[$pair]) && $arguments[$pair]=='1' ){
+							array_push($endpoints_up, sprintf('%s/%s', $service_id, $action_id));
+						}
+			        }
+			    }
+			}
+			// create new app entry
+			$res = RESTfulAPI::createUserApplication( $arguments['name'], $endpoints, boolval($arguments['enabled']) );
+			if( !$res['success'] ){
+				return response400BadRequest( $res['data'] );
+			}
+			//
+			return response200OK();
+			break;
+		//
+		case 'app_update':
+			$endpoints_up = [];
+			$endpoints_dw = [];
+			// get one option for each service/action pair
+			foreach( RESTfulAPI::getConfiguration() as $pkg_id => &$pkg_api ){
+				foreach( $pkg_api['services'] as $service_id => &$service_config ){
+					foreach( $service_config['actions'] as $action_id => &$action_config ){
+						$pair = sprintf('%s__%s', $service_id, $action_id);
+						if( isset($arguments[$pair]) && $arguments[$pair]=='1' ){
+							array_push($endpoints_up, sprintf('%s/%s', $service_id, $action_id));
+						}else{
+							array_push($endpoints_dw, sprintf('%s/%s', $service_id, $action_id));
+						}
+					}
+				}
+			}
+			// do not change status if `enabled` is not passed as an argument
+			$enabled = isset($arguments['enabled'])? boolval($arguments['enabled']) : null;
+			// update the entry
+			$res = RESTfulAPI::updateUserApplication( $arguments['id'], $endpoints_up, $endpoints_dw, $enabled );
+			if( !$res['success'] ){
+				return response400BadRequest( $res['data'] );
+			}
+			//
+			return response200OK();
+			break;
+		//
+		case 'app_delete':
+			// delete the app entry
+			$res = RESTfulAPI::deleteUserApplication( $arguments['id'] );
+			if( !$res['success'] ){
+				return response400BadRequest( $res['data'] );
+			}
+			//
+			return response200OK();
+			break;
+		//
 		default:
 			return response404NotFound( sprintf("The command '%s' was not found", $actionName) );
 			break;

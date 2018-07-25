@@ -1286,6 +1286,11 @@ class Core{
 	}//throwError
 
 
+	public static function throwException( $exceptionMsg ){
+		self::throwError( $exceptionMsg );
+	}//throwException
+
+
 	public static function sendEMail($to, $subject, $template, $replace, $replyTo=null){
 		// prepare the message body
 		$res = EmailTemplates::fill( $template, $replace );
@@ -1355,7 +1360,7 @@ class Core{
 		self::$debugger_data[$package][$test_id] = [ $test_value, $test_type ];
 	}//collectDebugInfo
 
-
+	// TODO: DO NOT USE: moving to Utils, use Utils::generateRandomString() instead
 	public static function generateRandomString( $length ) {
 		$chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
 		$count = mb_strlen($chars);
@@ -1432,8 +1437,12 @@ class Core{
 	*/
 	private static function _load_available_pages( $core_only=false ){
 		// check if this object is cached
-		$cache_key = sprintf( "available_pages%s", $core_only? '_core_only' : '' );
-		if( self::$cache->has( $cache_key ) ) return self::$cache->get( $cache_key );
+		$cache_key_pages = sprintf( "available_pages%s", $core_only? '_core_only' : '' );
+		$cache_key_user_types = sprintf( "user_types%s", $core_only? '_core_only' : '' );
+		if( self::$cache->has($cache_key_pages) && self::$cache->has($cache_key_user_types) ){
+			self::$registered_user_types = self::$cache->get( $cache_key_user_types );
+			return self::$cache->get( $cache_key_pages );
+		}
 		//
 		$packages = self::getPackagesList();
 		$packages_ids = array_keys( $packages );
@@ -1490,8 +1499,9 @@ class Core{
 			return ($a['menu_entry']['responsive']['priority'] < $b['menu_entry']['responsive']['priority'])? -1 : 1;
 		});
 		$pages['by-responsive-priority'] = $responsive_priority;
-		// cache object
-		self::$cache->set( $cache_key, $pages, CacheTime::HOURS_24 );
+		// cache objects
+		self::$cache->set( $cache_key_pages, $pages, CacheTime::HOURS_24 );
+		self::$cache->set( $cache_key_user_types, self::$registered_user_types, CacheTime::HOURS_24 );
 		//
 		return $pages;
 	}//_load_available_pages

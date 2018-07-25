@@ -55,6 +55,14 @@ class Database{
         return $jsondb->commit();
     }//write
 
+    public function delete( $key ){
+        $entry_file = self::key_to_db_file( $key );
+        // delete if exists
+        if( file_exists($entry_file) )
+            return ['success' => @unlink($entry_file), 'data' => null];
+        return ['success' => true, 'data' => null];
+    }//delete
+
     public function key_exists( $key ){
         $entry_file = self::key_to_db_file( $key );
         // check if file exists

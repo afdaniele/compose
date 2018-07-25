@@ -187,6 +187,98 @@
 		        "optional" : {}
 		    },
 		    "return" : {}
+		},
+		"app_create" : {
+			"details" : "Create a new API application and a secret token to use with the RESTfulAPI",
+            "access_level" : [
+                "administrator",
+                "supervisor",
+                "user"
+            ],
+            "read_only_session" : true,
+		    "parameters" : {
+		        "mandatory" : {
+                    "name" : {
+		                "type" : "text",
+                        "length" : null,
+		                "details" : "Name of the application to create"
+		            },
+                    "enabled" : {
+		                "type" : "boolean",
+                        "length" : null,
+		                "details" : "Whether or not the application should be enabled"
+		            }
+                },
+		        "optional" : {
+                    "key1=val1" : {
+		                "type" : "text",
+                        "length" : null,
+		                "details" : "Tuple <code>key=val</code>, where <code>key</code> has the form <code>service.action</code> and <code>val</code> is a boolean value indicating whether the action <code>service/action</code> is accessible to this application"
+		            },
+                    "..." : {
+		                "type" : "text",
+                        "length" : null,
+		                "details" : "Sequence of other <code>key=val</code> tuples"
+		            }
+                }
+		    },
+		    "return" : {}
+		},
+        "app_update" : {
+			"details" : "Update an existing API application. Can be used to enable/disable the app entirely or give/withhold access to an API end-point",
+            "access_level" : [
+                "administrator",
+                "supervisor",
+                "user"
+            ],
+            "read_only_session" : true,
+		    "parameters" : {
+		        "mandatory" : {
+                    "id" : {
+		                "type" : "text",
+                        "length" : null,
+		                "details" : "ID of the application to update"
+		            }
+                },
+		        "optional" : {
+                    "enabled" : {
+		                "type" : "boolean",
+                        "length" : null,
+		                "details" : "Whether the application is enabled"
+		            },
+                    "key1=val1" : {
+		                "type" : "text",
+                        "length" : null,
+		                "details" : "Tuple <code>key=val</code>, where <code>key</code> has the form <code>service.action</code> and <code>val</code> is a boolean value indicating whether the action <code>service/action</code> is accessible to this application"
+		            },
+                    "..." : {
+		                "type" : "text",
+                        "length" : null,
+		                "details" : "Sequence of other <code>key=val</code> tuples"
+		            }
+                }
+		    },
+		    "return" : {}
+		},
+        "app_delete" : {
+			"details" : "Removes an existing API application. All the external applications using a deleted API app to communicate wth \\compose\\ will stop working",
+            "access_level" : [
+                "administrator",
+                "supervisor",
+                "user"
+            ],
+            "read_only_session" : true,
+		    "parameters" : {
+		        "mandatory" : {
+                    "id" : {
+		                "type" : "text",
+                        "length" : null,
+		                "details" : "ID of the application to delete"
+		            }
+                },
+		        "optional" : {}
+		    },
+		    "return" : {}
 		}
 	}
 }

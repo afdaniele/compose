@@ -111,7 +111,8 @@ class TableViewer {
 
 
 	public static function generateTableViewer( $baseurl, $res, $features, $table, $formID='the-form' ){
-		// extract informations
+		if( is_null($features) ) $features = [];
+		// extract information
 		$features_values = array();
 		foreach( $features as $key => $feat ){
 			$features_values[$key] = $feat['value'];
@@ -163,232 +164,238 @@ class TableViewer {
 		?>
 		<div class="col-md-12" style="padding:0">
 
-		<!-- === Begin Results Bar ================================================================================= -->
-		<nav class="navbar navbar-default" role="navigation" style="margin-bottom:6px">
-			<div class="container-fluid" style="padding-left:0; padding-right:0">
+		<?php
+		if( count($features) > 0 ){
+		?>
+			<!-- === Begin Results Bar ================================================================================= -->
+			<nav class="navbar navbar-default" role="navigation" style="margin-bottom:6px">
+				<div class="container-fluid" style="padding-left:0; padding-right:0">
 
-				<div class="collapse navbar-collapse navbar-left" style="padding-left:10px; padding-right:0">
-
-					<ul class="nav navbar-nav navbar-left">
-						<li>
-							<a style="padding-right:0; padding-left:5px">
-								<strong>Results:</strong>
-							</a>
-						</li>
-					</ul>
-
-
-					<ul class="nav navbar-nav navbar-left">
-
-						<?php
-						if( $pagination ){
-							?>
-							<li class="dropdown">
-								<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false" id="results_options_dropdown">
-									<?php echo '( ' . ($offset+ ( ($res_count > 0)? 1 : 0)) . '-' . ($offset+$res_count) . ' )&nbsp; |&nbsp; '.$total_count . ' total' ?>
-									<span class="caret"></span>
-								</a>
-								<ul class="dropdown-menu" role="menu" style="width:200px">
-									<div style="padding:6px 8px 0 8px">
-										<div class="text-left">
-											<strong>Results per page:</strong>
-										</div>
-										<div style="padding-left:22px">
-											<form method="get" action="<?php echo \system\classes\Configuration::$BASE.$baseurl ?>">
-												<?php
-												$options = array(5, 10, 20, 30);
-												foreach( $options as $qty ){
-													?>
-													<div class="radio">
-														<label>
-															<input type="radio" name="results" id="option_<?php echo $qty ?>" value="<?php echo $qty ?>" <?php echo ( ($result_per_page == $qty)? 'checked' : '' ) ?> onclick="this.form.submit();">
-															<label for="option_<?php echo $qty ?>" style="padding-left:4px"><?php echo $qty ?> results</label>
-														</label>
-													</div>
-												<?php
-												}
-												//
-												if( !in_array($result_per_page, $options) ){
-													// add an extra row
-													?>
-													<li role="presentation" class="divider"></li>
-													<li role="presentation" class="dropdown-header">Custom:</li>
-													<input type="radio" id="option_custom" checked>
-													<label for="option_custom" style="padding-left:4px"><?php echo $result_per_page ?> results</label>
-												<?php
-												}
-												//
-												foreach( $filtered_features['results'] as $param ){
-													if( isset($features['_valid'][$param]) ){
-														echo '<input type="hidden" name="'.$param.'" value="'.$features_values[$param].'"></input>';
-													}
-												}
-												?>
-											</form>
-										</div>
-									</div>
-								</ul>
-							</li>
-						<?php
-						}else{
-							?>
-							<li>
-								<a style="padding-right:0">
-									<?php echo '( ' . ($offset+ ( ($res_count > 0)? 1 : 0)) . '-' . ($offset+$res_count) . ' )&nbsp; |&nbsp; '.$total_count . ' Total' ?>
-								</a>
-							</li>
-						<?php
-						}
-						?>
-					</ul>
-
-				</div>
-
-
-				<?php
-				if( $filter_enabled ){
-					?>
-					<div class="collapse navbar-collapse navbar-right" style="padding-right:0; padding-left:5px">
+					<div class="collapse navbar-collapse navbar-left" style="padding-left:10px; padding-right:0">
 
 						<ul class="nav navbar-nav navbar-left">
-							<li style="border-left:1px solid #ddd"><a style="padding-right:5px"><strong>Filter:</strong></a></li>
+							<li>
+								<a style="padding-right:0; padding-left:5px">
+									<strong>Results:</strong>
+								</a>
+							</li>
 						</ul>
 
-						<?php
-						if( array_key_exists( 'tag', $features ) ){
-							?>
-							<ul class="nav navbar-nav navbar-left">
-								<li>
-									<a style="padding-right:0">
-										<span class="glyphicon glyphicon-tag" aria-hidden="true"></span>
-										<strong><?php echo $features['tag']['translation'] ?>:</strong>
-									</a>
-								</li>
-							</ul>
 
-							<ul class="nav navbar-nav">
+						<ul class="nav navbar-nav navbar-left">
+
+							<?php
+							if( $pagination ){
+								?>
 								<li class="dropdown">
-
-									<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false" style="color:#337ab7" id="tag_selector_dropdown">
-										choose...
+									<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false" id="results_options_dropdown">
+										<?php echo '( ' . ($offset+ ( ($res_count > 0)? 1 : 0)) . '-' . ($offset+$res_count) . ' )&nbsp; |&nbsp; '.$total_count . ' total' ?>
 										<span class="caret"></span>
 									</a>
-
-									<?php
-									$tags4 = array();
-									//
-									for( $i = 0; $i < min(4, sizeof($features['tag']['values'])); $i++){
-										$tags4[$i] = $features['tag']['values'][$i];
-									}
-									?>
-
-									<ul class="dropdown-menu" role="menu">
-										<?php
-										if( sizeof($tags4) > 0 ){
-											for( $i = 0; $i < sizeof($tags4); $i++ ){
-												?>
-												<li><a href="<?php echo $querystrings['tag'].'tag='.$tags4[$i] ?>"><?php echo ucfirst($tags4[$i]) ?></a></li>
-											<?php
-											}
-											if( sizeof($features['tag']['values']) > 4 ){
-												?>
-												<li class="divider"></li>
-												<li><a href="#" data-toggle="modal" class="tags_modal_button" data-target="#table-viewer-tag-selector-modal-<?php echo $table_viewer_unique_id ?>">Show all...</a></li>
-											<?php
-											}
-										}else{
-											echo '<a class="text-center">Nothing</a>';
-										}
-										?>
+									<ul class="dropdown-menu" role="menu" style="width:200px">
+										<div style="padding:6px 8px 0 8px">
+											<div class="text-left">
+												<strong>Results per page:</strong>
+											</div>
+											<div style="padding-left:22px">
+												<form method="get" action="<?php echo \system\classes\Configuration::$BASE.$baseurl ?>">
+													<?php
+													$options = array(5, 10, 20, 30);
+													foreach( $options as $qty ){
+														?>
+														<div class="radio">
+															<label>
+																<input type="radio" name="results" id="option_<?php echo $qty ?>" value="<?php echo $qty ?>" <?php echo ( ($result_per_page == $qty)? 'checked' : '' ) ?> onclick="this.form.submit();">
+																<label for="option_<?php echo $qty ?>" style="padding-left:4px"><?php echo $qty ?> results</label>
+															</label>
+														</div>
+													<?php
+													}
+													//
+													if( !in_array($result_per_page, $options) ){
+														// add an extra row
+														?>
+														<li role="presentation" class="divider"></li>
+														<li role="presentation" class="dropdown-header">Custom:</li>
+														<input type="radio" id="option_custom" checked>
+														<label for="option_custom" style="padding-left:4px"><?php echo $result_per_page ?> results</label>
+													<?php
+													}
+													//
+													foreach( $filtered_features['results'] as $param ){
+														if( isset($features['_valid'][$param]) ){
+															echo '<input type="hidden" name="'.$param.'" value="'.$features_values[$param].'"></input>';
+														}
+													}
+													?>
+												</form>
+											</div>
+										</div>
 									</ul>
-
 								</li>
-							</ul>
-						<?php
-						}
-
-						if( array_key_exists( 'keywords', $features ) ){
-							?>
-							<ul class="nav navbar-nav navbar-left">
+							<?php
+							}else{
+								?>
 								<li>
 									<a style="padding-right:0">
-										<span class="glyphicon glyphicon-search" aria-hidden="true"></span>
-										<strong>Search:</strong>
+										<?php echo '( ' . ($offset+ ( ($res_count > 0)? 1 : 0)) . '-' . ($offset+$res_count) . ' )&nbsp; |&nbsp; '.$total_count . ' Total' ?>
 									</a>
 								</li>
-							</ul>
-
-							<form class="navbar-form navbar-left" role="search" method="get" action="<?php echo \system\classes\Configuration::$BASE . $baseurl ?>" style="padding-right:10px">
-								<?php
-								?>
-								<div class="form-group">
-									<?php
-									foreach( $filtered_features['keywords'] as $param ){
-										if( isset($features['_valid'][$param]) ){
-											echo '<input type="hidden" name="'.$param.'" value="'.$features_values[$param].'"></input>';
-										}
-									}
-									?>
-									<input type="text" class="form-control" placeholder="<?php echo $features['keywords']['placeholder'] ?>" name="keywords" style="width:160px" id="keywords_input">
-								</div>
-								<button type="submit" class="btn btn-default" style="margin-left:10px">Go</button>
-							</form>
-
-						<?php
-						}
-						?>
+							<?php
+							}
+							?>
+						</ul>
 
 					</div>
-				<?php
-				}
-				?>
 
-			</div>
-		</nav>
 
-		<div class="col-md-12" style="border-bottom:1px solid #efefef">
-			<table style="float:right">
-				<tr>
-					<td>
-						<?php
-						if( $filter_in_use ){
-							$tag_queryString = $querystrings['tag'];
-							$keywords_queryString = $querystrings['keywords'];
-							//
-							echo 'Active filters:'.
-								( ($tagfilter_in_use)? '&nbsp; <span class="glyphicon glyphicon-tag" aria-hidden="true"></span><a href="#"> '.ucfirst($features_values['tag']).'</a> (<a href="'.$tag_queryString.'" style="color:red"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></a>)' : '' ) .
-								( ($tagfilter_in_use && $keywordsfilter_in_use)? ' , &nbsp;' : '&nbsp; '  ) .
-								( ($keywordsfilter_in_use)? '<span class="glyphicon glyphicon-search" aria-hidden="true"></span><a href="#"> "'.$features_values['keywords'].'"</a> (<a href="'.$keywords_queryString.'" style="color:red"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></a>)' : '' );
-						}
-						echo ( ($order_enabled)? ( (($filter_in_use)? ', S' : 'Results s' ) . 'orted by:' ) : '' );
-						?>
-					</td>
 					<?php
-					if($order_enabled){
+					if( $filter_enabled ){
 						?>
-						<td>
-							<div class="dropdown" style="margin-left:3px">
-								<a class="dropdown-toggle" data-toggle="dropdown" href="#" id="ordering_options_dropdown">
-									<?php echo $features['order']['details'][$features_values['order']]['translation'] ?>
-									<span class="caret"></span>
-								</a>
+						<div class="collapse navbar-collapse navbar-right" style="padding-right:0; padding-left:5px">
 
-								<ul class="dropdown-menu"  role="menu">
-									<?php
-									foreach( $features['order']['values'] as $ord ){
-										echo '<li role="presentation"><a role="menuitem" tabindex="-1" href="'.$querystrings['order'].'order='.$ord.'">'.$features['order']['details'][$ord]['translation'].'</a></li>';
-									}
-									?>
+							<ul class="nav navbar-nav navbar-left">
+								<li style="border-left:1px solid #ddd"><a style="padding-right:5px"><strong>Filter:</strong></a></li>
+							</ul>
+
+							<?php
+							if( array_key_exists( 'tag', $features ) ){
+								?>
+								<ul class="nav navbar-nav navbar-left">
+									<li>
+										<a style="padding-right:0">
+											<span class="glyphicon glyphicon-tag" aria-hidden="true"></span>
+											<strong><?php echo $features['tag']['translation'] ?>:</strong>
+										</a>
+									</li>
 								</ul>
-							</div>
-						</td>
+
+								<ul class="nav navbar-nav">
+									<li class="dropdown">
+
+										<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false" style="color:#337ab7" id="tag_selector_dropdown">
+											choose...
+											<span class="caret"></span>
+										</a>
+
+										<?php
+										$tags4 = array();
+										//
+										for( $i = 0; $i < min(4, sizeof($features['tag']['values'])); $i++){
+											$tags4[$i] = $features['tag']['values'][$i];
+										}
+										?>
+
+										<ul class="dropdown-menu" role="menu">
+											<?php
+											if( sizeof($tags4) > 0 ){
+												for( $i = 0; $i < sizeof($tags4); $i++ ){
+													?>
+													<li><a href="<?php echo $querystrings['tag'].'tag='.$tags4[$i] ?>"><?php echo ucfirst($tags4[$i]) ?></a></li>
+												<?php
+												}
+												if( sizeof($features['tag']['values']) > 4 ){
+													?>
+													<li class="divider"></li>
+													<li><a href="#" data-toggle="modal" class="tags_modal_button" data-target="#table-viewer-tag-selector-modal-<?php echo $table_viewer_unique_id ?>">Show all...</a></li>
+												<?php
+												}
+											}else{
+												echo '<a class="text-center">Nothing</a>';
+											}
+											?>
+										</ul>
+
+									</li>
+								</ul>
+							<?php
+							}
+
+							if( array_key_exists( 'keywords', $features ) ){
+								?>
+								<ul class="nav navbar-nav navbar-left">
+									<li>
+										<a style="padding-right:0">
+											<span class="glyphicon glyphicon-search" aria-hidden="true"></span>
+											<strong>Search:</strong>
+										</a>
+									</li>
+								</ul>
+
+								<form class="navbar-form navbar-left" role="search" method="get" action="<?php echo \system\classes\Configuration::$BASE . $baseurl ?>" style="padding-right:10px">
+									<?php
+									?>
+									<div class="form-group">
+										<?php
+										foreach( $filtered_features['keywords'] as $param ){
+											if( isset($features['_valid'][$param]) ){
+												echo '<input type="hidden" name="'.$param.'" value="'.$features_values[$param].'"></input>';
+											}
+										}
+										?>
+										<input type="text" class="form-control" placeholder="<?php echo $features['keywords']['placeholder'] ?>" name="keywords" style="width:160px" id="keywords_input">
+									</div>
+									<button type="submit" class="btn btn-default" style="margin-left:10px">Go</button>
+								</form>
+
+							<?php
+							}
+							?>
+
+						</div>
 					<?php
 					}
 					?>
-				</tr>
-			</table>
-		</div>
-		<!-- === End Results Bar =================================================================================== -->
+
+				</div>
+			</nav>
+
+			<div class="col-md-12" style="border-bottom:1px solid #efefef">
+				<table style="float:right">
+					<tr>
+						<td>
+							<?php
+							if( $filter_in_use ){
+								$tag_queryString = $querystrings['tag'];
+								$keywords_queryString = $querystrings['keywords'];
+								//
+								echo 'Active filters:'.
+									( ($tagfilter_in_use)? '&nbsp; <span class="glyphicon glyphicon-tag" aria-hidden="true"></span><a href="#"> '.ucfirst($features_values['tag']).'</a> (<a href="'.$tag_queryString.'" style="color:red"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></a>)' : '' ) .
+									( ($tagfilter_in_use && $keywordsfilter_in_use)? ' , &nbsp;' : '&nbsp; '  ) .
+									( ($keywordsfilter_in_use)? '<span class="glyphicon glyphicon-search" aria-hidden="true"></span><a href="#"> "'.$features_values['keywords'].'"</a> (<a href="'.$keywords_queryString.'" style="color:red"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></a>)' : '' );
+							}
+							echo ( ($order_enabled)? ( (($filter_in_use)? ', S' : 'Results s' ) . 'orted by:' ) : '' );
+							?>
+						</td>
+						<?php
+						if($order_enabled){
+							?>
+							<td>
+								<div class="dropdown" style="margin-left:3px">
+									<a class="dropdown-toggle" data-toggle="dropdown" href="#" id="ordering_options_dropdown">
+										<?php echo $features['order']['details'][$features_values['order']]['translation'] ?>
+										<span class="caret"></span>
+									</a>
+
+									<ul class="dropdown-menu"  role="menu">
+										<?php
+										foreach( $features['order']['values'] as $ord ){
+											echo '<li role="presentation"><a role="menuitem" tabindex="-1" href="'.$querystrings['order'].'order='.$ord.'">'.$features['order']['details'][$ord]['translation'].'</a></li>';
+										}
+										?>
+									</ul>
+								</div>
+							</td>
+						<?php
+						}
+						?>
+					</tr>
+				</table>
+			</div>
+			<!-- === End Results Bar =================================================================================== -->
+		<?php
+		}
+		?>
 
 
 		<br/>
@@ -530,12 +537,8 @@ class TableViewer {
 												echo $action['function']['custom_html'];
 											}
 											?>
-											style="
+											style="height: 24px; padding-top: 2px;
 											<?php
-											if( isset($action['text']) ){
-												echo 'height: 28px; padding-top: 3px; ';
-											}
-											//
 											if( isset($action['condition']) && !in_array($record[$action['condition']['field']], $action['condition']['values']) ){
 												echo "background-image:none; background-color:rgb(189, 188, 188); border:1px solid; ";
 											}

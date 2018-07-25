@@ -6,6 +6,7 @@ namespace system\classes;
 
 use system\classes\Core;
 use system\classes\Utils;
+use system\classes\Database;
 use system\classes\enum\CacheTime;
 
 
@@ -333,6 +334,154 @@ class RESTfulAPI{
 
 
 
+	// =======================================================================================================
+	// User Applications management functions
+
+	// TODO: move DB to generic `api_applications` so that web-api/index.php can easily check whether an AppID exists.
+	// TODO: The AppID will now be computed as <sanitized(app_name)>.<random_string(12)>.
+	// TODO: Add `user` as a field of the App entry so that web-api/index.php can log him/her in temporarily in order to complete the action.
+	// TODO: The temporary login will not incur in a cookie exchange so that calling the API does not log the user in the browser.
+
+	/** TODO: Returns a list of applications with app_key...
+	 */
+	public static function getUserApplications( $username=null ){
+		if( is_null($username) ){
+			if( !Core::isUserLoggedIn() )
+				return ['success'=>false, 'data'=>'You must log in before calling the function `RESTfulAPI::getUserApplications()`'];
+			// get user id
+			$username = Core::getUserLogged('username');
+		}else{
+			if( Core::getUserRole() != 'administrator' )
+				return ['success'=>false, 'data'=>'Only administrators can access other users\' applications'];
+		}
+		// open applications DB for the current/given user
+		$apps_db = new Database('core', 'api_applications_u'.$username);
+		// iterate through the apps
+		$apps = [];
+		foreach($apps_db->list_keys() as $app_id){
+			$app = $apps_db->read($app_id);
+			if( $app['success'] ){
+				array_push($apps, $app['data']);
+			}else{
+				return $app;
+			}
+		}
+		// return list of apps
+		return ['success' => true, 'data'=>$apps];
+	}//getUserApplications
+
+
+	/** TODO: Returns a list of applications with app_key...
+	 */
+	public static function getUserApplication( $app_id, $username=null ){
+		if( is_null($username) ){
+			if( !Core::isUserLoggedIn() )
+				return ['success'=>false, 'data'=>'You must log in before calling the function `RESTfulAPI::getUserApplication()`'];
+			// get user id
+			$username = Core::getUserLogged('username');
+		}else{
+			if( Core::getUserRole() != 'administrator' )
+				return ['success'=>false, 'data'=>'Only administrators can access other users\' applications'];
+		}
+		// open applications DB for the current/given user
+		$apps_db = new Database('core', 'api_applications_u'.$username);
+		// make sure that the app exists
+		if( !$apps_db->key_exists($app_id) )
+			return ['success'=>false, 'data'=>sprintf('No application found with ID `%s`', $app_id)];
+		// retrieve the app
+		$res = $apps_db->read($app_id);
+		// return app
+		return $res;
+	}//getUserApplication
+
+	/** TODO: Creates a new app...
+	 */
+	public static function createUserApplication( $app_name, $endpoints, $app_enabled=true, $username=null ){
+		if( is_null($username) ){
+			if( !Core::isUserLoggedIn() )
+				return ['success'=>false, 'data'=>'You must log in before calling the function `RESTfulAPI::createUserApplication()`'];
+			// get user id
+			$username = Core::getUserLogged('username');
+		}else{
+			if( Core::getUserRole() != 'administrator' )
+				return ['success'=>false, 'data'=>'Only administrators can create applications for other users'];
+		}
+		// open applications DB for the current/given user
+		$apps_db = new Database('core', 'api_applications_u'.$username);
+		$app_id = Utils::string_to_valid_filename( $app_name );
+		// make sure the app does not exist
+		if( $apps_db->key_exists($app_id) ){
+			return ['success'=>false, 'data'=>'Another application with the same name is already present. Choose another name and retry'];
+		}
+		// create app
+		$app_data = [
+			'id' => $app_id,
+			'name' => $app_name,
+			'secret' => Utils::generateRandomString(48),
+			'actions' => $endpoints,
+			'enabled' => boolval($app_enabled)
+		];
+		return $apps_db->write( $app_id, $app_data );
+	}//createUserApplication
+
+
+	/** TODO: Edits an app...
+	 */
+	public static function updateUserApplication( $app_id, $endpoints_up, $endpoints_dw, $app_enabled=null, $username=null ){
+		if( is_null($username) ){
+			if( !Core::isUserLoggedIn() )
+				return ['success'=>false, 'data'=>'You must log in before calling the function `RESTfulAPI::updateUserApplication()`'];
+			// get user id
+			$username = Core::getUserLogged('username');
+		}else{
+			if( Core::getUserRole() != 'administrator' )
+				return ['success'=>false, 'data'=>'Only administrators can update other users\' applications'];
+		}
+		// open applications DB for the current/given user
+		$apps_db = new Database('core', 'api_applications_u'.$username);
+		// make sure that the app exists
+		if( !$apps_db->key_exists($app_id) ){
+			return ['success'=>false, 'data'=>sprintf('The application with ID `%s` does not exist', $app_id)];
+		}
+		// retrieve the app to update
+		$res = $apps_db->get_entry( $app_id );
+		if( !$res['success'] ) return $res;
+		$app = $res['data'];
+		// get the list of active API end-points associated to this app
+		// NOTE: array_keys(array_flip()) is similar to array_unique() for array w/o keys
+		$endpoints_orig = $app->get('actions');
+		$endpoints_dest = array_keys(array_flip( array_merge( array_diff($endpoints_orig, $endpoints_dw), $endpoints_up) ));
+		// update app
+		$app->set( 'actions', $endpoints_dest );
+		// maintain status if not passed
+		if( !is_null($app_enabled) ){
+			$app->set( 'enabled', boolval($app_enabled) );
+		}
+		// write to disk and return
+		return $app->commit();
+	}//updateUserApplication
+
+
+	/** TODO: Deletes an app...
+	 */
+	public static function deleteUserApplication( $app_id, $username=null ){
+		if( is_null($username) ){
+			if( !Core::isUserLoggedIn() )
+				return ['success'=>false, 'data'=>'You must log in before calling the function `RESTfulAPI::deleteUserApplication()`'];
+			// get user id
+			$username = Core::getUserLogged('username');
+		}else{
+			if( Core::getUserRole() != 'administrator' )
+				return ['success'=>false, 'data'=>'Only administrators can delete other users\' applications'];
+		}
+		// open applications DB for the current/given user
+		$apps_db = new Database('core', 'api_applications_u'.$username);
+		// remove entry
+		return $apps_db->delete( $app_id );
+	}//deleteUserApplication
+
+
+
 	// =================================================================================================================
 	// =================================================================================================================
 	//
@@ -372,7 +521,6 @@ class RESTfulAPI{
 		foreach( $api as $api_version => &$api_v_specs ){
 			$api_v_enabled = $api_v_specs['enabled'];
 			foreach( $packages_ids as $pkg_id ){
-				if( $core_only && $pkg_id != 'core' ) continue;
 				$api_services_descriptors = sprintf("%s/../packages/%s/modules/api/%s/api-services/specifications/*.json", __DIR__, $pkg_id, $api_version);
 				$jsons = glob( $api_services_descriptors );
 				//
