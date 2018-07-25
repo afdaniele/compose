@@ -9,6 +9,10 @@
 //error_reporting(E_ALL ^ E_NOTICE); //DEBUG only
 //ini_set('display_errors', 1); //DEBUG only
 
+class AUTH_MODE{
+	const BROWSER_COOKIES = 0;
+	const API_APP = 1;
+}//AUTH_MODE
 
 // error received from .htaccess due to an invalid API url
 if( isset($_GET['__error__']) ){
@@ -73,29 +77,36 @@ if( !isset($_GET['__apiversion__']) || !is_string($_GET['__apiversion__']) || st
 	}
 }
 
-// load web-api specifications
+
+// 3. load web-api specifications
 $webapi = RESTfulAPI::getConfiguration();
 $version = $_GET['__apiversion__'];
 $webapi = $webapi[$version];
-$authorized = false;
 
 
-// 2. parse 'token' argument
-if( isset($_GET['__service__']) && isset($_GET['__action__']) && $_GET['__service__']=='session' && $_GET['__action__']=='start' ){
-	$authorized = true;
-}else{
-	if( !isset($_GET['token']) || !is_string($_GET['token']) || !StringType::isValid( $_GET['token'], StringType::ALPHANUMERIC, 16 ) ){
-		// error : token not provided
-		sendResponse( 400, 'Bad Request', 'The token provided is not valid', $format, null );
-	}
+// 4. select authorization mode
+$auth_mode = AUTH_MODE::API_APP;
+if( isset($_GET['token']) ){
+	$auth_mode = AUTH_MODE::BROWSER_COOKIES;
 }
-$token = $_GET['token'];
 
 
+// 5. parse optional global arguments [token, app_id, app_secret]
+if( ($auth_mode==AUTH_MODE::BROWSER_COOKIES) && (!isset($_GET['token']) || !is_string($_GET['token']) || !StringType::isValid($_GET['token'], StringType::ALPHANUMERIC, 16)) ){
+	// error : token not provided
+	sendResponse( 400, 'Bad Request', 'The `token` provided is not valid', $format, null );
+}
+if( ($auth_mode==AUTH_MODE::API_APP) && (!isset($_GET['app_id']) || !is_string($_GET['app_id'])) ){
+	// error : app_id not provided
+	sendResponse( 400, 'Bad Request', 'The `app_id` argument is mandatory', $format, null );
+}
+if( ($auth_mode==AUTH_MODE::API_APP) && (!isset($_GET['app_secret']) || !is_string($_GET['app_secret']) || !StringType::isValid($_GET['app_secret'], StringType::ALPHANUMERIC, 48)) ){
+	// error : app_secret not provided
+	sendResponse( 400, 'Bad Request', 'The `app_secret` argument is not valid', $format, null );
+}
 
 
-
-// 4. check for requested service
+// 6. check for requested service
 if( !isset($_GET['__service__']) || !is_string($_GET['__service__']) || strlen($_GET['__service__']) <= 0 || !array_key_exists( strtolower($_GET['__service__']), $webapi['services'] ) ){
 	// error : unrecognized service
 	sendResponse( 404, 'Not Found', "The service '".$_GET['__service__']."' was not found", $format, null );
@@ -104,14 +115,14 @@ $serviceName = strtolower($_GET['__service__']);
 $service = $webapi['services'][$serviceName];
 
 
-// 5. check for service availability
+// 7. check for service availability
 if( !$service['enabled'] ){
 	// error : the requested service is temporarily down
 	sendResponse( 503, 'Service Unavailable', "The requested service ('".$serviceName."') was disabled by the administrator", $format, null );
 }
 
 
-// 6. check for requested action
+// 8. check for requested action
 if( !isset($_GET['__action__']) || !is_string($_GET['__action__']) || strlen($_GET['__action__']) <= 0 || !array_key_exists( strtolower($_GET['__action__']), $service['actions'] ) ){
 	// error : unrecognized action
 	sendResponse( 404, 'Not Found', "The action '".$_GET['__action__']."' was not found", $format, null );
@@ -120,43 +131,83 @@ $actionName = strtolower($_GET['__action__']);
 $action = $service['actions'][$actionName];
 
 
-// 7. check for action availability
+// 9. check for action availability
 if( !$action['enabled'] ){
 	// error : the requested action is temporarily down
 	sendResponse( 503, 'Service Unavailable', "The requested action ('".$actionName."') was disabled by the administrator", $format, null );
 }
 
 
-// 8. check for authorization
+// 10. authorize call
+$authorized = false;
+// get access level info for the selected action
 $access_lvl = $action['access_level'];
-$read_only_session = $action['read_only_session'];
-$need_login = !in_array('guest', $access_lvl);
-
-// <= INIT SESSION (if needed)
-//TODO: change this and do not open a session if this is not a webcall
-if( $need_login || !$read_only_session ){
-	Core::startSession();
+$error_msg = 'Authentication error. Contact the administrator';
+// try to authorize the call
+switch($auth_mode){
+	case AUTH_MODE::BROWSER_COOKIES:
+		$need_login = !in_array('guest', $access_lvl);
+		// init a PHP session (if needed)
+		$user_logged_in = false;
+		$user_session_token = null;
+		$user_role = 'guest';
+		if( $need_login ){
+			Core::startSession();
+			//
+			$user_logged_in = Core::isUserLoggedIn();
+			$user_session_token = $user_logged_in? $_SESSION['TOKEN'] : null;
+			$user_role = Core::getUserRole();
+			//
+			Core::closeSession();
+		}
+		// authorize based on login info available on the server if the access level is higher than `guest`
+		$token = $_GET['token'];
+		$token_success = boolval( !$need_login || ($user_logged_in && $user_session_token==$token) );
+		if( !$token_success ){
+			$error_msg = 'The token provided is not correct';
+			break;
+		}
+		// authorize based on the access level. The user's role must be in $action['access_level']
+		$access_lvl_success = boolval( in_array($user_role, $access_lvl) );
+		if( !$access_lvl_success ){
+			$error_msg = sprintf('The selected action cannot be executed by a user with role `%s`', $user_role);
+			break;
+		}
+		// an authorized user has the right bits to access the action and the right token
+		$authorized = boolval($token_success && $access_lvl_success);
+		break;
+	case AUTH_MODE::API_APP:
+		// get `app_id` and `app_secret`
+		$app_id = urldecode( $_GET['app_id'] );
+		$app_secret = urldecode( $_GET['app_secret'] );
+		// authorize using the app
+		$res = Core::authorizeUserWithAPIapp( $app_id, $app_secret );
+		if( !$res['success'] ){
+			$error_msg = $res['data'];
+			break;
+		}
+		$app = $res['data'];
+		// check if the app has access to the requested service/action pair
+		$requested_pair = sprintf("%s/%s", $serviceName, $actionName);
+		if( !in_array($requested_pair, $app['endpoints']) ){
+			$error_msg = sprintf('The application `%s` does not have access to the API end-point `%s`', $app['id'], $requested_pair);
+			break;
+		}
+		// user is authorized
+		$authorized = true;
+		break;
+	default:
+		$authorized = false;
+		break;
 }
-
-if( $need_login ){
-	$authorized = $authorized || ( $_SESSION['TOKEN'] == $token && Core::isUserLoggedIn() );
-}else{
-	$authorized = true;
-}
-
-//
+// return error if the call cannot be authorized
 if( !$authorized ){
 	// error : authorization failed
-	sendResponse( 401, 'Unauthorized', 'Authentication failed', $format, null );
-}
-
-// <= CLOSE SESSION (if needed)
-if( $need_login && $read_only_session ){
-	session_write_close();
+	sendResponse( 401, 'Unauthorized', $error_msg, $format, null );
 }
 
 
-// 9. decode the arguments
+// 11. decode the arguments
 $arguments = array();
 foreach( $_GET as $key => $value ){
 	$arguments[$key] = urldecode( $value );
@@ -167,11 +218,11 @@ require_once sprintf("%s/api/%s/api-interpreter/APIinterpreter.php", $GLOBALS['_
 use system\api\apiinterpreter\APIinterpreter as Interpreter;
 
 
-// 9. the api call is valid and authorized
+// 12. the api call is valid and authorized
 $result = Interpreter::interpret( $service, $actionName, $arguments, $format );
 
 
-// 10. send back the api call result
+// 13. send back the api call result
 sendResponse( $result['code'], $result['status'], $result['message'], $format, $result['data'], !isset($result['formatted']) );
 
 

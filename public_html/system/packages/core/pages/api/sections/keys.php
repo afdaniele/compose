@@ -59,7 +59,7 @@ $table = array(
 			'translation' => 'Application name',
 			'editable' => false
 		),
-		'num_actions' => array(
+		'num_endpoints' => array(
 			'type' => 'text',
 			'show' => true,
 			'width' => 'md-2',
@@ -172,16 +172,16 @@ foreach( RESTfulAPI::getConfiguration() as $pkg_id => &$pkg_api ){
 }
 
 // get list of applications
-$res = RESTfulAPI::getUserApplications();
+$res = RESTfulAPI::getUserApplications( Core::getUserLogged('username') );
 if( !$res['success'] ){
     Core::throwError( $res['data'] );
 }
 $applications = $res['data'];
 
-// add num_actions to the entries, convert endpoints from `service/action` to `service__action`
+// add num_endpoints to the entries, convert endpoints from `service/action` to `service__action`
 foreach( $applications as &$app ){
-    $app['num_actions'] = count($app['actions']);
-    foreach($app['actions'] as $act) {
+    $app['num_endpoints'] = count($app['endpoints']);
+    foreach($app['endpoints'] as $act) {
         $pair = str_replace('/', '__',$act);
         $app[$pair] = true;
     }

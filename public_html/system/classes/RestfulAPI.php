@@ -337,25 +337,11 @@ class RESTfulAPI{
 	// =======================================================================================================
 	// User Applications management functions
 
-	// TODO: move DB to generic `api_applications` so that web-api/index.php can easily check whether an AppID exists.
-	// TODO: The AppID will now be computed as <sanitized(app_name)>.<random_string(12)>.
-	// TODO: Add `user` as a field of the App entry so that web-api/index.php can log him/her in temporarily in order to complete the action.
-	// TODO: The temporary login will not incur in a cookie exchange so that calling the API does not log the user in the browser.
-
 	/** TODO: Returns a list of applications with app_key...
 	 */
-	public static function getUserApplications( $username=null ){
-		if( is_null($username) ){
-			if( !Core::isUserLoggedIn() )
-				return ['success'=>false, 'data'=>'You must log in before calling the function `RESTfulAPI::getUserApplications()`'];
-			// get user id
-			$username = Core::getUserLogged('username');
-		}else{
-			if( Core::getUserRole() != 'administrator' )
-				return ['success'=>false, 'data'=>'Only administrators can access other users\' applications'];
-		}
+	public static function getUserApplications( $username ){
 		// open applications DB for the current/given user
-		$apps_db = new Database('core', 'api_applications_u'.$username);
+		$apps_db = new Database( 'core', 'api_applications', self::_build_app_db_regex($username) );
 		// iterate through the apps
 		$apps = [];
 		foreach($apps_db->list_keys() as $app_id){
@@ -373,18 +359,9 @@ class RESTfulAPI{
 
 	/** TODO: Returns a list of applications with app_key...
 	 */
-	public static function getUserApplication( $app_id, $username=null ){
-		if( is_null($username) ){
-			if( !Core::isUserLoggedIn() )
-				return ['success'=>false, 'data'=>'You must log in before calling the function `RESTfulAPI::getUserApplication()`'];
-			// get user id
-			$username = Core::getUserLogged('username');
-		}else{
-			if( Core::getUserRole() != 'administrator' )
-				return ['success'=>false, 'data'=>'Only administrators can access other users\' applications'];
-		}
-		// open applications DB for the current/given user
-		$apps_db = new Database('core', 'api_applications_u'.$username);
+	public static function getApplication( $app_id ){
+		// open applications DB
+		$apps_db = new Database( 'core', 'api_applications' );
 		// make sure that the app exists
 		if( !$apps_db->key_exists($app_id) )
 			return ['success'=>false, 'data'=>sprintf('No application found with ID `%s`', $app_id)];
@@ -399,26 +376,27 @@ class RESTfulAPI{
 	public static function createUserApplication( $app_name, $endpoints, $app_enabled=true, $username=null ){
 		if( is_null($username) ){
 			if( !Core::isUserLoggedIn() )
-				return ['success'=>false, 'data'=>'You must log in before calling the function `RESTfulAPI::createUserApplication()`'];
+				return ['success'=>false, 'data'=>'Only logged users are allowed to create API Applications'];
 			// get user id
 			$username = Core::getUserLogged('username');
-		}else{
-			if( Core::getUserRole() != 'administrator' )
-				return ['success'=>false, 'data'=>'Only administrators can create applications for other users'];
 		}
 		// open applications DB for the current/given user
-		$apps_db = new Database('core', 'api_applications_u'.$username);
-		$app_id = Utils::string_to_valid_filename( $app_name );
+		$apps_db = new Database( 'core', 'api_applications', self::_build_app_db_regex($username) );
+		// compose the app_id as <username>.<app_id>
+		$app_id = sprintf('%s_%s', $username, Utils::string_to_valid_filename($app_name));
 		// make sure the app does not exist
 		if( $apps_db->key_exists($app_id) ){
 			return ['success'=>false, 'data'=>'Another application with the same name is already present. Choose another name and retry'];
 		}
+		// make sure that API applications do not have access to API app management actions (avoid API loop)
+		$endpoints = array_diff($endpoints, ['api/app_create', 'api/app_update', 'api/app_delete']);
 		// create app
 		$app_data = [
 			'id' => $app_id,
+			'user' => $username,
 			'name' => $app_name,
 			'secret' => Utils::generateRandomString(48),
-			'actions' => $endpoints,
+			'endpoints' => $endpoints,
 			'enabled' => boolval($app_enabled)
 		];
 		return $apps_db->write( $app_id, $app_data );
@@ -430,15 +408,12 @@ class RESTfulAPI{
 	public static function updateUserApplication( $app_id, $endpoints_up, $endpoints_dw, $app_enabled=null, $username=null ){
 		if( is_null($username) ){
 			if( !Core::isUserLoggedIn() )
-				return ['success'=>false, 'data'=>'You must log in before calling the function `RESTfulAPI::updateUserApplication()`'];
+				return ['success'=>false, 'data'=>'Only logged users are allowed to update API Applications'];
 			// get user id
 			$username = Core::getUserLogged('username');
-		}else{
-			if( Core::getUserRole() != 'administrator' )
-				return ['success'=>false, 'data'=>'Only administrators can update other users\' applications'];
 		}
 		// open applications DB for the current/given user
-		$apps_db = new Database('core', 'api_applications_u'.$username);
+		$apps_db = new Database( 'core', 'api_applications', self::_build_app_db_regex($username) );
 		// make sure that the app exists
 		if( !$apps_db->key_exists($app_id) ){
 			return ['success'=>false, 'data'=>sprintf('The application with ID `%s` does not exist', $app_id)];
@@ -449,10 +424,12 @@ class RESTfulAPI{
 		$app = $res['data'];
 		// get the list of active API end-points associated to this app
 		// NOTE: array_keys(array_flip()) is similar to array_unique() for array w/o keys
-		$endpoints_orig = $app->get('actions');
-		$endpoints_dest = array_keys(array_flip( array_merge( array_diff($endpoints_orig, $endpoints_dw), $endpoints_up) ));
+		$endpoints_orig = $app->get('endpoints');
+		$endpoints = array_keys(array_flip( array_merge( array_diff($endpoints_orig, $endpoints_dw), $endpoints_up) ));
+		// make sure that API applications do not have access to API app management actions (avoid API loop)
+		$endpoints = array_diff($endpoints, ['api/app_create', 'api/app_update', 'api/app_delete']);
 		// update app
-		$app->set( 'actions', $endpoints_dest );
+		$app->set( 'endpoints', $endpoints );
 		// maintain status if not passed
 		if( !is_null($app_enabled) ){
 			$app->set( 'enabled', boolval($app_enabled) );
@@ -467,15 +444,12 @@ class RESTfulAPI{
 	public static function deleteUserApplication( $app_id, $username=null ){
 		if( is_null($username) ){
 			if( !Core::isUserLoggedIn() )
-				return ['success'=>false, 'data'=>'You must log in before calling the function `RESTfulAPI::deleteUserApplication()`'];
+				return ['success'=>false, 'data'=>'Only logged users are allowed to delete API Applications'];
 			// get user id
 			$username = Core::getUserLogged('username');
-		}else{
-			if( Core::getUserRole() != 'administrator' )
-				return ['success'=>false, 'data'=>'Only administrators can delete other users\' applications'];
 		}
 		// open applications DB for the current/given user
-		$apps_db = new Database('core', 'api_applications_u'.$username);
+		$apps_db = new Database( 'core', 'api_applications', self::_build_app_db_regex($username) );
 		// remove entry
 		return $apps_db->delete( $app_id );
 	}//deleteUserApplication
@@ -487,6 +461,14 @@ class RESTfulAPI{
 	//
 	//
 	// Private functions
+
+	private static function _build_app_db_regex( $username=null, $app_id=null ){
+		return sprintf(
+			"/^%s_%s$/",
+			is_null($username)? '[0-9]{21}' : $username,
+			is_null($app_id)? '[A-Za-z0-9_]+' : $app_id
+		);
+	}//_build_app_db_regex
 
 	private static function _load_API_settings(){
 		// check if this object is cached

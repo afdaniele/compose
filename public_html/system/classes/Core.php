@@ -315,6 +315,16 @@ class Core{
 	}//startSession
 
 
+	/** Writes and closes the current PHP Session.
+	 *
+	 *	@retval boolean
+	 *		`TRUE` if the call succeded, `FALSE` otherwise
+	 */
+	public static function closeSession(){
+		return session_write_close();
+	}//closeSession
+
+
 
 
 	// =======================================================================================================
@@ -344,7 +354,7 @@ class Core{
 			'client_id' => self::getSetting('google_client_id', 'core')
 		]);
 		$payload = $client->verifyIdToken($id_token);
-		if ($payload) {
+		if( $payload ){
 			$userid = $payload['sub'];
 			// create user descriptor
 			$user_info = [
@@ -376,11 +386,58 @@ class Core{
 			//
 			self::regenerateSessionID();
 			return array( 'success' => true, 'data' => $user_info );
-		} else {
+		}else{
 			// Invalid ID token
 			return array( 'success' => false, 'data' => "Invalid ID Token" );
 		}
 	}//logInUserWithGoogle
+
+
+	/** Authorizes a user using an API Application.
+	 *
+	 *	@param string $app_id
+	 *		ID of the API Application to authenticate with.
+	 *
+	 *	@param string $app_secret
+	 *		Secret key associated with the API Application identified by `$app_id`.
+	 *
+	 *	@retval array
+	 *		a status array of the form
+	 *	<pre><code class="php">[
+	 *		"success" => boolean, 	// whether the call succeded
+	 *		"data" => mixed 		// error message or NULL
+	 *	]</code></pre>
+	 *		where, the `success` field indicates whether the call succeded.
+	 *		The `data` field will contain the info about the API Application used to
+	 *		authenticate the user or an error string when `success` is `FALSE`.
+	 */
+	public static function authorizeUserWithAPIapp( $app_id, $app_secret ){
+		RESTfulAPI::init();
+		// check if the app exists
+		$res = RESTfulAPI::getApplication( $app_id );
+		if( !$res['success'] ) return $res;
+		// get the app
+		$app = $res['data'];
+		// check if the app_secret matches
+		if( !boolval($app_secret == $app['secret']) )
+			return ['success' => false, 'data' => 'The application secret key provided is not correct'];
+		// check if the app is enabled
+		if( !boolval($app['enabled']) )
+			return ['success' => false, 'data' => sprintf('The application `%s` is not enabled, thus it cannot be used', $app['id'])];
+		// get owner of the app
+		$username = $app['user'];
+		if( !self::userExists($username) )
+			return ['success' => false, 'data' => sprintf('The application `%s` is not enabled, thus it cannot be used', $app['id'])];
+		// load user info
+		$res = self::openUserInfo($username);
+		if( !$res['success'] ) return $res;
+		$user_info = $res['data']->asArray();
+		// this data will be deleted if the PHP session was not initialized before this call
+		$_SESSION['USER_LOGGED'] = true;
+		$_SESSION['USER_RECORD'] = $user_info;
+		// return app
+		return ['success' => true, 'data' => $app];
+	}//authorizeUserWithAPIapp
 
 
 	/** Creates a new user account.
@@ -468,7 +525,6 @@ class Core{
 		//
 		$_SESSION['USER_LOGGED'] = false;
 		unset( $_SESSION['USER_RECORD'] );
-		unset( $_SESSION['USER_DUCKIEBOT'] );
 		self::regenerateSessionID();
 		//
 		return ['success' => true, 'data' => null];
