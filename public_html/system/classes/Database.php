@@ -10,12 +10,14 @@ class Database{
     // private attributes
     private $package;
     private $database;
+    private $entry_regex;
     private $db_dir;
 
     // Constructor
-    function __construct( $package, $database ){
+    function __construct( $package, $database, $entry_regex=null ){
         $this->package = $package;
         $this->database = $database;
+        $this->entry_regex = $entry_regex;
         $this->db_dir = sprintf("%s%s/data/private/databases/%s", $GLOBALS['__PACKAGES__DIR__'], $package, $database);
     }//__construct
 
@@ -42,6 +44,14 @@ class Database{
     }//get_entry
 
     public function write( $key, $data ){
+        $key = Utils::string_to_valid_filename( $key );
+        if( !is_null($this->entry_regex) && !preg_match($this->entry_regex, $key) ){
+            return [
+                'success' => false,
+                'data' => 'The given key does not match the given pattern. This instance of Database has a limited scope'
+            ];
+        }
+        // get filename from key
         $entry_file = self::key_to_db_file( $key );
         // create json object
         $jsondb = new JsonDB( $entry_file );
@@ -60,10 +70,14 @@ class Database{
         // delete if exists
         if( file_exists($entry_file) )
             return ['success' => @unlink($entry_file), 'data' => null];
-        return ['success' => true, 'data' => null];
+        return ['success' => false, 'data' => 'The entry was not found'];
     }//delete
 
     public function key_exists( $key ){
+        $key = Utils::string_to_valid_filename( $key );
+        if( !is_null($this->entry_regex) && !preg_match($this->entry_regex, $key) )
+            return false;
+        // get filename from key
         $entry_file = self::key_to_db_file( $key );
         // check if file exists
         return file_exists($entry_file);
@@ -77,6 +91,10 @@ class Database{
         $keys = [];
 		foreach ($files as $file) {
 			$key = Utils::regex_extract_group($file, "/.*\/(.+).json/", 1);
+            // (optional) match the key against the given pattern
+            if( !is_null($this->entry_regex) && !preg_match($this->entry_regex, $key) )
+                continue;
+            // add key to list of keys
 			array_push( $keys, $key );
 		}
         // return list of keys
@@ -84,11 +102,8 @@ class Database{
     }//list_keys
 
     public function size(){
-        // get list of all json files
-        $entry_wild = sprintf('%s/*.json', $this->db_dir);
-        $files = glob( $entry_wild );
         // return count of list of keys
-        return count( $files );
+        return count( self::list_keys() );
     }//size
 
 
