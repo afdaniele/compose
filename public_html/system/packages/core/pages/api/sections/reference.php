@@ -10,56 +10,8 @@ function _api_page_reference_section( &$api_setup, &$version, &$sget, &$aget ){
     $action = $service['actions'][$aget];
     $action['parameters']['mandatory'] = array_merge( $api_setup[$version]['global']['parameters']['mandatory'], $action['parameters']['mandatory'] );
 
+    include_once __DIR__.'/../parts/common_style.php';
     ?>
-
-    <style type="text/css">
-
-        .api-service-section{
-            padding-top: 54px;
-            padding-bottom: 8px;
-            border-bottom: 1px solid rgba(230, 230, 230, 0.6);
-        }
-
-        .api-service-section > h3{
-            margin-top: 0;
-        }
-
-        .api-service-box-container{
-            padding: 0 10px;
-        }
-
-        .api-service-section > div{
-            padding: 0 16px;
-            text-align: justify;
-        }
-
-        .api-service-subsection > div{
-            padding-left: 16px;
-            text-align: justify;
-        }
-
-        .api-service-subsection{
-            text-align: justify;
-            margin-top: 34px;
-        }
-
-        .api-service-subsection > h3{
-            font-size: 18px;
-        }
-
-        .api-service-toc ul{
-            padding-left: 16px;
-        }
-
-        .api-service-toc > ul{
-            padding-left: 4px;
-        }
-
-        .api-service-toc li{
-            list-style: none;
-        }
-    </style>
-
 
     <div class="api-breadcrumb">
         <table>
@@ -198,12 +150,11 @@ function _api_page_reference_section( &$api_setup, &$version, &$sget, &$aget ){
             <h3>
                 The <span class="mono emph"><?php echo $aget ?></span> action &nbsp;<span style="font-size:70%; color:#bababa">( <span class="<?php echo ( ($action_enabled)? 'on' : 'off' ) ?>"> <span class="glyphicon glyphicon-log-in"></span> &nbsp;<?php echo ( ($action_enabled)? 'OnLine' : 'OffLine' ) ?> </span> )</span>
             </h3>
-
-
-
-            <p>
-                <?php echo $action['details'] ?>.
-            </p>
+            <div>
+                <p>
+                    <?php echo $action['details'] ?>.
+                </p>
+            </div>
 
             <div class="api-service-subsection">
                 <a class="anchor" id="restrictions"></a>

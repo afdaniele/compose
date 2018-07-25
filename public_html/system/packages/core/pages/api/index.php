@@ -107,6 +107,7 @@ $aget = ( ($sget !== null && isset($_GET['action']) && in_array($_GET['action'],
 					//
 					case 'getting_started':
 						require_once __DIR__.'/sections/getting_started.php';
+						_api_page_getting_started_section( $api_setup, $version, $sget, $aget );
 						break;
 					//
 					default:
