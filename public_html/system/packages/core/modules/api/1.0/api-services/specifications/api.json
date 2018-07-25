@@ -6,7 +6,6 @@
             "access_level" : [
                 "administrator"
             ],
-            "read_only_session" : true,
 		    "parameters" : {
 		        "mandatory" : {
                     "version" : {
@@ -44,7 +43,6 @@
             "access_level" : [
                 "administrator"
             ],
-            "read_only_session" : true,
 		    "parameters" : {
 		        "mandatory" : {
                     "version" : {
@@ -67,7 +65,6 @@
             "access_level" : [
                 "administrator"
             ],
-            "read_only_session" : true,
 		    "parameters" : {
 		        "mandatory" : {
                     "version" : {
@@ -90,7 +87,6 @@
             "access_level" : [
                 "administrator"
             ],
-            "read_only_session" : true,
 		    "parameters" : {
 		        "mandatory" : {
                     "version" : {
@@ -137,7 +133,6 @@
             "access_level" : [
                 "administrator"
             ],
-            "read_only_session" : true,
 		    "parameters" : {
 		        "mandatory" : {
                     "version" : {
@@ -165,7 +160,6 @@
             "access_level" : [
                 "administrator"
             ],
-            "read_only_session" : true,
 		    "parameters" : {
 		        "mandatory" : {
                     "version" : {
@@ -195,7 +189,6 @@
                 "supervisor",
                 "user"
             ],
-            "read_only_session" : true,
 		    "parameters" : {
 		        "mandatory" : {
                     "name" : {
@@ -231,7 +224,6 @@
                 "supervisor",
                 "user"
             ],
-            "read_only_session" : true,
 		    "parameters" : {
 		        "mandatory" : {
                     "id" : {
@@ -267,7 +259,6 @@
                 "supervisor",
                 "user"
             ],
-            "read_only_session" : true,
 		    "parameters" : {
 		        "mandatory" : {
                     "id" : {

@@ -6,7 +6,6 @@
             "access_level" : [
                 "guest"
             ],
-            "read_only_session" : false,
 			"parameters" : {
 				"mandatory" : {
 					"id_token" : {
@@ -29,7 +28,6 @@
                 "user",
                 "candidate"
             ],
-            "read_only_session" : false,
             "parameters" : {
                 "mandatory" : {},
                 "optional" : {}

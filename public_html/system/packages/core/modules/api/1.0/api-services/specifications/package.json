@@ -6,7 +6,6 @@
             "access_level" : [
                 "administrator"
             ],
-            "read_only_session" : true,
 		    "parameters" : {
 		        "mandatory" : {
 		            "id" : {
@@ -34,7 +33,6 @@
             "access_level" : [
                 "administrator"
             ],
-            "read_only_session" : true,
 		    "parameters" : {
 		        "mandatory" : {
                     "id" : {
@@ -58,7 +56,6 @@
             "access_level" : [
                 "administrator"
             ],
-            "read_only_session" : true,
 		    "parameters" : {
 		        "mandatory" : {
                     "id" : {

@@ -15,6 +15,7 @@ require_once $GLOBALS['__SYSTEM__DIR__'].'/api/1.0/utils/utils.php';
 
 function execute( &$service, &$actionName, &$arguments ){
 	$action = $service['actions'][$actionName];
+	Core::startSession();
 	//
 	switch( $actionName ){
 		case 'login_with_google':
