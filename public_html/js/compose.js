@@ -254,47 +254,63 @@ function callAPI( url, successDialog, reload, funct, silentMode, suppressErrors,
     if( errorFcn == undefined ) errorFcn = function( res ){ /* do nothing! */ };
     if( transportType == undefined ) transportType = 'GET';
     //
+    postData = "";
+    if( transportType == 'POST' ){
+        dataIndex = url.indexOf('?');
+        if( dataIndex != -1 ){
+            postData = url.substr( dataIndex+1 );
+            url = url.substr( 0, dataIndex );
+        }
+    }
+    //
     url = encodeURI( url );
     //
     if( !silentMode ){
         showPleaseWait();
     }
     //
-    $.ajax({type: transportType, url:url, dataType: 'json', success:function( result ){
-        if( result.code == 200 ){
-            // success
-            // call the callback function
-            funct( result );
-            //
-            hidePleaseWait();
-            //
-            if( successDialog ){
-                showSuccessDialog( 2000, ( (reload)? function(){ window.location.reload(true); } : function(){} ) );
+    $.ajax({
+        type: transportType,
+        url:url,
+        dataType: 'json',
+        data: postData,
+        success:function( result ){
+            if( result.code == 200 ){
+                // success
+                // call the callback function
+                funct( result );
+                //
+                hidePleaseWait();
+                //
+                if( successDialog ){
+                    showSuccessDialog( 2000, ( (reload)? function(){ window.location.reload(true); } : function(){} ) );
+                }else{
+                    if( reload ){
+                        window.location.reload(true);
+                    }
+                }
             }else{
-                if( reload ){
-                    window.location.reload(true);
+                // error
+                // call the callback function
+                errorFcn( result );
+                //open an alert
+                hidePleaseWait();
+                if( !suppressErrors ){
+                    openAlert( 'danger', result.message );
                 }
             }
-        }else{
+        },
+        error:function( jqXHR, textStatus, errorThrown ){
             // error
             // call the callback function
-            errorFcn( result );
-            //open an alert
+            errorFcn( errorThrown );
+            // open an alert
             hidePleaseWait();
             if( !suppressErrors ){
-                openAlert( 'danger', result.message );
+                openAlert( 'danger', 'An error occurred while trying to communicate with the server. Details: `{0}`'.format(errorThrown) );
             }
         }
-    }, error:function( jqXHR, textStatus, errorThrown ){
-        // error
-        // call the callback function
-        errorFcn( errorThrown );
-        // open an alert
-        hidePleaseWait();
-        if( !suppressErrors ){
-            openAlert( 'danger', 'An error occurred while trying to communicate with the server. Details: `{0}`'.format(errorThrown) );
-        }
-    }});
+    });
 }
 
 
