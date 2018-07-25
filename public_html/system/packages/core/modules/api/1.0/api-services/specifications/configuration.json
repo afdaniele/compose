@@ -65,7 +65,7 @@
                     "..." : {
 		                "type" : "text",
                         "length" : null,
-		                "details" : "Sequence of others <code>key=val</code> tuples"
+		                "details" : "Sequence of other <code>key=val</code> tuples"
 		            }
                 }
 		    },

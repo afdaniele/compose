@@ -40,6 +40,11 @@ Configuration::init();
 // get API settings
 $webapi_settings = RESTfulAPI::getSettings();
 
+// merge $_GET and $_POST into $_GET with $_GET having the priority
+foreach( $_POST as $key => $value ){
+	if( !isset($_GET[$key]) )
+		$_GET[$key] = urldecode( $value );
+}
 
 // 0. verify the web-api current status
 if( !$webapi_settings["webapi-enabled"] ){
@@ -154,9 +159,6 @@ if( $need_login && $read_only_session ){
 // 9. decode the arguments
 $arguments = array();
 foreach( $_GET as $key => $value ){
-	$arguments[$key] = urldecode( $value );
-}
-foreach( $_POST as $key => $value ){
 	$arguments[$key] = urldecode( $value );
 }
 

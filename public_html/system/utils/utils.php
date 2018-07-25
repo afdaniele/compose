@@ -126,7 +126,7 @@ function format( $val, $type ){
 		case 'money':
 			return toMoneyString( $val, true );
 		case 'boolean':
-			return ( (booleanval($val))? '<span class="glyphicon glyphicon-ok-sign" aria-hidden="true" style="color:green" data-toggle="tooltip" data-placement="right" title="On"></span>' : '<span class="glyphicon glyphicon-remove-sign" aria-hidden="true" style="color:red" data-toggle="tooltip" data-placement="right" title="Off"></span>' );
+			return ( (booleanval($val))? '<span class="glyphicon glyphicon-ok-sign" aria-hidden="true" style="color:green; margin-top:2px" data-toggle="tooltip" data-placement="right" title="On"></span>' : '<span class="glyphicon glyphicon-remove-sign" aria-hidden="true" style="color:red; margin-top:2px" data-toggle="tooltip" data-placement="right" title="Off"></span>' );
 		case 'date':
 			return date_format(date_create($val), 'd-m-Y');
 		case 'datetime':

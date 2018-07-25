@@ -1,6 +1,5 @@
 <?php
 
-
 function generateView( $labelName, $fieldValue, $labelCol, $valueCol ){
 	echo '<table style="width:100%"><tr><td>';
 	for( $i = 0; $i < sizeof( $labelName ); $i++ ){
@@ -73,18 +72,16 @@ function generateForm( $method='post', $action=null, $formID=null, $labelName, $
 }
 
 
-
-
-// $layout is a dictionary { k => val, ... }, with val.keys() = [name, editable, type, placeholder, value, html]
+// $layout is a dictionary { k => val, ... }, with val.keys() = [name, editable, type, placeholder, value, html, hidden]
 function generateFormByLayout( &$layout, $formID=null, $formClass=null, $method=null, $action=null, &$values=array() ){
 	$formTag = ( $formID != null || $formClass != null || ( $method != null && $action != null ) );
 	//
 	echo ($formTag)? '<form class="form-horizontal '. ( ($formClass != null)? $formClass : '' ) .'" ' . ( ($formID != null)? 'id="'.$formID.'"' : '' ) . ' role="form" method="'.$method.'" ' . ( ($action != null)? 'action="'.$action.'"' : '' ) . '>' : '';
 	// =>
 	foreach( $layout as $key => $field ){
-		echo '<div class="form-group" style="margin: 10px 0">';
-		echo '<label class="col-md-4 control-label">'.$field['name'].'</label>';
-		echo '<div class="col-md-6">';
+		echo '<div class="form-group" style="margin: 10px 0; '.($field['hidden']? 'display:none' : '').'">';
+		echo '<label class="col-md-5 control-label">'.$field['name'].'</label>';
+		echo '<div class="col-md-7" style="padding-top:7px">';
 		//
 		if( $field['editable'] ){
 			$type = null;
@@ -135,6 +132,7 @@ function generateFormByLayout( &$layout, $formID=null, $formClass=null, $method=
 					echo sprintf('<input type="checkbox"
                         class="switch"
                         data-size="mini"
+						style="margin-top:7px"
 						id="%s"
                         name="%s"
                         %s
@@ -142,7 +140,7 @@ function generateFormByLayout( &$layout, $formID=null, $formClass=null, $method=
 						%s >',
 						$key,
 						$key,
-						( (booleanval($values[$key]) == true)? 'checked' : '' ),
+						( boolval($values[$key])? 'checked' : '' ),
 						$field['html'],
 						$disabled
 				 	);
@@ -151,7 +149,7 @@ function generateFormByLayout( &$layout, $formID=null, $formClass=null, $method=
 				default:break;
 			}
 		}else{
-			echo '<p class="form-control-static" id="'.$key.'_p">'.$values[$key].'</p>';
+			echo '<p class="form-control-static" id="'.$key.'_p" style="padding-top:0">'.$values[$key].'</p>';
 			echo '<input type="hidden" id="'.$key.'" name="'.$key.'">';
 		}
 		//

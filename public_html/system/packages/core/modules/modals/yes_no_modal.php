@@ -57,7 +57,7 @@
 					} );
 				}else{
 					// error, open an alert
-					openAlertObj( 'danger', result.message, result );
+					openAlert( 'danger', result.message );
 					hidePleaseWait();
 				}
 			}, error:function(){
