@@ -1,11 +1,7 @@
 /**
  * @Author: Andrea F. Daniele <afdaniele>
- * @Date:   Wednesday, December 28th 2016
  * @Email:  afdaniele@ttic.edu
- * @Last modified by:   afdaniele
- * @Last modified time: Friday, January 26th 2018
  */
-
 
 .container{
     width: 1000px !important;
@@ -67,16 +63,19 @@ footer #avatar{
     cursor: pointer;
 }
 
+.text-bold{
+    font-weight: bold;
+}
+
+/*
+TODO: Duckietown specific stuff, move to duckietown package
+
 #duckiebot_general_info td{
     padding: 3px 0;
 }
 
 .duckiebot_storage_info td{
     padding: 2px 0;
-}
-
-.text-bold{
-    font-weight: bold;
 }
 
 .configuration-indicator a{
@@ -114,7 +113,7 @@ footer #avatar{
 
 .configuration-indicator a.color-danger .badge{
     color: #d9534f;
-}
+} */
 
 
 /* Bootstrap-like Colors */
@@ -191,14 +190,6 @@ footer #avatar{
 
 
 
-
-
-
-
-
-
-
-
 .star {
     width:14px;
     height:14px;
@@ -270,17 +261,6 @@ footer #avatar{
     color: #5bc0de;
 }
 
-.merchant_logo {
-    width: 120px;
-    height: 60px;
-}
-
-.offline .merchant_logo {
-    -webkit-filter: grayscale(100%);
-    filter: grayscale(100%);
-}
-
-
 
 /*TODO: Admin CSS starts here*/
 
@@ -316,7 +296,6 @@ body{
     text-align:right;
     padding-right:14px;
 }
-
 
 .dashboard-chart-body{
     padding: 6px;
@@ -363,184 +342,6 @@ body{
 .table-text-centered td,
 .table-text-centered th{
     text-align: center;
-}
-
-.api-version-label{
-    padding:4px 14px;
-    padding-left: 16px;
-}
-
-.api-version-label a{
-    color: white;
-    font-size: 9pt;
-}
-
-.api-box-container > tbody > tr > td,
-.documentation-box-container > tbody > tr > td{
-    padding: 0;
-    vertical-align: top;
-}
-
-.api-box-container > tbody > tr > td:first-child,
-.documentation-box-container > tbody > tr > td:first-child{
-    padding-right: 5px;
-}
-
-.api-box-container > tbody > tr > td:last-child,
-.documentation-box-container > tbody > tr > td:last-child{
-    padding-left: 5px;
-}
-
-.api-box,
-.documentation-box{
-    width: 100%;
-    -moz-border-radius: 4px;
-    -webkit-border-radius: 4px;
-    border-radius: 4px;
-    border: 1px solid #d3d3d3;
-    background-color: #ffffff;
-    padding: 10px;
-}
-
-.documentation-content-box{
-    height: 100%;
-    display: inline-block;
-    padding: 0 0 10px 0;
-}
-
-.documentation-menu-box{
-    padding: 0;
-}
-
-#services-list h5{
-    font-size: 14px;
-    font-family: monospace;
-}
-
-#services-list a{
-    color: inherit;
-}
-
-#services-list h5 a{
-    display: table;
-    width: 100%;
-}
-
-#services-list h5 a table{
-    margin: 5px 0 5px 8px;
-}
-
-#services-list h5 a:hover,
-#services-list h5 a.active{
-    text-decoration: none;
-    background-color: #337ab7;
-    color: white;
-}
-
-#services-list h5 a.disabled{
-    background-color: #bababa;
-    color: white;
-}
-
-#services-list .panel{
-    box-shadow: none;
-    -webkit-box-shadow: none;
-}
-
-#services-list .panel .panel-heading{
-    padding: 0;
-}
-
-#services-list .panel .panel-collapse{
-    border-bottom: 4px double #ddd;
-}
-
-#services-list .panel .panel-collapse .panel-body{
-    background-color: #f9f9f9;
-    padding: 8px 4px 0 10px;
-}
-
-#services-list .panel .panel-collapse .panel-body a{
-    display: table;
-    width: 100%;
-    margin-bottom: 10px;
-}
-
-#services-list .panel .panel-collapse .panel-body a table{
-    margin-left: 5px;
-}
-
-#services-list .panel .panel-collapse .panel-body a:hover,
-#services-list .panel .panel-collapse .panel-body a.active{
-    background-color: #337ab7;
-    color: white;
-}
-
-#services-list .panel .panel-collapse .panel-body a.disabled{
-    background-color: #bababa;
-    color: white;
-}
-
-.api-service-box{
-    height: 100%;
-    padding: 0 26px;
-    display: inline-block;
-    margin-bottom: 50px;
-}
-
-.api-service-box > div:first-child{
-    margin: 10px 0;
-}
-
-.api-service-section{
-    padding-top: 54px;
-    padding-bottom: 8px;
-    border-bottom: 1px solid rgba(230, 230, 230, 0.6);
-}
-
-.api-service-section > h3{
-    margin-top: 0;
-}
-
-.api-service-box .api-service-breadcrumb{
-    padding-top: 8px;
-    padding-bottom: 10px;
-    border-bottom: 1px solid rgba(51, 122, 183, 0.2);
-}
-
-.api-service-box-container{
-    padding: 0 10px;
-}
-
-.api-service-section > div{
-    padding: 0 16px;
-    text-align: justify;
-}
-
-.api-service-subsection > div{
-    padding-left: 16px;
-    text-align: justify;
-}
-
-.api-service-subsection{
-    text-align: justify;
-    margin-top: 34px;
-}
-
-.api-service-subsection > h3{
-    font-size: 18px;
-}
-
-.api-service-toc ul{
-    padding-left: 16px;
-}
-
-.api-service-toc > ul{
-    padding-left: 4px;
-}
-
-.api-service-toc li{
-    list-style: none;
 }
 
 .mono,
