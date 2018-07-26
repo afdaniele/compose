@@ -436,7 +436,13 @@ class Core{
 		$_SESSION['USER_LOGGED'] = true;
 		$_SESSION['USER_RECORD'] = $user_info;
 		// return app
-		return ['success' => true, 'data' => $app];
+		return [
+			'success' => true,
+			'data' => [
+				'user' => $user_info,
+				'app' => $app
+			]
+		];
 	}//authorizeUserWithAPIapp
 
 
@@ -522,10 +528,8 @@ class Core{
 		if( !$_SESSION['USER_LOGGED'] ){
 			return ['success' => false, 'data' => 'User not logged in yet!'];
 		}
-		//
-		$_SESSION['USER_LOGGED'] = false;
-		unset( $_SESSION['USER_RECORD'] );
-		self::regenerateSessionID();
+		// destroy session
+		session_destroy();
 		//
 		return ['success' => true, 'data' => null];
 	}//logOutUser

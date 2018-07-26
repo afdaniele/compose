@@ -6,6 +6,10 @@
             "access_level" : [
                 "administrator"
             ],
+            "authentication" : [
+                "web",
+                "app"
+            ],
 		    "parameters" : {
 		        "mandatory" : {
                     "version" : {
@@ -43,6 +47,10 @@
             "access_level" : [
                 "administrator"
             ],
+            "authentication" : [
+                "web",
+                "app"
+            ],
 		    "parameters" : {
 		        "mandatory" : {
                     "version" : {
@@ -65,6 +73,10 @@
             "access_level" : [
                 "administrator"
             ],
+            "authentication" : [
+                "web",
+                "app"
+            ],
 		    "parameters" : {
 		        "mandatory" : {
                     "version" : {
@@ -86,6 +98,10 @@
 			"details" : "Returns the status of a given API action",
             "access_level" : [
                 "administrator"
+            ],
+            "authentication" : [
+                "web",
+                "app"
             ],
 		    "parameters" : {
 		        "mandatory" : {
@@ -133,6 +149,10 @@
             "access_level" : [
                 "administrator"
             ],
+            "authentication" : [
+                "web",
+                "app"
+            ],
 		    "parameters" : {
 		        "mandatory" : {
                     "version" : {
@@ -159,6 +179,10 @@
 			"details" : "Disables an API action",
             "access_level" : [
                 "administrator"
+            ],
+            "authentication" : [
+                "web",
+                "app"
             ],
 		    "parameters" : {
 		        "mandatory" : {
@@ -188,6 +212,9 @@
                 "administrator",
                 "supervisor",
                 "user"
+            ],
+            "authentication" : [
+                "web"
             ],
 		    "parameters" : {
 		        "mandatory" : {
@@ -224,6 +251,9 @@
                 "supervisor",
                 "user"
             ],
+            "authentication" : [
+                "web"
+            ],
 		    "parameters" : {
 		        "mandatory" : {
                     "id" : {
@@ -258,6 +288,9 @@
                 "administrator",
                 "supervisor",
                 "user"
+            ],
+            "authentication" : [
+                "web"
             ],
 		    "parameters" : {
 		        "mandatory" : {

@@ -6,6 +6,10 @@
             "access_level" : [
                 "administrator"
             ],
+            "authentication" : [
+                "web",
+                "app"
+            ],
 		    "parameters" : {
 		        "mandatory" : {
 		            "id" : {
@@ -33,6 +37,10 @@
             "access_level" : [
                 "administrator"
             ],
+            "authentication" : [
+                "web",
+                "app"
+            ],
 		    "parameters" : {
 		        "mandatory" : {
                     "id" : {
@@ -55,6 +63,10 @@
 			"details" : "Disables a package and every module, page and API service it contains",
             "access_level" : [
                 "administrator"
+            ],
+            "authentication" : [
+                "web",
+                "app"
             ],
 		    "parameters" : {
 		        "mandatory" : {

@@ -6,6 +6,10 @@
             "access_level" : [
                 "administrator"
             ],
+            "authentication" : [
+                "web",
+                "app"
+            ],
 		    "parameters" : {
 		        "mandatory" : {
                     "package" : {
@@ -43,6 +47,10 @@
             "access_level" : [
                 "administrator"
             ],
+            "authentication" : [
+                "web",
+                "app"
+            ],
 		    "parameters" : {
 		        "mandatory" : {
                     "package" : {
@@ -64,6 +72,10 @@
 			"details" : "Disables a page",
             "access_level" : [
                 "administrator"
+            ],
+            "authentication" : [
+                "web",
+                "app"
             ],
 		    "parameters" : {
 		        "mandatory" : {

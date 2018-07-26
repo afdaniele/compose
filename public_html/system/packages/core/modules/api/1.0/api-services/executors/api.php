@@ -91,6 +91,7 @@ function execute( &$service, &$actionName, &$arguments ){
 			foreach( RESTfulAPI::getConfiguration() as $pkg_id => &$pkg_api ){
 			    foreach( $pkg_api['services'] as $service_id => &$service_config ){
 			        foreach( $service_config['actions'] as $action_id => &$action_config ){
+						if( !in_array('app', $action_config['authentication']) ) continue;
 			            $pair = sprintf('%s__%s', $service_id, $action_id);
 						if( isset($arguments[$pair]) && $arguments[$pair]=='1' ){
 							array_push($endpoints_up, sprintf('%s/%s', $service_id, $action_id));
@@ -114,6 +115,7 @@ function execute( &$service, &$actionName, &$arguments ){
 			foreach( RESTfulAPI::getConfiguration() as $pkg_id => &$pkg_api ){
 				foreach( $pkg_api['services'] as $service_id => &$service_config ){
 					foreach( $service_config['actions'] as $action_id => &$action_config ){
+						if( !in_array('app', $action_config['authentication']) ) continue;
 						$pair = sprintf('%s__%s', $service_id, $action_id);
 						if( isset($arguments[$pair]) && $arguments[$pair]=='1' ){
 							array_push($endpoints_up, sprintf('%s/%s', $service_id, $action_id));

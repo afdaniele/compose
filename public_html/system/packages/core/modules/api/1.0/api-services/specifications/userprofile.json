@@ -6,6 +6,9 @@
             "access_level" : [
                 "guest"
             ],
+            "authentication" : [
+                "web"
+            ],
 			"parameters" : {
 				"mandatory" : {
 					"id_token" : {
@@ -25,8 +28,10 @@
             "access_level" : [
                 "administrator",
                 "supervisor",
-                "user",
-                "candidate"
+                "user"
+            ],
+            "authentication" : [
+                "web"
             ],
             "parameters" : {
                 "mandatory" : {},

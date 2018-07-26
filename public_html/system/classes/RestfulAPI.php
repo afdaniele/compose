@@ -388,8 +388,12 @@ class RESTfulAPI{
 		if( $apps_db->key_exists($app_id) ){
 			return ['success'=>false, 'data'=>'Another application with the same name is already present. Choose another name and retry'];
 		}
-		// make sure that API applications do not have access to API app management actions (avoid API loop)
-		$endpoints = array_diff($endpoints, ['api/app_create', 'api/app_update', 'api/app_delete']);
+		// get user record
+		$res = Core::getUserInfo($username);
+		if( !$res['success'] ) return $res;
+		$user = $res['data'];
+		// make sure that the user does not gain powers s/he is not supposed to have
+		$endpoints = array_intersect($endpoints, self::_endpoints_per_role($user['role']));
 		// create app
 		$app_data = [
 			'id' => $app_id,
@@ -426,8 +430,12 @@ class RESTfulAPI{
 		// NOTE: array_keys(array_flip()) is similar to array_unique() for array w/o keys
 		$endpoints_orig = $app->get('endpoints');
 		$endpoints = array_keys(array_flip( array_merge( array_diff($endpoints_orig, $endpoints_dw), $endpoints_up) ));
-		// make sure that API applications do not have access to API app management actions (avoid API loop)
-		$endpoints = array_diff($endpoints, ['api/app_create', 'api/app_update', 'api/app_delete']);
+		// get user record
+		$res = Core::getUserInfo($username);
+		if( !$res['success'] ) return $res;
+		$user = $res['data'];
+		// make sure that the user does not gain powers s/he is not supposed to have
+		$endpoints = array_intersect($endpoints, self::_endpoints_per_role($user['role']));
 		// update app
 		$app->set( 'endpoints', $endpoints );
 		// maintain status if not passed
@@ -469,6 +477,22 @@ class RESTfulAPI{
 			is_null($app_id)? '[A-Za-z0-9_]+' : $app_id
 		);
 	}//_build_app_db_regex
+
+	private static function _endpoints_per_role( $user_role, $app_auth_only=true ){
+		$endpoints = [];
+		foreach( self::$configuration as $pkg_id => &$pkg_api ){
+		    foreach( $pkg_api['services'] as $service_id => &$service_config ){
+		        foreach( $service_config['actions'] as $action_id => &$action_config ){
+					if( $app_auth_only && !in_array('app', $action_config['authentication']) ) continue;
+					if( in_array($user_role, $action_config['access_level']) ){
+						$pair = sprintf('%s/%s', $service_id, $action_id);
+			            array_push( $endpoints, $pair );
+					}
+		        }
+		    }
+		}
+		return $endpoints;
+	}//_endpoints_per_role
 
 	private static function _load_API_settings(){
 		// check if this object is cached

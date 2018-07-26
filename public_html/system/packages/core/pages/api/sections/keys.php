@@ -158,15 +158,19 @@ $form_edit = [
 ];
 
 // add one option for each service/action pair
+$user_role = Core::getUserLogged('role');
 foreach( RESTfulAPI::getConfiguration() as $pkg_id => &$pkg_api ){
     foreach( $pkg_api['services'] as $service_id => &$service_config ){
         foreach( $service_config['actions'] as $action_id => &$action_config ){
-            $pair = sprintf('%s__%s', $service_id, $action_id);
-            $form_edit[$pair] = array(
-                'name' => '<span class="fa fa-plug" aria-hidden="true"></span>&nbsp;API <span class="mono" style="font-weight:normal">'.sprintf('%s/%s', $service_id, $action_id).'</span>',
-                'editable' => true,
-                'type' => 'boolean'
-            );
+            if( !in_array('app', $action_config['authentication']) ) continue;
+            if( in_array($user_role, $action_config['access_level']) ){
+                $pair = sprintf('%s__%s', $service_id, $action_id);
+                $form_edit[$pair] = array(
+                    'name' => '<span class="fa fa-plug" aria-hidden="true"></span>&nbsp;API <span class="mono" style="font-weight:normal">'.sprintf('%s/%s', $service_id, $action_id).'</span>',
+                    'editable' => true,
+                    'type' => 'boolean'
+                );
+            }
         }
     }
 }

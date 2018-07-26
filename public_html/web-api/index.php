@@ -146,6 +146,12 @@ $error_msg = 'Authentication error. Contact the administrator';
 // try to authorize the call
 switch($auth_mode){
 	case AUTH_MODE::BROWSER_COOKIES:
+		// make sure this action supports this authentication mode
+		if( !in_array('web', $action['authentication']) ){
+			$error_msg = sprintf('The API end-point `%s/%s` cannot be used with authentication via Cookies', $serviceName, $actionName);
+			break;
+		}
+		// check if the selected action has an access level that requires login
 		$need_login = !in_array('guest', $access_lvl);
 		// init a PHP session (if needed)
 		$user_logged_in = false;
@@ -177,6 +183,11 @@ switch($auth_mode){
 		$authorized = boolval($token_success && $access_lvl_success);
 		break;
 	case AUTH_MODE::API_APP:
+		// make sure this action supports this authentication mode
+		if( !in_array('app', $action['authentication']) ){
+			$error_msg = sprintf('The API end-point `%s/%s` cannot be used with authentication via API Application', $serviceName, $actionName);
+			break;
+		}
 		// get `app_id` and `app_secret`
 		$app_id = urldecode( $_GET['app_id'] );
 		$app_secret = urldecode( $_GET['app_secret'] );
@@ -186,11 +197,17 @@ switch($auth_mode){
 			$error_msg = $res['data'];
 			break;
 		}
-		$app = $res['data'];
+		$user = $res['data']['user'];
+		$app = $res['data']['app'];
 		// check if the app has access to the requested service/action pair
 		$requested_pair = sprintf("%s/%s", $serviceName, $actionName);
 		if( !in_array($requested_pair, $app['endpoints']) ){
 			$error_msg = sprintf('The application `%s` does not have access to the API end-point `%s`', $app['id'], $requested_pair);
+			break;
+		}
+		// check if the user has access to the requested service/action pair
+		if( !in_array($user['role'], $access_lvl) ){
+			$error_msg = sprintf('The selected action cannot be executed by a user with role `%s`', $user['role']);
 			break;
 		}
 		// user is authorized
