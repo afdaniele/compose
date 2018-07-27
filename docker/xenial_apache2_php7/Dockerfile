@@ -21,7 +21,7 @@ RUN apt-get update && apt-get install -y \
     # php libraries
     php7.0-mbstring \
     php7.0-xml \
-    php7.0-apcu \
+    php-apcu \
     # clean the apt cache
     && rm -rf /var/lib/apt/lists/*
 
