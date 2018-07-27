@@ -373,7 +373,7 @@ class RESTfulAPI{
 
 	/** TODO: Creates a new app...
 	 */
-	public static function createUserApplication( $app_name, $endpoints, $app_enabled=true, $username=null ){
+	public static function createApplication( $app_name, $endpoints, $app_enabled=true, $username=null ){
 		if( is_null($username) ){
 			if( !Core::isUserLoggedIn() )
 				return ['success'=>false, 'data'=>'Only logged users are allowed to create API Applications'];
@@ -404,12 +404,12 @@ class RESTfulAPI{
 			'enabled' => boolval($app_enabled)
 		];
 		return $apps_db->write( $app_id, $app_data );
-	}//createUserApplication
+	}//createApplication
 
 
 	/** TODO: Edits an app...
 	 */
-	public static function updateUserApplication( $app_id, $endpoints_up, $endpoints_dw, $app_enabled=null, $username=null ){
+	public static function updateApplication( $app_id, $endpoints_up, $endpoints_dw, $app_enabled=null, $username=null ){
 		if( is_null($username) ){
 			if( !Core::isUserLoggedIn() )
 				return ['success'=>false, 'data'=>'Only logged users are allowed to update API Applications'];
@@ -444,12 +444,12 @@ class RESTfulAPI{
 		}
 		// write to disk and return
 		return $app->commit();
-	}//updateUserApplication
+	}//updateApplication
 
 
 	/** TODO: Deletes an app...
 	 */
-	public static function deleteUserApplication( $app_id, $username=null ){
+	public static function deleteApplication( $app_id, $username=null ){
 		if( is_null($username) ){
 			if( !Core::isUserLoggedIn() )
 				return ['success'=>false, 'data'=>'Only logged users are allowed to delete API Applications'];
@@ -460,7 +460,7 @@ class RESTfulAPI{
 		$apps_db = new Database( 'core', 'api_applications', self::_build_app_db_regex($username) );
 		// remove entry
 		return $apps_db->delete( $app_id );
-	}//deleteUserApplication
+	}//deleteApplication
 
 
 
