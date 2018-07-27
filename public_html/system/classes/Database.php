@@ -3,6 +3,7 @@
 namespace system\classes;
 
 use \system\classes\Utils;
+use \system\classes\Core;
 use \system\classes\jsonDB\JsonDB as JsonDB;
 
 class Database{
@@ -15,12 +16,25 @@ class Database{
 
     // Constructor
     function __construct( $package, $database, $entry_regex=null ){
+        if( !Core::packageExists($package) ){
+            Core::throwError( sprintf('Tried to create a Database for the package `%s` but the package does not exist', $package) );
+        }
         $this->package = $package;
         $this->database = $database;
         $this->entry_regex = $entry_regex;
         $this->db_dir = sprintf("%s%s/data/private/databases/%s", $GLOBALS['__PACKAGES__DIR__'], $package, $database);
     }//__construct
 
+
+    // Public static functions
+
+    public static function database_exists( $package, $database ){
+        $db_dir = sprintf("%s%s/data/private/databases/%s", $GLOBALS['__PACKAGES__DIR__'], $package, $database);
+        if( !Core::packageExists($package) || !file_exists($db_dir) ){
+            return false;
+        }
+        return true;
+    }//database_exists
 
 
     // Public functions
