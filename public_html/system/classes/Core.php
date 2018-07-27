@@ -1346,6 +1346,13 @@ class Core{
 	}//throwError
 
 
+	public static function throwErrorF( ...$args ){
+		$_SESSION['_ERROR_PAGE_MESSAGE'] = call_user_func_array('sprintf', $args);
+		//
+		self::redirectTo( 'error' );
+	}//throwErrorF
+
+
 	public static function throwException( $exceptionMsg ){
 		self::throwError( $exceptionMsg );
 	}//throwException
