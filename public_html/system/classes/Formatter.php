@@ -51,9 +51,9 @@ class Formatter{
     		case self::BOOLEAN:
     			return ( (booleanval($val))? '<span class="glyphicon glyphicon-ok-sign" aria-hidden="true" style="color:green" data-toggle="tooltip" data-placement="right" title="On"></span>' : '<span class="glyphicon glyphicon-remove-sign" aria-hidden="true" style="color:red" data-toggle="tooltip" data-placement="right" title="Off"></span>' );
     		case self::DATE:
-    			return date_format(date_create($val), 'd-m-Y');
+    			return date_format(date_create($val), 'Y-m-d');
     		case self::DATETIME:
-    			return date_format(date_create($val), 'd-m-Y H:i');
+    			return date_format(date_create($val), 'Y-m-d H:i:s');
     		case self::DISTANCE:
     			return ( ($val >= 1000)? number_format($val/1000, 1, ',', '') : number_format($val, 0, '', '') ) . ( ($val >= 1000)? ' Km' : ' m' );
     		case self::COLOR:
