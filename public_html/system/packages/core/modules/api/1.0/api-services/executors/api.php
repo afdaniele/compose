@@ -100,7 +100,7 @@ function execute( &$service, &$actionName, &$arguments ){
 			    }
 			}
 			// create new app entry
-			$res = RESTfulAPI::createUserApplication( $arguments['name'], $endpoints, boolval($arguments['enabled']) );
+			$res = RESTfulAPI::createApplication( $arguments['name'], $endpoints, boolval($arguments['enabled']) );
 			if( !$res['success'] ){
 				return response400BadRequest( $res['data'] );
 			}
@@ -128,7 +128,7 @@ function execute( &$service, &$actionName, &$arguments ){
 			// do not change status if `enabled` is not passed as an argument
 			$enabled = isset($arguments['enabled'])? boolval($arguments['enabled']) : null;
 			// update the entry
-			$res = RESTfulAPI::updateUserApplication( $arguments['id'], $endpoints_up, $endpoints_dw, $enabled );
+			$res = RESTfulAPI::updateApplication( $arguments['id'], $endpoints_up, $endpoints_dw, $enabled );
 			if( !$res['success'] ){
 				return response400BadRequest( $res['data'] );
 			}
@@ -138,7 +138,7 @@ function execute( &$service, &$actionName, &$arguments ){
 		//
 		case 'app_delete':
 			// delete the app entry
-			$res = RESTfulAPI::deleteUserApplication( $arguments['id'] );
+			$res = RESTfulAPI::deleteApplication( $arguments['id'] );
 			if( !$res['success'] ){
 				return response400BadRequest( $res['data'] );
 			}
