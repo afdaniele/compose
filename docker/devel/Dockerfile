@@ -23,5 +23,8 @@ RUN echo $'xdebug.remote_enable = 1; \
 # install WebGrind to visualize the profiler data
 RUN git clone https://github.com/jokkedk/webgrind.git /var/www/html/public_html/webgrind/
 
+# copy phpinfo script
+ADD assets/phpinfo.php /var/www/html/public_html/
+
 # copy APCu monitor script
 ADD assets/apc.php /var/www/html/public_html/

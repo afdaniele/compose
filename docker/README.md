@@ -29,7 +29,7 @@ These are the images that you can pull from your Docker console.
 
 Run
 
-`docker run -d -p <PORT>:80 -e "BASEURL=<URL>:<PORT>" -v <COMPOSE_ROOT_HOST>:/var/www/html/public_html afdaniele/<COMPOSE_IMAGE>`
+`docker run -d -p <PORT>:80 -e "BASEURL=<URL>:<PORT>" -v <COMPOSE_ROOT_HOST>:/var/www/html afdaniele/<COMPOSE_IMAGE>`
 
 **NOTE:** If `<PORT>` is `80`, you can simply use `"BASEURL=<URL>"` instead of `"BASEURL=<URL>:<PORT>"`.
 
