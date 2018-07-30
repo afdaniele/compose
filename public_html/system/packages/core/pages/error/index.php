@@ -5,12 +5,12 @@
 # @Last modified by:   afdaniele
 # @Last modified time: Sunday, January 7th 2018
 
-
+use \system\classes\Core;
 
 if( isset($_GET['report']) ){
 	if( isset($_POST['errorMsg']) && isset($_SESSION['_ERROR_OCCURRED']) ){
 		// collect error message
-		\system\classes\Core::collectErrorInformation( array( 'message' => urldecode($_POST['errorMsg']) ) );
+		Core::collectErrorInfo( urldecode($_POST['errorMsg']) );
 		// clear the flag
 		unset( $_SESSION['_ERROR_OCCURRED'] );
 		// open an alert
