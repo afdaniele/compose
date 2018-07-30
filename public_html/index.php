@@ -42,7 +42,8 @@
 
 	// init Core
 	$safe_mode = in_array($requested_page, ['error', 'maintenance']);
-	Core::init( $safe_mode );
+	$res = Core::init( $safe_mode );
+	if( !$res['success'] ) Core::throwError( $res['data'] );
 
 	// get info about the current user
 	$user_role = Core::getUserRole();

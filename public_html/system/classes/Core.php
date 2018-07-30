@@ -225,21 +225,25 @@ class Core{
 					$file_loaded = include_once $pkg['core']['file'];
 					if( $file_loaded ){
 						// TODO: do not prepend \system\classes if it is already in $pkg['core']['namespace']
-						$php_init_command = sprintf( "\system\packages\%s\%s::init();", $pkg['core']['namespace'], $pkg['core']['class'] );
+						$php_init_command = sprintf( "return \system\packages\%s\%s::init();", $pkg['core']['namespace'], $pkg['core']['class'] );
 						// try to initialize the package core class
 						try {
-							eval( $php_init_command );
+							$res = eval( $php_init_command );
+							if( !is_array($res) )
+								return ['success' => false, 'data' => sprintf('An error occurred while initializing the package `%s`', $pkg['id'])];
+							if( !$res['success'] )
+								return ['success' => false, 'data' => sprintf('An error occurred while initializing the package `%s`. The module reports: "%s"', $pkg['id'], $res['data'])];
 						} catch (\Error $e) {
-							self::throwError( $e->getMessage() );
+							return ['success' => false, 'data' => $e->getMessage()];
 						}
 					}
 
 				}
 			}
 			self::$initialized = true;
-			return array( 'success' => true, 'data' => null );
+			return ['success' => true, 'data' => null];
 		}else{
-			return array( 'success' => true, 'data' => "Core already initialized!" );
+			return ['success' => true, 'data' => "Core already initialized!"];
 		}
 	}//init
 
