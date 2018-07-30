@@ -63,6 +63,10 @@ class Core{
 	private static $registered_user_types = [];
 
 
+	private static $RESERVED_PAGES = [
+		'api', 'data', 'debug', 'error', 'login', 'maintenance', 'profile', 'settings', 'users', 'docs'
+	];
+
 	private static $USER_ACCOUNT_TEMPLATE = [
 		"username" => ["string", "Google (numeric) user ID"],
 		"name" => ["string", "Full name of the user"],
@@ -1419,9 +1423,48 @@ class Core{
 	}//hash_password
 
 
-	public static function collectErrorInfo( $errorData ){
-		//TODO: implement a logging system here
+	public static function getErrorRecordsList(){
+		// open errors DB
+		$errors_db = new Database('core', 'errors');
+		// get list of keys
+		return $errors_db->list_keys();
+	}//getErrorRecordsList
+
+
+	public static function getErrorRecord( $error_id ){
+		// open errors DB
+		$errors_db = new Database('core', 'errors');
+		// get item
+		return $errors_db->read( $error_id );
+	}//getErrorRecord
+
+
+	public static function collectErrorInfo( $error_msg ){
+		// open errors DB
+		$errors_db = new Database('core', 'errors');
+		// get user info
+		$user = null;
+		if( self::isUserLoggedIn() )
+			$user = Core::getUserLogged('username');
+		// create error record
+		$error_id = strtotime("now");
+		$error = [
+			'id' => $error_id,
+			'datetime' => gmdate("Y-m-d H:i:s", $error_id),
+			'message' => $error_msg,
+			'user' => $user
+		];
+		// push error to DB
+		$errors_db->write( $error_id, $error );
 	}//collectErrorInfo
+
+
+	public static function deleteErrorRecord( $error_id ){
+		// open errors DB
+		$errors_db = new Database('core', 'errors');
+		// remove item
+		return $errors_db->delete( $error_id );
+	}//deleteErrorRecord
 
 
 	public static function collectDebugInfo( $package, $test_id, $test_value, $test_type ){

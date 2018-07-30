@@ -75,7 +75,6 @@ use \system\classes\Cache;
 	include_once "sections/cache.php";
 	include_once "sections/package_specific.php";
 	include_once "sections/codebase.php";
-	include_once "sections/debug.php";
 
 
 	$settings_tabs = [
@@ -123,8 +122,6 @@ use \system\classes\Cache;
 			'content' => settings_codebase_tab,
 			'content_args' => null
 		]
-
-		// #600 reserved for debug tab
 	];
 
 	if( Cache::enabled() ){
@@ -134,17 +131,6 @@ use \system\classes\Cache;
 			'title' => 'Cache',
 			'icon' => 'fa fa-history',
 			'content' => settings_cache_tab,
-			'content_args' => null
-		];
-	}
-
-	if( Configuration::$DEBUG ){
-		// add Debugger tab if the flag is active
-		$settings_tabs[600] = [
-			'id' => 'debug',
-			'title' => '<span class="text-color-red">Debug</span>',
-			'icon' => 'fa fa-bug text-color-red',
-			'content' => settings_debug_tab,
 			'content_args' => null
 		];
 	}
