@@ -264,7 +264,7 @@ class TableViewer {
 								<ul class="nav navbar-nav navbar-left">
 									<li>
 										<a style="padding-right:0">
-											<span class="glyphicon glyphicon-tag" aria-hidden="true"></span>
+											<span class="glyphicon glyphicon-filter" aria-hidden="true"></span>
 											<strong><?php echo $features['tag']['translation'] ?>:</strong>
 										</a>
 									</li>
@@ -510,11 +510,11 @@ class TableViewer {
 											<?php echo ( ($tooltip_enabled)? ' data-placement="bottom" title="'.$action['tooltip'].'" ' : '' ) ?>
 											<?php
 											foreach( $action['function']['arguments'] as $argument ){
-												echo ' data-'.$argument.'="'.$record[$argument].'" ';
+												echo ' data-'.$argument.'="'.addslashes($record[$argument]).'" ';
 											}
 											if( isset($action['function']['static_data']) && is_array($action['function']['static_data']) ){
 												foreach( $action['function']['static_data'] as $argument => $value ){
-													echo ' data-'.$argument.'="'.$value.'" ';
+													echo ' data-'.$argument.'="'.addslashes($value).'" ';
 												}
 											}
 											if( $modal_toggle_enabled ){
