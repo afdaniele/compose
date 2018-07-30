@@ -15,10 +15,10 @@ if( !Core::getSetting('maintenance_mode', 'core', true) ){
 <br/>
 
 
-<div class="col-md-3 text-right">
+<div class="col-md-3 text-center">
 	<br/>
 	<br/>
-	<img src="<?php echo \system\classes\Configuration::$BASE_URL ?>images/work_in_progress.png" style="width:100%">
+	<img src="<?php echo \system\classes\Configuration::$BASE_URL ?>images/work_in_progress.png" style="width:100%; max-width:220px">
 </div>
 
 <div class="col-md-9 text-left">

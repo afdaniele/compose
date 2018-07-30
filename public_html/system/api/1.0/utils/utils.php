@@ -62,7 +62,6 @@ function checkArgument( &$name, &$array, &$details, &$res, $mandatory=true ){
 	return true;
 }//checkArgument
 
-
 function pruneResult( &$records, &$details ){
 	if( !is_array($details) ) return;
 	//
