@@ -360,7 +360,7 @@ class TableViewer {
 								$keywords_queryString = $querystrings['keywords'];
 								//
 								echo 'Active filters:'.
-									( ($tagfilter_in_use)? '&nbsp; <span class="glyphicon glyphicon-tag" aria-hidden="true"></span><a href="#"> '.ucfirst($features_values['tag']).'</a> (<a href="'.$tag_queryString.'" style="color:red"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></a>)' : '' ) .
+									( ($tagfilter_in_use)? '&nbsp; <span class="glyphicon glyphicon-filter" aria-hidden="true"></span><a href="#"> '.ucfirst($features_values['tag']).'</a> (<a href="'.$tag_queryString.'" style="color:red"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></a>)' : '' ) .
 									( ($tagfilter_in_use && $keywordsfilter_in_use)? ' , &nbsp;' : '&nbsp; '  ) .
 									( ($keywordsfilter_in_use)? '<span class="glyphicon glyphicon-search" aria-hidden="true"></span><a href="#"> "'.$features_values['keywords'].'"</a> (<a href="'.$keywords_queryString.'" style="color:red"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></a>)' : '' );
 							}
