@@ -86,7 +86,7 @@ function execute( &$service, &$actionName, &$arguments ){
 			break;
 		//
 		case 'app_create':
-			$endpoints = [];
+			$endpoints = ['api/app_info']; // api/app_info enabled by default
 			// get one option for each service/action pair
 			foreach( RESTfulAPI::getConfiguration() as $pkg_id => &$pkg_api ){
 			    foreach( $pkg_api['services'] as $service_id => &$service_config ){
@@ -94,7 +94,7 @@ function execute( &$service, &$actionName, &$arguments ){
 						if( !in_array('app', $action_config['authentication']) ) continue;
 			            $pair = sprintf('%s__%s', $service_id, $action_id);
 						if( isset($arguments[$pair]) && $arguments[$pair]=='1' ){
-							array_push($endpoints_up, sprintf('%s/%s', $service_id, $action_id));
+							array_push($endpoints, sprintf('%s/%s', $service_id, $action_id));
 						}
 			        }
 			    }
@@ -106,6 +106,46 @@ function execute( &$service, &$actionName, &$arguments ){
 			}
 			//
 			return response200OK();
+			break;
+		//
+		case 'app_info':
+			// get endpoints the current app has access to
+			$app_id = urldecode( $arguments['app_id'] );
+			// get the app
+			$res = RESTfulAPI::getApplication( $app_id );
+			if( !$res['success'] ){
+				return response400BadRequest( $res['data'] );
+			}
+			$app = $res['data'];
+			$endpoints = [];
+			// iterate through all the endpoints the app has access to
+			foreach( RESTfulAPI::getConfiguration() as $pkg_id => &$pkg_api ){
+			    foreach( $pkg_api['services'] as $service_id => &$service_config ){
+			        foreach( $service_config['actions'] as $action_id => &$action_config ){
+						// make sure the endpoint is accessible to apps
+						if( !in_array('app', $action_config['authentication']) ) continue;
+			            $pair = sprintf('%s/%s', $service_id, $action_id);
+						// make sure the endpoint is accessible to this app
+						if( !in_array($pair, $app['endpoints']) ) continue;
+						// collect endpoint
+						$endpoint = [
+							'service' => $service_id,
+							'action' => $action_id,
+							'endpoint' => $pair,
+							'details' => $action_config['details'],
+							'parameters' => $action_config['parameters']
+						];
+						// append endpoint to results
+						array_push( $endpoints, $endpoint );
+			        }
+			    }
+			}
+			//
+			return response200OK([
+				'id' => $app_id,
+				'name' => $app['name'],
+				'endpoints' => $endpoints
+			]);
 			break;
 		//
 		case 'app_update':

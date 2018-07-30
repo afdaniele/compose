@@ -244,6 +244,116 @@
 		    },
 		    "return" : {}
 		},
+        "app_info" : {
+			"details" : "Get info about the current API application (e.g., list of accessible end-points)",
+            "access_level" : [
+                "administrator",
+                "supervisor",
+                "user"
+            ],
+            "authentication" : [
+                "app"
+            ],
+		    "parameters" : {
+		        "mandatory" : {},
+		        "optional" : {}
+		    },
+            "return" : {
+                "values" : {
+                    "id" : {
+		                "type" : "text",
+		                "details" : "ID of the application"
+		            },
+                    "name" : {
+		                "type" : "text",
+		                "details" : "Name of the application"
+		            },
+                    "endpoints" : {
+		                "type" : "array",
+		                "details" : "List of objects each of which describes an API end-point this App has access to",
+                        "_data" : [
+                            {
+                                "type" : "object",
+                                "details" : "Object describing an API end-point",
+                                "_data" : {
+                                    "service" : {
+                		                "type" : "alphabetic",
+                		                "details" : "Name of the API service"
+                		            },
+                		            "action" : {
+                		                "type" : "alphabetic",
+                		                "details" : "Name of the API action"
+                		            },
+                		            "endpoint" : {
+                		                "type" : "text",
+                		                "details" : "ID of the API end-point (i.e., service/action)"
+                		            },
+                		            "details" : {
+                		                "type" : "text",
+                		                "details" : "Info about the API end-point"
+                		            },
+                		            "parameters" : {
+                                        "type" : "object",
+                                        "details" : "Object describing the parameters accepted by the API end-point",
+                                        "_data" : {
+                                            "mandatory" : {
+                                                "type" : "object",
+                                                "details" : "Collection of required parameters",
+                                                "_data" : {
+                                                    "param_name" : {
+                                                        "type" : "object",
+                                                        "details" : "Object describing a parameter",
+                                                        "_data" : {
+                                    		                "type" : {
+                                                                "type" : "text",
+                                                                "details" : "Type of the parameter"
+                                                            },
+                                                            "details" : {
+                                                                "type" : "text",
+                                                                "details" : "Description of the parameter"
+                                                            },
+                                                            "length" : {
+                                                                "type" : "numeric",
+                                                                "details" : "(Optional) length constraint"
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            },
+                                            "optional" : {
+                                                "type" : "object",
+                                                "details" : "Collection of optional parameters",
+                                                "_data" : {
+                                                    "param_name" : {
+                                                        "type" : "object",
+                                                        "details" : "Object describing a parameter",
+                                                        "_data" : {
+                                    		                "type" : {
+                                                                "type" : "text",
+                                                                "details" : "Type of the parameter"
+                                                            },
+                                                            "details" : {
+                                                                "type" : "text",
+                                                                "details" : "Description of the parameter"
+                                                            },
+                                                            "length" : {
+                                                                "type" : "numeric",
+                                                                "details" : "(Optional) length constraint"
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "..."
+                        ]
+		            }
+		        }
+            }
+		},
         "app_update" : {
 			"details" : "Update an existing API application. Can be used to enable/disable the app entirely or give/withhold access to an API end-point",
             "access_level" : [
