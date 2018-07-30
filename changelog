@@ -41,8 +41,10 @@ Things to add later in the development:
             [ ] - define somehow pkg <-> compose compatibility maps
 
     [ ] - v0.9
-        [ ] - add API Keys to user profile
-            [ ] - implement multi API keys per user with per key enabled API actions
+        [X] - implemented error collection and `Debug` page with shortcut to a GitHub New Issue page
+
+        [X] - add API Keys to user profile
+            [X] - implement multi API keys per user with per key enabled API actions
 
         [X] - the RestfulAPI is now managed by the class \system\classes\RestfulAPI.
             [X] - update api page
@@ -68,10 +70,10 @@ Things to add later in the development:
                 [X] - usually stores temporary things. It is also used by the class Database
             [X] - /data/public and /data/private do not need to be part of the package repo
 
-        [ ] - added a list of reserved page names [core, docs, data, error, login, users, settings, api, profile]
+        [X] - added a list of reserved page names in Core::$RESERVED_PAGES
             [ ] - updated the documentation
 
-        [ ] - since $BASE_URL/data/ is now reserved to packages' public data, create a fake page `data` saying that the file was not found, the .htaccess file will activate the page only when the file does not exist
+        [X] - since $BASE_URL/data/ is now reserved to packages' public data, create a fake page `data` saying that the file was not found, the .htaccess file will activate the page only when the file does not exist
 
         [X] - add the Google Sign-In API client ID to the list of configurable parameters for the core package
 
