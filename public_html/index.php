@@ -184,6 +184,12 @@
 	include( 'system/packages/core/modules/modals/yes_no_modal.php' );
 	?>
 
+
+	<!-- Debug section (Admin only) -->
+	<?php
+	include( 'system/packages/core/modules/debug.php' );
+	?>
+
 	<!-- Fixed footer -->
 	<?php
 	include( 'system/packages/core/modules/footer.php' );
