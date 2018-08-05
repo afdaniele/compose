@@ -29,10 +29,13 @@ These are the images that you can pull from your Docker console.
 
 Run
 
-`docker run -d -p <PORT>:80 -e "BASEURL=<URL>:<PORT>" -v <COMPOSE_ROOT_HOST>:/var/www/html afdaniele/<COMPOSE_IMAGE>`
+`docker run -d -p <PORT>:80 -e "BASEURL=<HOSTNAME>:<PORT>" -v <COMPOSE_ROOT_HOST_DIR>:/var/www/html afdaniele/<COMPOSE_IMAGE>`
 
-**NOTE:** If `<PORT>` is `80`, you can simply use `"BASEURL=<URL>"` instead of `"BASEURL=<URL>:<PORT>"`.
+**NOTE:** If `<PORT>` is `80`, you can simply use `"BASEURL=<HOSTNAME>"` instead of `"BASEURL=<HOSTNAME>:<PORT>"`.
 
+**NOTE:** `<COMPOSE_ROOT_HOST_DIR>` is the path to the directory on the host that contains the root of the `\compose\` repository. This path should contain a `public_html` dir.
+
+**NOTE:** `<HOSTNAME>` should not contain `http://`, just the hostname (e.g., `example.com`).
 
 ## Run image with \\compose\\ inside the container
 
@@ -40,6 +43,6 @@ Run
 
 Run
 
-`docker run -d -p <PORT>:80 -e "BASEURL=<URL>:<PORT>" afdaniele/<COMPOSE_IMAGE>`
+`docker run -d -p <PORT>:80 -e "BASEURL=<HOSTNAME>:<PORT>" afdaniele/<COMPOSE_IMAGE>`
 
-**NOTE:** If `<PORT>` is `80`, you can simply use `"BASEURL=<URL>"` instead of `"BASEURL=<URL>:<PORT>"`.
+**NOTE:** If `<PORT>` is `80`, you can simply use `"BASEURL=<HOSTNAME>"` instead of `"BASEURL=<HOSTNAME>:<PORT>"`.
