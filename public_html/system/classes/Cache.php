@@ -19,8 +19,8 @@ abstract class Cache{
         // enable cache
     	try{
     		self::$cache = CacheManager::getInstance(Configuration::$CACHE_SYSTEM);
-    	}catch(Exception $e){
-    		self::$cache = null;
+    	}catch(\Exception $e){
+            self::$cache = CacheManager::getInstance('files');
     	}
     }//init
 
