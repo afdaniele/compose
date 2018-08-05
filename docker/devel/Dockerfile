@@ -8,8 +8,6 @@ RUN apt-get update && apt-get install -y \
     php-xdebug \
     graphviz \
     doxygen \
-    # TODO: this should be already installed in `afdaniele/compose:master_xenial_apache2_php7`
-    php-mbstring \
     # clean the apt cache
     && rm -rf /var/lib/apt/lists/*
 
@@ -30,6 +28,3 @@ ADD assets/phpinfo.php /var/www/html/public_html/
 
 # copy APCu monitor script
 ADD assets/apc.php /var/www/html/public_html/
-
-# install phpMyAdmin
-# TODO

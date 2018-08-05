@@ -234,9 +234,9 @@ class Core{
 						try {
 							$res = eval( $php_init_command );
 							if( !is_array($res) )
-								return ['success' => false, 'data' => sprintf('An error occurred while initializing the package `%s`', $pkg['id'])];
+								return ['success' => false, 'data' => sprintf('An error occurred while initializing the package `%s`. Command `%s`', $pkg['id'], $php_init_command)];
 							if( !$res['success'] )
-								return ['success' => false, 'data' => sprintf('An error occurred while initializing the package `%s`. The module reports: "%s"', $pkg['id'], $res['data'])];
+								return ['success' => false, 'data' => sprintf('An error occurred while initializing the package `%s`. Command `%s`. The module reports: "%s"', $pkg['id'], $php_init_command, $res['data'])];
 						} catch (\Error $e) {
 							return ['success' => false, 'data' => $e->getMessage()];
 						}
