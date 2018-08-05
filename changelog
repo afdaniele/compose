@@ -41,6 +41,10 @@ Things to add later in the development:
             [ ] - define somehow pkg <-> compose compatibility maps
 
     [ ] - v0.9
+        [ ] - Update the API Documentation so that it shows whether an API action is accessible via web/app
+
+        [ ] - It is now possible to update the status of a user
+
         [X] - implemented error collection and `Debug` page with shortcut to a GitHub New Issue page
 
         [X] - add API Keys to user profile
