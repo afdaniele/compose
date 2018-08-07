@@ -41,9 +41,13 @@ Things to add later in the development:
             [ ] - define somehow pkg <-> compose compatibility maps
 
     [ ] - v0.9
+        [ ] - updated CSS checkbox switch
+
         [ ] - Update the API Documentation so that it shows whether an API action is accessible via web/app
 
         [ ] - It is now possible to update the status of a user
+
+        [ ] - Core now checks the package dependencies of each package installed and disables it if at least one of the dependencies is not satisfied
 
         [X] - implemented error collection and `Debug` page with shortcut to a GitHub New Issue page
 

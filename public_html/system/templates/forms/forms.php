@@ -130,8 +130,10 @@ function generateFormByLayout( &$layout, $formID=null, $formClass=null, $method=
 					break;
 				case 'checkbox':
 					echo sprintf('<input type="checkbox"
-                        class="switch"
-                        data-size="mini"
+						data-toggle="toggle"
+						data-onstyle="primary"
+						data-class="fast"
+						data-size="mini"
 						style="margin-top:7px"
 						id="%s"
                         name="%s"

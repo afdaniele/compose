@@ -97,7 +97,7 @@
 
 	<!-- Bootstrap v3.3.1 by getbootstrap.com -->
 	<link href="<?php echo Configuration::$BASE_URL ?>css/bootstrap.min.css" rel="stylesheet" type="text/css" >
-	<link href="<?php echo Configuration::$BASE_URL ?>css/bootstrap-switch.min.css" rel="stylesheet" type="text/css" >
+	<link href="<?php echo Configuration::$BASE_URL ?>css/bootstrap-toggle.min.css" rel="stylesheet" type="text/css" >
 	<link href="<?php echo Configuration::$BASE_URL ?>css/bootstrap-theme.min.css" rel="stylesheet" type="text/css" >
 	<link href="<?php echo Configuration::$BASE_URL ?>css/bootstrap-callout.css" rel="stylesheet" type="text/css" >
 
@@ -200,16 +200,12 @@
 	================================================== -->
 	<!-- Placed at the end of the document so the pages load faster -->
 	<script src="<?php echo Configuration::$BASE_URL ?>js/bootstrap.min.js"></script>
-	<script src="<?php echo Configuration::$BASE_URL ?>js/bootstrap-switch.min.js"></script>
+	<script src="<?php echo Configuration::$BASE_URL ?>js/bootstrap-toggle.min.js"></script>
 
 	<!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
 	<script src="<?php echo Configuration::$BASE_URL ?>js/ie10-viewport-bug-workaround.js"></script>
 
 	<script type="text/javascript">
-		$.fn.bootstrapSwitch.defaults.size = 'small';
-		$.fn.bootstrapSwitch.defaults.offColor = 'warning';
-		$("[class='switch']").bootstrapSwitch();
-
 		// configure button groups
 		$(".btn-group > .btn").click(function(){
 			$(this).addClass("active").siblings().removeClass("active");

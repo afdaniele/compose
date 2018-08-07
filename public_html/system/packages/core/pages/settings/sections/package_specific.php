@@ -28,7 +28,9 @@ function create_row( $settings_entry_id, $settings_entry, $settings_entry_value 
                 case 'boolean':
                     ?>
                     <input type="checkbox"
-                        class="switch"
+                        data-toggle="toggle"
+                        data-onstyle="primary"
+                        data-class="fast"
                         data-size="mini"
                         name="<?php echo $settings_entry_id ?>"
                         <?php echo ($settings_entry_value)? 'checked' : '' ?>
@@ -154,7 +156,6 @@ function settings_custom_package_tab( $package_settings, $settings_tab_id ){
 
 
     <script type="text/javascript">
-
     	$('#<?php echo $package_name ?>-settings-save-button').on('click', function(){
     		qs = serializeForm( '#<?php echo $package_name ?>-settings-form' );
     		//
@@ -171,12 +172,6 @@ function settings_custom_package_tab( $package_settings, $settings_tab_id ){
             unsaved_mark_id = "#<?php echo $settings_tab_id ?>_unsaved_changes_mark";
             $(unsaved_mark_id).css('display', '');
     	});
-
-        $('#<?php echo $package_name ?>-settings-form :input').on('switchChange.bootstrapSwitch',function(){
-            unsaved_mark_id = "#<?php echo $settings_tab_id ?>_unsaved_changes_mark";
-            $(unsaved_mark_id).css('display', '');
-    	});
-
     </script>
 
 <?php

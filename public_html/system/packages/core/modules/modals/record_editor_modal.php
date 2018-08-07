@@ -70,7 +70,7 @@ function generateRecordEditorModal( &$layout, $formID=null, $method=null, $actio
 						$('#record-editor-modal-<?php echo $formID ?> #<?php echo $formID ?> #'+key+'_p').html( jsonobj[key] );
 						break;
 					case 'checkbox':
-						field.bootstrapSwitch('state', (jsonobj[key] == 1));
+						field.prop('checked', jsonobj[key]==1).change();
 						break;
 					case 'select':
 						//TODO: Boh!
@@ -95,7 +95,7 @@ function generateRecordEditorModal( &$layout, $formID=null, $method=null, $actio
 							$('#record-editor-modal-<?php echo $formID ?> #<?php echo $formID ?> #'+key+'_p').html( '' );
 							break;
 						case 'checkbox':
-							field.bootstrapSwitch('state', false);
+							field.bootstrapToggle('off');
 							break;
 						case 'select':
 							//TODO: Boh!
