@@ -41,6 +41,8 @@ Things to add later in the development:
             [ ] - define somehow pkg <-> compose compatibility maps
 
     [ ] - v0.9
+        [ ] - /system/config/configuration.php is now /system/config/configuration.json managed via a JsonDB instance at the very beginning of the init procedure (maybe in Configuration::init?, check whether JsonDB depends on Configuration)
+
         [ ] - updated CSS checkbox switch
 
         [ ] - Update the API Documentation so that it shows whether an API action is accessible via web/app
