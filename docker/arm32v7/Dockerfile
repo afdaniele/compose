@@ -48,5 +48,11 @@ RUN ["chmod", "+x", "/root/entrypoint.sh"]
 # install compose
 RUN git clone --depth 1 -b $COMPOSE_VERSION https://github.com/afdaniele/compose.git /var/www/html
 
+# create configuration file
+RUN cp /var/www/html/public_html/system/config/configuration.default.php /var/www/html/public_html/system/config/configuration.php
+
+# create a volume for compose
+VOLUME /var/www/html
+
 # configure CMD and ENTRYPOINT
 ENTRYPOINT ["/root/entrypoint.sh"]
