@@ -99,7 +99,7 @@
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 	<link rel="icon" href="<?php echo Configuration::$BASE_URL ?>images/favicon.ico">
 
-	<title><?php echo Configuration::$SHORT_SITE_NAME.' - '.Core::getPageDetails(Configuration::$PAGE, 'name') ?></title>
+	<title><?php echo Core::getSiteName().' - '.Core::getPageDetails(Configuration::$PAGE, 'name') ?></title>
 
 	<!-- Bootstrap v3.3.1 by getbootstrap.com -->
 	<link href="<?php echo Configuration::$BASE_URL ?>css/bootstrap.min.css" rel="stylesheet" type="text/css" >

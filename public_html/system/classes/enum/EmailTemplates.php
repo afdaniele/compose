@@ -40,9 +40,9 @@ class EmailTemplates {
 
 	public static function init(){
 		// company name
-		$company_name_str = Configuration::$SHORT_SITE_NAME;
+		$company_name_str = 'TODO';
 		// sitename
-		$sitename_str = Configuration::$SHORT_SITE_LINK;
+		$sitename_str = 'TODO';
 		// location
 		$location_str = 'Duckietown';
 		// date

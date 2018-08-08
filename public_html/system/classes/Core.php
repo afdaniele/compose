@@ -198,6 +198,9 @@ class Core{
 			self::$packages = ['core' => null];
 			self::$settings = self::_load_packages_settings( true );
 			//
+			// set timezone
+			date_default_timezone_set( self::getSetting('timezone', 'core', 'America/Chicago') );
+			//
 			// initialize cache
 			if( self::getSetting('cache_enabled', 'core', false) ){
 				Cache::init();
@@ -1206,7 +1209,7 @@ class Core{
 
 
 	public static function getSiteName(){
-		return Configuration::$SHORT_SITE_NAME;
+		return self::getSetting('website_name', 'core');
 	}//getSiteName
 
 
@@ -1366,61 +1369,46 @@ class Core{
 	}//throwException
 
 
-	public static function sendEMail($to, $subject, $template, $replace, $replyTo=null){
-		// prepare the message body
-		$res = EmailTemplates::fill( $template, $replace );
-		if( !$res['success'] ){
-			return $res;
-		}
-		$body = $res['data'];
-		// create the mail object
-		$mail = new \PHPMailer();
-		//
-		$mail->isSMTP();                                      				// Set mailer to use SMTP
-		$mail->Host = Configuration::$NOREPLY_MAIL_HOST;	  				// Specify main and backup SMTP servers
-		$mail->SMTPAuth = Configuration::$NOREPLY_MAIL_AUTH;  				// Enable SMTP authentication
-		$mail->Username = Configuration::$NOREPLY_MAIL_USERNAME;           	// SMTP username
-		$mail->Password = Configuration::$NOREPLY_MAIL_PASSWORD;      		// SMTP password
-		if( !in_array( Configuration::$NOREPLY_MAIL_SECURE_PROTOCOL, array('', 'none') ) ){
-			$mail->SMTPSecure = Configuration::$NOREPLY_MAIL_SECURE_PROTOCOL;  	// Enable TLS encryption, `ssl` also accepted
-		}
-		$mail->Port = Configuration::$NOREPLY_MAIL_SERVER_PORT;
-		//
-		$mail->From = Configuration::$NOREPLY_MAIL_ADDRESS;
-		$mail->FromName = Configuration::$SHORT_SITE_NAME;
-		$mail->addAddress( $to );     										// Add a recipient
-		//
-		if( $replyTo !== null ){
-			$mail->addReplyTo( $replyTo['email'], $replyTo['name'] );
-		}
-		//
-		//$mail->addAttachment('/tmp/image.jpg', 'new.jpg');    			// Add an Attachment
-		$mail->isHTML(true);                                  				// Set email format to HTML
-		//
-		$mail->Subject = $subject;
-		$mail->Body = $body;
-		//
-		if(!$mail->send()) {
-			return array( 'success' => false, 'data' => $mail->ErrorInfo );
-		} else {
-			return array( 'success' => true, 'data' => null );
-		}
-	}//sendEMail
-
-
-	public static function hash_password( $plain_password ){
-		// create a seed by removing the characters in odd positions from the password
-		$seed = "";
-		foreach(range($plain_password, strlen($plain_password)-1, 2) as $i){
-			$seed .= $plain_password[$i];
-		}
-		// hash the seed using MD5 and take the first 22 characters, this will be the salt for bcrypt
-		$salt = substr( md5($seed), 0, 22 );
-		// hash the password using bcrypt, a cost of 10, 10000 iterations, and the given salt
-		$hash = password_hash($plain_password, PASSWORD_BCRYPT, ['salt'=>$salt]);
-		// return hashed password
-		return $hash;
-	}//hash_password
+	// public static function sendEMail($to, $subject, $template, $replace, $replyTo=null){
+	// 	// prepare the message body
+	// 	$res = EmailTemplates::fill( $template, $replace );
+	// 	if( !$res['success'] ){
+	// 		return $res;
+	// 	}
+	// 	$body = $res['data'];
+	// 	// create the mail object
+	// 	$mail = new \PHPMailer();
+	// 	//
+	// 	$mail->isSMTP();                                      				// Set mailer to use SMTP
+	// 	$mail->Host = Configuration::$NOREPLY_MAIL_HOST;	  				// Specify main and backup SMTP servers
+	// 	$mail->SMTPAuth = Configuration::$NOREPLY_MAIL_AUTH;  				// Enable SMTP authentication
+	// 	$mail->Username = Configuration::$NOREPLY_MAIL_USERNAME;           	// SMTP username
+	// 	$mail->Password = Configuration::$NOREPLY_MAIL_PASSWORD;      		// SMTP password
+	// 	if( !in_array( Configuration::$NOREPLY_MAIL_SECURE_PROTOCOL, array('', 'none') ) ){
+	// 		$mail->SMTPSecure = Configuration::$NOREPLY_MAIL_SECURE_PROTOCOL;  	// Enable TLS encryption, `ssl` also accepted
+	// 	}
+	// 	$mail->Port = Configuration::$NOREPLY_MAIL_SERVER_PORT;
+	// 	//
+	// 	$mail->From = Configuration::$NOREPLY_MAIL_ADDRESS;
+	// 	$mail->FromName = self::getSiteName();
+	// 	$mail->addAddress( $to );     										// Add a recipient
+	// 	//
+	// 	if( $replyTo !== null ){
+	// 		$mail->addReplyTo( $replyTo['email'], $replyTo['name'] );
+	// 	}
+	// 	//
+	// 	//$mail->addAttachment('/tmp/image.jpg', 'new.jpg');    			// Add an Attachment
+	// 	$mail->isHTML(true);                                  				// Set email format to HTML
+	// 	//
+	// 	$mail->Subject = $subject;
+	// 	$mail->Body = $body;
+	// 	//
+	// 	if(!$mail->send()) {
+	// 		return array( 'success' => false, 'data' => $mail->ErrorInfo );
+	// 	} else {
+	// 		return array( 'success' => true, 'data' => null );
+	// 	}
+	// }//sendEMail
 
 
 	public static function getErrorRecordsList(){

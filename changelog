@@ -39,9 +39,10 @@ Things to add later in the development:
         [ ] - add support for package-specific configurable parameters in URL-rewrite rules (e.g., $(param docs_dir))
         [ ] - when an admin is logged in, query github and get the versions of all the packages that are compatible with the current version of \compose\
             [ ] - define somehow pkg <-> compose compatibility maps
+        [ ] - Implement Core::sendEmail
 
     [ ] - v0.9
-        [ ] - /system/config/configuration.php is now /system/config/configuration.json managed via a JsonDB instance at the very beginning of the init procedure (maybe in Configuration::init?, check whether JsonDB depends on Configuration)
+        [X] - no need to modify the file /system/config/configuration.php after installing \compose\
 
         [X] - updated CSS checkbox switch
 

@@ -6,11 +6,25 @@
             "default" : false,
             "details" : "Whether the platform is in maintenance mode"
         },
+        "website_name" : {
+            "title" : "Website name",
+            "type" : "text",
+            "default" : "\\compose\\",
+            "details" : "Name of your website"
+        },
         "navbar_title" : {
             "title" : "Navbar title",
             "type" : "text",
             "default" : "Welcome",
             "details" : "Text in the header of the navbar"
+        },
+        "timezone" : {
+            "title" : "Timezone",
+            "type" : "enum",
+            "default" : "America/Chicago",
+            "details" : "The default timezone to use on the website",
+            "enum_filler_fcn_name" : "_timezone_enum",
+            "enum_filler_fcn_args" : []
         },
         "logo_white" : {
             "title" : "Application logo (white version)",
@@ -29,6 +43,12 @@
             "type" : "email",
             "default" : "administrator@example.com",
             "details" : "E-mail address of the administrator"
+        },
+        "login_enabled" : {
+            "title" : "Enable login",
+            "type" : "boolean",
+            "default" : true,
+            "details" : "Enable user login functionality"
         },
         "google_client_id" : {
             "title" : "Google Client ID",

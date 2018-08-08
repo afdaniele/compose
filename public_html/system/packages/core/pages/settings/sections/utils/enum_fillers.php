@@ -30,6 +30,21 @@ function _pages_avail_to_role( $args ){
 }//_pages_avail_to_role
 
 
+function _timezone_enum( $args ){
+    $timezone_identifiers = DateTimeZone::listIdentifiers();
+    return array_map(
+        function($t){
+            return [
+                'id' => $t,
+                'value' => $t,
+                'label' => $t
+            ];
+        },
+        $timezone_identifiers
+    );
+}//_timezone_enum
+
+
 function _static_enum( $args ){
     return array_map(
         function($a){

@@ -20,9 +20,13 @@ $buttons = Core::getFilteredPagesList(
 	$user_role /* accessibleBy */
 );
 
+// remove login if the functionality is not enabled
+$login_enabled = Core::getSetting('login_enabled', 'core', False);
+
 // count non-responsive buttons
 $non_responsive_btns = 0;
 foreach ($buttons as &$button) {
+	if( !$login_enabled && $button['id']=='login' ) continue;
 	if( $button['menu_entry']['responsive']['priority'] < 0 ){
 		$non_responsive_btns += 1;
 	}
@@ -39,6 +43,7 @@ $responsive_min_width =
 $responsive_buttons = [];
 $responsive_current_width = $responsive_min_width;
 foreach ($buttons as &$button) {
+	if( !$login_enabled && $button['id']=='login' ) continue;
 	if( $button['menu_entry']['responsive']['priority'] >= 0 ){
 		$responsive_current_width += $responsive_width_per_button;
 		$responsive_buttons[ $button['id'] ] = $responsive_current_width;
@@ -82,6 +87,7 @@ foreach ($buttons as &$button) {
 				// create buttons
 				for ($i = 0; $i < count($pages); $i++) {
 					$elem = $pages[$i];
+					if( !$login_enabled && $elem['id']=='login' ) continue;
 					// hide pages if maintenance mode is enabled
 					if( $user_role!='administrator' && Core::getSetting('maintenance_mode','core',true) && $elem['id']!='login' )
 						continue;
