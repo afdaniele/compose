@@ -31,7 +31,7 @@ use \system\classes\Core;
 					$login_enabled = Core::getSetting('login_enabled', 'core', False);
 					if( $login_enabled ){
 						?>
-						<div class="g-signin2" id="google-signin-button" data-width="240" data-height="50" data-longtitle="true" style="margin-left:100px"></div>
+						<div class="g-signin2" id="google-signin-button" data-width="240" data-height="50" data-longtitle="true" style="margin-left:100px" data-prompt="select_account"></div>
 						<!--  -->
 						<img id="signin-loader" src="<?php echo Configuration::$BASE_URL ?>images/loading_blue.gif" style="display:none; width:32px; height:32px; margin-top:10px">
 						<?php

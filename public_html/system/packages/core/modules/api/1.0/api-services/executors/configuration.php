@@ -66,6 +66,10 @@ function execute( &$service, &$actionName, &$arguments ){
 			$pkg_cache->clear();
 			$core_cache = new CacheProxy('core');
 			$core_cache->clear();
+			if( $package_name == 'core' ){
+				$api_cache = new CacheProxy('api');
+				$api_cache->clear();
+			}
 			//
 			return response200OK();
 			break;

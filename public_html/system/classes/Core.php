@@ -391,15 +391,22 @@ class Core{
 					return $res;
 				}
 			}
+			// make sure that the user is active
+			if( !boolval($user_info['active']) ){
+				return [
+					'success' => false,
+					'data' => 'The user profile you are trying to login with is not active. Please, contact the administrator'
+				];
+			}
 			//
 			$_SESSION['USER_LOGGED'] = true;
 			$_SESSION['USER_RECORD'] = $user_info;
 			//
 			self::regenerateSessionID();
-			return array( 'success' => true, 'data' => $user_info );
+			return ['success' => true, 'data' => $user_info];
 		}else{
 			// Invalid ID token
-			return array( 'success' => false, 'data' => "Invalid ID Token" );
+			return ['success' => false, 'data' => "Invalid ID Token"];
 		}
 	}//logInUserWithGoogle
 

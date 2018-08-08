@@ -5,7 +5,7 @@
 # @Last modified by:   afdaniele
 # @Last modified time: Monday, January 15th 2018
 
-
+require_once $GLOBALS['__PACKAGES__DIR__'].'/core/modules/modals/record_editor_modal.php';
 require_once $GLOBALS['__SYSTEM__DIR__'].'templates/tableviewers/TableViewer.php';
 
 // Define Constants
@@ -69,20 +69,25 @@ $table = array(
 			'width' => 'md-1',
 			'align' => 'center',
 			'translation' => 'Enabled',
-			'editable' => false
+			'editable' => true
 		)
 	),
 	'actions' => array(
 		'_width' => 'md-3',
-		'activity' => array(
+		'edit' => array(
 			'type' => 'default',
 			'glyphicon' => 'pencil',
 			'tooltip' => 'Edit user account',
 			'text' => 'Edit',
 			'function' => array(
-				'type' => 'custom',
-				'custom_html' => 'onclick="_edit_user(this)"',
-				'arguments' => array('userid')
+                'type' => '_toggle_modal',
+				'class' => 'record-editor-modal',
+                'static_data' => ['modal-mode' => 'edit'],
+                'API_resource' => 'userprofile',
+                'API_action' => 'edit',
+				'arguments' => [
+                    'userid'
+                ]
 			)
 		)
 	),
@@ -166,17 +171,19 @@ $table = array(
 	// <== Here is the Magic Call!
 	\system\templates\tableviewers\TableViewer::generateTableViewer( \system\classes\Configuration::$PAGE, $res, $features, $table );
 
+	$user_edit_form = [
+		'name' => [
+			'name' => 'Name',
+			'type' => 'text',
+			'editable' => false
+		],
+		'active' => [
+			'name' => 'Enabled',
+			'type' => 'boolean',
+			'editable' => true
+		]
+	];
+	generateRecordEditorModal( $user_edit_form, $formID='the-form', $method='POST' );
 	?>
 
 </div>
-
-
-<script type="text/javascript">
-
-	function _edit_user( target ){
-		var userid = $(target).data('userid');
-		//TODO: open editor modal here
-		alert( 'Not implemented yet!' );
-	}
-
-</script>

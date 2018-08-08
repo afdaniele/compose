@@ -30,7 +30,26 @@ function execute( &$service, &$actionName, &$arguments ){
 				return array( 'code' => 500, 'status' => 'Internal Server Error', 'message' => $res['data'] );
 			}
 			// success
-			return array( 'code' => 200, 'status' => 'OK' );
+			return response200OK( null );
+			break;
+		case 'edit':
+			// open user profile
+			$res = Core::openUserInfo( $arguments['userid'] );
+			if( !$res['success'] ){
+				return response400BadRequest( $res['data'] );
+			}
+			$user = $res['data'];
+			// update info
+			if( array_key_exists('active', $arguments) ){
+				$user->set( 'active', boolval($arguments['active']) );
+			}
+			// commit
+			$res = $user->commit();
+			if( !$res['success'] ){
+				return response400BadRequest( $res['data'] );
+			}
+			//
+			return response200OK( null );
 			break;
 		//
 		case 'logout':
@@ -39,7 +58,7 @@ function execute( &$service, &$actionName, &$arguments ){
 				 array( 'code' => 500, 'status' => 'Internal Server Error', 'message' => $res['data'] );
 			}
 			// success
-			return array( 'code' => 200, 'status' => 'OK' );
+			return response200OK( null );
 			break;
 		//
 		default:
