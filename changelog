@@ -26,7 +26,6 @@ Things to add later in the development:
     [ ] - v2.0
         [ ] - switch to Bootstrap 4.X
 
-
     [ ] - v1.1
         [ ] - allow the specification of auxiliary libraries to load for specific pages in the page metadata file
             [ ] - make jquery-ui.{css, js} available as auxiliary library and remove it from the duckietown package
@@ -40,6 +39,7 @@ Things to add later in the development:
         [ ] - when an admin is logged in, query github and get the versions of all the packages that are compatible with the current version of \compose\
             [ ] - define somehow pkg <-> compose compatibility maps
         [ ] - Implement Core::sendEmail
+        [ ] - Core now checks the package dependencies of each package installed and disables it if at least one of the dependencies is not satisfied
 
     [ ] - v0.9
         [X] - no need to modify the file /system/config/configuration.php after installing \compose\
@@ -49,9 +49,7 @@ Things to add later in the development:
         [X] - Update the API Documentation so that it shows whether an API action is accessible via web/app
             [ ] - Update the API Documentation so that we explain the difference between the two authentication modes (web VS app)
 
-        [ ] - It is now possible to update the status of a user
-
-        [ ] - Core now checks the package dependencies of each package installed and disables it if at least one of the dependencies is not satisfied
+        [X] - It is now possible to update the status of a user
 
         [X] - implemented error collection and `Debug` page with shortcut to a GitHub New Issue page
 
