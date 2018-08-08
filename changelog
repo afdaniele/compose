@@ -43,9 +43,10 @@ Things to add later in the development:
     [ ] - v0.9
         [ ] - /system/config/configuration.php is now /system/config/configuration.json managed via a JsonDB instance at the very beginning of the init procedure (maybe in Configuration::init?, check whether JsonDB depends on Configuration)
 
-        [ ] - updated CSS checkbox switch
+        [X] - updated CSS checkbox switch
 
-        [ ] - Update the API Documentation so that it shows whether an API action is accessible via web/app
+        [X] - Update the API Documentation so that it shows whether an API action is accessible via web/app
+            [ ] - Update the API Documentation so that we explain the difference between the two authentication modes (web VS app)
 
         [ ] - It is now possible to update the status of a user
 

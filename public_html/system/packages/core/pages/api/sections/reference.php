@@ -113,6 +113,9 @@ function _api_page_reference_section( &$api_setup, &$version, &$sget, &$aget ){
                     </li>
                     <ul>
                         <li>
+                            <a href="#authentication">Authentication methods</a>
+                        </li>
+                        <li>
                             <a href="#restrictions">Access privileges</a>
                         </li>
                         <li>
@@ -155,6 +158,54 @@ function _api_page_reference_section( &$api_setup, &$version, &$sget, &$aget ){
                     <?php echo $action['details'] ?>.
                 </p>
             </div>
+
+            <div class="api-service-subsection">
+                <a class="anchor" id="authentication"></a>
+                <h3>
+                    Authentication methods
+                </h3>
+                <div>
+                    <p>
+                        The following table shows the authentication mode supported by the action <span class="mono emph"><?php echo $sget ?></span>/<span class="mono emph"><?php echo $aget ?></span>.
+                    </p>
+
+                    <table class="table-rounded gray-table table-text-centered" style="width:450px; margin:auto; margin-top:20px">
+                        <thead>
+                            <tr>
+                                <th>
+                                    Authentication
+                                </th>
+                                <th>
+                                    Supported
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php
+                            $modes = [
+                                'web' => 'Web Browser Cookies',
+                                'app' => 'API Application ID/Secret'
+                            ];
+                            foreach( $modes as $m => $t ){
+                                $supported = in_array($m, $action['authentication']);
+                                ?>
+                                <tr>
+                                    <td>
+                                        <?php echo $t ?>
+                                    </td>
+                                    <td>
+                                        <span class="glyphicon glyphicon-<?php echo ( $supported )? 'ok-sign on' : 'minus-sign off' ?>"></span>
+                                    </td>
+                                </tr>
+                                <?php
+                            }
+                            ?>
+                        </tbody>
+                    </table>
+
+                </div>
+            </div>
+
 
             <div class="api-service-subsection">
                 <a class="anchor" id="restrictions"></a>
