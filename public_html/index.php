@@ -31,6 +31,12 @@
 	use system\classes\Configuration as Configuration;
 	use system\utils\URLrewrite as URLrewrite;
 
+	// set the $BASE and $BASE_URL variables (Experimental)
+	$protocol = stripos($_SERVER['SERVER_PROTOCOL'],'https') === true ? 'https' : 'http';
+	$hostname = $_SERVER['HTTP_HOST'];
+	Configuration::$BASE_URL = sprintf('%s://%s/', $protocol, $hostname);
+	Configuration::$BASE = Configuration::$BASE_URL;
+
 	// parse arguments
 	$args = explode( '/', strtolower($_GET['arg']) );
 	$requested_page = $args[0];

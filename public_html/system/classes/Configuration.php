@@ -71,8 +71,11 @@ class Configuration {
 			//
 			self::$TIMEZONE = $TIMEZONE;
 			//
-			self::$BASE_URL = $BASE_URL;
-			self::$BASE = $BASE_URL; //TODO: for language or other link tags
+
+			// TODO: (Experimental) $BASE and $BASE_URL are now obtained from $_SERVER['HTTP_HOST']
+			// self::$BASE_URL = $BASE_URL;
+			// self::$BASE = $BASE_URL; //TODO: for language or other link tags
+
 			self::$SHORT_SITE_NAME = $SHORT_SITE_NAME;
 			self::$SHORT_SITE_LINK = $SHORT_SITE_LINK;
 			//

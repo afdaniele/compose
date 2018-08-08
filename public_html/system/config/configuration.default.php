@@ -7,8 +7,6 @@ date_default_timezone_set($TIMEZONE);
 /* Platform URLs settings */
 $SHORT_SITE_NAME = "Compose";
 $SHORT_SITE_LINK = "Compose";
-$BASE_URL = "http://localhost/";
-$MOBILE_BASE_URL = "http://localhost/";
 
 /* No-Reply email address settings */
 $NOREPLY_MAIL_ADDRESS = 'no-reply@example.com';

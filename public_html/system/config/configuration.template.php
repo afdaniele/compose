@@ -7,8 +7,6 @@ date_default_timezone_set($TIMEZONE);
 /* Platform URLs settings */
 $SHORT_SITE_NAME = "#short_site_link#";
 $SHORT_SITE_LINK = "#short_site_name#";
-$BASE_URL = "http://#base_url#/";
-$MOBILE_BASE_URL = "http://#mobile_base_url#/";
 
 /* No-Reply email address settings */
 $NOREPLY_MAIL_ADDRESS = '#noreply_email_address#';
