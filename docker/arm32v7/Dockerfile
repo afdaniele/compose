@@ -10,7 +10,6 @@ ENV COMPOSE_VERSION $VERSION
 # update apt lists and install system libraries, then clean the apt cache
 RUN apt-get update && apt-get install -y \
     apt-utils \
-    gnupg \
     # clean the apt cache
     && rm -rf /var/lib/apt/lists/*
 
@@ -19,6 +18,7 @@ RUN apt-get update && apt-get install -y \
 RUN apt-get update && apt-get install -y \
     # system utilities (used by user)
     nano \
+    python \
     # system utilities (used by compose)
     git \
     # php libraries
