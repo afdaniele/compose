@@ -115,28 +115,34 @@ foreach ($buttons as &$button) {
 				}
 				?>
 
-				<!-- Responsive navbar -->
-				<li class="dropdown navbar-<?php echo $responsive_current_width ?>-responsive-button-component">
-					<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
-						<span class="glyphicon glyphicon-chevron-down" aria-hidden="true" style="margin-top:2px"></span>
-					</a>
-					<ul class="dropdown-menu" role="menu">
-						<?php
-						foreach ($responsive_buttons as $id => $width) {
-							$elem = $pages_list['by-id'][$id];
-							$icon = sprintf('%s %s-%s', $elem['menu_entry']['icon']['class'], $elem['menu_entry']['icon']['class'], $elem['menu_entry']['icon']['name']);
-							?>
-							<li class="navbar-<?php echo $width ?>-responsive-button-component">
-								<a href="<?php echo \system\classes\Configuration::$BASE . $id ?>">
-									<span class="<?php echo $icon ?>" aria-hidden="true"></span> &nbsp;
-									<?php echo $elem['name'] ?>
-								</a>
-							</li>
+				<?php
+				if( count($responsive_buttons) > 0 ){
+					?>
+					<!-- Responsive navbar -->
+					<li class="dropdown navbar-<?php echo $responsive_current_width ?>-responsive-button-component">
+						<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+							<span class="glyphicon glyphicon-chevron-down" aria-hidden="true" style="margin-top:2px"></span>
+						</a>
+						<ul class="dropdown-menu" role="menu">
 							<?php
-						}
-						?>
-					</ul>
-				</li>
+							foreach ($responsive_buttons as $id => $width) {
+								$elem = $pages_list['by-id'][$id];
+								$icon = sprintf('%s %s-%s', $elem['menu_entry']['icon']['class'], $elem['menu_entry']['icon']['class'], $elem['menu_entry']['icon']['name']);
+								?>
+								<li class="navbar-<?php echo $width ?>-responsive-button-component">
+									<a href="<?php echo \system\classes\Configuration::$BASE . $id ?>">
+										<span class="<?php echo $icon ?>" aria-hidden="true"></span> &nbsp;
+										<?php echo $elem['name'] ?>
+									</a>
+								</li>
+								<?php
+							}
+							?>
+						</ul>
+					</li>
+				<?php
+				}
+				?>
 
 				<?php
 				// Add LogOut button if the user is logged in
