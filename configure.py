@@ -1,15 +1,10 @@
 #!/usr/bin/env python
-
 import sys
 import json
 from pprint import pformat
 from os.path import join, realpath, dirname, exists, isfile
 
-DEBUG = True
-
-# def prettyprint(obj):
-#     str, _, _ = pprint.format( obj )
-#     return str
+DEBUG = False
 
 def main():
     # get metadata and configuration files
@@ -31,20 +26,21 @@ def main():
         with open(config_file) as f:
             config_data = json.load(f)
             if DEBUG:
-                change = { e[0]:e[1] for e in set(config.items()).symmetric_difference(set(config_data.items())) }
+                change = { e[0]:config_data[e[0]] for e in set(config_data.items()).symmetric_difference(set(config.items())) }
                 print 'Stored configuration loaded.\nChange:\n%s\n' % pformat(change)
             config.update( config_data )
         if DEBUG: print 'Stored configuration loaded.\nConfig so far:\n%s\n' % pformat(config)
     # update config
-    arguments = sys.argv + ['--END']
+    arguments = sys.argv[1:] + ['--END']
     key_indices = [ i for i in range(len(arguments)) if arguments[i].startswith('--') ]
     config_update = {}
     cur_key = key_indices[0]
     for next_key in key_indices:
         if next_key-cur_key == 2:
-            key = sys.argv[cur_key][2:].strip()
+            key = arguments[cur_key][2:].strip()
             if key in metadata['configuration_content'].keys():
-                config_update[key] = sys.argv[cur_key+1]
+                config_update[key] = arguments[cur_key+1]
+        cur_key = next_key
     if DEBUG: print 'Configuration update received:\n%s\n' % pformat(config_update)
     # update config
     config.update( config_update )
