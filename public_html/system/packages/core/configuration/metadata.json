@@ -1,7 +1,7 @@
 {
     "configuration_content" : {
         "maintenance_mode" : {
-            "title" : "Mainteinance mode",
+            "title" : "Maintenance mode",
             "type" : "boolean",
             "default" : false,
             "details" : "Whether the platform is in maintenance mode"
