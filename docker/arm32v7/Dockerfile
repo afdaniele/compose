@@ -44,12 +44,7 @@ RUN ln -s /var/www/html/public_html /root/public_html
 # configure entrypoint
 ADD assets/entrypoint.sh /root/entrypoint.sh
 RUN ["chmod", "+x", "/root/entrypoint.sh"]
+ENTRYPOINT ["/root/entrypoint.sh"]
 
 # install compose
-RUN git clone --depth 1 -b $COMPOSE_VERSION https://github.com/afdaniele/compose.git /var/www/html
-
-# create configuration file
-RUN cp /var/www/html/public_html/system/config/configuration.default.php /var/www/html/public_html/system/config/configuration.php
-
-# configure ENTRYPOINT
-ENTRYPOINT ["/root/entrypoint.sh"]
+ONBUILD RUN git clone --depth 1 -b $COMPOSE_VERSION https://github.com/afdaniele/compose.git /var/www/html
