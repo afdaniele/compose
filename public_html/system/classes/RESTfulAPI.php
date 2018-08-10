@@ -136,9 +136,11 @@ class RESTfulAPI{
 			throw new \Exception("Module not initialized", 1);
 		//
 		if( !self::serviceExists($api_version, $service_name) ) return false;
-		//TODO: storing this info in a Database and checking using `exists($api_version.'_'.$service_name)` would be more efficient
-		$service_disabled_flag = sprintf('%sapi/%s/flags/%s.disabled.flag', $GLOBALS['__SYSTEM__DIR__'], $api_version, $service_name);
-		return !file_exists($service_disabled_flag);
+		// open API service status database
+		$db_name = sprintf('api_%s_disabled_service', $api_version);
+		$service_db = new Database('core', $db_name);
+		// key exists == service is disabled
+		return !$service_db->key_exists($service_name);
 	}//isServiceEnabled
 
 
@@ -162,13 +164,14 @@ class RESTfulAPI{
 	public static function enableService( $api_version, $service_name ){
 		if( !self::isInitialized() )
 			throw new \Exception("Module not initialized", 1);
-		//
+		// make sure that the service exists
 		if( !self::serviceExists($api_version, $service_name) )
 			return ['success' => false, 'data' => sprintf('The API service "%s(v%s)" does not exist', $service_name, $api_version)];
-		$service_disabled_flag = sprintf('%sapi/%s/flags/%s.disabled.flag', $GLOBALS['__SYSTEM__DIR__'], $api_version, $service_name);
-		if( file_exists($service_disabled_flag) ){
-			$success = unlink( $service_disabled_flag );
-			return ['success' => $success, 'data' => null];
+		// open API service status database
+		$db_name = sprintf('api_%s_disabled_service', $api_version);
+		$service_db = new Database('core', $db_name);
+		if( $service_db->key_exists($service_name) ){
+			return $service_db->delete($service_name);
 		}
 		return ['success' => true, 'data' => null];
 	}//enableService
@@ -194,18 +197,16 @@ class RESTfulAPI{
 	public static function disableService( $api_version, $service_name ){
 		if( !self::isInitialized() )
 			throw new \Exception("Module not initialized", 1);
-		//
 		// avoid disabling things that cannot be re-enabled
 		if( $service_name == 'api' )
 			return ['success' => false, 'data' => sprintf('The API service "%s" cannot be disabled', $service_name)];
+		// make sure that the service exists
 		if( !self::serviceExists($api_version, $service_name) )
 			return ['success' => false, 'data' => sprintf('The API service "%s(v%s)" does not exist', $service_name, $api_version)];
-		$service_disabled_flag = sprintf('%sapi/%s/flags/%s.disabled.flag', $GLOBALS['__SYSTEM__DIR__'], $api_version, $service_name);
-		if( !file_exists($service_disabled_flag) ){
-			$success = touch( $service_disabled_flag );
-			return ['success' => $success, 'data' => null];
-		}
-		return ['success' => true, 'data' => null];
+		// open API service status database
+		$db_name = sprintf('api_%s_disabled_service', $api_version);
+		$service_db = new Database('core', $db_name);
+		return $service_db->write($service_name, []);
 	}//disableService
 
 
@@ -253,10 +254,14 @@ class RESTfulAPI{
 	public static function isActionEnabled( $api_version, $service_name, $action_name ){
 		if( !self::isInitialized() )
 			throw new \Exception("Module not initialized", 1);
-		//
+		// make sure that the service exists
 		if( !self::actionExists($api_version, $service_name, $action_name) ) return false;
-		$action_disabled_flag = sprintf('%sapi/%s/flags/%s.%s.disabled.flag', $GLOBALS['__SYSTEM__DIR__'], $api_version, $service_name, $action_name);
-		return !file_exists($action_disabled_flag);
+		// open API action status database
+		$db_name = sprintf('api_%s_disabled_action', $api_version);
+		$action_db = new Database('core', $db_name);
+		// key exists == action is disabled
+		$action_key = sprintf('%s_%s', $service_name, $action_name);
+		return !$action_db->key_exists($action_key);
 	}//isActionEnabled
 
 
@@ -283,13 +288,16 @@ class RESTfulAPI{
 	public static function enableAction( $api_version, $service_name, $action_name ){
 		if( !self::isInitialized() )
 			throw new \Exception("Module not initialized", 1);
-		//
+		// make sure that the service exists
 		if( !self::actionExists($api_version, $service_name, $action_name) )
 			return ['success' => false, 'data' => sprintf('The API action "%s.%s(v%s)" does not exist', $service_name, $action_name, $api_version)];
-		$action_disabled_flag = sprintf('%sapi/%s/flags/%s.%s.disabled.flag', $GLOBALS['__SYSTEM__DIR__'], $api_version, $service_name, $action_name);
-		if( file_exists($action_disabled_flag) ){
-			$success = unlink( $action_disabled_flag );
-			return ['success' => $success, 'data' => null];
+		// open API action status database
+		$db_name = sprintf('api_%s_disabled_action', $api_version);
+		$action_db = new Database('core', $db_name);
+		// remove key if it exists
+		$action_key = sprintf('%s_%s', $service_name, $action_name);
+		if( $action_db->key_exists($action_key) ){
+			return $action_db->delete($action_key);
 		}
 		return ['success' => true, 'data' => null];
 	}//enableAction
@@ -318,18 +326,20 @@ class RESTfulAPI{
 	public static function disableAction( $api_version, $service_name, $action_name ){
 		if( !self::isInitialized() )
 			throw new \Exception("Module not initialized", 1);
-		//
 		// avoid disabling things that cannot be re-enabled
 		if( $service_name == 'api' && in_array($action_name, ['service_enable', 'action_enable']) )
 			return ['success' => false, 'data' => sprintf('The API action "%s.%s" cannot be disabled', $service_name, $action_name)];
+		// make sure that the action exists
 		if( !self::actionExists($api_version, $service_name, $action_name) )
 			return ['success' => false, 'data' => sprintf('The API action "%s.%s(v%s)" does not exist', $service_name, $action_name, $api_version)];
-		$action_disabled_flag = sprintf('%sapi/%s/flags/%s.%s.disabled.flag', $GLOBALS['__SYSTEM__DIR__'], $api_version, $service_name, $action_name);
-		if( !file_exists($action_disabled_flag) ){
-			$success = touch( $action_disabled_flag );
-			return ['success' => $success, 'data' => null];
-		}
-		return ['success' => true, 'data' => null];
+
+
+		// open API action status database
+		$db_name = sprintf('api_%s_disabled_action', $api_version);
+		$action_db = new Database('core', $db_name);
+		// create key if it does not exist
+		$action_key = sprintf('%s_%s', $service_name, $action_name);
+		return $action_db->write($action_key, []);
 	}//disableAction
 
 
@@ -526,46 +536,52 @@ class RESTfulAPI{
 		// iterate over the API versions -> packages -> services -> actions
 		foreach( $api as $api_version => &$api_v_specs ){
 			$api_v_enabled = $api_v_specs['enabled'];
+			// open API service status database
+			$db_name_srv = sprintf('api_%s_disabled_service', $api_version);
+			$service_status_db = new Database('core', $db_name_srv);
+			// open API action status database
+			$db_name_act = sprintf('api_%s_disabled_action', $api_version);
+			$action_status_db = new Database('core', $db_name_act);
+			// iterate over the packages
 			foreach( $packages_ids as $pkg_id ){
 				$api_services_descriptors = sprintf("%s/../packages/%s/modules/api/%s/api-services/specifications/*.json", __DIR__, $pkg_id, $api_version);
 				$jsons = glob( $api_services_descriptors );
-				//
+				// iterate over the API services
 				foreach ($jsons as $json) {
 					$api_service_id = Utils::regex_extract_group($json, "/.*api\/(.+)\/api-services\/specifications\/(.+).json/", 2);
-					//
+					// get service name
 					$api_services_path_regex = sprintf( "/(.+)\/specifications\/%s.json/", $api_service_id );
 					$api_service_executor_path = sprintf(
 						"%s/executors/%s.php",
 						Utils::regex_extract_group($json, $api_services_path_regex, 1),
 						$api_service_id
 					);
-					//
+					// load service settings
 					$api_service = json_decode( file_get_contents($json), true );
 					$api_service['package'] = $pkg_id;
 					$api_service['id'] = $api_service_id;
 					$api_service['executor'] = $api_service_executor_path;
-					// check whether the service is enabled
-					$api_service_disabled_flag = sprintf('%sapi/%s/flags/%s.disabled.flag', $GLOBALS['__SYSTEM__DIR__'], $api_version, $api_service_id);
-					$api_service['enabled'] = !file_exists($api_service_disabled_flag);
+					// check whether the service is enabled (key exists == service is disabled)
+					$api_service['enabled'] = !$service_status_db->key_exists($api_service_id);
 					$api_service['enabled'] = $api_v_enabled && $packages[$pkg_id]['enabled'] && $api_service['enabled'];
-					//
+					// iterate over the API actions
 					foreach( $api_service['actions'] as $api_action_id => &$api_action ){
-						$api_action_disabled_flag = sprintf('%sapi/%s/flags/%s.%s.disabled.flag', $GLOBALS['__SYSTEM__DIR__'], $api_version, $api_service_id, $api_action_id);
-						$api_action['enabled'] = !file_exists($api_action_disabled_flag);
+						$action_key = sprintf('%s_%s', $api_service_id, $api_action_id);
+						$api_action['enabled'] = !$action_status_db->key_exists($action_key);
 						$api_action['enabled'] = $api_service['enabled'] && $api_action['enabled'];
 						// collect user types
 						foreach( $api_action['access_level'] as $user_type ){
 							Core::registerNewUserType( $user_type );
 						}
-					}
-					//
+					}//for:action
+					// attach service config to API specs object
 					$api_v_specs['services'][$api_service_id] = $api_service;
-				}
-			}
-		}
+				}//for:service
+			}//for:package
+		}//for:version
 		// cache object
 		self::$cache->set( $cache_key, $api, CacheTime::HOURS_24 );
-		//
+		// return api config object
 		return $api;
 	}//_load_API_configuration
 

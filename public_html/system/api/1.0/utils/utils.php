@@ -155,10 +155,6 @@ function getArgument( &$arguments, $name ){
 	return ( (isset($arguments[$name]))? $arguments[$name] : null );
 }//getArgument
 
-function filelog( &$string ){
-	file_put_contents( __DIR__.'/../../log/logger.log', $string /*, FILE_APPEND | LOCK_EX */ );
-}//log
-
 
 
 
@@ -170,7 +166,6 @@ function _createResponseArray( $code, $status, $message, $data ){
 		'data' => $data
 	);
 }//_createResponseArray
-
 
 function response200OK( $data=null ){
 	return _createResponseArray( 200, 'OK', null, $data );
