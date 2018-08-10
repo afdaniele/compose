@@ -201,6 +201,12 @@
 	include( 'system/packages/core/modules/footer.php' );
 	?>
 
+	<!-- Package-specific CSS stylesheets -->
+	<?php
+	foreach( Core::getRegisteredCSSstylesheets() as $css_file ){
+		echo sprintf('<style type="text/css">%s</style>', file_get_contents($css_file));
+	}
+	?>
 
 	<!-- Bootstrap core JavaScript
 	================================================== -->

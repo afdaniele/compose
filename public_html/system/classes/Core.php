@@ -61,6 +61,7 @@ class Core{
 	private static $settings = null;
 	private static $debugger_data = [];
 	private static $registered_user_types = [];
+	private static $registered_css_stylesheets = [];
 
 
 	private static $RESERVED_PAGES = [
@@ -1017,6 +1018,19 @@ class Core{
 			return sprintf("%s/css.php?package=%s&stylesheet=%s", Configuration::$BASE, $package_name, $css_file_with_extension );
 		}
 	}//getCSSstylesheetURL
+
+
+	public static function registerCSSstylesheet( $css_file_with_extension, $package_name ){
+		array_push(
+			self::$registered_css_stylesheets,
+			sprintf('%s%s/css/%s', $GLOBALS['__PACKAGES__DIR__'], $package_name, $css_file_with_extension)
+		);
+	}//registerCSSstylesheet
+
+
+	public static function getRegisteredCSSstylesheets(){
+		return self::$registered_css_stylesheets;
+	}//getRegisteredCSSstylesheets
 
 
 
