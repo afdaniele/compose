@@ -6,6 +6,7 @@
 # @Last modified time: Friday, January 26th 2018
 
 use \system\classes\Core;
+use \system\classes\Configuration;
 
 // get pages
 $pages_list = Core::getPagesList();
@@ -59,7 +60,7 @@ foreach ($buttons as &$button) {
 				<span class="icon-bar"></span>
 				<span class="icon-bar"></span>
 			</button>
-			<a class="navbar-brand" href="<?php echo \system\classes\Configuration::$BASE ?>" style="padding:10px 15px">
+			<a class="navbar-brand" href="<?php echo Configuration::$BASE ?>" style="padding:10px 15px">
 				<table>
 					<tr>
 						<td>
@@ -96,12 +97,12 @@ foreach ($buttons as &$button) {
 						continue;
 					$is_last = boolval( $i == count($pages)-1 );
 					$icon = sprintf('%s %s-%s', $elem['menu_entry']['icon']['class'], $elem['menu_entry']['icon']['class'], $elem['menu_entry']['icon']['name']);
-					$active = (\system\classes\Configuration::$PAGE == $elem['id']) || in_array(\system\classes\Configuration::$PAGE, $elem['child_pages']);
+					$active = (Configuration::$PAGE == $elem['id']) || in_array(Configuration::$PAGE, $elem['child_pages']);
 					//
 					?>
 					<li class="<?php echo (isset($responsive_buttons[$elem['id']]))? 'navbar-'.$responsive_buttons[$elem['id']].'-full-button-component' : '' ?>
 						<?php echo ($active)? 'active' : '' ?>" >
-						<a href="<?php echo \system\classes\Configuration::$BASE . $elem['id'] ?>">
+						<a href="<?php echo Configuration::$BASE . $elem['id'] ?>">
 							<span class="<?php echo $icon ?>" aria-hidden="true" style="font-size:12pt"></span> &nbsp;
 							<?php echo $elem['name'] ?>
 						</a>
@@ -130,7 +131,7 @@ foreach ($buttons as &$button) {
 								$icon = sprintf('%s %s-%s', $elem['menu_entry']['icon']['class'], $elem['menu_entry']['icon']['class'], $elem['menu_entry']['icon']['name']);
 								?>
 								<li class="navbar-<?php echo $width ?>-responsive-button-component">
-									<a href="<?php echo \system\classes\Configuration::$BASE . $id ?>">
+									<a href="<?php echo Configuration::$BASE . $id ?>">
 										<span class="<?php echo $icon ?>" aria-hidden="true"></span> &nbsp;
 										<?php echo $elem['name'] ?>
 									</a>
@@ -209,15 +210,15 @@ foreach ($buttons as &$button) {
 		?>
 		function logOutButtonClick(){
 			userLogOut(
-				'<?php echo \system\classes\Configuration::$BASE_URL ?>',
-				'<?php echo \system\classes\Configuration::$WEBAPI_VERSION ?>',
+				'<?php echo Configuration::$BASE_URL ?>',
+				'<?php echo Configuration::$WEBAPI_VERSION ?>',
 				'<?php echo $_SESSION['TOKEN'] ?>',
 				function(){ /* successFcn: on success function */
 					// Sign-out from Google
 					var auth2 = gapi.auth2.getAuthInstance();
 				    auth2.signOut().then(function () {
 						hidePleaseWait();
-					    window.location.href = '<?php echo \system\classes\Configuration::$BASE ?>'
+					    window.location.href = '<?php echo Configuration::$BASE ?>'
 				    });
 				}
 			);
@@ -236,8 +237,8 @@ foreach ($buttons as &$button) {
 						var id_token = googleUser.getAuthResponse().id_token;
 						// Sign-in in the back-end server by verifying the id_token with Google
 						userLogInWithGoogle(
-							'<?php echo \system\classes\Configuration::$BASE_URL ?>',
-							'<?php echo \system\classes\Configuration::$WEBAPI_VERSION ?>',
+							'<?php echo Configuration::$BASE_URL ?>',
+							'<?php echo Configuration::$WEBAPI_VERSION ?>',
 							'<?php echo $_SESSION['TOKEN'] ?>',
 							id_token
 						);
