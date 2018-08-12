@@ -34,6 +34,7 @@
 	// set the $BASE and $BASE_URL variables (Experimental)
 	$protocol = stripos($_SERVER['SERVER_PROTOCOL'],'https') === true ? 'https' : 'http';
 	$hostname = $_SERVER['HTTP_HOST'];
+	Configuration::$HOSTNAME = $hostname;
 	Configuration::$BASE_URL = sprintf('%s://%s/', $protocol, $hostname);
 	Configuration::$BASE = Configuration::$BASE_URL;
 

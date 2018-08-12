@@ -21,6 +21,7 @@ class Configuration {
 	public static $DEBUG = true;
 
 	public static $BASE_URL;
+	public static $HOSTNAME;
 	public static $BASE;
 	public static $PAGE;
 	public static $ACTION;
@@ -60,12 +61,6 @@ class Configuration {
 			}
 			//
 			self::$TIMEZONE = $TIMEZONE;
-			//
-
-			// TODO: (Experimental) $BASE and $BASE_URL are now obtained from $_SERVER['HTTP_HOST']
-			// self::$BASE_URL = $BASE_URL;
-			// self::$BASE = $BASE_URL; //TODO: for language or other link tags
-			
 			//
 			self::$CACHE_SYSTEM = $CACHE_SYSTEM;
 			self::$WEBAPI_VERSION = $WEBAPI_VERSION;
