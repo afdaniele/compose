@@ -34,7 +34,7 @@
 	// set the $BASE and $BASE_URL variables (Experimental)
 	$protocol = stripos($_SERVER['SERVER_PROTOCOL'],'https') === true ? 'https' : 'http';
 	$hostname = $_SERVER['HTTP_HOST'];
-	Configuration::$HOSTNAME = $hostname;
+	Configuration::$HOSTNAME = explode(':', $hostname)[0];
 	Configuration::$BASE_URL = sprintf('%s://%s/', $protocol, $hostname);
 	Configuration::$BASE = Configuration::$BASE_URL;
 
@@ -157,7 +157,7 @@
 		<?php
 	}
 	?>
-	
+
 	<!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
 	<!--[if lt IE 9]>
 	<script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
