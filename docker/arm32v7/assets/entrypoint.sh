@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 
-# install or update compose
-git -C /var/www/html pull origin $COMPOSE_VERSION || git clone --depth 1 -b $COMPOSE_VERSION https://github.com/afdaniele/compose.git /var/www/html
+# install/update compose
+/root/install_compose.sh
 
 # change the ownership of the code
-chown www-data:www-data -R /var/www/html/public_html
+chown www-data:www-data -R $COMPOSE_DIR/public_html
 
 # launch daemon process (inherited from the image arm32v7/php)
 apache2-foreground
