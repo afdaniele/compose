@@ -14,12 +14,6 @@ ENV COMPOSE_VERSION master
 # enable ARM
 RUN [ "cross-build-start" ]
 
-# update apt lists and install system libraries, then clean the apt cache
-RUN apt-get update && apt-get install -y \
-    apt-utils \
-    # clean the apt cache
-    && rm -rf /var/lib/apt/lists/*
-
 # install dependencies, then clean the apt cache
 RUN apt-get update && apt-get install -y \
     # system utilities (used by user)
