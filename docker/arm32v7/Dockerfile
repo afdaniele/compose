@@ -45,13 +45,15 @@ ADD assets/etc/apache2/sites-available/000-default.conf /etc/apache2/sites-avail
 # install \compose\
 RUN git clone --depth 1 $COMPOSE_URL $COMPOSE_DIR
 
-# configure entrypoint
+# copy entrypoint
 ADD assets/entrypoint.sh /root/entrypoint.sh
-RUN ["chmod", "+x", "/root/entrypoint.sh"]
-ENTRYPOINT ["/root/entrypoint.sh"]
+RUN chmod +x /root/entrypoint.sh
 
 # disable ARM
 RUN [ "cross-build-end" ]
+
+# configure entrypoint
+ENTRYPOINT ["/root/entrypoint.sh"]
 
 # configure HTTP port
 EXPOSE 80/tcp
