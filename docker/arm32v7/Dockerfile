@@ -5,11 +5,7 @@ FROM arm32v7/php:7.0.31-apache-stretch
 ENV COMPOSE_DIR /var/www/html
 ENV COMPOSE_URL https://github.com/afdaniele/compose.git
 ENV COMPOSE_PACKAGES_DIR "$COMPOSE_DIR/public_html/system/packages"
-
-# arguments
-ARG VERSION
-RUN test -n "$VERSION"
-ENV COMPOSE_VERSION $VERSION
+ENV COMPOSE_VERSION master
 
 # update apt lists and install system libraries, then clean the apt cache
 RUN apt-get update && apt-get install -y \
@@ -40,11 +36,13 @@ RUN a2enmod rewrite
 # update website configuration file
 ADD assets/etc/apache2/sites-available/000-default.conf /etc/apache2/sites-available/000-default.conf
 
-# copy install script
-ADD assets/install_compose.sh /root/install_compose.sh
-RUN ["chmod", "+x", "/root/install_compose.sh"]
+# install \compose\
+RUN git clone --depth 1 $COMPOSE_URL $COMPOSE_DIR
 
 # configure entrypoint
 ADD assets/entrypoint.sh /root/entrypoint.sh
 RUN ["chmod", "+x", "/root/entrypoint.sh"]
 ENTRYPOINT ["/root/entrypoint.sh"]
+
+# configure HTTP port
+EXPOSE 80/tcp

@@ -1,10 +1,11 @@
 # Base image is nimmis/apache-php7 (specify tag 16.04 once available)
 FROM nimmis/apache-php7:latest
 
-# arguments
-ARG VERSION
-RUN test -n "$VERSION"
-ENV COMPOSE_VERSION $VERSION
+# constants
+ENV COMPOSE_DIR /var/www/html
+ENV COMPOSE_URL https://github.com/afdaniele/compose.git
+ENV COMPOSE_PACKAGES_DIR "$COMPOSE_DIR/public_html/system/packages"
+ENV COMPOSE_VERSION master
 
 # update apt lists and install system libraries, then clean the apt cache
 RUN apt-get update && apt-get install -y \
@@ -25,11 +26,9 @@ RUN apt-get update && apt-get install -y \
     # clean the apt cache
     && rm -rf /var/lib/apt/lists/*
 
-# set default COMPOSE_BASE_URL
-ENV BASEURL="localhost:8080"
-
 # remove pre-installed app
-RUN rm -rf /var/www/html
+RUN rm -rf $COMPOSE_DIR
+RUN rmdir $COMPOSE_DIR
 
 # enable mod rewrite
 RUN a2enmod rewrite
@@ -37,13 +36,13 @@ RUN a2enmod rewrite
 # update website configuration file
 ADD assets/etc/apache2/sites-available/000-default.conf /etc/apache2/sites-available/000-default.conf
 
-# add symlink to public_html in home directory for convenience
-RUN ln -s /var/www/html/public_html /root/public_html
+# install \compose\
+RUN git clone --depth 1 $COMPOSE_URL $COMPOSE_DIR
 
 # configure entrypoint
 ADD assets/entrypoint.sh /root/entrypoint.sh
 RUN ["chmod", "+x", "/root/entrypoint.sh"]
 ENTRYPOINT ["/root/entrypoint.sh"]
 
-# install compose
-ONBUILD RUN git clone --depth 1 -b $COMPOSE_VERSION https://github.com/afdaniele/compose.git /var/www/html
+# configure HTTP port
+EXPOSE 80/tcp

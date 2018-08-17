@@ -1,5 +1,5 @@
-# Base image is nimmis/apache-php7 (specify tag 16.04 once available)
-FROM afdaniele/compose:master_xenial_apache2_php7
+# Base image
+FROM afdaniele/compose:latest
 
 #=======> DEVELOPMENT only tools
 
@@ -21,10 +21,10 @@ RUN echo $'xdebug.remote_enable = 1; \
     xdebug.profiler_enable_trigger = 1' > /etc/php/7.0/mods-available/xdebug.ini
 
 # install WebGrind to visualize the profiler data
-RUN git clone https://github.com/jokkedk/webgrind.git /var/www/html/public_html/webgrind/
+RUN git clone https://github.com/jokkedk/webgrind.git $COMPOSE_DIR/public_html/webgrind/
 
 # copy phpinfo script
-ADD assets/phpinfo.php /var/www/html/public_html/
+ADD assets/phpinfo.php $COMPOSE_DIR/public_html/
 
 # copy APCu monitor script
-ADD assets/apc.php /var/www/html/public_html/
+ADD assets/apc.php $COMPOSE_DIR/public_html/
