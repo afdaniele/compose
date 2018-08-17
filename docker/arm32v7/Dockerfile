@@ -1,11 +1,18 @@
 # Base image is arm32v7/php:7.0.31-apache-stretch
 FROM arm32v7/php:7.0.31-apache-stretch
 
+# install qemu
+ENV QEMU_EXECVE 1
+COPY assets/qemu/* /usr/bin/
+
 # constants
 ENV COMPOSE_DIR /var/www/html
 ENV COMPOSE_URL https://github.com/afdaniele/compose.git
 ENV COMPOSE_PACKAGES_DIR "$COMPOSE_DIR/public_html/system/packages"
 ENV COMPOSE_VERSION master
+
+# enable ARM
+RUN [ "cross-build-start" ]
 
 # update apt lists and install system libraries, then clean the apt cache
 RUN apt-get update && apt-get install -y \
@@ -25,6 +32,9 @@ RUN apt-get update && apt-get install -y \
     # <empty> \
     # clean the apt cache
     && rm -rf /var/lib/apt/lists/*
+
+# disable ARM
+RUN [ "cross-build-end" ]
 
 # remove pre-installed app
 RUN rm -rf $COMPOSE_DIR
