@@ -33,9 +33,6 @@ RUN apt-get update && apt-get install -y \
     # clean the apt cache
     && rm -rf /var/lib/apt/lists/*
 
-# disable ARM
-RUN [ "cross-build-end" ]
-
 # remove pre-installed app
 RUN rm -rf $COMPOSE_DIR
 
@@ -47,6 +44,9 @@ ADD assets/etc/apache2/sites-available/000-default.conf /etc/apache2/sites-avail
 
 # install \compose\
 RUN git clone --depth 1 $COMPOSE_URL $COMPOSE_DIR
+
+# disable ARM
+RUN [ "cross-build-end" ]
 
 # configure entrypoint
 ADD assets/entrypoint.sh /root/entrypoint.sh
