@@ -8,9 +8,8 @@ ENV COMPOSE_PACKAGES_DIR "$COMPOSE_DIR/public_html/system/packages"
 ENV COMPOSE_VERSION master
 
 # update apt lists and install system libraries, then clean the apt cache
-RUN apt-get update && apt-get install -y \
-    apt-utils \
-    # clean the apt cache
+RUN apt-get update && apt-get install -q -y \
+		apt-utils \
     && rm -rf /var/lib/apt/lists/*
 
 # install dependencies, then clean the apt cache
