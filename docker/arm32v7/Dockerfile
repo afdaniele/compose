@@ -28,7 +28,6 @@ RUN apt-get update && apt-get install -y \
 
 # remove pre-installed app
 RUN rm -rf $COMPOSE_DIR
-RUN rmdir $COMPOSE_DIR
 
 # enable mod rewrite
 RUN a2enmod rewrite

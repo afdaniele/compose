@@ -1,11 +1,5 @@
 #!/usr/bin/env bash
 
-if [ ! -f "$COMPOSE_DIR/.git/config" ]; then
-    # install compose
-    echo "\\compose\\ not found. Installing... "
-    git clone --depth 1 -b $COMPOSE_VERSION $COMPOSE_URL $COMPOSE_DIR
-fi
-
 # change the ownership of the code
 chown www-data:www-data -R /var/www/html/public_html
 
