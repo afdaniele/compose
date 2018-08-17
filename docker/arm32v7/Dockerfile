@@ -37,7 +37,6 @@ RUN apt-get update && apt-get install -y \
 RUN rm -rf $COMPOSE_DIR
 
 # enable mod rewrite
-#RUN a2enmod rewrite
 RUN cp /etc/apache2/mods-available/rewrite.load /etc/apache2/mods-enabled/
 
 # update website configuration file
@@ -46,13 +45,13 @@ ADD assets/etc/apache2/sites-available/000-default.conf /etc/apache2/sites-avail
 # install \compose\
 RUN git clone --depth 1 $COMPOSE_URL $COMPOSE_DIR
 
-# disable ARM
-RUN [ "cross-build-end" ]
-
 # configure entrypoint
 ADD assets/entrypoint.sh /root/entrypoint.sh
 RUN ["chmod", "+x", "/root/entrypoint.sh"]
 ENTRYPOINT ["/root/entrypoint.sh"]
+
+# disable ARM
+RUN [ "cross-build-end" ]
 
 # configure HTTP port
 EXPOSE 80/tcp
