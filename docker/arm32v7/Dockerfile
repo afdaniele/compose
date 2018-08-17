@@ -37,7 +37,8 @@ RUN apt-get update && apt-get install -y \
 RUN rm -rf $COMPOSE_DIR
 
 # enable mod rewrite
-RUN a2enmod rewrite
+#RUN a2enmod rewrite
+RUN cp /etc/apache2/mods-available/rewrite.load /etc/apache2/mods-enabled/
 
 # update website configuration file
 ADD assets/etc/apache2/sites-available/000-default.conf /etc/apache2/sites-available/000-default.conf
