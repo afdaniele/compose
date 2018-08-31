@@ -5,6 +5,9 @@
 # @Last modified by:   afdaniele
 # @Last modified time: Saturday, January 13th 2018
 
+
+use \system\classes\Core;
+
 ?>
 
 <div style="width:100%; margin:auto">
@@ -21,10 +24,23 @@
 
 	<?php
 
-	$user = \system\classes\Core::getUserLogged();
+	// get core info
+	$user = Core::getUserLogged();
 
+	// prepare labels and values
 	$labelName = array('Name', 'E-mail address', 'Account type' );
 	$fieldValue = array( $user['name'], $user['email'], ucfirst($user['role']) );
+
+	// get roles in packages
+	$packages = array_keys( Core::getPackagesList() );
+	foreach($packages as $package) {
+		if( $package == 'core' ) continue;
+		$role = Core::getUserRole( $package );
+		if( !is_null($role) ){
+			array_push($labelName, sprintf('Role (%s)',$package));
+			array_push($fieldValue, $role);
+		}
+	}
 
 	?>
 

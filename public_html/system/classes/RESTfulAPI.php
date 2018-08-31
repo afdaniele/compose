@@ -571,7 +571,7 @@ class RESTfulAPI{
 						$api_action['enabled'] = $api_service['enabled'] && $api_action['enabled'];
 						// collect user types
 						foreach( $api_action['access_level'] as $user_type ){
-							Core::registerNewUserType( $user_type );
+							Core::registerNewUserRole( $user_type );
 						}
 					}//for:action
 					// attach service config to API specs object

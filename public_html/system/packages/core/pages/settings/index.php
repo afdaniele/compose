@@ -75,6 +75,7 @@ use \system\classes\Cache;
 	include_once "sections/cache.php";
 	include_once "sections/package_specific.php";
 	include_once "sections/codebase.php";
+	include_once "sections/user_roles.php";
 
 
 	$settings_tabs = [
@@ -105,6 +106,13 @@ use \system\classes\Cache;
 			'title' => 'API End-points',
 			'icon' => 'fa fa-sitemap',
 			'content' => settings_api_tab,
+			'content_args' => null
+		],
+		4 => [
+			'id' => 'roles',
+			'title' => 'User roles',
+			'icon' => 'fa fa-users',
+			'content' => settings_user_roles_tab,
 			'content_args' => null
 		],
 

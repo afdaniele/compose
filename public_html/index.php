@@ -64,7 +64,7 @@
 	$pages_list = Core::getFilteredPagesList( 'list', true, $user_role );
 	$available_pages = array_map( function($p){ return $p['id']; }, $pages_list );
 	$factory_default_page = Core::getFactoryDefaultPagePerRole( $user_role );
-	if( strcmp($factory_default_page, "NO_DEFAULT_PAGE_FOR_USER_ROLE") == 0 )
+	if( strcmp($factory_default_page, "NO_DEFAULT_PAGE") == 0 )
 		if( $user_role == 'guest' ){
 			$factory_default_page = 'login';
 		}else{

@@ -60,8 +60,33 @@ class Core{
 	private static $debug = False;
 	private static $settings = null;
 	private static $debugger_data = [];
-	private static $registered_user_types = [];
 	private static $registered_css_stylesheets = [];
+	private static $default_page_per_role = [
+		'administrator' => 'profile',
+		'supervisor' => 'profile',
+		'user' => 'profile',
+		'guest' => 'login'
+	];
+	private static $registered_user_roles = [
+		'core' => [
+			'guest' => [
+				'default_page' => 'login',
+				'factory_default_page' => 'login'
+			],
+			'user' => [
+				'default_page' => 'profile',
+				'factory_default_page' => 'profile'
+			],
+			'supervisor' => [
+				'default_page' => 'profile',
+				'factory_default_page' => 'profile'
+			],
+			'administrator' => [
+				'default_page' => 'profile',
+				'factory_default_page' => 'profile'
+			]
+		]
+	];
 
 
 	private static $RESERVED_PAGES = [
@@ -201,6 +226,12 @@ class Core{
 			//
 			// set timezone
 			date_default_timezone_set( self::getSetting('timezone', 'core', 'America/Chicago') );
+			//
+			// load default page per role
+			foreach( self::$registered_user_roles['core'] as $user_role => &$user_role_config ){
+				$key = sprintf('%s_default_page', $user_role);
+				$user_role_config['default_page'] = self::getSetting($key, 'core', $user_role_config['factory_default_page']);
+			}
 			//
 			// initialize cache
 			if( self::getSetting('cache_enabled', 'core', false) ){
@@ -375,7 +406,8 @@ class Core{
 			    "email" => $payload['email'],
 				"picture" => $payload['picture'],
 			    "role" => "user",
-				"active" => true
+				"active" => true,
+				"pkg_role" => []
 			];
 			// look for a pre-existing user profile
 			$user_exists = self::userExists($userid);
@@ -451,6 +483,7 @@ class Core{
 		$res = self::openUserInfo($username);
 		if( !$res['success'] ) return $res;
 		$user_info = $res['data']->asArray();
+		$user_info['pkg_role'] = [];
 		// this data will be deleted if the PHP session was not initialized before this call
 		$_SESSION['USER_LOGGED'] = true;
 		$_SESSION['USER_RECORD'] = $user_info;
@@ -663,50 +696,119 @@ class Core{
 
 	/** Returns the role of the user that is currently using the platform.
 	 *
+	 *	@param string $package
+	 *		(optional) package with respect to which we want to obtain the current role; Default is 'core';
+	 *
 	 *	@retval string
 	 *		role of the user that is currently using the platform. It can be any of the default roles
 	 *		defined by <b>\\compose\\</b> or any other role registered by third-party packages. A list
-	 *		of all the user roles registered can be retrieved using the function getUserTypesList();
+	 *		of all the user roles registered can be retrieved using the function getRegisteredUserRoles();
 	 */
-	public static function getUserRole(){
-		$user_role = ( self::isUserLoggedIn() )? self::getUserLogged('role') : 'guest';
-		return $user_role;
+	public static function getUserRole( $package='core' ){
+		// not logged => guest
+		if( !self::isUserLoggedIn() ) return 'guest';
+		// core package
+		if( $package == 'core' ) return self::getUserLogged('role');
+		// third-party packages
+		$pkg_role = self::getUserLogged('pkg_role');
+		if( in_array($package, array_keys($pkg_role)) ){
+			return $pkg_role[$package];
+		}
+		// no role for this package
+		return null;
 	}//getUserRole
 
 
-	/** Sets the user role of the user that is currently using the platform.
+	/** Sets the package-specific role of the user that is currently using the platform.
 	 *	NOTE: this function does not update the user account of the current user permanently. This change
 	 *	will be lost once the session is closed.
 	 *
 	 *	@param string $user_role
 	 *		role to assign to the current user;
 	 *
+	 *	@param string $package
+	 *		(optinal) package with respect to which we assign the new role; Default is `core`.
+	 *
 	 *	@retval void
 	 */
-	public static function setUserRole( $user_role ){
-		$_SESSION['USER_RECORD']['role'] = $user_role;
+	public static function setUserRole( $user_role, $package='core' ){
+		if( $package == 'core' ){
+			if( in_array($user_role, ['guest', 'user', 'supervisor', 'administrator']) )
+				$_SESSION['USER_RECORD']['role'] = $user_role;
+		}else{
+			$_SESSION['USER_RECORD']['pkg_role'][$package] = $user_role;
+		}
 	}//setUserRole
 
 
-	/** Returns the list of all user roles known to the platform. It includes all the user roles defined
+	/** Returns the list of all the roles of the current user on the platform. It includes the user role
+	 *	defined by <b>\\compose\\</b> plus all the user roles introduced by third-party packages and associated
+	 *	to the current user. The main user role (defined by <b>\\compose\\</b>) is returned in the format
+	 *	"role". Package-specific roles are returned in the form "package_id:role".
+	 *
+	 *	@retval array
+	 *		list of unique strings. Each string represents a different role;
+	 */
+	public static function getUserRolesList(){
+		$roles = [ self::getUserLogged('role') ];
+		$pkg_role = self::getUserLogged('pkg_role');
+		foreach( $pkg_role as $pkg_id => $pkg_role ){
+			$role = sprintf('%s:%s', $pkg_id, $pkg_role);
+			array_push($roles, $role);
+		}
+		return $roles;
+	}//getUserRolesList
+
+
+	/**TODO: Returns the list of all user roles known to the platform. It includes all the user roles defined
 	 *	by <b>\\compose\\</b> plus all the user roles introduced by third-party packages.
 	 *
 	 *	@retval array
 	 *		list of unique strings. Each string represents a different user role;
 	 */
-	public static function getUserTypesList(){
-		return self::$registered_user_types;
-	}//getUserTypesList
+	public static function getPackageRegisteredUserRoles( $package='core' ){
+		if( array_key_exists($package, self::$registered_user_roles) ){
+			return array_keys( self::$registered_user_roles[$package] );
+		}
+		return [];
+	}//getPackageRegisteredUserRoles
+
+
+	/**TODO: Returns the list of all user roles known to the platform. It includes all the user roles defined
+	 *	by <b>\\compose\\</b> plus all the user roles introduced by third-party packages.
+	 *
+	 *	@retval array
+	 *		list of unique strings. Each string represents a different user role;
+	 */
+	public static function getAllRegisteredUserRoles(){
+		$roles = [];
+		foreach( array_keys(self::getPackagesList()) as $pkg_id ){
+			$prefix = boolval($pkg_id == 'core')? '' : sprintf('%s:', $pkg_id);
+			$pkg_roles = self::getPackageRegisteredUserRoles( $pkg_id );
+			array_merge( $roles, array_map(function($v){ return sprintf('%s%s',$prefix,$v); }, $pkg_roles) );
+		}
+		return array_unique($roles);
+	}//getAllRegisteredUserRoles
 
 
 	/** Adds a new user role to the list of roles known to the platform.
 	 *
 	 *	@retval void
 	 */
-	public static function registerNewUserType( $new_user_type ){
-		if( !in_array($new_user_type, self::$registered_user_types) )
-			array_push(self::$registered_user_types, $new_user_type);
-	}//registerNewUserType
+	public static function registerNewUserRole( $package, $user_role, $default_page='NO_DEFAULT_PAGE' ){
+		if( !array_key_exists($package, self::$registered_user_roles) ) self::$registered_user_roles[$package] = [];
+		// add the user role if not present
+		if( !array_key_exists($user_role, self::$registered_user_roles[$package]) ){
+			self::$registered_user_roles[$package][$user_role] = [
+				'default_page' => 'NO_DEFAULT_PAGE',
+				'factory_default_page' => 'NO_DEFAULT_PAGE'
+			];
+		}
+		// update default page
+		if( $default_page != 'NO_DEFAULT_PAGE' ){
+			self::$registered_user_roles[$package][$user_role]['default_page'] = $default_page;
+		}
+	}//registerNewUserRole
 
 
 
@@ -1048,12 +1150,13 @@ class Core{
 	public static function getFilteredPagesList( $order='list', $enabledOnly=false, $accessibleBy=null ){
 		$pages = array();
 		$pages_collection = self::getPagesList($order);
+		$accessibleBy = is_null($accessibleBy)? null : (is_array($accessibleBy)? $accessibleBy : [$accessibleBy]);
 		if( is_assoc($pages_collection) ){
 			if( $order == 'by-id' ){
 				// collection in which pages are organized in an associative array by-id
 				foreach( $pages_collection as $key => $page ){
 					if( $enabledOnly && !$page['enabled'] ) continue;
-					if( !is_null($accessibleBy) && !in_array($accessibleBy, $page['access_level']) ) continue;
+					if( !is_null($accessibleBy) && count(array_intersect($accessibleBy, $page['access_level'])) == 0 ) continue;
 					//
 					$pages[$key] = $page;
 				}
@@ -1064,7 +1167,7 @@ class Core{
 					$pages_this_group = [];
 					foreach( $pages_per_group as $page ){
 						if( $enabledOnly && !$page['enabled'] ) continue;
-						if( !is_null($accessibleBy) && !in_array($accessibleBy, $page['access_level']) ) continue;
+						if( !is_null($accessibleBy) && count(array_intersect($accessibleBy, $page['access_level'])) == 0 ) continue;
 						//
 						array_push( $pages_this_group, $page );
 					}
@@ -1076,7 +1179,7 @@ class Core{
 			// collection in which pages are arranged in a sequence, no keys
 			foreach( $pages_collection as $page ){
 				if( $enabledOnly && !$page['enabled'] ) continue;
-				if( !is_null($accessibleBy) && !in_array($accessibleBy, $page['access_level']) ) continue;
+				if( !is_null($accessibleBy) && count(array_intersect($accessibleBy, $page['access_level'])) == 0 ) continue;
 				//
 				array_push( $pages, $page );
 			}
@@ -1197,17 +1300,21 @@ class Core{
 
 
 	public static function getFactoryDefaultPagePerRole( $user_role ){
-		$default_page_per_role = [
-			'administrator' => 'profile',
-			'supervisor' => 'profile',
-			'user' => 'profile',
-			'guest' => 'login'
-		];
-		if( in_array($user_role, array_keys($default_page_per_role) ) ){
-			return $default_page_per_role[$user_role];
-		}
-		return 'NO_DEFAULT_PAGE_FOR_USER_ROLE';
+		$no_default = 'NO_DEFAULT_PAGE';
+		if( !array_key_exists($user_role, self::$registered_user_roles['core']) ) return $no_default;
+		// return default page
+		return self::$registered_user_roles['core'][$user_role]['factory_default_page'];
 	}//getFactoryDefaultPagePerRole
+
+
+	public static function getDefaultPagePerRole( $user_role, $package='core' ){
+		$no_default = 'NO_DEFAULT_PAGE';
+		if( !array_key_exists($package, self::$registered_user_roles) ) return $no_default;
+		if( !array_key_exists($user_role, self::$registered_user_roles[$package]) ) return $no_default;
+		// return default page
+		return self::$registered_user_roles[$package][$user_role]['default_page'];
+	}//getDefaultPagePerRole
+
 
 
 
@@ -1563,7 +1670,7 @@ class Core{
 		$cache_key_pages = sprintf( "available_pages%s", $core_only? '_core_only' : '' );
 		$cache_key_user_types = sprintf( "user_types%s", $core_only? '_core_only' : '' );
 		if( self::$cache->has($cache_key_pages) && self::$cache->has($cache_key_user_types) ){
-			self::$registered_user_types = self::$cache->get( $cache_key_user_types );
+			self::$registered_user_roles = self::$cache->get( $cache_key_user_types );
 			return self::$cache->get( $cache_key_pages );
 		}
 		//
@@ -1605,9 +1712,12 @@ class Core{
 					array_push( $pages['by-usertype'][$access], $page );
 				}
 				// collect user types
-				self::$registered_user_types = array_unique(
-					array_merge(self::$registered_user_types, $page['access_level'])
-				);
+				foreach( $page['access_level'] as $lvl ){
+					$parts = explode(':', $lvl);
+					$package = ( count($parts) == 1 )? 'core' : $parts[0];
+					$role = ( count($parts) == 1 )? $parts[0] : $parts[1];
+					self::registerNewUserRole($package, $role);
+				}
 			}
 		}
 		// by-menuorder
@@ -1624,7 +1734,7 @@ class Core{
 		$pages['by-responsive-priority'] = $responsive_priority;
 		// cache objects
 		self::$cache->set( $cache_key_pages, $pages, CacheTime::HOURS_24 );
-		self::$cache->set( $cache_key_user_types, self::$registered_user_types, CacheTime::HOURS_24 );
+		self::$cache->set( $cache_key_user_types, self::$registered_user_roles, CacheTime::HOURS_24 );
 		//
 		return $pages;
 	}//_load_available_pages

@@ -75,19 +75,20 @@ function footer_user_menu(){
 			<ul class="dropdown-menu dropup" role="menu" style="background-color:#3c3c3c; color:white">
 				<?php
 				// get pages
-				$user_role = Core::getUserRole();
+				$main_user_role = Core::getUserRole();
+				$user_roles = Core::getUserRolesList();
 				$pages = Core::getFilteredPagesList(
 					'by-menuorder',
 					true /* enabledOnly */,
-					$user_role /* accessibleBy */
+					$user_roles /* accessibleBy */
 				);
 
 				foreach($pages as &$elem) {
 					// hide pages if maintenance mode is enabled
-					if( $user_role!='administrator' && Core::getSetting('maintenance_mode','core',true) && $elem['id']!='login' )
+					if( $main_user_role!='administrator' && Core::getSetting('maintenance_mode','core',true) && $elem['id']!='login' )
 						continue;
 					// hide page if the current user' role is excluded
-					if( in_array($user_role, $elem['menu_entry']['exclude_roles']) )
+					if( count( array_intersect($user_roles, $elem['menu_entry']['exclude_roles']) ) > 0 )
 						continue;
 					$icon = sprintf('%s %s-%s', $elem['menu_entry']['icon']['class'], $elem['menu_entry']['icon']['class'], $elem['menu_entry']['icon']['name']);
 					?>

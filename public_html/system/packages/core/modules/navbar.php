@@ -11,14 +11,15 @@ use \system\classes\Configuration;
 // get pages
 $pages_list = Core::getPagesList();
 
-// get info about the current user
-$user_role = Core::getUserRole();
+// get the current user's role
+$main_user_role = Core::getUserRole();
+$user_roles = Core::getUserRolesList();
 
 // get list of visible buttons
 $buttons = Core::getFilteredPagesList(
 	'by-responsive-priority',
 	true /* enabledOnly */,
-	$user_role /* accessibleBy */
+	$user_roles /* accessibleBy */
 );
 
 // remove login if the functionality is not enabled
@@ -82,7 +83,7 @@ foreach ($buttons as &$button) {
 				$pages = Core::getFilteredPagesList(
 					'by-menuorder',
 					true /* enabledOnly */,
-					$user_role /* accessibleBy */
+					$user_roles /* accessibleBy */
 				);
 
 				// create buttons
@@ -90,10 +91,10 @@ foreach ($buttons as &$button) {
 					$elem = $pages[$i];
 					if( !$login_enabled && $elem['id']=='login' ) continue;
 					// hide pages if maintenance mode is enabled
-					if( $user_role!='administrator' && Core::getSetting('maintenance_mode','core',true) && $elem['id']!='login' )
+					if( $main_user_role!='administrator' && Core::getSetting('maintenance_mode','core',true) && $elem['id']!='login' )
 						continue;
 					// hide page if the current user' role is excluded
-					if( in_array($user_role, $elem['menu_entry']['exclude_roles']) )
+					if( count( array_intersect($user_roles, $elem['menu_entry']['exclude_roles']) ) > 0 )
 						continue;
 					$is_last = boolval( $i == count($pages)-1 );
 					$icon = sprintf('%s %s-%s', $elem['menu_entry']['icon']['class'], $elem['menu_entry']['icon']['class'], $elem['menu_entry']['icon']['name']);

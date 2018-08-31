@@ -156,13 +156,11 @@ switch($auth_mode){
 		// init a PHP session (if needed)
 		$user_logged_in = false;
 		$user_session_token = null;
-		$user_role = 'guest';
 		if( $need_login ){
 			Core::startSession();
 			//
 			$user_logged_in = Core::isUserLoggedIn();
 			$user_session_token = $user_logged_in? $_SESSION['TOKEN'] : null;
-			$user_role = Core::getUserRole();
 			//
 			Core::closeSession();
 		}
@@ -174,9 +172,17 @@ switch($auth_mode){
 			break;
 		}
 		// authorize based on the access level. The user's role must be in $action['access_level']
-		$access_lvl_success = boolval( in_array($user_role, $access_lvl) );
+		$access_lvl_success = False;
+		foreach( $access_lvl as $lvl ){
+			$parts = explode(':', $lvl);
+			$package = ( count($parts) == 1 )? 'core' : $parts[0];
+			$cur_lvl = ( count($parts) == 1 )? $parts[0] : $parts[1];
+			$user_role = Core::getUserRole( $package );
+			//
+			$access_lvl_success = boolval( $access_lvl_success ||  boolval($user_role == $cur_lvl) );
+		}
 		if( !$access_lvl_success ){
-			$error_msg = sprintf('The selected action cannot be executed by a user with role `%s`', $user_role);
+			$error_msg = 'The selected action cannot be executed by the current user. No role matches the access level.';
 			break;
 		}
 		// an authorized user has the right bits to access the action and the right token

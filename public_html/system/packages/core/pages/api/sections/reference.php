@@ -1,5 +1,6 @@
 <?php
 use \system\classes\Configuration;
+use \system\classes\Core;
 
 function _api_page_reference_section( &$api_setup, &$version, &$sget, &$aget ){
     $api_enabled = $api_setup[$version]['enabled'];
@@ -221,7 +222,10 @@ function _api_page_reference_section( &$api_setup, &$version, &$sget, &$aget ){
                         <thead>
                             <tr>
                                 <th>
-                                    Access level
+                                    Package
+                                </th>
+                                <th>
+                                    User role
                                 </th>
                                 <th>
                                     Authorized to execute
@@ -230,20 +234,30 @@ function _api_page_reference_section( &$api_setup, &$version, &$sget, &$aget ){
                         </thead>
                         <tbody>
                             <?php
-                            $who = \system\classes\Core::getUserTypesList();
-                            foreach( $who as $w ){
-                                $granted = in_array($w, $action['access_level']);
-                                ?>
-                                <tr>
-                                    <td>
-                                        <?php echo ucfirst($w) ?>
-                                    </td>
-                                    <td>
-                                        <span class="glyphicon glyphicon-<?php echo ( $granted )? 'ok-sign on' : 'minus-sign off' ?>"></span>
-                                    </td>
-                                </tr>
-                                <?php
-                            }
+
+                            // get roles in packages
+                        	$packages = array_keys( Core::getPackagesList() );
+                        	foreach($packages as $package) {
+                                $roles = Core::getRegisteredUserRoles( $package );
+                                foreach( $roles as $role ){
+                                    $full_role = boolval($package == 'core')? $role : sprintf('%s:%s', $package, $role);
+                                    $granted =  in_array($full_role, $action['access_level']);
+                                    ?>
+                                    <tr>
+                                        <td>
+                                            <?php echo $package ?>
+                                        </td>
+                                        <td>
+                                            <?php echo $role ?>
+                                        </td>
+
+                                        <td>
+                                            <span class="glyphicon glyphicon-<?php echo ( $granted )? 'ok-sign on' : 'minus-sign off' ?>"></span>
+                                        </td>
+                                    </tr>
+                                    <?php
+                                }
+                        	}
                             ?>
                         </tbody>
                     </table>
