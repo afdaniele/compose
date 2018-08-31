@@ -7,10 +7,16 @@ from os.path import join, realpath, dirname, exists, isfile
 DEBUG = False
 
 def main():
+    # get arguments
+    arguments = sys.argv[1:] + ['--END']
+    # get package to configure (if passed, default: `core`)
+    package_name = 'core'
+    if not arguments[0].startswith('--'):
+        package_name = arguments[0]
     # get metadata and configuration files
     public_html = join(dirname(realpath(__file__)), 'public_html')
-    config_metadata = join(public_html, 'system', 'packages', 'core', 'configuration', 'metadata.json')
-    config_file = join(public_html, 'system', 'packages', 'core', 'configuration', 'configuration.json')
+    config_metadata = join(public_html, 'system', 'packages', package_name, 'configuration', 'metadata.json')
+    config_file = join(public_html, 'system', 'packages', package_name, 'configuration', 'configuration.json')
     # make sure the metadata file exists
     if not exists(config_metadata) or not isfile(config_metadata):
         print 'The file `%s` does not exist, check and try again' % config_metadata
@@ -31,7 +37,6 @@ def main():
             config.update( config_data )
         if DEBUG: print 'Stored configuration loaded.\nConfig so far:\n%s\n' % pformat(config)
     # update config
-    arguments = sys.argv[1:] + ['--END']
     key_indices = [ i for i in range(len(arguments)) if arguments[i].startswith('--') ]
     config_update = {}
     cur_key = key_indices[0]
