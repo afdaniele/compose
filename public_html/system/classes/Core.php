@@ -56,8 +56,8 @@ class Core{
 	private static $cache = null;
 	private static $packages = null;
 	private static $pages = null;
-	private static $verbose = False;
-	private static $debug = False;
+	private static $verbose = false;
+	private static $debug = true;
 	private static $settings = null;
 	private static $debugger_data = [];
 	private static $registered_css_stylesheets = [];
@@ -254,10 +254,22 @@ class Core{
 			// load email templates
 			EmailTemplates::init();
 			//
+			// create dependencies graph for the packages
+			$dep_graph = [];
+			foreach( self::$packages as $pkg_id => $pkg ){
+				if( $pkg_id=='core' ) continue;
+				// collect dependencies
+				$dep_graph[$pkg_id] = $pkg['dependencies']['packages'];
+			}
+			// solve the dependencies graph
+			$res = self::_solve_dependencies_graph($dep_graph);
+			if( !$res['success'] ) return $res;
+			$package_order = $res['data'];
+			//
 			// initialize all the packages
-			foreach( self::$packages as $pkg ){
-				if( $pkg['id']=='core' || !$pkg['enabled'] )
-					continue;
+			foreach( $package_order as $pkg_id ){
+				$pkg = self::$packages[$pkg_id];
+				if( !$pkg['enabled'] ) continue;
 				// initialize package Core class
 				if( !is_null($pkg['core']) ){
 					// try to load the core file
@@ -732,6 +744,7 @@ class Core{
 	 *	@retval void
 	 */
 	public static function setUserRole( $user_role, $package='core' ){
+		//TODO: make sure that the give <pkg,role> pair was previously registered
 		if( $package == 'core' ){
 			if( in_array($user_role, ['guest', 'user', 'supervisor', 'administrator']) )
 				$_SESSION['USER_RECORD']['role'] = $user_role;
@@ -750,7 +763,7 @@ class Core{
 	 *		list of unique strings. Each string represents a different role;
 	 */
 	public static function getUserRolesList(){
-		$roles = [ self::getUserLogged('role') ];
+		$roles = [ self::getUserRole('core') ];
 		$pkg_role = self::getUserLogged('pkg_role');
 		foreach( $pkg_role as $pkg_id => $pkg_role ){
 			$role = sprintf('%s:%s', $pkg_id, $pkg_role);
@@ -1631,6 +1644,56 @@ class Core{
 	private static function regenerateSessionID( $delete_old_session = false ){
 		session_regenerate_id( $delete_old_session );
 	}//regenerateSessionID
+
+
+	/**
+	 * Recursive dependency resolution
+	 *
+	 * @param string $item Item to resolve dependencies for
+	 * @param array $items List of all items with dependencies
+	 * @param array $resolved List of resolved items
+	 * @param array $unresolved List of unresolved items
+	 * @return array
+	 */
+	function _dep_solve_dependencies_graph($item, array $items, array $resolved, array $unresolved) {
+	    array_push($unresolved, $item);
+	    foreach ($items[$item] as $dep) {
+	        if (!in_array($dep, $resolved)) {
+	            if (!in_array($dep, $unresolved)) {
+	                array_push($unresolved, $dep);
+	                list($resolved, $unresolved) = self::_dep_solve_dependencies_graph($dep, $items, $resolved, $unresolved);
+	            } else {
+	                throw new \RuntimeException("Circular dependency: $item -> $dep");
+	            }
+	        }
+	    }
+	    // add $item to $resolved if it's not already there
+	    if (!in_array($item, $resolved)) {
+	        array_push($resolved, $item);
+	    }
+	    // remove all occurrences of $item in $unresolved
+	    while (($index = array_search($item, $unresolved)) !== false) {
+	        unset($unresolved[$index]);
+	    }
+		//
+	    return [$resolved, $unresolved];
+	}//_dep_solve_dependencies_graph
+
+
+	private static function _solve_dependencies_graph( $graph ){
+		$resolved = [];
+		$unresolved = [];
+		// resolve dependencies for each node
+		foreach( array_keys($graph) as $node ){
+		    try {
+		        list ($resolved, $unresolved) = self::_dep_solve_dependencies_graph($node, $graph, $resolved, $unresolved);
+		    } catch (\Exception $e) {
+		        return ['success' => false, 'data' => $e->getMessage()];
+		    }
+		}
+		//
+		return ['success' => true, 'data' => $resolved];
+	}//_solve_dependencies_graph
 
 
 	private static function _load_packages_settings( $core_only=false ){
