@@ -26,6 +26,7 @@ class Formatter{
     const PLACEHOLDER = 18;
     const AVATAR_IMAGE = 19;
     const AVATAR_IMAGE_SMALL = 20;
+    const ARRAY = 21;
 
 
     function format( $val, $type ){
@@ -66,7 +67,9 @@ class Formatter{
     			return sprintf('<img src="%s" class="formatted-avatar">', $val);
             case self::AVATAR_IMAGE_SMALL:
     			return sprintf('<img src="%s" class="formatted-avatar formatted-avatar-small">', $val);
-    		default:
+            case self::ARRAY:
+                return sprintf('<pre class="text-justify">%s</pre>', print_r($val,true));
+            default:
     			return sprintf('UNFORMATTED(%s)', $val);
     	}
     }//format
