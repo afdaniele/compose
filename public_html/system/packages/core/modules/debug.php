@@ -3,11 +3,11 @@ use \system\classes\Core;
 use \system\classes\Configuration;
 use \system\classes\Formatter;
 
+$debugger_data = Core::getDebugInfo();
 $something_to_show = count($debugger_data) > 0;
-$is_admin = Core::getUserRole() == 'administrator';
+$is_admin = boolval(Core::getUserRole() == 'administrator');
 
 if( Configuration::$DEBUG && $is_admin && $something_to_show ){
-    $debugger_data = Core::getDebugInfo();
     ?>
     <div class="panel-group" role="tablist" aria-multiselectable="true">
         <div class="panel panel-default">
