@@ -28,9 +28,6 @@ use \system\classes\Core;
                         &nbsp;
                         Create new Application
                     </button>
-
-
-
                 </h3>
             </td>
         </tr>

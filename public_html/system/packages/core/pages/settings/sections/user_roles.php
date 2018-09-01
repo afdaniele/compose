@@ -27,7 +27,7 @@ function settings_user_roles_tab(){
 
             $i = 1;
             foreach($packages as $package) {
-                $roles = Core::getUserRolesList( $package );
+                $roles = Core::getPackageRegisteredUserRoles( $package );
                 foreach($roles as $role) {
                     $default_page = Core::getDefaultPagePerRole($role, $package);
                     ?>
