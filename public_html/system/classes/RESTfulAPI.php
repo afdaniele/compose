@@ -570,8 +570,11 @@ class RESTfulAPI{
 						$api_action['enabled'] = !$action_status_db->key_exists($action_key);
 						$api_action['enabled'] = $api_service['enabled'] && $api_action['enabled'];
 						// collect user types
-						foreach( $api_action['access_level'] as $user_type ){
-							Core::registerNewUserRole( $user_type );
+						foreach( $api_action['access_level'] as $lvl ){
+							$parts = explode(':', $lvl);
+							$package = ( count($parts) == 1 )? 'core' : $parts[0];
+							$role = ( count($parts) == 1 )? $parts[0] : $parts[1];
+							Core::registerNewUserRole($package, $role);
 						}
 					}//for:action
 					// attach service config to API specs object
