@@ -53,26 +53,40 @@
 	if( !$res['success'] ) Core::throwError( $res['data'] );
 
 	// get info about the current user
-	$user_role = Core::getUserRole();
+	$main_user_role = Core::getUserRole();
+	$user_roles = Core::getUserRolesList();
 
 	// redirect user to maintenance mode (if necessary)
-	if( $user_role!='administrator' &&
-		Core::getSetting('maintenance_mode','core',true) &&
+	if( $main_user_role != 'administrator' &&
+		Core::getSetting('maintenance_mode', 'core', true) &&
 		!in_array($requested_page, ['login', 'error', 'maintenance']) ) Core::redirectTo('maintenance');
 
 	// get the list of pages the current user has access to
-	$pages_list = Core::getFilteredPagesList( 'list', true, $user_role );
+	$pages_list = Core::getFilteredPagesList( 'list', true, $user_roles );
 	$available_pages = array_map( function($p){ return $p['id']; }, $pages_list );
-	$factory_default_page = Core::getFactoryDefaultPagePerRole( $user_role );
+
+	// get factory default page
+	$factory_default_page = Core::getFactoryDefaultPagePerRole( $main_user_role );
 	if( strcmp($factory_default_page, "NO_DEFAULT_PAGE") == 0 )
-		if( $user_role == 'guest' ){
+		if( $main_user_role == 'guest' ){
 			$factory_default_page = 'login';
 		}else{
 			$factory_default_page = 'profile';
 		}
 
 	// get default page
-	$default_page = Core::getSetting( $user_role.'_default_page', 'core', $factory_default_page );
+	$default_page = Core::getDefaultPagePerRole( $main_user_role, 'core' );
+	foreach( array_keys(Core::getPackagesList()) as $pkg_id ){
+		if( $pkg_id == 'core' ) continue;
+		$pkg_user_role = Core::getUserRole( $pkg_id );
+		if( !is_null($pkg_user_role) ){
+			$default_page_per_pkg = Core::getDefaultPagePerRole( $pkg_user_role, $pkg_id );
+			if( $default_page_per_pkg != 'NO_DEFAULT_PAGE' ){
+				$default_page = $default_page_per_pkg;
+				break;
+			}
+		}
+	}
 	if( !in_array($default_page, $available_pages) )
 		$default_page = $factory_default_page;
 
