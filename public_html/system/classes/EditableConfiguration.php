@@ -51,7 +51,7 @@ class EditableConfiguration {
 		// try to load the custom settings from 'configuration.json' if it exists.
 		$this->jsondb_config_file = $jsondb_config_file;
 		$this->jsondb = new JsonDB( $this->jsondb_config_file );
-		// If it doesn't exist, create a new one and use the default values from the metadata file
+		// if it doesn't exist, create a new one and use the default values from the metadata file
 		if( !file_exists($jsondb_config_file) ){
 			// create new file
 			foreach ($this->configuration_details['configuration_content'] as $key => $value) {
@@ -62,6 +62,12 @@ class EditableConfiguration {
 			if( !$res['success'] ){
 				$this->error_state = $res['data'];
 				return;
+			}
+		}
+		// make sure that all the keys defined in the metadata are also present in the config file
+		foreach ($this->configuration_details['configuration_content'] as $key => $value) {
+			if( !$this->jsondb->contains($key) ){
+				$this->jsondb->set( $key, $value['default'] );
 			}
 		}
 	}//__construct
