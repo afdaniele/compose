@@ -238,7 +238,7 @@ function _api_page_reference_section( &$api_setup, &$version, &$sget, &$aget ){
                             // get roles in packages
                         	$packages = array_keys( Core::getPackagesList() );
                         	foreach($packages as $package) {
-                                $roles = Core::getAllRegisteredUserRoles( $package );
+                                $roles = Core::getPackageRegisteredUserRoles( $package );
                                 foreach( $roles as $role ){
                                     $full_role = boolval($package == 'core')? $role : sprintf('%s:%s', $package, $role);
                                     $granted =  in_array($full_role, $action['access_level']);
