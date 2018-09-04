@@ -714,7 +714,7 @@ class Core{
 	 *	@retval string
 	 *		role of the user that is currently using the platform. It can be any of the default roles
 	 *		defined by <b>\\compose\\</b> or any other role registered by third-party packages. A list
-	 *		of all the user roles registered can be retrieved using the function getRegisteredUserRoles();
+	 *		of all the user roles registered can be retrieved using the function getAllRegisteredUserRoles();
 	 */
 	public static function getUserRole( $package='core' ){
 		// not logged => guest
