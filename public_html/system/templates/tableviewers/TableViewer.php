@@ -27,6 +27,7 @@ class TableViewer {
 		$features['_valid'] = array();
 		//
 		foreach( $features as $key => $feature ){
+			if( $key == '_valid' ) continue;
 			$val = null;
 			$default = false;
 			//
@@ -89,6 +90,9 @@ class TableViewer {
 					$val = $feature['default'];
 					$default = true;
 				}
+			}
+			if( $val == $feature['default'] ){
+				$default = true;
 			}
 			// at the end
 			$features[$key]['value'] = $val;
@@ -624,10 +628,25 @@ class TableViewer {
 
 
 						<form method="get" action="<?php echo \system\classes\Configuration::$BASE . $baseurl ?>">
-
 							<div class="modal-body">
+								<div class="checkboxes-div" style="padding-left:25px; height:200px; overflow:auto">
+									<?php
+									$tags = $features['tag']['values'];
+									for( $i = 0; $i < sizeof($tags); $i++ ){
+										?>
+										<div class="radio">
+											<label>
+												<input type="radio" name="tag" id="<?php echo $tags[$i] ?>" value="<?php echo $tags[$i] ?>" <?php echo ( (isset($_GET['tag']) && strcasecmp($_GET['tag'], $tags[$i]) == 0 )? 'checked' : '' ) ?>>
+												<?php echo ucfirst($tags[$i]) ?>
+											</label>
+										</div>
+									<?php
+									}
+									?>
+								</div>
 
-								<table style="width:100%">
+
+								<!-- <table style="width:100%">
 									<tr>
 
 										<td style="width:45%">
@@ -670,7 +689,7 @@ class TableViewer {
 										<td style="width:5%"></td>
 
 									</tr>
-								</table>
+								</table> -->
 
 							</div>
 
