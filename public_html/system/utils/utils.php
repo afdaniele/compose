@@ -47,9 +47,11 @@ function validate( $values, $types, $mandatory=null, $keys=null ){
 }//validate
 
 
-function toQueryString( $array, $get, $questionMarkAppend=false, $ampAppend=false ){
+function toQueryString( $array, $get, $questionMarkAppend=false, $ampAppend=false, $ignoreKeys=[] ){
 	$queryString = '';
+	if( !is_array($ignoreKeys) ) $ignoreKeys = [$ignoreKeys];
 	foreach( $array as $param ){
+		if( in_array($param, $ignoreKeys) ) continue;
 		$queryString = $queryString . ( (isset($get[$param]) && strlen($get[$param])>0 )? ( (strlen($queryString)>0)? '&' : '' ).$param.'='.$get[$param] : '' );
 	}
 	//
