@@ -57,7 +57,7 @@ class Core{
 	private static $packages = null;
 	private static $pages = null;
 	private static $verbose = false;
-	private static $debug = true;
+	private static $debug = false;
 	private static $settings = null;
 	private static $debugger_data = [];
 	private static $registered_css_stylesheets = [];
@@ -304,20 +304,18 @@ class Core{
 			if( !$pkg['enabled'] || ( !is_null($pkg_id) && $pkg_id != $pkg['id'] ) )
 				continue;
 			// load package modules
-			self::log( INFO, "<br><br>Loading modules for package '%s'", $pkg['id'] );
 			foreach( $pkg['modules'] as $module_fam => $module_scripts ){
 				if( !is_null($module_family) && $module_family != $module_fam )
 					continue;
 				foreach( $module_scripts as $module_script ){
-					self::log( INFO, "<br>=> Loading '%s'", $module_script );
 					// check file
 					if( !file_exists($module_script) ){
-						self::log( WARNING, "Renderer script '%s' does not exist", $module_script );
+						self::collectDebugInfo( $pkg['id'], sprintf('Load module script %s of type %s', $module_script, $module_family), false, Formatter::BOOLEAN );
 						continue;
 					}
 					// load module
 					require_once $module_script;
-					self::log( INFO, "Renderer script '%s' successfully loaded", $module_script );
+					self::collectDebugInfo( $pkg['id'], sprintf('Load module %s of type %s', $module_script, $module_family), true, Formatter::BOOLEAN );
 				}
 			}
 		}
