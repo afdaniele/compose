@@ -34,8 +34,8 @@ class BlockRenderer{
                         ?>
                     </td>
                     <td>
-                        <h5><?php echo $title ?></h5>
-                        <h6><?php echo $subtitle ?></h6>
+                        <h5 class="block_renderer_title"><?php echo $title ?></h5>
+                        <h6 class="block_renderer_subtitle"><?php echo $subtitle ?></h6>
                     </td>
                     <td>
                         <div class="btn-group">
