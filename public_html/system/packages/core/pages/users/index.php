@@ -144,7 +144,7 @@ $table = array(
 	if( $features['keywords']['value'] != null ){
 		$tmp = array();
 		foreach( $users as $user ){
-			if (strpos($user['name'], $features['keywords']['value']) !== false) {
+			if (strpos( strtolower($user['name']), strtolower($features['keywords']['value']) ) !== false) {
 				array_push($tmp, $user);
 			}
 		}
