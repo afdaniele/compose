@@ -106,7 +106,7 @@ class Database{
         $files = glob( $entry_wild );
         // cut the path and keep the key
         $keys = [];
-		foreach ($files as $file) {
+		foreach( $files as $file ){
 			$key = Utils::regex_extract_group($file, "/.*\/(.+).json/", 1);
             // (optional) match the key against the given pattern
             if( !is_null($this->entry_regex) && !preg_match($this->entry_regex, $key) )
