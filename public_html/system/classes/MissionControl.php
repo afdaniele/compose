@@ -59,7 +59,8 @@ class MissionControl{
                     $block['title'],
                     $block['subtitle'],
                     $block['shape'],
-                    $block_args
+                    $block_args,
+                    $block['options']
                 );
                 ?>
             <?php
