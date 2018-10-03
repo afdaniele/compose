@@ -43,6 +43,7 @@ function generateForm( $method='post', $action=null, $formID=null, $labelName, $
 					$value = ( ($inputValue[$i] !== null ) ? 'value="'.$inputValue[$i].'"' : '' );
 					echo '<input type="'.$type.'" class="form-control '.$has_error.'" id="'.$inputName[$i].'" name="'.$inputName[$i].'" placeholder="'.$inputPlaceholder[$i].'" '.$value.' '.$extra.'>';
 					break;
+				case 'enum':
 				case 'select':
 					echo '<select class="form-control '.$has_error.'" id="'.$formID.'-'.$inputName[$i].'" name="'.$inputName[$i].'" '.$extra.'>';
 					foreach( $inputPlaceholder[$i] as $val ){
@@ -96,6 +97,7 @@ function generateFormByLayout( &$layout, $formID=null, $formClass=null, $method=
 					$object = 'input';
 					$type = 'email';
 					break;
+				case 'enum':
 				case 'select':
 					$object = 'select';
 					break;
@@ -121,9 +123,13 @@ function generateFormByLayout( &$layout, $formID=null, $formClass=null, $method=
 					break;
 				case 'select':
 					echo '<select type="select" class="form-control" id="'.$key.'" name="'.$key.'" '.$field['html'].$disabled.'>';
-					foreach( $field['placeholder'] as $value ){
+					$options_ids = (isset($field['placeholder_id']) && count($field['placeholder'])==count($field['placeholder_id']))? $field['placeholder_id'] : $field['placeholder'];
+					for ($i = 0; $i < count($field['placeholder']); $i++) {
+						$value = $field['placeholder'][$i];
+						$id = $field['placeholder_id'][$i];
 						$selected = ( (isset($field['value']) && $values[$key] == $value)? 'selected' : '' );
-						echo '<option '.$selected.'>'.$value.'</option>';
+						//
+						echo sprintf('<option value="%s" %s>%s</option>', $id, $selected, $value);
 					}
 					echo '</select>';
 					//
