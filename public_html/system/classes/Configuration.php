@@ -18,7 +18,7 @@ class Configuration {
 	// Fields
 	public static $TIMEZONE;
 	public static $GMT;
-	public static $DEBUG = true;
+	public static $DEBUG = false;
 
 	public static $BASE_URL;
 	public static $HOSTNAME;
