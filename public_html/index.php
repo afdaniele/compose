@@ -67,12 +67,13 @@
 
 	// get factory default page
 	$factory_default_page = Core::getFactoryDefaultPagePerRole( $main_user_role );
-	if( strcmp($factory_default_page, "NO_DEFAULT_PAGE") == 0 )
+	if( strcmp($factory_default_page, "NO_DEFAULT_PAGE") == 0 ){
 		if( $main_user_role == 'guest' ){
 			$factory_default_page = 'login';
 		}else{
 			$factory_default_page = 'profile';
 		}
+	}
 
 	// get default page
 	$default_page = Core::getDefaultPagePerRole( $main_user_role, 'core' );
