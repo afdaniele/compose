@@ -23,21 +23,27 @@ class BlockRenderer{
         ?>
         <div class="block_renderer_canvas text-center <?php echo $class ?>" id="<?php echo $id ?>" data-renderer="<?php echo get_called_class() ?>">
             <table>
-                <tr class="block_renderer_header text-left">
-                    <td>
-                        <?php
-                        if( $DEPRECATED_show_header ){
-                            ?>
-                            <i class="<?php echo self::get_icon_class() ?>" aria-hidden="true"></i>
+                <tr class="block_renderer_header text-left" style="height:32px">
+                    <?php
+                    if( !isset($opts['show_icon']) || boolval($opts['show_icon']) ){
+                    ?>
+                        <td class="block_renderer_icon">
                             <?php
-                        }
-                        ?>
-                    </td>
+                            if( $DEPRECATED_show_header ){
+                                ?>
+                                <i class="<?php echo self::get_icon_class() ?>" aria-hidden="true"></i>
+                                <?php
+                            }
+                            ?>
+                        </td>
+                    <?php
+                    }
+                    ?>
                     <td>
                         <h5 class="block_renderer_title"><?php echo $title ?></h5>
                         <h6 class="block_renderer_subtitle"><?php echo $subtitle ?></h6>
                     </td>
-                    <td>
+                    <td class="block_renderer_menu_icon">
                         <?php
                         if( !isset($opts['show_menu']) || boolval($opts['show_menu']) ){
                             ?>
@@ -124,10 +130,10 @@ class BlockRenderer{
                                     if( !isset($opts['show_dispose']) || boolval($opts['show_dispose']) ){
                                     ?>
                                         <li>
-                                            <a href="#">
+                                            <a href="#" onclick="mission_control_dispose_block('<?php echo $id ?>')">
                                                 <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
                                                 &nbsp;
-                                                Dispose
+                                                Remove
                                             </a>
                                         </li>
                                     <?php

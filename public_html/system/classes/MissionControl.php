@@ -33,6 +33,7 @@ class MissionControl{
         Core::loadPackagesModules( 'renderers/blocks' );
         // get all block renderers registered
         $renderers_available = Core::getClasses( 'system\classes\BlockRenderer' );
+        $blocks_ids = [];
         ?>
         <div id="<?php echo $this->grid_id ?>" class="mission-control-grid">
             <?php
@@ -62,6 +63,7 @@ class MissionControl{
                     $block_args,
                     $block['options']
                 );
+                array_push($blocks_ids, $rand_id);
                 ?>
             <?php
             }
@@ -98,6 +100,11 @@ class MissionControl{
                 box.addClass( "mission-control-item-r{0}-c{1}".format( new_rows, new_cols ) );
                 // update the grid
                 box.closest('.mission-control-grid').packery();
+            }
+
+            function mission_control_dispose_block( block_id ){
+                $('.block_renderer_canvas').remove( '#{0}'.format(block_id) );
+                $('#<?php echo $this->grid_id ?>').packery();
             }
         </script>
 
@@ -195,8 +202,8 @@ class MissionControl{
                 height: 100%;
             }
 
-            .block_renderer_canvas .block_renderer_header > td:first-of-type,
-            .block_renderer_canvas .block_renderer_header > td:last-of-type{
+            .block_renderer_canvas .block_renderer_header > .block_renderer_icon,
+            .block_renderer_canvas .block_renderer_header > .block_renderer_menu_icon{
                 width: <?php echo $header_h ?>px;
                 padding: 10px;
                 text-align: center;
@@ -246,6 +253,9 @@ class MissionControl{
             }
         </style>
         <?php
+        return [
+            'blocks_ids' => $blocks_ids
+        ];
     }//create
 
     public function get_available_shapes(){
