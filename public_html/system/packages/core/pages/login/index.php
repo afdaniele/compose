@@ -15,10 +15,10 @@ use \system\classes\Core;
 	<div class="container login">
 		<div class="row" style="width:480px; margin:auto">
 			<div class="center span4 well">
-				<div class="col-md-4">
+				<div class="col-md-6">
 					<h3 style="margin-top:0"><strong><span class="glyphicon glyphicon-lock" aria-hidden="true"></span> &nbsp;Sign in</strong></h3>
 				</div>
-				<div class="col-md-8">
+				<div class="col-md-6">
 					<img id="loginLogo" src="<?php echo Core::getSetting( 'logo_black' ) ?>"/>
 				</div>
 				<br>
