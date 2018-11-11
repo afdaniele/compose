@@ -140,7 +140,7 @@
 
 
 	<!-- JQuery v1.11.1 by Google -->
-	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+	<script src="<?php echo Configuration::$BASE_URL ?>js/jquery.1.11.1.min.js"></script>
 
 	<!-- videoJS v5.19 by videojs.com -->
 	<script src="<?php echo Configuration::$BASE_URL ?>js/video.min.js"></script>
