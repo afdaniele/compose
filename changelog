@@ -44,6 +44,8 @@ Things to add later in the development:
         [ ] - Add \compose\ and packages version tracking using the recently forked repo Git.php (https://github.com/afdaniele/Git.php)
         [ ] - Add cronjob management support (either natively or via package), useful NOTES: (https://stackoverflow.com/a/23617628, Use the following command template `#1 #2 #3 #4 #5 _COMPOSE_META_="<json_string_here>" <your_command>; php <custom_compose_logpoint> "<JOB_SHA>"` )
             [ ] - The ENV argument _COMPOSE_META_ contains the key `JOB_SHA` which is computed as the SHA (md5?) of the string "#1 #2 #3 #4 #5 <your_command>". Hopefully this will identify the command uniquely
+        [ ] - Add page to `http://compose.afdaniele.com` that helps creating configuration files for pages, packages, configurations metadata and API endpoint descriptions. Some sort of interactive way of adding fields (type, description, etc.) and then compile into JSON
+
 
     [ ] - v0.9
         [X] - no need to modify the file /system/config/configuration.php after installing \compose\
