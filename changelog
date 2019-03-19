@@ -25,6 +25,7 @@ Things to add later in the development:
 
     [ ] - v2.0
         [ ] - switch to Bootstrap 4.X
+        [ ] - replace JSON with ProtoBuf
 
     [ ] - v1.1
         [ ] - allow the specification of auxiliary libraries to load for specific pages in the page metadata file

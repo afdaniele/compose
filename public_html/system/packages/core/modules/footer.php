@@ -60,6 +60,17 @@ use \system\classes\Core;
 <?php
 
 function footer_user_menu(){
+  // create a whitelist/blacklist of pages
+  $pages_whitelist = null;
+  $pages_blacklist = null;
+
+  // check if compose was configured correctly
+  if (!Core::isComposeConfigured()){
+    $pages_whitelist = ['setup'];
+  }else{
+    $pages_blacklist = ['setup'];
+  }
+
 	// get user info
 	$user = Core::getUserLogged();
 	?>
@@ -84,6 +95,10 @@ function footer_user_menu(){
 				);
 
 				foreach($pages as &$elem) {
+          if( !is_null($pages_whitelist) && !in_array($elem['id'], $pages_whitelist) )
+            continue;
+          if( !is_null($pages_blacklist) && in_array($elem['id'], $pages_blacklist) )
+            continue;
 					// hide pages if maintenance mode is enabled
 					if( $main_user_role!='administrator' && Core::getSetting('maintenance_mode','core',true) && $elem['id']!='login' )
 						continue;

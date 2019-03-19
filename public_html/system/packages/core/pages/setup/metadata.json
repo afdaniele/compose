@@ -1,0 +1,20 @@
+{
+    "name" : "Setup",
+    "package" : "core",
+    "menu_entry" : {
+        "order" : 1,
+        "icon" : {
+            "class" : "fa",
+            "name" : "wrench"
+        },
+        "responsive" : {
+            "priority" : 30
+        },
+        "exclude_roles" : []
+    },
+    "child_pages" : [],
+    "access_level" : [
+        "guest",
+        "administrator"
+    ]
+}

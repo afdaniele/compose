@@ -90,7 +90,18 @@ class Core{
 
 
 	private static $RESERVED_PAGES = [
-		'api', 'data', 'debug', 'error', 'login', 'maintenance', 'profile', 'settings', 'users', 'docs'
+    'setup',
+		'api',
+    'data',
+    'debug',
+    'error',
+    'login',
+    'maintenance',
+    'packages',
+    'profile',
+    'settings',
+    'users',
+    'docs'
 	];
 
 	private static $USER_ACCOUNT_TEMPLATE = [
@@ -288,7 +299,6 @@ class Core{
 							return ['success' => false, 'data' => $e->getMessage()];
 						}
 					}
-
 				}
 			}
 			self::$initialized = true;
@@ -297,6 +307,16 @@ class Core{
 			return ['success' => true, 'data' => "Core already initialized!"];
 		}
 	}//init
+
+
+  public static function isComposeConfigured(){
+    // TODO: Cache this data
+
+    // open first_setup DB
+		$first_setup_db = new Database('core', 'first_setup');
+		// return whether the configuration flag exists
+		return $first_setup_db->key_exists('configured');
+  }//isComposeConfigured
 
 
 	public static function loadPackagesModules( $module_family=null, $pkg_id=null ){

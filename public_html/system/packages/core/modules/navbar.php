@@ -22,6 +22,17 @@ $buttons = Core::getFilteredPagesList(
 	$user_roles /* accessibleBy */
 );
 
+// create a whitelist/blacklist of pages
+$pages_whitelist = null;
+$pages_blacklist = null;
+
+// check if compose was configured correctly
+if (!Core::isComposeConfigured()){
+  $pages_whitelist = ['setup'];
+}else{
+  $pages_blacklist = ['setup'];
+}
+
 // remove login if the functionality is not enabled
 $login_enabled = Core::getSetting('login_enabled', 'core', False);
 
@@ -29,6 +40,8 @@ $login_enabled = Core::getSetting('login_enabled', 'core', False);
 $non_responsive_btns = 0;
 foreach ($buttons as &$button) {
 	if( !$login_enabled && $button['id']=='login' ) continue;
+  if( !is_null($pages_whitelist) && !in_array($button['id'], $pages_whitelist) ) continue;
+  if( !is_null($pages_blacklist) && in_array($button['id'], $pages_blacklist) ) continue;
 	if( $button['menu_entry']['responsive']['priority'] < 0 ){
 		$non_responsive_btns += 1;
 	}
@@ -46,6 +59,8 @@ $responsive_buttons = [];
 $responsive_current_width = $responsive_min_width;
 foreach ($buttons as &$button) {
 	if( !$login_enabled && $button['id']=='login' ) continue;
+  if( !is_null($pages_whitelist) && !in_array($button['id'], $pages_whitelist) ) continue;
+  if( !is_null($pages_blacklist) && in_array($button['id'], $pages_blacklist) ) continue;
 	if( $button['menu_entry']['responsive']['priority'] >= 0 ){
 		$responsive_current_width += $responsive_width_per_button;
 		$responsive_buttons[ $button['id'] ] = $responsive_current_width;
@@ -90,6 +105,8 @@ foreach ($buttons as &$button) {
 				for ($i = 0; $i < count($pages); $i++) {
 					$elem = $pages[$i];
 					if( !$login_enabled && $elem['id']=='login' ) continue;
+          if( !is_null($pages_whitelist) && !in_array($elem['id'], $pages_whitelist) ) continue;
+          if( !is_null($pages_blacklist) && in_array($elem['id'], $pages_blacklist) ) continue;
 					// hide pages if maintenance mode is enabled
 					if( $main_user_role!='administrator' && Core::getSetting('maintenance_mode','core',true) && $elem['id']!='login' )
 						continue;
