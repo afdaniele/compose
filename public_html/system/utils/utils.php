@@ -6,7 +6,7 @@
 # @Last modified time: Monday, January 15th 2018
 
 
-
+use \system\classes\enum\StringType;
 
 function validate( $values, $types, $mandatory=null, $keys=null ){
 	$result = array();
@@ -22,9 +22,9 @@ function validate( $values, $types, $mandatory=null, $keys=null ){
 	if( $keys == null || !is_assoc($values) ){
 		$m = min( sizeof($values), sizeof($types) );
 		for( $i = 0; $i < $m; $i++ ){
-			if( !\system\classes\enum\StringType::isValid($values[$i], \system\classes\enum\StringType::getRegexByTypeName($types[$i])) ){
+			if( !StringType::isValid($values[$i], StringType::getRegexByTypeName($types[$i])) ){
 				$key = ( $keys != null )? $keys[$i] : $i;
-				$result[$key] = \system\classes\enum\StringType::getDescription( $types[$i] );
+				$result[$key] = StringType::getDescription( $types[$i] );
 			}
 		}
 	}else{
@@ -32,8 +32,8 @@ function validate( $values, $types, $mandatory=null, $keys=null ){
 		$i = 0;
 		foreach( $keys as $key ){
 			$type = ( (is_assoc($types))? $types[$key] : $types[$i] );
-			if( !\system\classes\enum\StringType::isValid($values[$key], \system\classes\enum\StringType::getRegexByTypeName($type)) ){
-				$result[$key] = "FORMAT ERROR, DESCRIPTION NOT IMPLEMENTED";// \system\classes\enum\StringType::getDescription( $type );
+			if( !StringType::isValid($values[$key], StringType::getRegexByTypeName($type)) ){
+				$result[$key] = "FORMAT ERROR, DESCRIPTION NOT IMPLEMENTED";// StringType::getDescription( $type );
 			}
 			$i++;
 		}
