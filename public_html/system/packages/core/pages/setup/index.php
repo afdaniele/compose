@@ -25,7 +25,7 @@ $num_steps = count($steps);
 // look for edit actions
 $force_step = null;
 if( isset($_GET['force_step']) && array_key_exists(intval($_GET['force_step']), $steps) )
-  $force_step = intval($_GET['force_step']);
+$force_step = intval($_GET['force_step']);
 
 // open first_setup DB
 $first_setup_db = new Database('core', 'first_setup');
@@ -40,30 +40,30 @@ for ($i = 1; $i <= $num_steps; $i++) {
 ?>
 
 <style type="text/css">
-	.panel > .panel-heading a{
-		color: inherit;
-		text-decoration: none;
-	}
+.panel > .panel-heading a{
+  color: inherit;
+  text-decoration: none;
+}
 
-	select.form-control{
-		height: 26px !important;
-	}
+select.form-control{
+  height: 26px !important;
+}
 </style>
 
 
 <div style="width:100%; margin:auto">
 
-	<table style="width:100%; border-bottom:1px solid #ddd; margin:20px 0 20px 0">
-		<tr>
-			<td style="width:100%">
-				<h1 class="text-center">
+  <table style="width:100%; border-bottom:1px solid #ddd; margin:20px 0 20px 0">
+    <tr>
+      <td style="width:100%">
+        <h1 class="text-center">
           <img src="<?php echo Configuration::$BASE_URL ?>images/compose-black-logo.svg">
           <br/>
           Welcome!
         </h1>
-			</td>
-		</tr>
-	</table>
+      </td>
+    </tr>
+  </table>
 
 
   <?php
@@ -75,12 +75,12 @@ for ($i = 1; $i <= $num_steps; $i++) {
     // ---
     ?>
     <div class="panel <?php echo $panel_style ?>">
-  		<div class="panel-heading" role="tab" id="<?php echo $header ?>">
-  			<a id="a_setup_step<?php echo $step_no ?>" role="button" aria-expanded="true" aria-controls="setup_step<?php echo $step_no ?>">
-  				<h4 class="panel-title">
-  					<span class="fa fa-<?php echo $icon ?>" style="color:<?php echo $color ?>" aria-hidden="true"></span>
-  					&nbsp;
-  					<strong>Step <?php echo $step_no ?>:</strong> <?php echo $steps[$step_no] ?>
+      <div class="panel-heading" role="tab" id="<?php echo $header ?>">
+        <a id="a_setup_step<?php echo $step_no ?>" role="button" aria-expanded="true" aria-controls="setup_step<?php echo $step_no ?>">
+          <h4 class="panel-title">
+            <span class="fa fa-<?php echo $icon ?>" style="color:<?php echo $color ?>" aria-hidden="true"></span>
+            &nbsp;
+            <strong>Step <?php echo $step_no ?>:</strong> <?php echo $steps[$step_no] ?>
             <?php
             if ($step_no < $cur_step){
               ?>
@@ -92,19 +92,19 @@ for ($i = 1; $i <= $num_steps; $i++) {
               <?php
             }
             ?>
-  				</h4>
-  			</a>
-  		</div>
-  		<div id="setup_step<?php echo $step_no ?>" class="panel-collapse collapse <?php echo $collapse ?>" role="tabpanel" aria-labelledby="setup_step<?php echo $step_no ?>">
-  			<div class="panel-body">
+          </h4>
+        </a>
+      </div>
+      <div id="setup_step<?php echo $step_no ?>" class="panel-collapse collapse <?php echo $collapse ?>" role="tabpanel" aria-labelledby="setup_step<?php echo $step_no ?>">
+        <div class="panel-body">
           <?php
           if ($step_no == $cur_step){
             include_once __DIR__.'/steps/step'.$step_no.'.php';
           }
           ?>
-  			</div>
-  		</div>
-  	</div>
+        </div>
+      </div>
+    </div>
     <?php
   }
   ?>

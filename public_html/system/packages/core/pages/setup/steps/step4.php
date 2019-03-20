@@ -39,7 +39,7 @@ if(
     Your <strong>\compose\</strong> website is ready to take off!<br/><br/>
 
     Check out the
-    <a href="http://compose.afdaniele.com" target="_blank">
+    <a href="http://compose.afdaniele.com/docs/latest/" target="_blank">
       official \compose\ documentation
     </a>
     for further information about how to use <strong>\compose\</strong>.<br/>
