@@ -7,22 +7,16 @@
 
 use \system\classes\Core;
 use \system\classes\Configuration;
-use \system\classes\Database;
 
-?>
+if (!in_array(Configuration::$ACTION, ['', 'install'])){
+  Core::redirectTo('packages');
+}
 
-
-<table style="width:100%; border-bottom:1px solid #ddd; margin-bottom:22px">
-	<tr>
-		<td style="width:100%">
-			<h2>Packages</h2>
-		</td>
-	</tr>
-</table>
-
-<?php
-$assets_index_url = sprintf('%s/%s/index', Configuration::$ASSETS_STORE_URL, 'master');
-$assets_index = file_get_contents($assets_index_url);
-
-echoArray($assets_index);
+if(Configuration::$ACTION == ''){
+  include_once __DIR__.'/parts/list.php';
+}elseif(Configuration::$ACTION == 'install'){
+  include_once __DIR__.'/parts/install.php';
+}else{
+  Core::redirectTo('packages');
+}
 ?>
