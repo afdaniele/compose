@@ -1,0 +1,19 @@
+{
+    "name" : "Packages",
+    "package" : "core",
+    "menu_entry" : {
+        "order" : 4,
+        "icon" : {
+            "class" : "fa",
+            "name" : "cubes"
+        },
+        "responsive" : {
+            "priority" : 30
+        },
+        "exclude_roles" : []
+    },
+    "child_pages" : [],
+    "access_level" : [
+      "administrator"
+    ]
+}
