@@ -50,6 +50,14 @@ use \system\classes\Formatter;
   #packages-table > tbody .compose-package .main-button{
     width: 100px;
   }
+
+  #packages-table > tbody .compose-package.to-be-installed{
+    background-color: rgba(0,255,0,0.1);
+  }
+
+  #packages-table > tbody .compose-package.to-be-uninstalled{
+    background-color: rgba(255,0,0,0.1);
+  }
 </style>
 
 <table style="width:100%; border-bottom:1px solid #ddd; margin-bottom:2px">
@@ -57,7 +65,8 @@ use \system\classes\Formatter;
 		<td style="width:100%">
 			<h2>
         Packages
-        <span id="loading_status_label" style="font-size:12pt; float:right; padding-top:12px;"></span>
+        <a id="apply_changes_btn" class="btn btn-success" role="button" style="display:none; float:right" onclick="apply_changes()" href="javascript:void(0);">Apply changes</a>
+        <span id="status_label" style="font-size:12pt; float:right; padding-top:12px; font-weight:normal;"></span>
       </h2>
 		</td>
 	</tr>
@@ -101,6 +110,9 @@ $assets_index_url = sprintf('%s/%s/index', Configuration::$ASSETS_STORE_URL, $br
 
 <script type="text/javascript">
 
+  packages_to_install = [];
+  packages_to_uninstall = [];
+
   var providers = {
     'github.com': 'https://raw.githubusercontent.com/{0}/{1}/{2}',
     'bitbucket.org': 'https://bitbucket.org/{0}/{1}/raw/{2}'
@@ -143,7 +155,8 @@ $assets_index_url = sprintf('%s/%s/index', Configuration::$ASSETS_STORE_URL, $br
         </div>
       </div>
     </strong>
-    <span class="mono" style="color:lightgrey">{0}</span>
+    ID: <span class="mono" style="color:grey">{0}</span><br/>
+    Maintainer: <span class="mono" style="color:grey">{1}</span>
     <div id="compose-package-field-description" style="margin-top:4px">
       <div class="progress" style="height:10px">
         <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width:100%; background-color:lightgray;">
@@ -151,8 +164,93 @@ $assets_index_url = sprintf('%s/%s/index', Configuration::$ASSETS_STORE_URL, $br
       </div>
     </div>`;
 
+  function render_changes(){
+    // show info about how many packages will be installed/removed
+    var install = '{0} package(s) will be installed'.format(packages_to_install.length)
+    var uninstall = '{0} package(s) will be removed'.format(packages_to_uninstall.length)
+    var labels = [];
+    if(packages_to_install.length > 0)
+      labels.push(install);
+    if(packages_to_uninstall.length > 0)
+      labels.push(uninstall);
+    $('#status_label').html(labels.join(', '));
+    // show/hide apply changes button
+    $('#apply_changes_btn').css('display', 'none');
+    if (packages_to_install.length + packages_to_uninstall.length > 0){
+      $('#status_label').html($('#status_label').html() + '&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;');
+      $('#apply_changes_btn').css('display', 'inline-block');
+    }
+    // colorize the choices
+    $('#packages-table > tbody .compose-package').each(function(index){
+      $(this).removeClass('to-be-installed');
+      $(this).removeClass('to-be-uninstalled');
+    });
+    $('#packages-table > tbody .compose-package .main-button.undo-button').each(function(index){
+      $(this).css('display', 'none');
+    });
+    $('#packages-table > tbody .compose-package .main-button.action-button').each(function(index){
+      $(this).css('display', 'inline-block');
+    });
+    $.each(packages_to_install, function(i, package_name){
+      $('.compose-package#compose-package-{0} .main-button.undo-button'.format(package_name)).css('display', 'inline-block');
+      $('.compose-package#compose-package-{0} .main-button.action-button'.format(package_name)).css('display', 'none');
+      $('.compose-package#compose-package-{0}'.format(package_name)).addClass('to-be-installed');
+    });
+    $.each(packages_to_uninstall, function(i, package_name){
+      $('.compose-package#compose-package-{0} .main-button.undo-button'.format(package_name)).css('display', 'inline-block');
+      $('.compose-package#compose-package-{0} .main-button.action-button'.format(package_name)).css('display', 'none');
+      $('.compose-package#compose-package-{0}'.format(package_name)).addClass('to-be-uninstalled');
+    });
+  }//render_changes
+
+  function mark_to_install(package_name){
+    // if already marked, do nothing
+    idx = packages_to_install.indexOf(package_name);
+    if(idx >= 0)
+      return;
+    // if marked to uninstall, just remove it from the list
+    idx = packages_to_uninstall.indexOf(package_name);
+    if(idx >= 0){
+      packages_to_uninstall.splice(idx, 1);
+    }
+    // if not installed, mark to install
+    idx = installed_packages.indexOf(package_name);
+    if(idx < 0){
+      packages_to_install.push(package_name)
+    }
+    // render new status
+    render_changes();
+  }//mark_to_install
+
+  function mark_to_uninstall(package_name){
+    // if already marked, do nothing
+    idx = packages_to_uninstall.indexOf(package_name);
+    if(idx >= 0)
+      return;
+    // remove from packages marked to install
+    idx = packages_to_install.indexOf(package_name);
+    if(idx >= 0){
+      packages_to_install.splice(idx, 1);
+    }
+    // if installed, mark to uninstall
+    idx = installed_packages.indexOf(package_name);
+    if(idx >= 0){
+      packages_to_uninstall.push(package_name);
+    }
+    // render new status
+    render_changes();
+  }//mark_to_uninstall
+
+  function apply_changes(){
+    var install = packages_to_install.join(',');
+    var uninstall = packages_to_uninstall.join(',');
+    var qs = 'install={0}&uninstall={1}'.format(install, uninstall);
+    var url = 'packages/install?{0}'.format(qs);
+    location.href = url;
+  }//apply_changes
+
   function add_package_placeholder_to_list(num, id, provider, owner, repository, branch){
-    var col1 = package_template.format(id);
+    var col1 = package_template.format(id, owner);
     // ---
     var is_installed = (installed_packages.indexOf(id) >= 0);
     var installed = (is_installed)?
@@ -166,16 +264,25 @@ $assets_index_url = sprintf('%s/%s/index', Configuration::$ASSETS_STORE_URL, $br
       </a>`.format(git_action_url);
     var git_repo_url = providers_repo[provider].format(owner, repository);
     var install_action = `
-      <a class="btn btn-success main-button" href="#" role="button" target="_blank">
+      <a role="button" class="btn btn-success main-button action-button" onclick="mark_to_install('{0}')" href="javascript:void(0);">
         <i class="fa fa-download" aria-hidden="true"></i>&nbsp;
         Install
+      </a>
+      <a role="button" class="btn btn-warning main-button undo-button" style="display:none" onclick="mark_to_uninstall('{0}')" href="javascript:void(0);">
+        <i class="fa fa-times" aria-hidden="true"></i>&nbsp;
+        Cancel
       </a>`;
     var uninstall_action = `
-      <a class="btn btn-danger main-button" href="#" role="button" target="_blank">
-        <i class="fa fa-trash-o" aria-hidden="true"></i>&nbsp;
+      <a role="button" class="btn btn-danger main-button action-button" onclick="mark_to_uninstall('{0}')" href="javascript:void(0);">
+        <i class="fa fa-trash" aria-hidden="true"></i>&nbsp;
         Uninstall
+      </a>
+      <a role="button" class="btn btn-warning main-button undo-button" style="display:none" onclick="mark_to_install('{0}')" href="javascript:void(0);">
+        <i class="fa fa-times" aria-hidden="true"></i>&nbsp;
+        Cancel
       </a>`;
     var main_action = (is_installed)? uninstall_action : install_action;
+    main_action = main_action.format(id);
     // ---
     $('#packages-table-body').html(
       $('#packages-table-body').html() +
@@ -184,7 +291,7 @@ $assets_index_url = sprintf('%s/%s/index', Configuration::$ASSETS_STORE_URL, $br
         col1,
         installed,
         '{0}&nbsp;{1}'.format(source_action, main_action),
-        "{0},".format(id),
+        "{0},{1}".format(id, '{0}'),
         "compose-package-"+id
       )
     )
@@ -196,12 +303,13 @@ $assets_index_url = sprintf('%s/%s/index', Configuration::$ASSETS_STORE_URL, $br
     window.packages_loaded_no += 1;
     // update status label
     if (window.packages_loaded_no == window.packages_total_no){
-      $('#loading_status_label').html('');
+      $('#status_label').html('');
       setTimeout(function(){
         $('#loading_status_bar').parent().remove();
+        $('#apply_changes_btn').css('display', 'default');
       }, 800);
     }else{
-      $('#loading_status_label').html('Remaining {0}/{1}'.format(
+      $('#status_label').html('Remaining {0}/{1}'.format(
         window.packages_total_no-window.packages_loaded_no,
         window.packages_total_no
       ));
@@ -233,7 +341,7 @@ $assets_index_url = sprintf('%s/%s/index', Configuration::$ASSETS_STORE_URL, $br
   }
 
   function fetch_package_list_success_fcn(result){
-    $('#loading_status_label').html('Downloading packages list...');
+    $('#status_label').html('Downloading packages list...');
     var doc = jsyaml.load(result);
     // add packages to the list
     window.packages_total_no = doc.packages.length;
