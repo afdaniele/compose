@@ -12,6 +12,11 @@
         "ping",
         "pgrep"
     ],
+    "pip3-packages" : [
+        "requests",
+        "pyyaml",
+        "GitPython"
+    ],
     "duckiebot-command-line-tools" : [
         "ifconfig",
         "test"

@@ -8,17 +8,23 @@ ENV COMPOSE_PACKAGES_DIR "$COMPOSE_DIR/public_html/system/packages"
 ENV COMPOSE_VERSION master
 
 # install dependencies, then clean the apt cache
-RUN apt-get update && apt-get install -y \
+RUN apt-get update \
+  && apt-get install -y \
     # system utilities (used by user)
     nano \
+    python3 \
     # system utilities (used by compose)
     git \
     # php libraries
     php7.0-mbstring \
     php7.0-xml \
     php-apcu \
+    # python libraries
+    python3-requests \
+    python3-yaml \
+    python3-git \
     # clean the apt cache
-    && rm -rf /var/lib/apt/lists/*
+  && rm -rf /var/lib/apt/lists/*
 
 # remove pre-installed app
 RUN rm -rf $COMPOSE_DIR
@@ -34,7 +40,6 @@ RUN git clone --depth 1 $COMPOSE_URL $COMPOSE_DIR
 
 # configure entrypoint
 ADD assets/entrypoint.sh /root/entrypoint.sh
-RUN ["chmod", "+x", "/root/entrypoint.sh"]
 ENTRYPOINT ["/root/entrypoint.sh"]
 
 # configure HTTP port

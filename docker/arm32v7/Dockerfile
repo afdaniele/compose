@@ -15,17 +15,23 @@ ENV COMPOSE_VERSION master
 RUN [ "cross-build-start" ]
 
 # install dependencies, then clean the apt cache
-RUN apt-get update && apt-get install -y \
+RUN apt-get update \
+  && apt-get install -y \
     # system utilities (used by user)
     nano \
     python \
+    python3 \
     # system utilities (used by compose)
     git \
     net-tools \
+    # python libraries
+    python3-requests \
+    python3-yaml \
+    python3-git \
     # php libraries
     # <empty> \
-    # clean the apt cache
-    && rm -rf /var/lib/apt/lists/*
+  # clean the apt cache
+  && rm -rf /var/lib/apt/lists/*
 
 # remove pre-installed app
 RUN rm -rf $COMPOSE_DIR
@@ -41,7 +47,6 @@ RUN git clone --depth 1 $COMPOSE_URL $COMPOSE_DIR
 
 # copy entrypoint
 ADD assets/entrypoint.sh /root/entrypoint.sh
-RUN chmod +x /root/entrypoint.sh
 
 # disable ARM
 RUN [ "cross-build-end" ]
