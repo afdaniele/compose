@@ -22,7 +22,12 @@ $assets_index_url = sprintf('%s/%s/index', Configuration::$ASSETS_STORE_URL, $br
 $content = file_get_contents($assets_index_url);
 if (!$content){
   $error = error_get_last();
-  Core::throwError($error);
+  Core::throwError(
+    sprintf(
+      'An error occurred while retrieving the assets index. The error is (%s)',
+      $error
+    )
+  );
 }
 $data = spyc_load($content);
 $available_packages = [];
@@ -77,6 +82,15 @@ while ($num_dependencies > 0) {
   $num_dependencies = count($dependencies);
   foreach (array_diff($dependencies, $processed) as $package_id) {
     $package_info = $available_packages[$package_id];
+    if(!array_key_exists($package_info['git_provider'], $providers_source)){
+      Core::throwError(
+        sprintf(
+          'Provider "%s" for package "%s" not supported.',
+          $package_info['git_provider'],
+          $package_id
+        )
+      );
+    }
     $package_metadata_url = sprintf(
       $providers_source[$package_info['git_provider']].'/metadata.json',
       $package_info['git_owner'],
@@ -86,7 +100,13 @@ while ($num_dependencies > 0) {
     $content = file_get_contents($package_metadata_url);
     if (!$content){
       $error = error_get_last();
-      Core::throwError($error);
+      Core::throwError(
+        sprintf(
+          'An error occurred while retrieving info about the package "%s". The error is (%s)',
+          $package_id,
+          $error
+        )
+      );
     }
     $package_metadata = json_decode($content, True);
     $available_packages[$package_id]['metadata'] = $package_metadata;
