@@ -6,6 +6,8 @@
 .container{
     width: 1000px !important;
     margin: auto;
+    padding-bottom:15px;
+    margin-top:42px
 }
 
 bold{

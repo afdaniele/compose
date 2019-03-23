@@ -192,7 +192,7 @@
 	?>
 
 	<!-- Begin page content -->
-	<div id="page_container" class="container" style="padding-bottom:15px; margin-top:42px">
+	<div id="page_container" class="container">
 
 		<?php include( 'system/packages/core/modules/alerts.php' ); ?>
 
