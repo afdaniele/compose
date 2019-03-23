@@ -906,6 +906,62 @@ class Core{
 	}//isPackageEnabled
 
 
+  public static function installPackage( $package ){
+    $package_manager_py = sprintf(
+      '%s/lib/python/compose/package_manager.py',
+      $GLOBALS['__SYSTEM__DIR__']
+    );
+    $install_arg = '--install '.$package;
+    $cmd = sprintf(
+      'python3 "%s" %s',
+      $package_manager_py,
+      $install_arg
+    );
+    exec($cmd);
+    // invalidate cache
+    self::$cache->clear();
+  }//installPackage
+
+
+  public static function removePackage( $package ){
+    if($package == 'core')
+      return;
+    $package_manager_py = sprintf(
+      '%s/lib/python/compose/package_manager.py',
+      $GLOBALS['__SYSTEM__DIR__']
+    );
+    $uninstall_arg = '--uninstall '.$package;
+    $cmd = sprintf(
+      'python3 "%s" %s',
+      $package_manager_py,
+      $uninstall_arg
+    );
+    exec($cmd);
+    // invalidate cache
+    self::$cache->clear();
+  }//removePackage
+
+
+  public static function packageManagerBatch($to_install, $to_remove){
+    $to_remove = array_diff($to_remove, ['core']);
+    $package_manager_py = sprintf(
+      '%s/lib/python/compose/package_manager.py',
+      $GLOBALS['__SYSTEM__DIR__']
+    );
+    $install_arg = '--install '.implode(' ', $to_install);
+    $uninstall_arg = '--uninstall '.implode(' ', $to_remove);
+    $cmd = sprintf(
+      'python3 "%s" %s %s',
+      $package_manager_py,
+      (count($to_install) > 0)? $install_arg : '',
+      (count($to_remove) > 0)? $uninstall_arg : ''
+    );
+    exec($cmd);
+    // invalidate cache
+    self::$cache->clear();
+  }//packageManagerBatch
+
+
 	/** Enables a package installed on the platform.
 	 *
 	 *	If the package specified is not installed, the function reports a failure state.

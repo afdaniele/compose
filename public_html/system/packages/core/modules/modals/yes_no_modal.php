@@ -25,7 +25,8 @@
 <script type="text/javascript">
 
 	var configured = false;
-	var yesfunction = null;
+  var yesfunction = null;
+	var showPleaseWaitModal = true;
 
 	$('#yes-no-modal').on('show.bs.modal', function( e ){
 		if( !configured ){
@@ -42,35 +43,36 @@
 
 	$('#yes-no-modal #yes-button').on('click', function(){
 		$('#yes-no-modal').modal('hide');
-		showPleaseWait();
+		if(showPleaseWaitModal){showPleaseWait()};
 		if( yesfunction != null ){
 			yesfunction();
-			hidePleaseWait();
+      if(showPleaseWaitModal){hidePleaseWait()};
 		}else{
 			var url = $('#yes-no-modal #yes-button').data( 'url' );
 			//
 			$.ajax({type: 'GET', url:url, dataType: 'json', success:function( result ){
 				if( result.code == 200 ){
-					hidePleaseWait();
+					if(showPleaseWaitModal){hidePleaseWait()};
 					showSuccessDialog( 2000, function(){
 						window.location.reload(true);
 					} );
 				}else{
 					// error, open an alert
 					openAlert( 'danger', result.message );
-					hidePleaseWait();
+					if(showPleaseWaitModal){hidePleaseWait()};
 				}
 			}, error:function(){
 				// error
 				openAlert('danger', 'An error occurred while communicating with the server. Please, try again!');
-				hidePleaseWait();
+				if(showPleaseWaitModal){hidePleaseWait()};
 			}});
 		}
 	});
 
-	function openYesNoModal( question, yes_fcn ){
+	function openYesNoModal( question, yes_fcn, silentMode ){
 		$('#yes-no-modal #question-p').html( question );
 		yesfunction = yes_fcn;
+    showPleaseWaitModal = !silentMode;
 		//
 		configured = true;
 		//

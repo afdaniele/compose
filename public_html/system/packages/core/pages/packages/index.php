@@ -8,7 +8,7 @@
 use \system\classes\Core;
 use \system\classes\Configuration;
 
-if (!in_array(Configuration::$ACTION, ['', 'install'])){
+if (!in_array(Configuration::$ACTION, ['', 'install', 'verify'])){
   Core::redirectTo('packages');
 }
 
@@ -16,6 +16,8 @@ if(Configuration::$ACTION == ''){
   include_once __DIR__.'/parts/list.php';
 }elseif(Configuration::$ACTION == 'install'){
   include_once __DIR__.'/parts/install.php';
+}elseif(Configuration::$ACTION == 'verify'){
+  include_once __DIR__.'/parts/verify.php';
 }else{
   Core::redirectTo('packages');
 }

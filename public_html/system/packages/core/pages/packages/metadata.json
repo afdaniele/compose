@@ -1,11 +1,11 @@
 {
-    "name" : "Packages",
+    "name" : "Package Store",
     "package" : "core",
     "menu_entry" : {
         "order" : 4,
         "icon" : {
             "class" : "fa",
-            "name" : "cubes"
+            "name" : "shopping-bag"
         },
         "responsive" : {
             "priority" : 30

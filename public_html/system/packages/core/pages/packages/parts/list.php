@@ -64,7 +64,7 @@ use \system\classes\Formatter;
 	<tr>
 		<td style="width:100%">
 			<h2>
-        Packages
+        Package Store
         <a id="apply_changes_btn" class="btn btn-success" role="button" style="display:none; float:right" onclick="apply_changes()" href="javascript:void(0);">Apply changes</a>
         <span id="status_label" style="font-size:12pt; float:right; padding-top:12px; font-weight:normal;"></span>
       </h2>

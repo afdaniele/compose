@@ -10,7 +10,7 @@ use \system\classes\Configuration;
 
 $errors = [];
 
-if(!isset($_GET['install']) && !isset($_GET['install']))
+if(!isset($_GET['install']) && !isset($_GET['uninstall']))
   Core::redirectTo('');
 
 $to_install = explode(',', str_ireplace(' ', '', $_GET['install']));
@@ -134,29 +134,15 @@ if(count(array_intersect($to_install, $to_uninstall)) > 0){
   }
 }else{
   if(isset($_GET['confirm']) && $_GET['confirm'] == '1'){
-    // TOOD(andrea): move this to Core
-
-    $package_manager_py = sprintf('%s/lib/python/compose/package_manager.py', $GLOBALS['__SYSTEM__DIR__']);
-    $install_arg = '--install '.implode(' ', $to_install_full);
-    $uninstall_arg = '--uninstall '.implode(' ', $to_uninstall_full);
-    $cmd = sprintf(
-      'python3 "%s" %s %s',
-      $package_manager_py,
-      (count($to_install_full) > 0)? $install_arg : '',
-      (count($to_uninstall_full) > 0)? $uninstall_arg : ''
-    );
-    exec($cmd);
-
-    echoArray($cmd);
-
+    // perform install/uninstall operations in batch
+    Core::packageManagerBatch($to_install_full, $to_uninstall_full);
+    // redirect to verification page
     $href = sprintf(
-      'verify?install=%s&uninstall=%s',
+      'packages/verify?install=%s&uninstall=%s',
       implode(',', $to_install_full),
       implode(',', $to_uninstall_full)
     );
-    // Core::redirectTo($href);
-
-
+    Core::redirectTo($href);
   }
 }
 
@@ -179,7 +165,7 @@ select.form-control{
     <tr>
       <td style="width:100%">
         <h2>
-          Package Manager
+          Package Store
         </h2>
       </td>
     </tr>
@@ -260,7 +246,11 @@ select.form-control{
   }
   ?>
 
-  <a class="btn btn-success" role="button" style="float:right" onclick="process_packages()" href="javascript:void(0);">
+  <a class="btn btn-success"
+    role="button"
+    style="float:right"
+    onclick="process_packages<?php echo count($to_uninstall_full)>0? '_confirm' : '' ?>()"
+    href="javascript:void(0);">
     <i class="fa fa-check" aria-hidden="true"></i>
     &nbsp;
     Confirm
@@ -269,6 +259,8 @@ select.form-control{
 </div>
 
 <?php
+require_once __DIR__.'/../../../modules/modals/yes_no_modal.php';
+
 $href = sprintf(
   'install?install=%s&uninstall=%s&confirm=%s',
   $_GET['install'],
@@ -281,5 +273,13 @@ $href = sprintf(
 function process_packages(){
   showPleaseWait();
   location.href = "<?php echo $href ?>";
+}
+
+function process_packages_confirm(){
+  openYesNoModal(
+    'Are you sure you want to proceed?<br/>The data associated with these packages will be deleted as well.',
+    process_packages,
+    true /*silentMode*/
+  );
 }
 </script>
