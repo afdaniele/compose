@@ -320,7 +320,6 @@ $assets_index_url = sanitize_url(
     // add packages to the list
     $('#loading_status_bar').removeClass('progress-bar-striped progress-bar-default');
     $('#loading_status_bar').addClass('progress-bar-success');
-    $('#loading_status_bar').css('width', '0%');
     for (var i = 0; i < doc.packages.length; i++) {
       var pack = doc.packages[i];
       // ---
