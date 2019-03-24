@@ -78,7 +78,9 @@ use \system\classes\Formatter;
 
 <?php
 $branch = 'master';
-$assets_index_url = sprintf('%s/%s/index', Configuration::$ASSETS_STORE_URL, $branch);
+$assets_index_url = sanitize_url(
+  sprintf('%s/%s/index', Configuration::$ASSETS_STORE_URL, $branch)
+);
 ?>
 
 <div class="input-group" style="margin-top:28px">
