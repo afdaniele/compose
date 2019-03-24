@@ -51,6 +51,10 @@ use \system\classes\Formatter;
     width: 100px;
   }
 
+  #packages-table > tbody .compose-package .package-icon{
+    width: 42px;
+  }
+
   #packages-table > tbody .compose-package.to-be-installed{
     background-color: rgba(0,255,0,0.1);
   }
@@ -77,9 +81,12 @@ use \system\classes\Formatter;
 </div>
 
 <?php
-$branch = 'master';
 $assets_index_url = sanitize_url(
-  sprintf('%s/%s/index', Configuration::$ASSETS_STORE_URL, $branch)
+  sprintf(
+    '%s/%s/index',
+    Configuration::$ASSETS_STORE_URL,
+    Configuration::$ASSETS_STORE_BRANCH
+  )
 );
 ?>
 
@@ -92,7 +99,7 @@ $assets_index_url = sanitize_url(
   <thead>
     <tr>
       <td class="col-md-1">
-        #
+
       </td>
       <td class="col-md-7">
         Package
@@ -151,19 +158,14 @@ $assets_index_url = sanitize_url(
     </tr>`;
 
   var package_template = `
-    <strong id="compose-package-field-name">
-      <div class="progress" style="height:10px; width:200px">
-        <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width:100%; background-color:lightgray;">
-        </div>
-      </div>
+    <strong>
+      {0}
+      <br/>
     </strong>
-    ID: <span class="mono" style="color:grey">{0}</span><br/>
-    Maintainer: <span class="mono" style="color:grey">{1}</span>
-    <div id="compose-package-field-description" style="margin-top:4px">
-      <div class="progress" style="height:10px">
-        <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width:100%; background-color:lightgray;">
-        </div>
-      </div>
+    ID: <span class="mono" style="color:grey">{1}</span><br/>
+    Maintainer: <span class="mono" style="color:grey">{2}</span>
+    <div style="margin-top:4px">
+      {3}
     </div>`;
 
   function render_changes(){
@@ -251,20 +253,20 @@ $assets_index_url = sanitize_url(
     location.href = url;
   }//apply_changes
 
-  function add_package_placeholder_to_list(num, id, provider, owner, repository, branch){
-    var col1 = package_template.format(id, owner);
+  function add_package_to_list(num, pack){
+    var col1 = package_template.format(pack.name, pack.id, pack.git_owner, pack.description);
     // ---
-    var is_installed = (installed_packages.indexOf(id) >= 0);
+    var is_installed = (installed_packages.indexOf(pack.id) >= 0);
     var installed = (is_installed)?
       '<?php echo Formatter::format(1, Formatter::BOOLEAN) ?>' : '<?php echo Formatter::format(0, Formatter::BOOLEAN) ?>';
     // ---
-    var git_action_url = providers_source[provider].format(owner, repository, branch);
+    var git_action_url = providers_source[pack.git_provider].format(pack.git_owner, pack.git_repository, pack.git_branch);
     var source_action = `
       <a class="btn btn-default" href="{0}" role="button" target="_blank">
         <i class="fa fa-code" aria-hidden="true"></i>&nbsp;
         Code
       </a>`.format(git_action_url);
-    var git_repo_url = providers_repo[provider].format(owner, repository);
+    var git_repo_url = providers_repo[pack.git_provider].format(pack.git_owner, pack.git_repository);
     var install_action = `
       <a role="button" class="btn btn-success main-button action-button" onclick="mark_to_install('{0}')" href="javascript:void(0);">
         <i class="fa fa-download" aria-hidden="true"></i>&nbsp;
@@ -284,78 +286,50 @@ $assets_index_url = sanitize_url(
         Cancel
       </a>`;
     var main_action = (is_installed)? uninstall_action : install_action;
-    main_action = main_action.format(id);
+    main_action = main_action.format(pack.id);
+    var icon_url = pack.icon;
+    if (!icon_url.startsWith('http')){
+      icon_url = '{0}/{1}'.format(
+        '<?php
+        echo sprintf(
+          '%s/%s',
+          Configuration::$ASSETS_STORE_URL,
+          Configuration::$ASSETS_STORE_BRANCH
+        )
+        ?>',
+        icon_url
+      );
+    }
     // ---
     $('#packages-table-body').html(
       $('#packages-table-body').html() +
       packages_table_body_row_template.format(
-        num,
+        '<img class="package-icon" src="{0}"></img>'.format(icon_url),
         col1,
         installed,
         '{0}&nbsp;{1}'.format(source_action, main_action),
-        "{0},{1}".format(id, '{0}'),
-        "compose-package-"+id
+        "{0},{1},{2}".format(pack.id, pack.name, pack.description),
+        "compose-package-{0}".format(pack.id)
       )
     )
-  }
-
-  function fetch_package_info_success_fcn(id, result){
-    $("#compose-package-{0} #compose-package-field-name".format(id)).html(result.name+'<br/>');
-    $("#compose-package-{0} #compose-package-field-description".format(id)).html(result.description);
-    window.packages_loaded_no += 1;
-    // update status label
-    if (window.packages_loaded_no == window.packages_total_no){
-      $('#status_label').html('');
-      setTimeout(function(){
-        $('#loading_status_bar').parent().remove();
-        $('#apply_changes_btn').css('display', 'default');
-      }, 800);
-    }else{
-      $('#status_label').html('Remaining {0}/{1}'.format(
-        window.packages_total_no-window.packages_loaded_no,
-        window.packages_total_no
-      ));
-    }
-    // update progress bar
-    progress = Math.ceil(100.0 * (window.packages_loaded_no / window.packages_total_no));
-    $('#loading_status_bar').css('width', '{0}%'.format(progress));
-  }
-
-  function fetch_package_info(id, provider, owner, repository, branch){
-    // make sure we can handle this provider
-    if (!(provider in providers))
-      return;
-    // ---
-    var provider_base_url = providers[provider].format(owner, repository, branch);
-    var url = "{0}/{1}".format(provider_base_url, 'metadata.json');
-    callExternalAPI(
-      url,
-      'GET',
-      'text',
-      false,
-      false,
-      function(result_json){
-        var result = JSON.parse(result_json);
-        fetch_package_info_success_fcn(id, result);
-      },
-      true
-    );
   }
 
   function fetch_package_list_success_fcn(result){
     $('#status_label').html('Downloading packages list...');
     var doc = jsyaml.load(result);
     // add packages to the list
-    window.packages_total_no = doc.packages.length;
-    window.packages_loaded_no = 0;
     $('#loading_status_bar').removeClass('progress-bar-striped progress-bar-default');
     $('#loading_status_bar').addClass('progress-bar-success');
     $('#loading_status_bar').css('width', '0%');
     for (var i = 0; i < doc.packages.length; i++) {
       var pack = doc.packages[i];
       // ---
-      add_package_placeholder_to_list(i+1, pack.id, pack.git_provider, pack.git_owner, pack.git_repository, pack.git_branch);
-      fetch_package_info(pack.id, pack.git_provider, pack.git_owner, pack.git_repository, pack.git_branch);
+      add_package_to_list(i+1, pack);
+      //
+      $('#status_label').html('');
+      setTimeout(function(){
+        $('#loading_status_bar').parent().remove();
+      }, 800);
     }
   }
 
