@@ -249,7 +249,7 @@ $assets_index_url = sanitize_url(
     var install = packages_to_install.join(',');
     var uninstall = packages_to_uninstall.join(',');
     var qs = 'install={0}&uninstall={1}'.format(install, uninstall);
-    var url = 'packages/install?{0}'.format(qs);
+    var url = 'package_store/install?{0}'.format(qs);
     location.href = url;
   }//apply_changes
 

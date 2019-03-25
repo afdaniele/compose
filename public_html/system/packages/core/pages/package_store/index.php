@@ -9,7 +9,7 @@ use \system\classes\Core;
 use \system\classes\Configuration;
 
 if (!in_array(Configuration::$ACTION, ['', 'install', 'verify'])){
-  Core::redirectTo('packages');
+  Core::redirectTo('package_store');
 }
 
 if(Configuration::$ACTION == ''){
@@ -19,6 +19,6 @@ if(Configuration::$ACTION == ''){
 }elseif(Configuration::$ACTION == 'verify'){
   include_once __DIR__.'/parts/verify.php';
 }else{
-  Core::redirectTo('packages');
+  Core::redirectTo('package_store');
 }
 ?>

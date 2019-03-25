@@ -138,7 +138,7 @@ if(count(array_intersect($to_install, $to_uninstall)) > 0){
     Core::packageManagerBatch($to_install_full, $to_uninstall_full);
     // redirect to verification page
     $href = sprintf(
-      'packages/verify?install=%s&uninstall=%s',
+      'package_store/verify?install=%s&uninstall=%s',
       implode(',', $to_install_full),
       implode(',', $to_uninstall_full)
     );
