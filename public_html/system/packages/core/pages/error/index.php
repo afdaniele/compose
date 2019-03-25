@@ -69,11 +69,9 @@ if( !isset($_SESSION['_ERROR_PAGE_MESSAGE']) ){
 		</div>
 
 		<div class="panel-footer" style="padding:18px">
-			<code>
-				<?php
+			<code><?php
 				echo $_SESSION['_ERROR_PAGE_MESSAGE'];
-				?>
-			</code>
+			?></code>
 
 			<br/>
 			<br/>
