@@ -907,38 +907,12 @@ class Core{
 
 
   public static function installPackage( $package ){
-    $package_manager_py = sprintf(
-      '%s/lib/python/compose/package_manager.py',
-      $GLOBALS['__SYSTEM__DIR__']
-    );
-    $install_arg = '--install '.$package;
-    $cmd = sprintf(
-      'python3 "%s" %s',
-      $package_manager_py,
-      $install_arg
-    );
-    exec($cmd);
-    // invalidate cache
-    self::$cache->clear();
+    return self::packageManagerBatch([$package], []);
   }//installPackage
 
 
   public static function removePackage( $package ){
-    if($package == 'core')
-      return;
-    $package_manager_py = sprintf(
-      '%s/lib/python/compose/package_manager.py',
-      $GLOBALS['__SYSTEM__DIR__']
-    );
-    $uninstall_arg = '--uninstall '.$package;
-    $cmd = sprintf(
-      'python3 "%s" %s',
-      $package_manager_py,
-      $uninstall_arg
-    );
-    exec($cmd);
-    // invalidate cache
-    self::$cache->clear();
+    return self::packageManagerBatch([], [$package]);
   }//removePackage
 
 
@@ -951,14 +925,22 @@ class Core{
     $install_arg = '--install '.implode(' ', $to_install);
     $uninstall_arg = '--uninstall '.implode(' ', $to_remove);
     $cmd = sprintf(
-      'python3 "%s" %s %s',
+      'python3 "%s" %s %s 2>&1',
       $package_manager_py,
       (count($to_install) > 0)? $install_arg : '',
       (count($to_remove) > 0)? $uninstall_arg : ''
     );
-    exec($cmd);
+    $output = "";
+    $exit_code = 0;
+    exec($cmd, $output, $exit_code);
+    $success = boolval($exit_code == 0);
     // invalidate cache
     self::$cache->clear();
+    // ---
+    return [
+      'success' => $success,
+      'data' => $success? null : implode('<br/>', array_merge(['Package Manager Error:'], $output))
+    ];
   }//packageManagerBatch
 
 
