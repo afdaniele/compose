@@ -17,10 +17,6 @@
         "pyyaml",
         "GitPython"
     ],
-    "duckiebot-command-line-tools" : [
-        "ifconfig",
-        "test"
-    ],
     "php-extensions" : [
         "h264_streaming_module",
         "rewrite"
@@ -30,12 +26,8 @@
     ],
     "apt" : [
         "libssh2-1-dev",
-        { "14.04" : ["libssh2-php", "libapache2-mod-php5"], "16.04" : ["php-ssh2", "php7.0-mbstring", "php7.0-apcu"] }
+        "python3",
+        { "14.04" : ["libapache2-mod-php5"], "16.04" : ["php7.0-mbstring", "php7.0-apcu"] }
     ],
-    "symlinks" : [
-        "public_html/surveillance_data_1_sd => $(surveillance_1_webm_data_path)",
-        "public_html/surveillance_data_2_sd => $(surveillance_2_webm_data_path)",
-        "public_html/surveillance_data_1_hd => $(surveillance_1_raw_data_path)",
-        "public_html/surveillance_data_2_hd => $(surveillance_2_raw_data_path)"
-    ]
+    "symlinks" : []
 }
