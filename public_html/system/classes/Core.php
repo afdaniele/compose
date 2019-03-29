@@ -1690,6 +1690,11 @@ class Core{
 	}//log
 
 
+  public static function regenerateSessionID( $delete_old_session = false ){
+		session_regenerate_id( $delete_old_session );
+	}//regenerateSessionID
+
+
 
 	// =================================================================================================================
 	// =================================================================================================================
@@ -1697,9 +1702,6 @@ class Core{
 	//
 	// Private functions
 
-	private static function regenerateSessionID( $delete_old_session = false ){
-		session_regenerate_id( $delete_old_session );
-	}//regenerateSessionID
 
 
 	/**
