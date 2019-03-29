@@ -175,6 +175,10 @@ function response400BadRequest( $message ){
 	return _createResponseArray( 400, 'Bad Request', $message, null );
 }//response400BadRequest
 
+function response412PreconditionFailed( $message ){
+	return _createResponseArray( 412, 'Precondition Failed', $message, null );
+}//response412PreconditionFailed
+
 function response404NotFound( $message ){
 	return _createResponseArray( 404, 'Not Found', $message, null );
 }//response404NotFound
