@@ -224,7 +224,7 @@ foreach ($buttons as &$button) {
 	}//_resize_navbar
 
 	<?php
-	if( Core::getSetting('login_enabled', 'core') ){
+	if( Core::getSetting('login_enabled', 'core') && strlen(Core::getSetting('google_client_id', 'core')) > 4){
 		?>
 		function logOutButtonClick(){
 			userLogOut(
