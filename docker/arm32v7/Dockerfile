@@ -19,7 +19,6 @@ RUN apt-get update \
   && apt-get install -y \
     # system utilities (used by user)
     nano \
-    python \
     python3 \
     # system utilities (used by compose)
     git \
