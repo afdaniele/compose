@@ -4,6 +4,7 @@ import requests
 import subprocess
 from glob import glob
 from os.path import join, abspath, dirname, isdir, isfile, basename, exists
+from toposort import toposort_flatten
 import shutil
 import git
 
@@ -73,6 +74,35 @@ class PackageManager(object):
     }
     return packages
 
+  def solve_dependencies_graph(self, packages_to_install):
+    dep_graph = {}
+    # ---
+    def extend_dep_graph(package_name):
+      dep_sub_graph = {}
+      # make sure that the package is available
+      if package_name not in self._index:
+        self.error(
+          'dependencies_solver',
+          package_name,
+          'get_package',
+          'Package "%s" not found' % package_name,
+          None,
+          12
+        )
+      # get deps
+      deps = self._index[package_name]['dependencies']
+      dep_sub_graph[package_name] = set(deps)
+      # extend deps
+      for d in deps:
+        dep_sub_graph.update(extend_dep_graph(d))
+      return dep_sub_graph
+    # ---
+    # build graph
+    for package_name in packages_to_install:
+      dep_graph.update(extend_dep_graph(package_name))
+    # get flatten list of packages to install
+    return toposort_flatten(dep_graph)
+
   def install(self, package_name):
     # make sure that the package is available
     if package_name not in self._index:
@@ -118,10 +148,6 @@ class PackageManager(object):
       branch=package_info['git_branch'],
       depth=1
     )
-    # repo.submodule_update(
-    #   init=True,
-    #   recursive=True
-    # )
 
   def post_install(self, package_name):
     # exec post_install if available
@@ -208,14 +234,18 @@ if __name__ == '__main__':
 
   pm = PackageManager()
 
+  # solve dependency graph
+  to_install = pm.solve_dependencies_graph(args.install or [])
+
   # perform uninstall
   for package_name in args.uninstall or []:
     pm.uninstall(package_name)
 
   # perform install
-  for package_name in args.install or []:
+  for package_name in to_install:
+    print('Installing "%s"...' % package_name)
     pm.install(package_name)
 
   # perform post_install
-  for package_name in args.install or []:
+  for package_name in to_install:
     pm.post_install(package_name)
