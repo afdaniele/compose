@@ -48,6 +48,8 @@ Things to add later in the development:
 
 
     [ ] - v0.9
+        [ ] - we moved the dependencies to the assets-store index, no need to contact github multiple times in `package-store/install`
+
         [X] - no need to modify the file /system/config/configuration.php after installing \compose\
 
         [X] - updated CSS checkbox switch

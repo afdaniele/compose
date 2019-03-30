@@ -171,6 +171,10 @@ function response200OK( $data=null ){
 	return _createResponseArray( 200, 'OK', null, $data );
 }//response200OK
 
+function response401Unauthorized(){
+	return _createResponseArray( 401, 'Unauthorized', 'Unauthorized', null );
+}//response401Unauthorized
+
 function response400BadRequest( $message ){
 	return _createResponseArray( 400, 'Bad Request', $message, null );
 }//response400BadRequest

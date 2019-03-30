@@ -42,6 +42,9 @@ function execute( &$service, &$actionName, &$arguments ){
 		case 'set':
 			$package_name = $arguments['package'];
 			unset( $arguments['package'] );
+      // handle first-setup case: the user is not logged in but the platform is not configured
+      if(!Core::isUserLoggedIn() && Core::isComposeConfigured())
+        return response401Unauthorized();
 			// get editable settings for the package
 			if( !Core::packageExists( $package_name ) )
 				return response400BadRequest( sprintf('The package "%s" does not exist', $package_name ) );

@@ -1,81 +1,82 @@
 {
-    "details" : "Provides the tools for managing the settings",
-	"actions" : {
-		"get" : {
-			"details" : "Returns the value of a given parameter",
-            "access_level" : [
-                "administrator"
-            ],
-            "authentication" : [
-                "web",
-                "app"
-            ],
-		    "parameters" : {
-		        "mandatory" : {
-                    "package" : {
-		                "type" : "text",
-                        "length" : null,
-		                "details" : "ID of the package the parameter to query belongs to"
-		            },
-		            "key" : {
-		                "type" : "text",
-                        "length" : null,
-		                "details" : "Name of the parameter to query"
-		            }
-		        },
-		        "optional" : {}
-		    },
-		    "return" : {
-		        "values" : {
-                    "package" : {
-		                "type" : "text",
-                        "length" : null,
-		                "details" : "ID of the package the parameter queried belongs to"
-		            },
-                    "key" : {
-		                "type" : "text",
-                        "length" : null,
-		                "details" : "Name of the parameter queried"
-		            },
-		            "value" : {
-                        "type" : "key-dependant",
-                        "length" : null,
-                        "details" : "Value of the parameter (Serialized if array)"
-                    }
-		        }
-		    }
-		},
-		"set" : {
-			"details" : "Sets the value of a given parameter",
-            "access_level" : [
-                "administrator"
-            ],
-            "authentication" : [
-                "web",
-                "app"
-            ],
-		    "parameters" : {
-		        "mandatory" : {
-                    "package" : {
-		                "type" : "text",
-                        "length" : null,
-		                "details" : "ID of the package the parameter(s) to set belong to"
-		            }
-                },
-		        "optional" : {
-                    "key1=val1" : {
-		                "type" : "text",
-                        "length" : null,
-		                "details" : "Tuple <code>key=val</code>, where <code>key</code> is the name of the parameter to set and <code>val</code> its value"
-		            },
-                    "..." : {
-		                "type" : "text",
-                        "length" : null,
-		                "details" : "Sequence of other <code>key=val</code> tuples"
-		            }
-                }
-		    },
-		    "return" : {}
-		}
-	}
+  "details" : "Provides the tools for managing the settings",
+  "actions" : {
+    "get" : {
+      "details" : "Returns the value of a given parameter",
+      "access_level" : [
+        "administrator"
+      ],
+      "authentication" : [
+        "web",
+        "app"
+      ],
+      "parameters" : {
+        "mandatory" : {
+          "package" : {
+            "type" : "text",
+            "length" : null,
+            "details" : "ID of the package the parameter to query belongs to"
+          },
+          "key" : {
+            "type" : "text",
+            "length" : null,
+            "details" : "Name of the parameter to query"
+          }
+        },
+        "optional" : {}
+      },
+      "return" : {
+        "values" : {
+          "package" : {
+            "type" : "text",
+            "length" : null,
+            "details" : "ID of the package the parameter queried belongs to"
+          },
+          "key" : {
+            "type" : "text",
+            "length" : null,
+            "details" : "Name of the parameter queried"
+          },
+          "value" : {
+            "type" : "key-dependant",
+            "length" : null,
+            "details" : "Value of the parameter (Serialized if array)"
+          }
+        }
+      }
+    },
+    "set" : {
+      "details" : "Sets the value of a given parameter",
+      "access_level" : [
+        "guest",
+        "administrator"
+      ],
+      "authentication" : [
+        "web",
+        "app"
+      ],
+      "parameters" : {
+        "mandatory" : {
+          "package" : {
+            "type" : "text",
+            "length" : null,
+            "details" : "ID of the package the parameter(s) to set belong to"
+          }
+        },
+        "optional" : {
+          "key1=val1" : {
+            "type" : "text",
+            "length" : null,
+            "details" : "Tuple <code>key=val</code>, where <code>key</code> is the name of the parameter to set and <code>val</code> its value"
+          },
+          "..." : {
+            "type" : "text",
+            "length" : null,
+            "details" : "Sequence of other <code>key=val</code> tuples"
+          }
+        }
+      },
+      "return" : {}
+    }
+  }
 }

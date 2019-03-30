@@ -9,6 +9,8 @@
 //error_reporting(E_ALL ^ E_NOTICE); //DEBUG only
 //ini_set('display_errors', 1); //DEBUG only
 
+ini_set('display_errors', 0);
+
 class AUTH_MODE{
 	const BROWSER_COOKIES = 0;
 	const API_APP = 1;
