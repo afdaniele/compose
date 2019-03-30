@@ -79,4 +79,16 @@ use \system\classes\Configuration;
     </div>
   </nav>
 
+  <?php
+  // get list of profile plugins files
+  $profile_addon_files = glob(sprintf('%s/*/modules/profile/index.php', $GLOBALS['__PACKAGES__DIR__']));
+  if(count($profile_addon_files) > 0){
+    echo '<legend style="width: 100px; margin: 20px auto"></legend>';
+  }
+  // render add-ons
+  foreach ($profile_addon_files as $profile_addon_file) {
+    require_once $profile_addon_file;
+  }
+  ?>
+
 </div>
