@@ -23,6 +23,7 @@ RUN apt-get update \
     python3-requests \
     python3-yaml \
     python3-git \
+    python3-toposort \
     # clean the apt cache
   && rm -rf /var/lib/apt/lists/*
 
