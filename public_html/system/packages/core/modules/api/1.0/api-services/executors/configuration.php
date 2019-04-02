@@ -42,6 +42,8 @@ function execute( &$service, &$actionName, &$arguments ){
 		case 'set':
 			$package_name = $arguments['package'];
 			unset( $arguments['package'] );
+      // open session to have access to login info
+      Core::startSession();
       // handle first-setup case: the user is not logged in but the platform is not configured
       if(!Core::isUserLoggedIn() && Core::isComposeConfigured())
         return response401Unauthorized();
