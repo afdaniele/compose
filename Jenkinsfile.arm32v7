@@ -2,8 +2,8 @@ pipeline {
   agent any
   environment {
     // Tag: latest
-    BASE_IMAGE = "nimmis/apache-php7:latest"
-    BUILD_IMAGE = "afdaniele/compose:latest"
+    BASE_IMAGE = "arm32v7/php:7.0.31-apache-stretch"
+    BUILD_IMAGE = "afdaniele/compose-arm32v7:latest"
   }
   stages {
     stage('Update Base Image') {
@@ -13,7 +13,7 @@ pipeline {
     }
     stage('Build Image') {
       steps {
-        sh 'docker build -t $BUILD_IMAGE --no-cache -f docker/master/Dockerfile ./docker/master/'
+        sh 'docker build -t $BUILD_IMAGE --no-cache -f docker/arm32v7/Dockerfile ./docker/arm32v7/'
       }
     }
     stage('Push Image') {
