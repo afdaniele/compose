@@ -25,7 +25,8 @@ pipeline {
     }
     stage('Clean up') {
       steps {
-        sh 'docker rmi $BASE_IMAGE'
+        sh 'docker rmi $BASE_IMAGE || :'
+        sh 'docker rmi $BUILD_IMAGE || :'
 
         cleanWs()
       }
