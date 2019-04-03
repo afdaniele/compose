@@ -135,7 +135,9 @@ if(count(array_intersect($to_install, $to_uninstall)) > 0){
 }else{
   if(isset($_GET['confirm']) && $_GET['confirm'] == '1'){
     // perform install/uninstall operations in batch
-    Core::packageManagerBatch($to_install_full, $to_uninstall_full);
+    $res = Core::packageManagerBatch($to_install_full, $to_uninstall_full);
+    if(!$res['success'])
+      Core::throwError($res['data']);
     // redirect to verification page
     $href = sprintf(
       'package_store/verify?install=%s&uninstall=%s',

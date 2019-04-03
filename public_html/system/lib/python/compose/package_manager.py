@@ -104,6 +104,9 @@ class PackageManager(object):
     return toposort_flatten(dep_graph)
 
   def install(self, package_name):
+    # nothing to do if the package is already installed
+    if package_name in self.list_installed_packages():
+      return
     # make sure that the package is available
     if package_name not in self._index:
       self.error(
@@ -113,16 +116,6 @@ class PackageManager(object):
         'Package "%s" not found' % package_name,
         None,
         12
-      )
-    # make sure that the package is not present already
-    if package_name in self.list_installed_packages():
-      self.error(
-        'install',
-        package_name,
-        'install',
-        'The package "%s" is already installed!' % package_name,
-        None,
-        13
       )
     # make sure that the destination directory is not taken
     package_path = join(self._packages_dir, package_name)
@@ -242,10 +235,13 @@ if __name__ == '__main__':
     pm.uninstall(package_name)
 
   # perform install
+  require_post_install = []
   for package_name in to_install:
-    print('Installing "%s"...' % package_name)
-    pm.install(package_name)
+    if package_name not in pm.list_installed_packages():
+      print('Installing "%s"...' % package_name)
+      pm.install(package_name)
+      require_post_install.append(package_name)
 
   # perform post_install
-  for package_name in to_install:
+  for package_name in require_post_install:
     pm.post_install(package_name)
