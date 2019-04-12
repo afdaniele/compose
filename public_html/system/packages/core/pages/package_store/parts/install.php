@@ -261,8 +261,6 @@ select.form-control{
 </div>
 
 <?php
-require_once __DIR__.'/../../../modules/modals/yes_no_modal.php';
-
 $href = sprintf(
   'install?install=%s&uninstall=%s&confirm=%s',
   $_GET['install'],

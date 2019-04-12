@@ -223,25 +223,39 @@ foreach ($buttons as &$button) {
 		?>
 	}//_resize_navbar
 
-	<?php
-	if( Core::getSetting('login_enabled', 'core') && strlen(Core::getSetting('google_client_id', 'core')) > 4){
-		?>
-		function logOutButtonClick(){
-			userLogOut(
-				'<?php echo Configuration::$BASE_URL ?>',
-				'<?php echo Configuration::$WEBAPI_VERSION ?>',
-				'<?php echo $_SESSION['TOKEN'] ?>',
-				function(){ /* successFcn: on success function */
-					// Sign-out from Google
-					var auth2 = gapi.auth2.getAuthInstance();
-				    auth2.signOut().then(function () {
-						hidePleaseWait();
-					    window.location.href = '<?php echo Configuration::$BASE ?>'
-				    });
-				}
-			);
-		}//logOutButtonClick
 
+  <?php
+  $logged_in_with_google = Core::getSetting('login_enabled', 'core') && strlen(Core::getSetting('google_client_id', 'core')) > 4;
+	?>
+  function logOutButtonClick(){
+    userLogOut(
+      '<?php echo Configuration::$BASE_URL ?>',
+      '<?php echo Configuration::$WEBAPI_VERSION ?>',
+      '<?php echo $_SESSION['TOKEN'] ?>',
+      function(){ /* successFcn: on success function */
+        <?php
+        if($logged_in_with_google){
+      		?>
+          // Sign-out from Google
+          var auth2 = gapi.auth2.getAuthInstance();
+          auth2.signOut().then(function () {
+            hidePleaseWait();
+            window.location.href = '<?php echo Configuration::$BASE ?>';
+          });
+          <?php
+        }else{
+          ?>
+          window.location.href = '<?php echo Configuration::$BASE ?>';
+          <?php
+        }
+        ?>
+      }
+    );
+  }//logOutButtonClick
+
+	<?php
+  if($logged_in_with_google){
+		?>
 		// initialize Google Sign-in library
 		gapi.load('auth2', function(){
 			gapi.auth2.init();

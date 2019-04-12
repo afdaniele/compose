@@ -104,8 +104,8 @@
 
 	Configuration::$PAGE = $requested_page;
 	Configuration::$ACTION = $requested_action;
-	Configuration::$ARG1 = (count($args) > 2 && $args[2] !== '') ? $args[2] : null;
-	Configuration::$ARG2 = (count($args) > 3 && $args[3] !== '') ? $args[3] : null;
+	Configuration::$ARG1 = (count($args) > 2 && $args[2] !== '') ? $args[2] : NULL;
+	Configuration::$ARG2 = (count($args) > 3 && $args[3] !== '') ? $args[3] : NULL;
 
 	// execute URL rewrite
 	URLrewrite::match();
