@@ -176,7 +176,7 @@ function footer_credits( $float ){
         $codebase_tag = $codebase_info['head_tag'];
         $codebase_latest_tag = $codebase_info['latest_tag'];
         $codebase_tag = ( strcasecmp($codebase_tag, $codebase_latest_tag) === 0 )? $codebase_tag : 'devel';
-        $codebase_str = ( in_array($codebase_tag, ['ND', 'GIT_ERROR', null]) )? '' : sprintf("%s | ", $codebase_tag);
+        $codebase_str = ( in_array($codebase_tag, ['ND', null]) )? '' : sprintf("%s | ", $codebase_tag);
         ?>
         <p>
           <strong>developed by</strong> &nbsp; <a href="http://www.afdaniele.com" style="color:white">Andrea F. Daniele</a>
