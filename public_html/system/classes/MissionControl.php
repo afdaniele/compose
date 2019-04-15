@@ -1,7 +1,8 @@
 <?php
 
-use \system\classes\Core as Core;
-use \system\classes\BlockRenderer as BlockRenderer;
+use \system\classes\Core;
+use \system\classes\Database;
+use \system\classes\BlockRenderer;
 
 
 class MissionControl{
@@ -264,6 +265,185 @@ class MissionControl{
 
 }//MissionControl
 
+
+class MissionControlMenu{
+
+  function __construct($side, $package_name, $mission_db_name, $mission_name=NULL){
+    $db = new Database($package_name, $mission_db_name);
+    // get list of missions available
+    $missions_list = $db->list_keys();
+    // render side menu
+    self::render_menu($side, $mission_name);
+    // add load mission modal
+    self::add_load_modal($missions_list);
+  }//__construct
+
+  public static function render_menu($side, $mission_name){
+    $is_mission_loaded = !is_null($mission_name);
+    ?>
+    <style type="text/css">
+      .mission-control-side-menu{
+        position: fixed;
+        top: 90px;
+        <?php echo $side ?>: 10px;
+        width: 70px;
+      }
+
+      .mission-control-side-menu-button{
+        background-image: none;
+        padding: 10px 0;
+      }
+
+      .mission-control-side-menu-button.disabled{
+        background-color: lightgray;
+      }
+
+      .mission-control-side-menu-button .glyphicon{
+        font-size: 18px;
+      }
+
+      .mission-control-side-menu-button #label{
+        padding-right: 3px;
+        margin-top: 6px;
+      }
+    </style>
+
+    <div class="btn-group-vertical mission-control-side-menu" id="mission-control-side-menu" role="group" aria-label="...">
+      <button type="button" class="btn btn-default mission-control-side-menu-button">
+        <div>
+          <span class="glyphicon glyphicon-asterisk" aria-hidden="true"></span>
+        </div>
+        <div id="label">
+          New
+        </div>
+      </button>
+      <button type="button" class="btn btn-default mission-control-side-menu-button" data-toggle="modal" data-target="#mission-control-load-modal">
+        <div>
+          <span class="glyphicon glyphicon-folder-open" aria-hidden="true"></span>
+        </div>
+        <div id="label">
+          Open
+        </div>
+      </button>
+      <button
+        type="button"
+        class="btn btn-default mission-control-side-menu-button <?php echo ($is_mission_loaded)? '' : 'disabled' ?>"
+        <?php echo ($is_mission_loaded)? 'onclick="mission_control_save_fcn()"' : '' ?>>
+        <div>
+          <span class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span>
+        </div>
+        <div id="label">
+          Save
+        </div>
+      </button>
+      <button type="button" class="btn btn-default mission-control-side-menu-button">
+        <div>
+          <span class="glyphicon glyphicon-floppy-save" aria-hidden="true"></span>
+        </div>
+        <div id="label">
+          Save as
+        </div>
+      </button>
+
+      <legend style="margin: 0; margin-top: 4px; border: 0"></legend>
+
+      <button type="button" class="btn btn-default mission-control-side-menu-button">
+        <div>
+          <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+        </div>
+        <div id="label">
+          Add
+        </div>
+      </button>
+
+    </div>
+
+    <script type="text/javascript">
+
+      function mission_control_save_confirm_fcn(){
+        alert('SAVED!');
+      }//mission_control_save_confirm_fcn
+
+      function mission_control_save_fcn(){
+        var question = "Are you sure you want to save?";
+        openYesNoModal(
+          question,
+          mission_control_save_confirm_fcn,
+          false
+        );
+      }//mission_control_save_fcn
+
+      function mission_control_center_toolbox() {
+        var side_menu = $('#mission-control-side-menu');
+        var offset = ($(window).height() - side_menu.height()) / 2;
+        offset = Math.max(90, offset);
+        side_menu.css("top", offset);
+      }//mission_control_center_toolbox
+
+      $(window).on("resize", mission_control_center_toolbox);
+      $(document).on("ready", mission_control_center_toolbox);
+
+    </script>
+    <?php
+  }
+
+
+  public static function add_load_modal($missions_list, $qs_key='mission'){
+    ?>
+    <div class="modal fade" id="mission-control-load-modal" tabindex="-1" role="dialog">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title">Load Mission</h4>
+          </div>
+          <div class="modal-body">
+            <table class="table table-striped">
+              <tr>
+                <td class="col-md-1 text-center text-bold">#</td>
+                <td class="col-md-7 text-bold">Name</td>
+                <td class="col-md-4 text-center text-bold">Actions</td>
+              </tr>
+              <?php
+              $i = 1;
+              foreach ($missions_list as $mission) {
+                // render a table row
+                $resource_url = Core::getCurrentResourceURL(
+                  [$qs_key => $mission]
+                );
+                ?>
+                <tr>
+                  <td class="text-center"><?php echo $i ?></td>
+                  <td><?php echo $mission ?></td>
+                  <td class="text-center">
+                    <a class="btn btn-default btn-xs" href="<?php echo $resource_url ?>" role="button">
+                      <span class="glyphicon glyphicon-download-alt" aria-hidden="true"></span>
+                      Open
+                    </a>
+                    &nbsp; | &nbsp;
+                    <a class="btn btn-danger btn-xs" href="#" role="button">
+                      <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+                      Delete
+                    </a>
+                  </td>
+                </tr>
+                <?php
+                $i += 1;
+              }
+              ?>
+            </table>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-primary">Load</button>
+          </div>
+        </div><!-- /.modal-content -->
+      </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
+    <?php
+  }
+
+}//MissionControlMenu
 
 
 ?>
