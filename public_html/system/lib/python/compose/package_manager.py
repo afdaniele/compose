@@ -123,8 +123,13 @@ class PackageManager(object):
       )
     with open(config_file, 'rt') as fp:
       content = fp.readlines()
+      # read ASSETS_STORE_URL from config file
       line = [l for l in content if 'ASSETS_STORE_URL' in l][0]
-      self._assets_store_url = line.split('=')[1].replace("'", '').replace(';', '').strip()
+      self._assets_store_url = line.split('=')[1].replace("'", '').replace('"', '').replace(';', '').strip()
+      # ---
+      # read ASSETS_STORE_BRANCH from config file
+      line = [l for l in content if 'ASSETS_STORE_BRANCH' in l][0]
+      self._assets_store_branch = line.split('=')[1].replace("'", '').replace('"', '').replace(';', '').strip()
     # retrieve index
     self._index = self.get_available_packages()
 
@@ -156,7 +161,7 @@ class PackageManager(object):
     )
 
   def get_available_packages(self):
-    index_url = '%s/master/index' % self._assets_store_url
+    index_url = '%s/%s/index' % (self._assets_store_url, self._assets_store_branch)
     response = requests.get(index_url)
     data = yaml.load(response.text, Loader=yaml.BaseLoader)
     packages = {
