@@ -11,20 +11,17 @@ RUN apt-get update && apt-get install -y \
     # clean the apt cache
     && rm -rf /var/lib/apt/lists/*
 
-# configure xDebug
-RUN echo $'xdebug.remote_enable = 1; \
-    xdebug.remote_host = localhost; \
-    xdebug.remote_port = 9000; \
-    xdebug.profiler_enable = 1; \
-    xdebug.profiler_output_name = xdebug.out.%t; \
-    xdebug.profiler_output_dir = /tmp; \
-    xdebug.profiler_enable_trigger = 1' > /etc/php/7.0/mods-available/xdebug.ini
+# enable xDebug
+RUN echo "zend_extension=`find /usr/lib/php | grep xdebug.so`;" >> /etc/php/7.0/apache2/php.ini
 
 # install WebGrind to visualize the profiler data
-RUN git clone https://github.com/jokkedk/webgrind.git $COMPOSE_DIR/public_html/webgrind/
+RUN git clone --depth 1 https://github.com/jokkedk/webgrind.git $COMPOSE_DIR/public_html/webgrind/
 
 # copy phpinfo script
 ADD assets/phpinfo.php $COMPOSE_DIR/public_html/
 
 # copy APCu monitor script
 ADD assets/apc.php $COMPOSE_DIR/public_html/
+
+# copy xDebug config file
+ADD assets/xdebug.ini /etc/php/7.0/mods-available/xdebug.ini
