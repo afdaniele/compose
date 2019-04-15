@@ -8,6 +8,8 @@
 use \system\classes\Core;
 use \system\classes\Configuration;
 use \system\classes\Formatter;
+
+$installed_packages = Core::getPackagesList();
 ?>
 
 <!-- Load YAML library -->
@@ -137,9 +139,9 @@ $assets_index_url = sanitize_url(
     'bitbucket.org': 'https://bitbucket.org/{0}/{1}/src/{2}'
   }
 
-  var installed_packages = [
-    <?php echo '"'.implode('", "', array_keys(Core::getPackagesList())).'"' ?>
-  ];
+  var installed_packages = JSON.parse('<?php echo json_encode($installed_packages) ?>');
+
+  var installed_packages_ids = Object.keys(installed_packages);
 
   var packages_table_body_row_template = `
     <tr class="compose-package" id="{5}" data-search="{4}">
@@ -163,10 +165,15 @@ $assets_index_url = sanitize_url(
       <br/>
     </strong>
     ID: <span class="mono" style="color:grey">{1}</span><br/>
-    Maintainer: <span class="mono" style="color:grey">{2}</span>
+    Maintainer: <span class="mono" style="color:grey">{2}</span><br/>
+    {4}<br/>
     <div style="margin-top:4px">
       {3}
     </div>`;
+
+  var package_version_line_template = `
+    {0}: <span class="mono" style="color:{1}">{2}</span>
+  `;
 
   function render_changes(){
     // show info about how many packages will be installed/removed
@@ -218,7 +225,7 @@ $assets_index_url = sanitize_url(
       packages_to_uninstall.splice(idx, 1);
     }
     // if not installed, mark to install
-    idx = installed_packages.indexOf(package_name);
+    idx = installed_packages_ids.indexOf(package_name);
     if(idx < 0){
       packages_to_install.push(package_name)
     }
@@ -237,7 +244,7 @@ $assets_index_url = sanitize_url(
       packages_to_install.splice(idx, 1);
     }
     // if installed, mark to uninstall
-    idx = installed_packages.indexOf(package_name);
+    idx = installed_packages_ids.indexOf(package_name);
     if(idx >= 0){
       packages_to_uninstall.push(package_name);
     }
@@ -254,9 +261,51 @@ $assets_index_url = sanitize_url(
   }//apply_changes
 
   function add_package_to_list(num, pack){
-    var col1 = package_template.format(pack.name, pack.id, pack.git_owner, pack.description);
+    var is_installed = (installed_packages_ids.indexOf(pack.id) >= 0);
+    var version_str_fmt = '{0}{1}{2}';
+    var installed_version_str = '';
+    var version_sep_str = '';
+    var available_version_str = '';
+    var installed_version = (is_installed)? installed_packages[pack.id].codebase.head_tag : null;
+    if(is_installed){
+      // show installed version
+      installed_version = (installed_version == 'ND')? 'devel' : installed_version;
+      installed_version_str = package_version_line_template.format(
+        'Installed version',
+        'grey',
+        installed_version
+      );
+    }
     // ---
-    var is_installed = (installed_packages.indexOf(pack.id) >= 0);
+    // show available version (if any)
+    var latest_version = pack.git_branch;
+    if(latest_version != 'master'){
+      // show available version
+      var color = 'grey';
+      if(is_installed && installed_version != 'devel' && latest_version != installed_version){
+        color = 'darkgreen';
+      }
+      version_sep_str = (installed_version_str.length > 0)? '  |  ' : '';
+      available_version_str = package_version_line_template.format(
+        'Available version',
+        color,
+        latest_version
+      );
+    }
+    var version_str = version_str_fmt.format(
+      installed_version_str,
+      version_sep_str,
+      available_version_str
+    )
+    // ---
+    var col1 = package_template.format(
+      pack.name,
+      pack.id,
+      pack.git_owner,
+      pack.description,
+      version_str
+    );
+    // ---
     var installed = (is_installed)?
       '<?php echo Formatter::format(1, Formatter::BOOLEAN) ?>' : '<?php echo Formatter::format(0, Formatter::BOOLEAN) ?>';
     // ---
@@ -280,6 +329,15 @@ $assets_index_url = sanitize_url(
       <a role="button" class="btn btn-danger main-button action-button" onclick="mark_to_uninstall('{0}')" href="javascript:void(0);">
         <i class="fa fa-trash" aria-hidden="true"></i>&nbsp;
         Uninstall
+      </a>
+      <a role="button" class="btn btn-warning main-button undo-button" style="display:none" onclick="mark_to_install('{0}')" href="javascript:void(0);">
+        <i class="fa fa-times" aria-hidden="true"></i>&nbsp;
+        Cancel
+      </a>`;
+    var update_action = `
+      <a role="button" class="btn btn-info main-button action-button" onclick="mark_to_update('{0}')" href="javascript:void(0);">
+        <i class="fa fa-trash" aria-hidden="true"></i>&nbsp;
+        Update
       </a>
       <a role="button" class="btn btn-warning main-button undo-button" style="display:none" onclick="mark_to_install('{0}')" href="javascript:void(0);">
         <i class="fa fa-times" aria-hidden="true"></i>&nbsp;
