@@ -319,6 +319,29 @@ class Core{
   }//isComposeConfigured
 
 
+  public static function getCurrentResource(){
+    $resource_parts = [
+      Configuration::$PAGE,
+      Configuration::$ACTION,
+      Configuration::$ARG1,
+      Configuration::$ARG2
+    ];
+    $resource_parts = array_filter(
+      $resource_parts,
+      function($e){return !is_null($e) && strlen($e) > 0;}
+    );
+    return implode('/', $resource_parts);
+  }//getCurrentResource
+
+
+  public static function getCurrentResourceURL($qs_array=[], $include_qs=false){
+    $qs_dict = array_merge(($include_qs)? $_GET : [], $qs_array);
+    $qs = toQueryString(array_keys($qs_dict), $qs_dict, true);
+    $resource = self::getCurrentResource();
+    return sprintf('%s%s%s', Configuration::$BASE_URL, $resource, $qs);
+  }//getCurrentResourceURL
+
+
 	public static function loadPackagesModules( $module_family=null, $pkg_id=null ){
 		foreach( self::$packages as $pkg ){
 			if( !$pkg['enabled'] || ( !is_null($pkg_id) && $pkg_id != $pkg['id'] ) )
@@ -1410,7 +1433,7 @@ class Core{
 	}//getSiteName
 
 
-	/** Returns the hash identifying the version of the codebase.
+	/** Returns the hash identifying the version of the <b>\\compose\\</b> codebase.
 	 * 	This corresponds to the commit ID on git.
 	 *
 	 *	@param boolean $long_hash
@@ -1418,70 +1441,151 @@ class Core{
 	 *		DEFAULT = false (7-digits commit hash).
 	 *
 	 *	@retval string
-	 *		alphanumeric hash of the commit currently fetched on the server
+	 *		alphanumeric hash of the commit currently in use on the server
 	 */
-	public static function getCodebaseHash( $long_hash=false ){
-		// check if this object is cached
-		$cache_key = sprintf( "codebase_hash_%s", $long_hash? 'long' : 'short' );
-		if( self::$cache->has( $cache_key ) ) return self::$cache->get( $cache_key );
-		// hash not present in cache, get it from git
-		exec( 'git log -1 --format="%H"', $hash, $exit_code );
-		if( $exit_code != 0 ){
-			$hash = 'ND';
-		}else{
-			$hash = ($long_hash)? $hash[0] : substr( $hash[0], 0, 7 );
-		}
-		// cache hash
-		self::$cache->set( $cache_key, $hash, CacheTime::HOURS_24 );
-		//
-		return $hash;
+	public static function getCodebaseHash($long_hash=false){
+		return self::getPackageCodebaseHash('core', $long_hash);
 	}//getCodebaseHash
 
 
-	/** Returns information about the current codebase (e.g., git user, git repository, remote URL, etc.)
+	/** Returns the hash identifying the version of a package's codebase.
+	 * 	This corresponds to the commit ID on git.
+   *
+	 *	@param string $package_name
+	 *		name of the package for which to retrieve the git hash.
+ 	 *
+	 *	@param boolean $long_hash
+	 *		whether to return the short hash (first 7 digits) or the long (full) commit hash.
+	 *		DEFAULT = false (7-digits commit hash).
+	 *
+	 *	@retval string
+	 *		alphanumeric hash of the commit currently fetched on the server
+	 */
+	public static function getPackageCodebaseHash($package_name, $long_hash=false){
+    // check if this object is cached
+		$cache_key = sprintf("pkg_%s_codebase_hash_%s", $package_name, $long_hash? 'long' : 'short');
+		if(self::$cache->has($cache_key))
+      return self::$cache->get( $cache_key );
+		// hash not present in cache, get it from git
+    $package_dir = sprintf('%s%s', $GLOBALS['__PACKAGES__DIR__'], $package_name);
+    $hash = self::getGitRepositoryHash($package_dir, $long_hash);
+    // cache hash
+		self::$cache->set($cache_key, $hash, CacheTime::HOURS_24);
+		//
+    return $hash;
+  }//getPackageCodebaseHash
+
+
+
+  /** Returns the hash identifying the version of a repository.
+	 * 	This corresponds to the commit ID on git.
+   *
+   *	@param string $git_repo_path
+   *		absolute path to the git repository for which to retrieve the info.
+ 	 *
+	 *	@param boolean $long_hash
+	 *		whether to return the short hash (first 7 digits) or the long (full) commit hash.
+	 *		DEFAULT = false (7-digits commit hash).
+	 *
+	 *	@retval string
+	 *		alphanumeric hash of the commit currently fetched on the server
+	 */
+	public static function getGitRepositoryHash($git_repo_path, $long_hash=false){
+    exec(
+      sprintf('git -C "%s" log -1', $git_repo_path).' --format="%H"',
+      $info,
+      $exit_code
+    );
+		if( $exit_code != 0 ){
+			$hash = 'ND';
+		}else{
+			$hash = ($long_hash)? $info[0] : substr($info[0], 0, 7);
+		}
+		return $hash;
+	}//getGitRepositoryHash
+
+
+	/** Returns information about the current <b>\\compose\\</b> codebase.
 	 *
 	 *	@retval array
-	 *		An array containing info about the codebase with the following details:
-	 *	<pre><code class="php">[
-	 *		"git_owner" => string, 			// username of the owner of the git repository
-	 *		"git_repo" => string, 			// name of the repository
-	 *		"git_host" => string, 			// hostname of the remote git server
-	 *		"git_remote_url" => string, 	// url to the remote repository
-	 *		"head_hash" => string, 			// short commit hash of the head of the local repository
-	 *		"head_full_hash" => string, 	// full commit hash of the head of the local repository
-	 *		"head_tag" => mixed 			// tag associated to the head. null if no tag is found
-	 *		"latest_tag" => mixed 			// latest tag (back in time) of codebase. null if no tag is found.
-	 *	]</code></pre>
+	 *		See Core::getGitRepositoryInfo().
 	 *
 	 */
 	public static function getCodebaseInfo(){
+		return self::getPackageCodebaseInfo('core');
+	}//getCodebaseInfo
+
+
+  /** Returns information about a package's codebase.
+   *
+   *	@param string $package_name
+   *		name of the package for which to retrieve the codebase info.
+	 *
+	 *	@retval array
+	 *		See Core::getGitRepositoryInfo().
+	 *
+	 */
+	public static function getPackageCodebaseInfo($package_name){
 		// check if this object is cached
-		$cache_key = "codebase_info";
+		$cache_key = sprintf("pkg_%s_codebase_info", $package_name);
 		if( self::$cache->has( $cache_key ) ) return self::$cache->get( $cache_key );
 		// hash not present in cache, get it from git
-		$codebase_info = [
+    $package_dir = sprintf('%s%s', $GLOBALS['__PACKAGES__DIR__'], $package_name);
+    $codebase_info = self::getGitRepositoryInfo($package_dir);
+		// cache object
+		self::$cache->set( $cache_key, $codebase_info, CacheTime::HOURS_24 );
+		//
+		return $codebase_info;
+	}//getCodebaseInfo
+
+
+  /** Returns information about a git repository (e.g., git user, git repository, remote URL, etc.)
+   *
+   *	@param string $git_repo_path
+   *		absolute path to the git repository for which to retrieve the info.
+	 *
+	 *	@retval array
+	 *		An array containing info about the repository with the following details:
+	 *	<pre><code class="php">[
+	 *		"git_owner" => string, 			   // username of the owner of the git repository
+	 *		"git_repo" => string, 			   // name of the repository
+	 *		"git_host" => string, 			   // hostname of the remote git server
+	 *		"git_remote_url" => string, 	 // url to the remote repository
+	 *		"head_hash" => string, 			   // short commit hash of the head of the local repository
+	 *		"head_full_hash" => string, 	 // full commit hash of the head of the local repository
+	 *		"head_tag" => mixed 			     // tag associated to the head. null if no tag is found
+	 *		"latest_tag" => mixed 			   // latest tag (back in time) of codebase. null if no tag is found.
+	 *	]</code></pre>
+	 *
+	 */
+	public static function getGitRepositoryInfo($git_repo_path){
+    $codebase_info = [
 			'git_owner' => 'ND',
 			'git_repo' => 'ND',
 			'git_host' => 'ND',
 			'git_remote_url' => 'ND',
-			'head_hash' => self::getCodebaseHash(),
-			'head_full_hash' => self::getCodebaseHash(true),
+			'head_hash' => self::getGitRepositoryHash($git_repo_path),
+			'head_full_hash' => self::getGitRepositoryHash($git_repo_path, true),
 			'head_tag' => 'ND',
 			'latest_tag' => 'ND'
 		];
-		exec( 'git config --get remote.origin.url', $info, $exit_code );
+		exec(
+      sprintf('git -C "%s" config --get remote.origin.url', $git_repo_path),
+      $info,
+      $exit_code
+    );
 		if( $exit_code != 0 ){
-			$codebase_info['git_user'] = 'GIT_ERROR';
-			$codebase_info['git_repo'] = 'GIT_ERROR';
+			$codebase_info['git_user'] = 'ND';
+			$codebase_info['git_repo'] = 'ND';
 		}else{
 			if( strcasecmp( substr($info[0], 0, 4), "http") == 0 ){
-				// the remote URL is in the format "http(s)://(<user>@)<host>/<owner>/<repo>.git"
-				$pattern = "/http(s)?:\/\/([^@]+@)?([^:]+)\/(.*)\/(.*)\.git/";
-				preg_match_all($pattern, $info[0], $matches);
+        // the remote URL is in the format "http(s)://(<user>@)<host>/<owner>/<repo>(.git)"
+        $pattern = "/http(s)?:\/\/([^@]+@)?(.*)\/(.*)\/(.*)(\.git)?/";
+        preg_match_all($pattern, $info[0], $matches);
 				$codebase_info['git_host'] = $matches[3][0];
 				$codebase_info['git_owner'] = $matches[4][0];
-				$codebase_info['git_repo'] = $matches[5][0];
-				$codebase_info['git_remote_url'] = sprintf( "http%s://%s/%s/%s.git",
+				$codebase_info['git_repo'] = preg_replace('/\.git$/', '', $matches[5][0]);
+				$codebase_info['git_remote_url'] = sprintf("http%s://%s/%s/%s.git",
 					$matches[1][0],
 					$codebase_info['git_host'],
 					$codebase_info['git_owner'],
@@ -1494,7 +1598,7 @@ class Core{
 				$codebase_info['git_host'] = $matches[1][0];
 				$codebase_info['git_owner'] = $matches[2][0];
 				$codebase_info['git_repo'] = $matches[3][0];
-				$codebase_info['git_remote_url'] = sprintf( "http://%s/%s/%s.git",
+				$codebase_info['git_remote_url'] = sprintf("http://%s/%s/%s.git",
 					$codebase_info['git_host'],
 					$codebase_info['git_owner'],
 					$codebase_info['git_repo']
@@ -1502,26 +1606,31 @@ class Core{
 			}
 		}
 		// get tag associated to the head (if any)
-		exec( 'git tag --contains HEAD', $tag, $exit_code );
+		exec(
+      sprintf('git -C "%s" tag --contains HEAD', $git_repo_path),
+      $tag,
+      $exit_code
+    );
 		if( $exit_code != 0 ){
-			$codebase_info['head_tag'] = 'GIT_ERROR';
+			$codebase_info['head_tag'] = 'ND';
 		}else{
 			$cb_tag = trim($tag[0]);
-			$codebase_info['head_tag'] = (strlen($cb_tag) <= 0)? null : $cb_tag;
+			$codebase_info['head_tag'] = (strlen($cb_tag) <= 0)? 'ND' : $cb_tag;
 		}
 		// get closest tag going back in time (if any)
-		exec( 'git describe --abbrev=0 --tags', $latest_tag, $exit_code );
+		exec(
+      sprintf('git -C "%s" describe --abbrev=0 --tags', $git_repo_path),
+      $latest_tag,
+      $exit_code
+    );
 		if( $exit_code != 0 ){
-			$codebase_info['latest_tag'] = 'GIT_ERROR';
+			$codebase_info['latest_tag'] = 'ND';
 		}else{
 			$latest_cb_tag = trim($latest_tag[0]);
-			$codebase_info['latest_tag'] = (strlen($latest_cb_tag) <= 0)? null : $latest_cb_tag;
+			$codebase_info['latest_tag'] = (strlen($latest_cb_tag) <= 0)? 'ND' : $latest_cb_tag;
 		}
-		// cache object
-		self::$cache->set( $cache_key, $codebase_info, CacheTime::HOURS_24 );
-		//
-		return $codebase_info;
-	}//getCodebaseInfo
+    return $codebase_info;
+  }//getGitRepositoryInfo
 
 
 	/** Returns the debugger data
@@ -1893,6 +2002,8 @@ class Core{
 			$pkg['core']['file'] = sprintf( "%s/%s", $pkg_path, $pkg['core']['file'] );
 			// check whether the package is enabled
 			$pkg['enabled'] = self::isPackageEnabled($pkg_id);
+      // get package codebase version
+      $pkg['codebase'] = self::getPackageCodebaseInfo($pkg_id);
 			// load modules
 			self::_load_package_modules_list($pkg_id, $pkg);
 			// create public data symlink (if it does not exist)
