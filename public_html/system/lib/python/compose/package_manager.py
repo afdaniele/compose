@@ -124,12 +124,14 @@ class PackageManager(object):
     with open(config_file, 'rt') as fp:
       content = fp.readlines()
       # read ASSETS_STORE_URL from config file
-      line = [l for l in content if 'ASSETS_STORE_URL' in l][0]
-      self._assets_store_url = line.split('=')[1].replace("'", '').replace('"', '').replace(';', '').strip()
+      line = [l for l in content if 'ASSETS_STORE_URL' in l][0].split('=')[1]
+      assets_store_url = line.replace("'", '').replace('"', '').replace(';', '').strip()
+      self._assets_store_url = assets_store_url
       # ---
       # read ASSETS_STORE_BRANCH from config file
-      line = [l for l in content if 'ASSETS_STORE_BRANCH' in l][0]
-      self._assets_store_branch = line.split('=')[1].replace("'", '').replace('"', '').replace(';', '').strip()
+      line = [l for l in content if 'ASSETS_STORE_BRANCH' in l][0].split('=')[1]
+      assets_store_branch = line.replace("'", '').replace('"', '').replace(';', '').strip()
+      self._assets_store_branch = assets_store_branch
     # retrieve index
     self._index = self.get_available_packages()
 
