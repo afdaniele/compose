@@ -57,8 +57,8 @@
 	$user_roles = Core::getUserRolesList();
 
   // redirect user to the setup page (if necessary)
-  if( !Core::isComposeConfigured() &&
-    !in_array($requested_page, ['error', 'setup']) ) Core::redirectTo('setup');
+  if(!Core::isComposeConfigured() &&
+    !in_array($requested_page, ['error', 'setup', 'maintenance'])) Core::redirectTo('setup');
 
 	// redirect user to maintenance mode (if necessary)
 	if( $main_user_role != 'administrator' &&
