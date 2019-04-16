@@ -132,7 +132,7 @@ function secondsSinceMidnight(){
     return diff;
 }
 
-function openAlert( type, messageHTML ){
+function openAlert(type, messageHTML){
     $('#page_alert_object').attr( 'class', 'alert alert-'+type+' alert-dismissible' );
     $('#page_alert_content').html( messageHTML );
     // show
@@ -143,7 +143,7 @@ function openAlert( type, messageHTML ){
     $( document ).trigger( "show.bs.alert" );
 }
 
-function closeAlert( ){
+function closeAlert(){
     // hide
     $('#page_alert_container').css('display', 'none');
     // trigger the 'alert hide event'
