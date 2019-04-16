@@ -907,7 +907,7 @@ class Core{
 	 *	@retval boolean
 	 * 		whether the package exists.
 	 */
-	public static function packageExists( $package ){
+	public static function packageExists($package){
 		$package_meta = sprintf('%s%s/metadata.json', $GLOBALS['__PACKAGES__DIR__'], $package);
 		return file_exists($package_meta);
 	}//packageExists
@@ -923,34 +923,41 @@ class Core{
 	 *	@retval boolean
 	 *		whether the package is enabled.
 	 */
-	public static function isPackageEnabled( $package ){
+	public static function isPackageEnabled($package){
 		$package_disabled_flag = sprintf('%s%s/disabled.flag', $GLOBALS['__PACKAGES__DIR__'], $package);
 		return !file_exists($package_disabled_flag);
 	}//isPackageEnabled
 
 
-  public static function installPackage( $package ){
-    return self::packageManagerBatch([$package], []);
+  public static function installPackage($package){
+    return self::packageManagerBatch([$package], [], []);
   }//installPackage
 
 
-  public static function removePackage( $package ){
-    return self::packageManagerBatch([], [$package]);
+  public static function updatePackage($package){
+    return self::packageManagerBatch([], [$package], []);
+  }//updatePackage
+
+
+  public static function removePackage($package){
+    return self::packageManagerBatch([], [], [$package]);
   }//removePackage
 
 
-  public static function packageManagerBatch($to_install, $to_remove){
+  public static function packageManagerBatch($to_install, $to_update, $to_remove){
     $to_remove = array_diff($to_remove, ['core']);
     $package_manager_py = sprintf(
       '%s/lib/python/compose/package_manager.py',
       $GLOBALS['__SYSTEM__DIR__']
     );
     $install_arg = '--install '.implode(' ', $to_install);
+    $update_arg = '--update '.implode(' ', $to_update);
     $uninstall_arg = '--uninstall '.implode(' ', $to_remove);
     $cmd = sprintf(
-      'python3 "%s" %s %s 2>&1',
+      'python3 "%s" %s %s %s 2>&1',
       $package_manager_py,
       (count($to_install) > 0)? $install_arg : '',
+      (count($to_update) > 0)? $update_arg : '',
       (count($to_remove) > 0)? $uninstall_arg : ''
     );
     $output = "";
@@ -1607,7 +1614,7 @@ class Core{
 		}
 		// get tag associated to the head (if any)
 		exec(
-      sprintf('git -C "%s" tag --contains HEAD', $git_repo_path),
+      sprintf('git -C "%s" tag -l --points-at HEAD', $git_repo_path),
       $tag,
       $exit_code
     );
@@ -1655,6 +1662,17 @@ class Core{
 		exit;
 	}//redirectTo
 
+  public static function openAlert($type, $message){
+    echo sprintf(
+      "<script type=\"application/javascript\">
+      	$(document).ready(function() {
+      		openAlert('%s', \"%s\");
+      	});
+      </script>",
+      $type,
+      addslashes($message)
+    );
+  }//openAlert
 
 	public static function throwError( $errorMsg ){
 		$_SESSION['_ERROR_PAGE_MESSAGE'] = $errorMsg;
