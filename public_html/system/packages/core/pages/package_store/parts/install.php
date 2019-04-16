@@ -9,16 +9,17 @@ use \system\classes\Core;
 use \system\classes\Configuration;
 
 $errors = [];
-
-if(!isset($_GET['install']) && !isset($_GET['uninstall']))
+if(!isset($_GET['install']) && !isset($_GET['update']) && !isset($_GET['uninstall']))
   Core::redirectTo('');
 
 $to_install = explode(',', str_ireplace(' ', '', $_GET['install']));
+$to_update = explode(',', str_ireplace(' ', '', $_GET['update']));
 $to_uninstall = explode(',', str_ireplace(' ', '', $_GET['uninstall']));
 
 // read index
-$branch = 'master';
-$assets_index_url = sprintf('%s/%s/index', Configuration::$ASSETS_STORE_URL, $branch);
+$assets_url = Configuration::$ASSETS_STORE_URL;
+$assets_branch = Configuration::$ASSETS_STORE_BRANCH;
+$assets_index_url = sprintf('%s/%s/index', $assets_url, $assets_branch);
 $content = file_get_contents($assets_index_url);
 if (!$content){
   $error = error_get_last();
@@ -40,6 +41,7 @@ $installed_packages = Core::getPackagesList();
 
 // remove packages that are not available
 $to_install = array_intersect($to_install, array_keys($available_packages));
+$to_update = array_intersect($to_update, array_keys($available_packages));
 $to_uninstall = array_diff(
   array_intersect($to_uninstall, array_keys($installed_packages)),
   ['core']
@@ -69,14 +71,13 @@ $to_uninstall_full = array_diff(
   ['core']
 );
 
-// compute tree of dependencies (install)
+// compute tree of dependencies (install/update)
 $providers_source = [
   'github.com' => 'https://raw.githubusercontent.com/%s/%s/%s',
   'bitbucket.org' => 'https://bitbucket.org/%s/%s/raw/%s'
 ];
-
 $processed = [];
-$dependencies = $to_install;
+$dependencies = array_unique(array_merge($to_install, $to_update));
 $num_dependencies = count($dependencies);
 while ($num_dependencies > 0) {
   $num_dependencies = count($dependencies);
@@ -123,31 +124,43 @@ $to_install_full = array_intersect(
   array_diff($dependencies, array_keys($installed_packages)),
   array_keys($available_packages)
 );
+$to_update_full = array_intersect(
+  $to_update, array_keys($installed_packages)
+);
 
 // make sure that there is no conflict between install/uninstall operations
-if(count(array_intersect($to_install, $to_uninstall)) > 0){
-  foreach (array_intersect($to_install, $to_uninstall) as $package) {
+$in_out_conflicts = array_intersect($to_install_full, $to_uninstall_full);
+$up_out_conflicts = array_intersect($to_update_full, $to_uninstall_full);
+if(count($in_out_conflicts) + count($up_out_conflicts) > 0){
+  foreach ($in_out_conflicts as $package) {
     array_push(
       $errors,
       sprintf('ERROR: The package "%s" is in the list of packages to install and uninstall', $package)
     );
   }
+  foreach ($up_out_conflicts as $package) {
+    array_push(
+      $errors,
+      sprintf('ERROR: The package "%s" is in the list of packages to update and uninstall', $package)
+    );
+  }
+  Core::openAlert('danger', implode('\n', $errors));
 }else{
   if(isset($_GET['confirm']) && $_GET['confirm'] == '1'){
     // perform install/uninstall operations in batch
-    $res = Core::packageManagerBatch($to_install_full, $to_uninstall_full);
+    $res = Core::packageManagerBatch($to_install_full, $to_update_full, $to_uninstall_full);
     if(!$res['success'])
       Core::throwError($res['data']);
     // redirect to verification page
     $href = sprintf(
-      'package_store/verify?install=%s&uninstall=%s',
+      'package_store/verify?install=%s&update=%s&uninstall=%s',
       implode(',', $to_install_full),
+      implode(',', $to_update_full),
       implode(',', $to_uninstall_full)
     );
     Core::redirectTo($href);
   }
 }
-
 ?>
 
 <style type="text/css">
@@ -161,9 +174,9 @@ select.form-control{
 }
 </style>
 
-<div style="width:100%; margin:auto">
+<div style="width:100%; margin:auto; margin-bottom:60px">
 
-  <table style="width:100%; border-bottom:1px solid #ddd; margin:20px 0 20px 0">
+  <table style="width:100%; border-bottom:1px solid #ddd; margin:0 0 20px 0">
     <tr>
       <td style="width:100%">
         <h2>
@@ -173,7 +186,6 @@ select.form-control{
     </tr>
   </table>
 
-
   <?php
   $actions = [
     [
@@ -181,6 +193,12 @@ select.form-control{
       'color' => 'green',
       'data' => $to_install,
       'data_full' => $to_install_full
+    ],
+    [
+      'name' => 'update',
+      'color' => 'deepskyblue',
+      'data' => $to_update,
+      'data_full' => $to_update_full
     ],
     [
       'name' => 'uninstall',
@@ -248,7 +266,7 @@ select.form-control{
   }
   ?>
 
-  <a class="btn btn-success"
+  <a class="btn btn-success <?php echo (count($errors) > 0)? 'disabled' : '' ?>"
     role="button"
     style="float:right"
     onclick="process_packages<?php echo count($to_uninstall_full)>0? '_confirm' : '' ?>()"
@@ -262,8 +280,9 @@ select.form-control{
 
 <?php
 $href = sprintf(
-  'install?install=%s&uninstall=%s&confirm=%s',
+  'install?install=%s&update=%s&uninstall=%s&confirm=%s',
   $_GET['install'],
+  $_GET['update'],
   $_GET['uninstall'],
   '1'
 );

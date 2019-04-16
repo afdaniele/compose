@@ -10,15 +10,18 @@ use \system\classes\Configuration;
 
 $errors = [];
 
-if(!isset($_GET['install']) && !isset($_GET['uninstall']))
+if(!isset($_GET['install']) && !isset($_GET['update']) && !isset($_GET['uninstall']))
   Core::redirectTo('');
 
 $to_install = explode(',', str_ireplace(' ', '', $_GET['install']));
+$to_update = explode(',', str_ireplace(' ', '', $_GET['update']));
 $to_uninstall = explode(',', str_ireplace(' ', '', $_GET['uninstall']));
 
 // handle empty string cases
 if(count($to_install) == 1 && strlen($to_install[0]) < 2)
   $to_install = [];
+if(count($to_update) == 1 && strlen($to_update[0]) < 2)
+  $to_update = [];
 if(count($to_uninstall) == 1 && strlen($to_uninstall[0]) < 2)
   $to_uninstall = [];
 
@@ -28,10 +31,12 @@ $installed_packages_ids = array_keys($installed_packages);
 
 // get list of packages that failed to install/uninstall
 $failed_to_install = array_diff($to_install, $installed_packages_ids);
+$failed_to_update = [];
 $failed_to_uninstall = array_intersect($to_uninstall, $installed_packages_ids);
 
 // get list of successes
 $successfully_installed = array_diff($to_install, $failed_to_install);
+$successfully_updated = array_diff($to_update, $failed_to_install);
 $successfully_uninstalled = array_diff($to_uninstall, $failed_to_uninstall);
 ?>
 
@@ -67,6 +72,12 @@ select.form-control{
       'data' => $successfully_installed
     ],
     [
+      'name' => 'Successfully updated',
+      'icon' => 'cloud-download',
+      'color' => 'green',
+      'data' => $successfully_updated
+    ],
+    [
       'name' => 'Successfully uninstalled',
       'icon' => 'trash',
       'color' => 'green',
@@ -77,6 +88,12 @@ select.form-control{
       'icon' => 'download',
       'color' => 'red',
       'data' => $failed_to_install
+    ],
+    [
+      'name' => 'Failed to update',
+      'icon' => 'cloud-download',
+      'color' => 'red',
+      'data' => $failed_to_update
     ],
     [
       'name' => 'Failed to uninstall',
@@ -105,9 +122,14 @@ select.form-control{
             foreach ($task['data'] as $package_id) {
               $package_metadata = $installed_packages[$package_id];
               $package_name = isset($package_metadata['name'])? $package_metadata['name'] : 'Package';
-              echo sprintf('<h5>&bullet; %s (<span class="mono" style="color:grey">%s</span>)</h5>',
+              echo sprintf(
+                '<h5>&bullet; %s (<span class="mono" style="color:grey">%s, %s</span>)</h5>',
                 $package_name,
-                $package_id
+                $package_id,
+                sprintf(
+                  '<span class="fa fa-tag" style="color:black" aria-hidden="true"></span> %s',
+                  $package_metadata['codebase']['head_tag']
+                )
               );
             }
             ?>
