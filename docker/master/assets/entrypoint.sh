@@ -3,7 +3,7 @@
 # check volume
 mountpoint -q $COMPOSE_DIR
 if [ $? -ne 0 ]; then
-    echo "WARNING: The path '$COMPOSE_DIR' is not a VOLUME. All the changes will be deleted with the container."
+  echo "WARNING: The path '$COMPOSE_DIR' is not a VOLUME. All the changes will be deleted with the container."
 fi
 
 # change the ownership of the code

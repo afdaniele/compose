@@ -32,7 +32,8 @@
 	use system\utils\URLrewrite as URLrewrite;
 
 	// set the $BASE and $BASE_URL variables (Experimental)
-	$protocol = stripos($_SERVER['SERVER_PROTOCOL'],'https') === true ? 'https' : 'http';
+  $is_https = boolval(isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off');
+  $protocol = $is_https? 'https' : 'http';
 	$hostname = $_SERVER['HTTP_HOST'];
 	Configuration::$HOSTNAME = explode(':', $hostname)[0];
 	Configuration::$BASE_URL = sprintf('%s://%s/', $protocol, $hostname);
