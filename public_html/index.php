@@ -100,7 +100,7 @@
 	if( $requested_page == '' || !in_array($requested_page, $available_pages) ){
 		// invalid page
 		$redirect_page = $default_page;
-		Core::redirectTo( $redirect_page );
+		Core::redirectTo($redirect_page, $redirect_page == 'login');
 	}
 
 	Configuration::$PAGE = $requested_page;

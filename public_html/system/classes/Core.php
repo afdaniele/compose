@@ -1656,8 +1656,21 @@ class Core{
 	}//getDebugInfo
 
 
-	public static function redirectTo( $resource ){
-		echo '<script type="text/javascript">window.open("'.( ( substr($resource,0,4) == 'http' )? '' : Configuration::$BASE ).$resource.'","_top");</script>';
+	public static function redirectTo($resource, $append_qs=false){
+    $qs = '';
+    $uri = ltrim(trim($_SERVER['REQUEST_URI']), '/');
+    if($append_qs && strlen($uri) > 0){
+      $qs = sprintf(
+        '?q=%s',
+        base64_encode($uri)
+      );
+    }
+    echo sprintf(
+      '<script type="text/javascript">window.open("%s%s%s", "_top");</script>',
+      (substr($resource, 0, 4) == 'http')? '' : Configuration::$BASE,
+      $resource,
+      $qs
+    );
 		die();
 		exit;
 	}//redirectTo

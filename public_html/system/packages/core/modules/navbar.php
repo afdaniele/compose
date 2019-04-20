@@ -253,6 +253,10 @@ foreach ($buttons as &$button) {
     );
   }//logOutButtonClick
 
+  function on_login_success_fcn(){
+    window.open("<?php echo Configuration::$BASE_URL.base64_decode($_GET['q']) ?>", "_top");
+  }//on_login_success_fcn
+
 	<?php
   if($logged_in_with_google){
 		?>
@@ -272,7 +276,8 @@ foreach ($buttons as &$button) {
 							'<?php echo Configuration::$BASE_URL ?>',
 							'<?php echo Configuration::$WEBAPI_VERSION ?>',
 							'<?php echo $_SESSION['TOKEN'] ?>',
-							id_token
+							id_token,
+              on_login_success_fcn
 						);
 						<?php
 					}

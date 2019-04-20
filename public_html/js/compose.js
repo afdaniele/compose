@@ -168,7 +168,8 @@ function hidePleaseWait() {
 };
 
 
-function userLogInWithGoogle( baseurl, apiversion, token, id_token ){
+function userLogInWithGoogle( baseurl, apiversion, token, id_token, successFcn ){
+    if( successFcn == undefined ) successFcn = function(){window.location.reload(true);};
     showPleaseWait();
     // compile URI
     var uri = "web-api/"+apiversion+"/userprofile/login_with_google/json?token="+token;
@@ -179,13 +180,13 @@ function userLogInWithGoogle( baseurl, apiversion, token, id_token ){
         if( result.code == 200 ){
             // success, reload page
             hidePleaseWait();
-            window.location.reload(true);
+            successFcn();
         }else{
             // error
             hidePleaseWait();
             openAlert( 'danger', result.message );
             // Sign-out from Google
-    		gapi.auth2.getAuthInstance().signOut();
+    		    gapi.auth2.getAuthInstance().signOut();
         }
     }, error:function( jqXHR, textStatus, errorThrown ){
         hidePleaseWait();
