@@ -342,6 +342,19 @@ class Core{
   }//getCurrentResourceURL
 
 
+  public static function getURL($page=null, $action=null, $arg1=null, $arg2=null, $qs=[]){
+    return sprintf(
+      '%s%s%s%s%s',
+      Configuration::$BASE_URL,
+      is_null($page)? '' : $page,
+      is_null($action)? '' : $action,
+      is_null($arg1)? '' : $arg1,
+      is_null($arg2)? '' : $arg2,
+      (count($qs) > 0)? toQueryString(array_keys($qs), $qs, true) : ''
+    );
+  }//getURL
+
+
 	public static function loadPackagesModules( $module_family=null, $pkg_id=null ){
 		foreach( self::$packages as $pkg ){
 			if( !$pkg['enabled'] || ( !is_null($pkg_id) && $pkg_id != $pkg['id'] ) )
