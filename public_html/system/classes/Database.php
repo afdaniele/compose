@@ -42,8 +42,9 @@ class Database{
   public function read( $key ){
     $key = self::_safe_key( $key );
     $res = self::get_entry( $key );
-    if( !$res['success'] )
-    return $res;
+    if( !$res['success'] ){
+      return $res;
+    }
     return ['success' => true, 'data' => $res['data']->asArray()];
   }//read
 
@@ -75,8 +76,9 @@ class Database{
     $jsondb->set('_metadata', []);
     // make sure that the path to the file exists
     $res = $jsondb->createDestinationIfNotExists();
-    if( !$res['success'] )
-    return $res;
+    if( !$res['success'] ){
+      return $res;
+    }
     // write data to file
     return $jsondb->commit();
   }//write
@@ -85,15 +87,17 @@ class Database{
     $key = self::_safe_key( $key );
     $entry_file = self::_key_to_db_file( $key );
     // delete if exists
-    if( file_exists($entry_file) )
-    return ['success' => @unlink($entry_file), 'data' => null];
+    if( file_exists($entry_file) ){
+      return ['success' => @unlink($entry_file), 'data' => null];
+    }
     return ['success' => false, 'data' => 'The entry was not found'];
   }//delete
 
   public function key_exists( $key ){
     $key = self::_safe_key( $key );
-    if( !is_null($this->entry_regex) && !preg_match($this->entry_regex, $key) )
-    return false;
+    if( !is_null($this->entry_regex) && !preg_match($this->entry_regex, $key) ){
+      return false;
+    }
     // get filename from key
     $entry_file = self::_key_to_db_file( $key );
     // check if file exists
@@ -109,8 +113,9 @@ class Database{
     foreach( $files as $file ){
       $key = Utils::regex_extract_group($file, "/.*\/(.+).json/", 1);
       // (optional) match the key against the given pattern
-      if( !is_null($this->entry_regex) && !preg_match($this->entry_regex, $key) )
-      continue;
+      if( !is_null($this->entry_regex) && !preg_match($this->entry_regex, $key) ){
+        continue;
+      }
       // add key to list of keys
       array_push( $keys, $key );
     }
@@ -141,7 +146,9 @@ class Database{
     $key_regex = '';
     for($i = 0; $i < count($key); $i++) {
       $k = $key[$i];
-      if($i > 0) $key_regex .= '\.';
+      if($i > 0){
+        $key_regex .= '\.';
+      }
       if( is_null($k) ){
         $key_regex .= '([A-Za-z0-9_]+)';
       }else{
