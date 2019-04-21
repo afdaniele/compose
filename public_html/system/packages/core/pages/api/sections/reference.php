@@ -9,7 +9,8 @@ function _api_page_reference_section( &$api_setup, &$version, &$sget, &$aget ){
     $services = $api_setup[$version]['services'];
     $service = ( ($sget !== null)? $api_setup[$version]['services'][$sget] : array() );
     $action = $service['actions'][$aget];
-    $action['parameters']['mandatory'] = array_merge( $api_setup[$version]['global']['parameters']['mandatory'], $action['parameters']['mandatory'] );
+    $action['parameters']['mandatory'] = array_merge( $api_setup[$version]['global']['parameters']['embedded'], $action['parameters']['mandatory'] );
+    $action['parameters']['optional'] = array_merge( $api_setup[$version]['global']['parameters']['optional'], $action['parameters']['optional'] );
 
     include_once __DIR__.'/../parts/common_style.php';
     ?>
@@ -291,7 +292,9 @@ function _api_page_reference_section( &$api_setup, &$version, &$sget, &$aget ){
                 </h3>
                 <div>
                     <?php
-                    if( intval(sizeof($action['parameters']['mandatory'])) == 0 ){
+                    $mandatory = &$action['parameters']['mandatory'];
+                    $num_mandatory = count($mandatory);
+                    if($num_mandatory == 0){
                         ?>
                         <p>
                             The <span class="mono emph"><?php echo $aget ?></span> action does not define mandatory parameters.
@@ -299,11 +302,11 @@ function _api_page_reference_section( &$api_setup, &$version, &$sget, &$aget ){
                         <?php
                     }else{
                         ?>
-                        The <span class="mono emph"><?php echo $aget ?></span> action requires <span class="param"><?php echo intval(sizeof($action['parameters']['mandatory'])) ?></span> mandatory parameter<?php echo ( (intval(sizeof($action['parameters']['mandatory'])) > 1)? 's' : '' ) ?>.
+                        The <span class="mono emph"><?php echo $aget ?></span> action requires <span class="param"><?php echo $num_mandatory ?></span> mandatory parameter<?php echo (($num_mandatory > 1)? 's' : '') ?>.
 
                         <div>
                             <?php
-                            createParametersTable( $action['parameters']['mandatory'] );
+                            createParametersTable($mandatory);
                             ?>
                         </div>
 
@@ -326,7 +329,9 @@ function _api_page_reference_section( &$api_setup, &$version, &$sget, &$aget ){
                         Some actions allow the use of optional parameters. These parameters are usually used for impagination, filtering, or sorting purposes.
                     </p>
                     <?php
-                    if( intval(sizeof($action['parameters']['optional'])) == 0 ){
+                    $optional = &$action['parameters']['optional'];
+                    $num_optional = count($optional);
+                    if($num_optional == 0){
                         ?>
                         <p>
                             The <span class="mono emph"><?php echo $aget ?></span> action does not define optional parameters.
@@ -334,11 +339,11 @@ function _api_page_reference_section( &$api_setup, &$version, &$sget, &$aget ){
                         <?php
                     }else{
                         ?>
-                        The <span class="mono emph"><?php echo $aget ?></span> action defines <span class="param"><?php echo intval(sizeof($action['parameters']['optional'])) ?></span> optional parameter<?php echo ( (intval(sizeof($action['parameters']['optional'])) > 1)? 's' : '' ) ?>.
+                        The <span class="mono emph"><?php echo $aget ?></span> action defines <span class="param"><?php echo $num_optional ?></span> optional parameter<?php echo (($num_optional > 1)? 's' : '') ?>.
 
                         <div>
                             <?php
-                            createParametersTable( $action['parameters']['optional'] );
+                            createParametersTable($optional);
                             ?>
                         </div>
 
