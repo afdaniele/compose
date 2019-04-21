@@ -103,7 +103,7 @@ function convertBytesToHumanReadableString($size){
 
 
 function echoArray( $array ){
-	echo '<pre>'.print_r($array,true).'</pre>';
+	echo '<pre>'.print_r($array, true).'</pre>';
 }//echoArray
 
 
@@ -201,10 +201,15 @@ function secsToHHMMss( $seconds ){
 function human_filesize($bytes, $decimals = 2) {
   $size = array('B','KB','MB','GB','TB','PB','EB','ZB','YB');
   $factor = floor((strlen($bytes) - 1) / 3);
-  return sprintf("%.{$decimals}f", $bytes / pow(1024, $factor)) . @$size[$factor];
+  return sprintf("%.{$decimals}f ", $bytes / pow(1024, $factor)) . @$size[$factor];
 }
 
 function sanitize_url($url){
   return preg_replace('/([^:])(\/{2,})/', '$1/', $url);
 }//sanitize_url
+
+function is_JSON($string) {
+  json_decode($string);
+  return (json_last_error() == JSON_ERROR_NONE);
+}//is_JSON
 ?>
