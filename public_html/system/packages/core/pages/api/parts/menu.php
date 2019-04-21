@@ -1,7 +1,7 @@
 <?php
 use \system\classes\Configuration;
 
-function _api_page_menu_part( &$api_setup, &$version, &$sget, &$aget){
+function _api_page_menu_part(&$api_setup, &$version, &$sget, &$aget){
     $services = $api_setup[$version]['services'];
     ?>
     <style type="text/css">

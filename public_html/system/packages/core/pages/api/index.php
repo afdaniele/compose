@@ -75,6 +75,8 @@ $aget = ( ($sget !== null && isset($_GET['action']) && in_array($_GET['action'],
 				_api_page_menu_part( $api_setup, $version, $sget, $aget );
 				?>
 			</div>
+      <br/>
+      <span style="color:grey; float:right">Token: <?php echo $_SESSION['TOKEN'] ?></span>
 		</td>
 
 		<td style="width:76%; vertical-align:top; padding-left:6px">

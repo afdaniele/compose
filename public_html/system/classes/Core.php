@@ -661,7 +661,7 @@ class Core{
 	 *	@retval boolean
 	 *		whether a user account with the specified user id exists;
 	 */
-	public static function userExists( $user_id ){
+	public static function userExists($user_id){
 		// open users DB
 		$users_db = new Database('core', 'users');
 		// return whether the user exists
