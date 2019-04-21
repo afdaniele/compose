@@ -384,7 +384,7 @@ function _api_page_reference_section( &$api_setup, &$version, &$sget, &$aget ){
                         </div>
                     </p>
                     <?php
-                    if( sizeof($action['return']['values']) > 0 ){
+                    if(count($action['return']['values']) > 0){
                         ?>
                         The following table contains the details of the structure of the <span class="param">data</span> object:
                         <br/>
