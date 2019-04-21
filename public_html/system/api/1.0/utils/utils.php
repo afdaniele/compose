@@ -10,51 +10,51 @@
 require_once __DIR__.'/../../../classes/enum/StringType.php';
 
 
-function checkArgument( &$name, &$array, &$details, &$res, $mandatory=true ){
-	if( !isset($array[$name]) ){
-		if( $mandatory ){
+function checkArgument(&$name, &$array, &$details, &$res, $mandatory=true){
+	if(!isset($array[$name])){
+		if($mandatory){
 			$param_desc = sprintf("'%s'", $name);
-			$res = array( 'code' => 400, 'status' => 'Bad Request', 'message' => "The parameter ".$param_desc." is mandatory" );
+			$res = array('code' => 400, 'status' => 'Bad Request', 'message' => "The parameter ".$param_desc." is mandatory");
 			return false;
 		}else{
 			return true;
 		}
 	}
-	if( !$mandatory && $array[$name] == '' ){
+	if(!$mandatory && $array[$name] == ''){
 		//exclude it
-		unset( $array[$name] );
+		unset($array[$name]);
 		return true;
 	}
 	//
 	$type = $details['type'];
 	$length = ((isset($details['length']) && $details['length'] !== null)? $details['length'] : false);
 	//
-	if( !($length === false) && strlen($array[$name]) !== $length ){
+	if(!($length === false) && strlen($array[$name]) !== $length){
 		$param_desc = sprintf("'%s'", $name);
-		$res = array( 'code' => 400, 'status' => 'Bad Request', 'message' => "The value of the ".$param_desc." parameter is not valid" );
+		$res = array('code' => 400, 'status' => 'Bad Request', 'message' => "The value of the ".$param_desc." parameter is not valid");
 		return false;
 	}
 	//
-	if( $type == 'enum' ){
+	if($type == 'enum'){
 		$enum = $details['values'];
-		if( !in_array( $array[$name], $enum ) ){
+		if(!in_array($array[$name], $enum)){
 			$param_desc = sprintf("'%s'", $name);
-			$res = array( 'code' => 400, 'status' => 'Bad Request', 'message' => "Illegal value for the ".$param_desc." parameter. Allowed values are ['".implode('\', \'', $enum)."']" );
+			$res = array('code' => 400, 'status' => 'Bad Request', 'message' => "Illegal value for the ".$param_desc." parameter. Allowed values are ['".implode('\', \'', $enum)."']");
 			return false;
 		}
 	}else{
-		if( !\system\classes\enum\StringType::isValid($array[$name], \system\classes\enum\StringType::getRegexByTypeName($type) ) ){
+		if(!\system\classes\enum\StringType::isValid($array[$name], \system\classes\enum\StringType::getRegexByTypeName($type))){
 			$param_desc = sprintf("'%s'", $name);
-			$res = array( 'code' => 400, 'status' => 'Bad Request', 'message' => "The value of the ".$param_desc." parameter is not valid" );
+			$res = array('code' => 400, 'status' => 'Bad Request', 'message' => "The value of the ".$param_desc." parameter is not valid");
 			return false;
 		}
 	}
 	//
-	if( isset($details['domain']) && is_array($details['domain']) && sizeof($details['domain']) == 2 ){
+	if(isset($details['domain']) && is_array($details['domain']) && sizeof($details['domain']) == 2){
 		$domain = $details['domain'];
-		if( $array[$name] < floatval($domain[0]) || $array[$name] > floatval($domain[1]) ){
+		if($array[$name] < floatval($domain[0]) || $array[$name] > floatval($domain[1])){
 			$param_desc = sprintf("'%s'", $name);
-			$res = array( 'code' => 400, 'status' => 'Bad Request', 'message' => "Illegal value for the ".$param_desc." parameter. Allowed values are [{$domain[0]},{$domain[1]}]" );
+			$res = array('code' => 400, 'status' => 'Bad Request', 'message' => "Illegal value for the ".$param_desc." parameter. Allowed values are [{$domain[0]},{$domain[1]}]");
 			return false;
 		}
 	}
@@ -62,50 +62,50 @@ function checkArgument( &$name, &$array, &$details, &$res, $mandatory=true ){
 	return true;
 }//checkArgument
 
-function pruneResult( &$records, &$details ){
-	if( !is_array($details) ) return;
+function pruneResult(&$records, &$details){
+	if(!is_array($details)) return;
 	//
-	if( is_assoc($records) ){
+	if(is_assoc($records)){
 		// one record
-		foreach( $records as $key => $value ){
-			if( !array_key_exists($key, (isset($details['_data'])? $details['_data'] : $details) ) ) unset( $records[$key] );
+		foreach($records as $key => $value){
+			if(!array_key_exists($key, (isset($details['_data'])? $details['_data'] : $details))) unset($records[$key]);
 		}
 	}else{
 		// array of records
-		for( $i = 0; $i < sizeof($records); $i++ ){
-			foreach( $records[$i] as $key => $value ){
-				if( !array_key_exists($key, (isset($details['_data'])? $details['_data'] : $details) ) ) unset( $records[$i][$key] );
+		for($i = 0; $i < sizeof($records); $i++){
+			foreach($records[$i] as $key => $value){
+				if(!array_key_exists($key, (isset($details['_data'])? $details['_data'] : $details))) unset($records[$i][$key]);
 			}
 		}
 	}
 }//pruneResult
 
-function formatResult( &$results, &$details ){
-	if( $results == null || $details == null ) return;
-	if( !is_array($details) ) return;
+function formatResult(&$results, &$details){
+	if($results == null || $details == null) return;
+	if(!is_array($details)) return;
 	//
-	if( is_assoc($results) ){
+	if(is_assoc($results)){
 		// associative array
-		foreach( $details as $key => $value ){
-			if( !isset($results[$key]) ) continue;
+		foreach($details as $key => $value){
+			if(!isset($results[$key])) continue;
 			$type = (isset($details[$key]['type']))? $details[$key]['type'] : 'text';
-			if( $type == 'text' ) continue;
+			if($type == 'text') continue;
 			//
-			switch( $type ){
+			switch($type){
 				case 'numeric':
-					$results[$key] = intval( $results[$key] );
+					$results[$key] = intval($results[$key]);
 					break;
 				case 'float':
-					$results[$key] = floatval( $results[$key] );
+					$results[$key] = floatval($results[$key]);
 					break;
 				case 'boolean':
-					$results[$key] = booleanval( $results[$key] );
+					$results[$key] = booleanval($results[$key]);
 					break;
 				case 'array':
-					formatResult( $results[$key], $details[$key]['_data'][0] );
+					formatResult($results[$key], $details[$key]['_data'][0]);
 					break;
 				case 'object':
-					formatResult( $results[$key], $details[$key]['_data'] );
+					formatResult($results[$key], $details[$key]['_data']);
 					break;
 				default:
 					break;
@@ -115,22 +115,22 @@ function formatResult( &$results, &$details ){
 		// positional array
 		$type = (isset($details['type']))? $details['type'] : 'text';
 		//
-		for( $i = 0; $i < sizeof($results); $i++ ){
-			switch( $type ){
+		for($i = 0; $i < sizeof($results); $i++){
+			switch($type){
 				case 'numeric':
-					$results[$i] = intval( $results[$i] );
+					$results[$i] = intval($results[$i]);
 					break;
 				case 'float':
-					$results[$i] = floatval( $results[$i] );
+					$results[$i] = floatval($results[$i]);
 					break;
 				case 'boolean':
-					$results[$i] = booleanval( $results[$i] );
+					$results[$i] = booleanval($results[$i]);
 					break;
 				case 'array':
-					formatResult( $results[$i], $details['_data'][0] );
+					formatResult($results[$i], $details['_data'][0]);
 					break;
 				case 'object':
-					formatResult( $results[$i], $details['_data'] );
+					formatResult($results[$i], $details['_data']);
 					break;
 				default:
 					break;
@@ -139,26 +139,26 @@ function formatResult( &$results, &$details ){
 	}
 }//formatResult
 
-function prepareResult( &$res, &$action, $prune=true ){
-	if( !$res['success'] ) return array( 'code' => 500, 'status' => 'Internal Server Error', 'message' => $res['data'] );
+function prepareResult(&$res, &$action, $prune=true){
+	if(!$res['success']) return array('code' => 500, 'status' => 'Internal Server Error', 'message' => $res['data']);
 	//
-	if( isset($res['size']) && $res['size']==0 ) return array( 'code' => 204, 'status' => 'No Content', 'message' => 'No results found' );
+	if(isset($res['size']) && $res['size']==0) return array('code' => 204, 'status' => 'No Content', 'message' => 'No results found');
 	//
-	if( $prune ){
-		pruneResult( $res['data'], $action );
+	if($prune){
+		pruneResult($res['data'], $action);
 	}
 	//
 	return true;
 }//prepareResult
 
-function getArgument( &$arguments, $name ){
-	return ( (isset($arguments[$name]))? $arguments[$name] : null );
+function getArgument(&$arguments, $name){
+	return ((isset($arguments[$name]))? $arguments[$name] : null);
 }//getArgument
 
 
 
 
-function _createResponseArray( $code, $status, $message, $data ){
+function _createResponseArray($code, $status, $message, $data){
 	return array(
 		'code' => $code,
 		'status' => $status,
@@ -167,28 +167,32 @@ function _createResponseArray( $code, $status, $message, $data ){
 	);
 }//_createResponseArray
 
-function response200OK( $data=null ){
-	return _createResponseArray( 200, 'OK', null, $data );
+function response200OK($data=null){
+	return _createResponseArray(200, 'OK', null, $data);
 }//response200OK
 
 function response401Unauthorized(){
-	return _createResponseArray( 401, 'Unauthorized', 'Unauthorized', null );
+	return _createResponseArray(401, 'Unauthorized', 'Unauthorized', null);
 }//response401Unauthorized
 
-function response400BadRequest( $message ){
-	return _createResponseArray( 400, 'Bad Request', $message, null );
+function response401UnauthorizedMsg($message){
+	return _createResponseArray(401, 'Unauthorized', $message, null);
+}//response401UnauthorizedMsg
+
+function response400BadRequest($message){
+	return _createResponseArray(400, 'Bad Request', $message, null);
 }//response400BadRequest
 
-function response412PreconditionFailed( $message ){
-	return _createResponseArray( 412, 'Precondition Failed', $message, null );
+function response412PreconditionFailed($message){
+	return _createResponseArray(412, 'Precondition Failed', $message, null);
 }//response412PreconditionFailed
 
-function response404NotFound( $message ){
-	return _createResponseArray( 404, 'Not Found', $message, null );
+function response404NotFound($message){
+	return _createResponseArray(404, 'Not Found', $message, null);
 }//response404NotFound
 
-function response500InternalServerError( $message ){
-	return _createResponseArray( 500, 'Internal Server Error', $message, null );
+function response500InternalServerError($message){
+	return _createResponseArray(500, 'Internal Server Error', $message, null);
 }//response500InternalServerError
 
 ?>
