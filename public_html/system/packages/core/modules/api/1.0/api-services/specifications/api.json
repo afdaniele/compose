@@ -1,418 +1,418 @@
 {
-    "details" : "Provides the tools for managing the API end-points available on the platform",
-	"actions" : {
-		"service_status" : {
-			"details" : "Returns the status of a given API service",
-            "access_level" : [
-                "administrator"
-            ],
-            "authentication" : [
-                "web",
-                "app"
-            ],
-		    "parameters" : {
-		        "mandatory" : {
-                    "version" : {
-		                "type" : "text",
-                        "length" : null,
-		                "details" : "Version of the API the service to query belongs to"
-		            },
-		            "service" : {
-		                "type" : "text",
-                        "length" : null,
-		                "details" : "Name of the API service to query"
-		            }
-		        },
-		        "optional" : {}
-		    },
-		    "return" : {
-		        "values" : {
-                    "version" : {
-		                "type" : "text",
-		                "details" : "Version of the API the service belongs to"
-		            },
-		            "service" : {
-		                "type" : "text",
-		                "details" : "Name of the API service queried"
-		            },
-                    "enabled" : {
-                        "type" : "boolean",
-                        "details" : "Whether the API service is enabled"
+  "details" : "Provides the tools for managing the API end-points available on the platform",
+  "actions" : {
+    "service_status" : {
+      "details" : "Returns the status of a given API service",
+      "access_level" : [
+        "administrator"
+      ],
+      "authentication" : [
+        "web",
+        "app"
+      ],
+      "parameters" : {
+        "mandatory" : {
+          "version" : {
+            "type" : "text",
+            "length" : null,
+            "details" : "Version of the API the service to query belongs to"
+          },
+          "service" : {
+            "type" : "text",
+            "length" : null,
+            "details" : "Name of the API service to query"
+          }
+        },
+        "optional" : {}
+      },
+      "return" : {
+        "values" : {
+          "version" : {
+            "type" : "text",
+            "details" : "Version of the API the service belongs to"
+          },
+          "service" : {
+            "type" : "text",
+            "details" : "Name of the API service queried"
+          },
+          "enabled" : {
+            "type" : "boolean",
+            "details" : "Whether the API service is enabled"
+          }
+        }
+      }
+    },
+    "service_enable" : {
+      "details" : "Enables an API service",
+      "access_level" : [
+        "administrator"
+      ],
+      "authentication" : [
+        "web",
+        "app"
+      ],
+      "parameters" : {
+        "mandatory" : {
+          "version" : {
+            "type" : "text",
+            "length" : null,
+            "details" : "Version of the API the service to enable belongs to"
+          },
+          "service" : {
+            "type" : "text",
+            "length" : null,
+            "details" : "Name of the API service to enable"
+          }
+        },
+        "optional" : {}
+      },
+      "return" : {}
+    },
+    "service_disable" : {
+      "details" : "Disables an API service",
+      "access_level" : [
+        "administrator"
+      ],
+      "authentication" : [
+        "web",
+        "app"
+      ],
+      "parameters" : {
+        "mandatory" : {
+          "version" : {
+            "type" : "text",
+            "length" : null,
+            "details" : "Version of the API the service to query belongs to"
+          },
+          "service" : {
+            "type" : "text",
+            "length" : null,
+            "details" : "Name of the API service to disable"
+          }
+        },
+        "optional" : {}
+      },
+      "return" : {}
+    },
+    "action_status" : {
+      "details" : "Returns the status of a given API action",
+      "access_level" : [
+        "administrator"
+      ],
+      "authentication" : [
+        "web",
+        "app"
+      ],
+      "parameters" : {
+        "mandatory" : {
+          "version" : {
+            "type" : "text",
+            "length" : null,
+            "details" : "Version of the API the action to query belongs to"
+          },
+          "service" : {
+            "type" : "text",
+            "length" : null,
+            "details" : "Name of the API service the action to query belongs to"
+          },
+          "action" : {
+            "type" : "text",
+            "length" : null,
+            "details" : "Name of the API action to query"
+          }
+        },
+        "optional" : {}
+      },
+      "return" : {
+        "values" : {
+          "version" : {
+            "type" : "text",
+            "details" : "Version of the API the action belongs to"
+          },
+          "service" : {
+            "type" : "text",
+            "details" : "Name of the API service the action belongs to"
+          },
+          "action" : {
+            "type" : "text",
+            "details" : "Name of the API action queried"
+          },
+          "enabled" : {
+            "type" : "boolean",
+            "details" : "Whether the API action is enabled"
+          }
+        }
+      }
+    },
+    "action_enable" : {
+      "details" : "Enables an API action",
+      "access_level" : [
+        "administrator"
+      ],
+      "authentication" : [
+        "web",
+        "app"
+      ],
+      "parameters" : {
+        "mandatory" : {
+          "version" : {
+            "type" : "text",
+            "length" : null,
+            "details" : "Version of the API the action to enable belongs to"
+          },
+          "service" : {
+            "type" : "text",
+            "length" : null,
+            "details" : "Name of the API service the action to enable belongs to"
+          },
+          "action" : {
+            "type" : "text",
+            "length" : null,
+            "details" : "Name of the API action to enable"
+          }
+        },
+        "optional" : {}
+      },
+      "return" : {}
+    },
+    "action_disable" : {
+      "details" : "Disables an API action",
+      "access_level" : [
+        "administrator"
+      ],
+      "authentication" : [
+        "web",
+        "app"
+      ],
+      "parameters" : {
+        "mandatory" : {
+          "version" : {
+            "type" : "text",
+            "length" : null,
+            "details" : "Version of the API the action to disable belongs to"
+          },
+          "service" : {
+            "type" : "text",
+            "length" : null,
+            "details" : "Name of the API service the action to disable belongs to"
+          },
+          "action" : {
+            "type" : "text",
+            "length" : null,
+            "details" : "Name of the API action to disable"
+          }
+        },
+        "optional" : {}
+      },
+      "return" : {}
+    },
+    "app_create" : {
+      "details" : "Create a new API application and a secret token to use with the RESTfulAPI",
+      "access_level" : [
+        "administrator",
+        "supervisor",
+        "user"
+      ],
+      "authentication" : [
+        "web"
+      ],
+      "parameters" : {
+        "mandatory" : {
+          "name" : {
+            "type" : "text",
+            "length" : null,
+            "details" : "Name of the application to create"
+          },
+          "enabled" : {
+            "type" : "boolean",
+            "length" : null,
+            "details" : "Whether or not the application should be enabled"
+          }
+        },
+        "optional" : {
+          "key1=val1" : {
+            "type" : "text",
+            "length" : null,
+            "details" : "Tuple <code>key=val</code>, where <code>key</code> has the form <code>service.action</code> and <code>val</code> is a boolean value indicating whether the action <code>service/action</code> is accessible to this application"
+          },
+          "..." : {
+            "type" : "text",
+            "length" : null,
+            "details" : "Sequence of other <code>key=val</code> tuples"
+          }
+        }
+      },
+      "return" : {}
+    },
+    "app_info" : {
+      "details" : "Get info about the current API application (e.g., list of accessible end-points)",
+      "access_level" : [
+        "administrator",
+        "supervisor",
+        "user"
+      ],
+      "authentication" : [
+        "app"
+      ],
+      "parameters" : {
+        "mandatory" : {},
+        "optional" : {}
+      },
+      "return" : {
+        "values" : {
+          "id" : {
+            "type" : "text",
+            "details" : "ID of the application"
+          },
+          "name" : {
+            "type" : "text",
+            "details" : "Name of the application"
+          },
+          "endpoints" : {
+            "type" : "array",
+            "details" : "List of objects each of which describes an API end-point this App has access to",
+            "_data" : [
+              {
+                "type" : "object",
+                "details" : "Object describing an API end-point",
+                "_data" : {
+                  "service" : {
+                    "type" : "alphabetic",
+                    "details" : "Name of the API service"
+                  },
+                  "action" : {
+                    "type" : "alphabetic",
+                    "details" : "Name of the API action"
+                  },
+                  "endpoint" : {
+                    "type" : "text",
+                    "details" : "ID of the API end-point (i.e., service/action)"
+                  },
+                  "details" : {
+                    "type" : "text",
+                    "details" : "Info about the API end-point"
+                  },
+                  "parameters" : {
+                    "type" : "object",
+                    "details" : "Object describing the parameters accepted by the API end-point",
+                    "_data" : {
+                      "mandatory" : {
+                        "type" : "object",
+                        "details" : "Collection of required parameters",
+                        "_data" : {
+                          "param_name" : {
+                            "type" : "object",
+                            "details" : "Object describing a parameter",
+                            "_data" : {
+                              "type" : {
+                                "type" : "text",
+                                "details" : "Type of the parameter"
+                              },
+                              "details" : {
+                                "type" : "text",
+                                "details" : "Description of the parameter"
+                              },
+                              "length" : {
+                                "type" : "numeric",
+                                "details" : "(Optional) length constraint"
+                              }
+                            }
+                          }
+                        }
+                      },
+                      "optional" : {
+                        "type" : "object",
+                        "details" : "Collection of optional parameters",
+                        "_data" : {
+                          "param_name" : {
+                            "type" : "object",
+                            "details" : "Object describing a parameter",
+                            "_data" : {
+                              "type" : {
+                                "type" : "text",
+                                "details" : "Type of the parameter"
+                              },
+                              "details" : {
+                                "type" : "text",
+                                "details" : "Description of the parameter"
+                              },
+                              "length" : {
+                                "type" : "numeric",
+                                "details" : "(Optional) length constraint"
+                              }
+                            }
+                          }
+                        }
+                      }
                     }
-		        }
-		    }
-		},
-		"service_enable" : {
-			"details" : "Enables an API service",
-            "access_level" : [
-                "administrator"
-            ],
-            "authentication" : [
-                "web",
-                "app"
-            ],
-		    "parameters" : {
-		        "mandatory" : {
-                    "version" : {
-		                "type" : "text",
-                        "length" : null,
-		                "details" : "Version of the API the service to enable belongs to"
-		            },
-		            "service" : {
-		                "type" : "text",
-                        "length" : null,
-		                "details" : "Name of the API service to enable"
-		            }
-                },
-		        "optional" : {}
-		    },
-		    "return" : {}
-		},
-        "service_disable" : {
-			"details" : "Disables an API service",
-            "access_level" : [
-                "administrator"
-            ],
-            "authentication" : [
-                "web",
-                "app"
-            ],
-		    "parameters" : {
-		        "mandatory" : {
-                    "version" : {
-		                "type" : "text",
-                        "length" : null,
-		                "details" : "Version of the API the service to query belongs to"
-		            },
-		            "service" : {
-		                "type" : "text",
-                        "length" : null,
-		                "details" : "Name of the API service to disable"
-		            }
-                },
-		        "optional" : {}
-		    },
-		    "return" : {}
-		},
-        "action_status" : {
-			"details" : "Returns the status of a given API action",
-            "access_level" : [
-                "administrator"
-            ],
-            "authentication" : [
-                "web",
-                "app"
-            ],
-		    "parameters" : {
-		        "mandatory" : {
-                    "version" : {
-		                "type" : "text",
-                        "length" : null,
-		                "details" : "Version of the API the action to query belongs to"
-		            },
-		            "service" : {
-		                "type" : "text",
-                        "length" : null,
-		                "details" : "Name of the API service the action to query belongs to"
-		            },
-		            "action" : {
-		                "type" : "text",
-                        "length" : null,
-		                "details" : "Name of the API action to query"
-		            }
-		        },
-		        "optional" : {}
-		    },
-		    "return" : {
-		        "values" : {
-                    "version" : {
-		                "type" : "text",
-		                "details" : "Version of the API the action belongs to"
-		            },
-		            "service" : {
-		                "type" : "text",
-		                "details" : "Name of the API service the action belongs to"
-		            },
-		            "action" : {
-		                "type" : "text",
-		                "details" : "Name of the API action queried"
-		            },
-                    "enabled" : {
-                        "type" : "boolean",
-                        "details" : "Whether the API action is enabled"
-                    }
-		        }
-		    }
-		},
-		"action_enable" : {
-			"details" : "Enables an API action",
-            "access_level" : [
-                "administrator"
-            ],
-            "authentication" : [
-                "web",
-                "app"
-            ],
-		    "parameters" : {
-		        "mandatory" : {
-                    "version" : {
-		                "type" : "text",
-                        "length" : null,
-		                "details" : "Version of the API the action to enable belongs to"
-		            },
-		            "service" : {
-		                "type" : "text",
-                        "length" : null,
-		                "details" : "Name of the API service the action to enable belongs to"
-		            },
-		            "action" : {
-		                "type" : "text",
-                        "length" : null,
-		                "details" : "Name of the API action to enable"
-		            }
-                },
-		        "optional" : {}
-		    },
-		    "return" : {}
-		},
-        "action_disable" : {
-			"details" : "Disables an API action",
-            "access_level" : [
-                "administrator"
-            ],
-            "authentication" : [
-                "web",
-                "app"
-            ],
-		    "parameters" : {
-		        "mandatory" : {
-                    "version" : {
-		                "type" : "text",
-                        "length" : null,
-		                "details" : "Version of the API the action to disable belongs to"
-		            },
-		            "service" : {
-		                "type" : "text",
-                        "length" : null,
-		                "details" : "Name of the API service the action to disable belongs to"
-		            },
-		            "action" : {
-		                "type" : "text",
-                        "length" : null,
-		                "details" : "Name of the API action to disable"
-		            }
-                },
-		        "optional" : {}
-		    },
-		    "return" : {}
-		},
-		"app_create" : {
-			"details" : "Create a new API application and a secret token to use with the RESTfulAPI",
-            "access_level" : [
-                "administrator",
-                "supervisor",
-                "user"
-            ],
-            "authentication" : [
-                "web"
-            ],
-		    "parameters" : {
-		        "mandatory" : {
-                    "name" : {
-		                "type" : "text",
-                        "length" : null,
-		                "details" : "Name of the application to create"
-		            },
-                    "enabled" : {
-		                "type" : "boolean",
-                        "length" : null,
-		                "details" : "Whether or not the application should be enabled"
-		            }
-                },
-		        "optional" : {
-                    "key1=val1" : {
-		                "type" : "text",
-                        "length" : null,
-		                "details" : "Tuple <code>key=val</code>, where <code>key</code> has the form <code>service.action</code> and <code>val</code> is a boolean value indicating whether the action <code>service/action</code> is accessible to this application"
-		            },
-                    "..." : {
-		                "type" : "text",
-                        "length" : null,
-		                "details" : "Sequence of other <code>key=val</code> tuples"
-		            }
+                  }
                 }
-		    },
-		    "return" : {}
-		},
-        "app_info" : {
-			"details" : "Get info about the current API application (e.g., list of accessible end-points)",
-            "access_level" : [
-                "administrator",
-                "supervisor",
-                "user"
-            ],
-            "authentication" : [
-                "app"
-            ],
-		    "parameters" : {
-		        "mandatory" : {},
-		        "optional" : {}
-		    },
-            "return" : {
-                "values" : {
-                    "id" : {
-		                "type" : "text",
-		                "details" : "ID of the application"
-		            },
-                    "name" : {
-		                "type" : "text",
-		                "details" : "Name of the application"
-		            },
-                    "endpoints" : {
-		                "type" : "array",
-		                "details" : "List of objects each of which describes an API end-point this App has access to",
-                        "_data" : [
-                            {
-                                "type" : "object",
-                                "details" : "Object describing an API end-point",
-                                "_data" : {
-                                    "service" : {
-                		                "type" : "alphabetic",
-                		                "details" : "Name of the API service"
-                		            },
-                		            "action" : {
-                		                "type" : "alphabetic",
-                		                "details" : "Name of the API action"
-                		            },
-                		            "endpoint" : {
-                		                "type" : "text",
-                		                "details" : "ID of the API end-point (i.e., service/action)"
-                		            },
-                		            "details" : {
-                		                "type" : "text",
-                		                "details" : "Info about the API end-point"
-                		            },
-                		            "parameters" : {
-                                        "type" : "object",
-                                        "details" : "Object describing the parameters accepted by the API end-point",
-                                        "_data" : {
-                                            "mandatory" : {
-                                                "type" : "object",
-                                                "details" : "Collection of required parameters",
-                                                "_data" : {
-                                                    "param_name" : {
-                                                        "type" : "object",
-                                                        "details" : "Object describing a parameter",
-                                                        "_data" : {
-                                    		                "type" : {
-                                                                "type" : "text",
-                                                                "details" : "Type of the parameter"
-                                                            },
-                                                            "details" : {
-                                                                "type" : "text",
-                                                                "details" : "Description of the parameter"
-                                                            },
-                                                            "length" : {
-                                                                "type" : "numeric",
-                                                                "details" : "(Optional) length constraint"
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            },
-                                            "optional" : {
-                                                "type" : "object",
-                                                "details" : "Collection of optional parameters",
-                                                "_data" : {
-                                                    "param_name" : {
-                                                        "type" : "object",
-                                                        "details" : "Object describing a parameter",
-                                                        "_data" : {
-                                    		                "type" : {
-                                                                "type" : "text",
-                                                                "details" : "Type of the parameter"
-                                                            },
-                                                            "details" : {
-                                                                "type" : "text",
-                                                                "details" : "Description of the parameter"
-                                                            },
-                                                            "length" : {
-                                                                "type" : "numeric",
-                                                                "details" : "(Optional) length constraint"
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            },
-                            "..."
-                        ]
-		            }
-		        }
-            }
-		},
-        "app_update" : {
-			"details" : "Update an existing API application. Can be used to enable/disable the app entirely or give/withhold access to an API end-point",
-            "access_level" : [
-                "administrator",
-                "supervisor",
-                "user"
-            ],
-            "authentication" : [
-                "web"
-            ],
-		    "parameters" : {
-		        "mandatory" : {
-                    "id" : {
-		                "type" : "text",
-                        "length" : null,
-		                "details" : "ID of the application to update"
-		            }
-                },
-		        "optional" : {
-                    "enabled" : {
-		                "type" : "boolean",
-                        "length" : null,
-		                "details" : "Whether the application is enabled"
-		            },
-                    "key1=val1" : {
-		                "type" : "text",
-                        "length" : null,
-		                "details" : "Tuple <code>key=val</code>, where <code>key</code> has the form <code>service.action</code> and <code>val</code> is a boolean value indicating whether the action <code>service/action</code> is accessible to this application"
-		            },
-                    "..." : {
-		                "type" : "text",
-                        "length" : null,
-		                "details" : "Sequence of other <code>key=val</code> tuples"
-		            }
-                }
-		    },
-		    "return" : {}
-		},
-        "app_delete" : {
-			"details" : "Removes an existing API application. All the external applications using a deleted API app to communicate wth \\compose\\ will stop working",
-            "access_level" : [
-                "administrator",
-                "supervisor",
-                "user"
-            ],
-            "authentication" : [
-                "web"
-            ],
-		    "parameters" : {
-		        "mandatory" : {
-                    "id" : {
-		                "type" : "text",
-                        "length" : null,
-		                "details" : "ID of the application to delete"
-		            }
-                },
-		        "optional" : {}
-		    },
-		    "return" : {}
-		}
-	}
+              },
+              "..."
+            ]
+          }
+        }
+      }
+    },
+    "app_update" : {
+      "details" : "Update an existing API application. Can be used to enable/disable the app entirely or give/withhold access to an API end-point",
+      "access_level" : [
+        "administrator",
+        "supervisor",
+        "user"
+      ],
+      "authentication" : [
+        "web"
+      ],
+      "parameters" : {
+        "mandatory" : {
+          "id" : {
+            "type" : "text",
+            "length" : null,
+            "details" : "ID of the application to update"
+          }
+        },
+        "optional" : {
+          "enabled" : {
+            "type" : "boolean",
+            "length" : null,
+            "details" : "Whether the application is enabled"
+          },
+          "key1=val1" : {
+            "type" : "text",
+            "length" : null,
+            "details" : "Tuple <code>key=val</code>, where <code>key</code> has the form <code>service.action</code> and <code>val</code> is a boolean value indicating whether the action <code>service/action</code> is accessible to this application"
+          },
+          "..." : {
+            "type" : "text",
+            "length" : null,
+            "details" : "Sequence of other <code>key=val</code> tuples"
+          }
+        }
+      },
+      "return" : {}
+    },
+    "app_delete" : {
+      "details" : "Removes an existing API application. All the external applications using a deleted API app to communicate wth \\compose\\ will stop working",
+      "access_level" : [
+        "administrator",
+        "supervisor",
+        "user"
+      ],
+      "authentication" : [
+        "web"
+      ],
+      "parameters" : {
+        "mandatory" : {
+          "id" : {
+            "type" : "text",
+            "length" : null,
+            "details" : "ID of the application to delete"
+          }
+        },
+        "optional" : {}
+      },
+      "return" : {}
+    }
+  }
 }
