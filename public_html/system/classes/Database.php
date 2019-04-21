@@ -8,6 +8,9 @@ use \system\classes\jsonDB\JsonDB as JsonDB;
 
 class Database{
 
+  // private static attributes
+  private static $dbs_location = "%s%s/data/private/databases/";
+
   // private attributes
   private $package;
   private $database;
@@ -22,19 +25,38 @@ class Database{
     $this->package = $package;
     $this->database = $database;
     $this->entry_regex = $entry_regex;
-    $this->db_dir = sprintf("%s%s/data/private/databases/%s", $GLOBALS['__PACKAGES__DIR__'], $package, $database);
+    $this->db_dir = sprintf(self::$dbs_location."%s", $GLOBALS['__PACKAGES__DIR__'], $package, $database);
   }//__construct
 
 
   // Public static functions
 
-  public static function database_exists( $package, $database ){
-    $db_dir = sprintf("%s%s/data/private/databases/%s", $GLOBALS['__PACKAGES__DIR__'], $package, $database);
+  public static function database_exists($package, $database){
+    $db_dir = sprintf(self::$dbs_location."%s", $GLOBALS['__PACKAGES__DIR__'], $package, $database);
     if( !Core::packageExists($package) || !file_exists($db_dir) ){
       return false;
     }
     return true;
   }//database_exists
+
+  public static function list_dbs($package){
+    // get list of all json files
+    $entry_wild = sprintf(self::$dbs_location."*/", $GLOBALS['__PACKAGES__DIR__'], $package);
+    $files = glob($entry_wild);
+    // cut the path and keep the key
+    $keys = [];
+    foreach( $files as $file ){
+      $parts = explode('/', rtrim($file, '/'));
+      if (count($parts) <= 0){
+        continue;
+      }
+      $key = $parts[count($parts)-1];
+      // add key to list of keys
+      array_push($keys, $key);
+    }
+    // return list of keys
+    return $keys;
+  }//list_dbs
 
 
   // Public functions
@@ -125,7 +147,7 @@ class Database{
 
   public function size(){
     // return count of list of keys
-    return count( self::list_keys() );
+    return count(self::list_keys());
   }//size
 
 
