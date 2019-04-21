@@ -1,7 +1,7 @@
 <!-- Record Editor Modal -->
 
 <?php
-function generateRecordEditorModal( &$layout, $formID=null, $method=null, $action=null, &$values=array() ){
+function generateRecordEditorModal( &$layout, $formID=null, $method=null, $action=null, &$values=array(), $size='lg' ){
 	$formID = ( ($formID != null)? $formID : 'the-form' );
 	?>
 
@@ -15,7 +15,7 @@ function generateRecordEditorModal( &$layout, $formID=null, $method=null, $actio
 	</style>
 
 	<div class="modal fade" id="record-editor-modal-<?php echo $formID ?>" tabindex="-1" role="dialog" aria-hidden="true">
-		<div class="modal-dialog modal-lg">
+		<div class="modal-dialog modal-<?php echo $size ?>">
 			<div class="modal-content">
 				<div class="modal-header">
 					<button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
@@ -73,10 +73,10 @@ function generateRecordEditorModal( &$layout, $formID=null, $method=null, $actio
 						field.prop('checked', jsonobj[key]==1).change();
 						break;
 					case 'select':
-						//TODO: Boh!
+						field.val(jsonobj[key]).change();
 						break;
 					default:
-						field.val( jsonobj[key] );
+						field.val(jsonobj[key]);
 						break;
 				}
 			}
@@ -111,7 +111,7 @@ function generateRecordEditorModal( &$layout, $formID=null, $method=null, $actio
 		$('#record-editor-modal-<?php echo $formID ?> #save-button').on('click', function(){
 			showPleaseWait();
 			//
-			var qs = serializeForm('#record-editor-modal-<?php echo $formID ?>', true);
+			var qs = serializeForm('#<?php echo $formID ?>', true);
 			url = url + qs;
 			//
 			successDialog = true;
