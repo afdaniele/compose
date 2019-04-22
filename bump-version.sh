@@ -75,6 +75,11 @@ if [ -f VERSION ]; then
     V_PATCH=${BASE_LIST[2]}
     echo -e "${NOTICE_FLAG} Current version: ${WHITE}$BASE_STRING"
     echo -e "${NOTICE_FLAG} Latest commit hash: ${WHITE}$LATEST_HASH"
+    # show changes since last version to help decide the new version
+    echo -e "${NOTICE_FLAG} Changes since last version${RESET}"
+    git log --pretty=format:"  - %s" "v$BASE_STRING"...HEAD
+    echo ""
+    # suggest a bump in patch (most common)
     V_PATCH=$((V_PATCH + 1))
     SUGGESTED_VERSION="$V_MAJOR.$V_MINOR.$V_PATCH"
     echo -ne "${QUESTION_FLAG} ${CYAN}Enter a version number [${WHITE}$SUGGESTED_VERSION${CYAN}]: "
