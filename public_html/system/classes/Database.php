@@ -58,6 +58,16 @@ class Database{
     return $keys;
   }//list_dbs
 
+  public static function delete_db($package, $database) {
+    $db_dir = sprintf(self::$dbs_location."%s", $GLOBALS['__PACKAGES__DIR__'], $package, $database);
+    // remove all keys
+    array_map('unlink', glob("$db_dir/*.*"));
+    // remove empty db
+    rmdir($db_dir);
+    // ---
+    return ['success' => true, 'data' => null];
+  }//delete_db
+
 
   // Public functions
 
