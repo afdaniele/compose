@@ -52,7 +52,7 @@ function settings_cache_tab(){
         Hits vs Misses
       </h4>
       <div id="settings_cache_tab_hits_vs_misses_container">
-        <canvas style="width:100%"></canvas>
+        <canvas style="width:100%; min-height:96px; height:96px; max-height:96px"></canvas>
       </div>
     </div>
     <div class="col-md-3">
@@ -76,7 +76,7 @@ function settings_cache_tab(){
         Mem. Usage
       </h4>
       <div id="settings_cache_tab_mem_usage_container">
-        <canvas style="width:100%"></canvas>
+        <canvas style="width:100%; min-height:96px; height:96px; max-height:96px"></canvas>
       </div>
     </div>
 
