@@ -356,6 +356,23 @@ class Core{
   }//getURL
 
 
+  public static function getAPIurl($service, $action, $qs=[], $format='json', $token=null){
+    if (is_null($token)) {
+      $token = $_SESSION['TOKEN'];
+    }
+    return sprintf(
+      '%sweb-api/%s/%s/%s/%s?%s%s&',
+      Configuration::$BASE_URL,
+      Configuration::$WEBAPI_VERSION,
+      $service,
+      $action,
+      $format,
+      sprintf('token=%s', $token),
+      (count($qs) > 0)? toQueryString(array_keys($qs), $qs, false, true) : ''
+    );
+  }//getAPIurl
+
+
 	public static function loadPackagesModules( $module_family=null, $pkg_id=null ){
 		foreach( self::$packages as $pkg ){
 			if( !$pkg['enabled'] || ( !is_null($pkg_id) && $pkg_id != $pkg['id'] ) )
