@@ -79,13 +79,19 @@ class PackageManager(object):
     POST_UNINSTALL = 5
 
   class Error(Enum):
+    # generic error codes: 1-9
     NO_PACKAGES_DIR = 1
     NO_CONFIG_FILE = 2
+    # installation error codes: 10-19
     PACKAGE_NOT_INSTALLED = 11
     PACKAGE_NOT_FOUND = 12
     PACKAGE_ALREADY_INSTALLED = 13
-    POST_INSTALL = 15
-    POST_UPDATE = 25
+    POST_INSTALL = 19
+    # update error codes: 20-29
+    PRE_UPDATE = 20
+    POST_UPDATE = 29
+    # update error codes: 30-39
+    PRE_UNINSTALL = 30
 
   class Success(Enum):
     OK = 0
@@ -233,13 +239,13 @@ class PackageManager(object):
     package = self.get_package(package_name)
     package.post_update(dryrun=dryrun)
 
+  def pre_uninstall(self, package_name, dryrun=False):
+    package = self.get_package(package_name)
+    package.pre_uninstall(dryrun=dryrun)
+
   def uninstall(self, package_name, dryrun=False):
     package = self.get_package(package_name)
     package.uninstall(dryrun=dryrun)
-
-  def post_uninstall(self, package_name, dryrun=False):
-    package = self.get_package(package_name)
-    package.post_uninstall(dryrun=dryrun)
 
 
 class Package(object):
@@ -360,6 +366,14 @@ class Package(object):
       dryrun=dryrun
     )
 
+  def pre_uninstall(self, dryrun=False):
+    self._perform_aux_action(
+      PackageManager.Task.UNINSTALL,
+      PackageManager.UninstallStep.PRE_UNINSTALL,
+      PackageManager.Error.PRE_UNINSTALL,
+      dryrun=dryrun
+    )
+
   def uninstall(self, dryrun=False):
     # make sure that the package is installed
     if not self.is_installed:
@@ -375,14 +389,6 @@ class Package(object):
     if dryrun:
       return
     shutil.rmtree(self.path)
-
-  def post_uninstall(self, dryrun=False):
-    self._perform_aux_action(
-      PackageManager.Task.UNINSTALL,
-      PackageManager.UpdateStep.POST_UNINSTALL,
-      PackageManager.Error.POST_UNINSTALL,
-      dryrun=dryrun
-    )
 
   def _perform_aux_action(self, task, step, error_code, dryrun=False):
     if dryrun:
