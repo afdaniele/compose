@@ -228,6 +228,10 @@ class PackageManager(object):
     package = self.get_package(package_name)
     package.post_install(dryrun=dryrun)
 
+  def pre_update(self, package_name, dryrun=False):
+    package = self.get_package(package_name)
+    package.pre_update(dryrun=dryrun)
+
   def update(self, package_name, version=None, dryrun=False):
     package = self.get_package(package_name)
     if not version:
@@ -334,6 +338,14 @@ class Package(object):
       PackageManager.Task.INSTALL,
       PackageManager.InstallStep.POST_INSTALL,
       PackageManager.Error.POST_INSTALL,
+      dryrun=dryrun
+    )
+
+  def pre_update(self, dryrun=False):
+    self._perform_aux_action(
+      PackageManager.Task.UPDATE,
+      PackageManager.UpdateStep.PRE_UPDATE,
+      PackageManager.Error.PRE_UPDATE,
       dryrun=dryrun
     )
 
@@ -447,6 +459,11 @@ if __name__ == '__main__':
   for package_name in args.uninstall or []:
     pm.uninstall(package_name, dryrun=args.dry_run)
     out_data['uninstalled'].append(package_name)
+
+  # perform pre_update
+  for package_name in to_update:
+    if package_name in pm.list_installed_packages():
+      pm.pre_update(package_name, dryrun=args.dry_run)
 
   # perform update
   requires_post_update = []
