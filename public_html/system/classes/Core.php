@@ -1222,7 +1222,7 @@ class Core{
 	 *	@retval string
 	 *		URL to the requested Java-Script file.
 	 */
-	public static function getJSscriptURL( $js_file_with_extension, $package_name="core" ){
+	public static function getJSscriptURL($js_file_with_extension, $package_name="core"){
 		if( $package_name == "core" ){
 			return sprintf("%s/js/%s", Configuration::$BASE_URL, $js_file_with_extension );
 		}else{
