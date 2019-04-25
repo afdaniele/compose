@@ -28,27 +28,31 @@ class MissionControl{
     $this->blocks = $blocks;
   }//__construct
 
+  function get_ID(){
+    return $this->grid_id;
+  }//get_ID
+
   function create(){
     $header_h = 40;
     // load all block renderers registered
-    Core::loadPackagesModules( 'renderers/blocks' );
+    Core::loadPackagesModules('renderers/blocks');
     // get all block renderers registered
-    $renderers_available = Core::getClasses( 'system\classes\BlockRenderer' );
+    $renderers_available = Core::getClasses('system\classes\BlockRenderer');
     $blocks_ids = [];
     ?>
     <div id="<?php echo $this->grid_id ?>" class="mission-control-grid">
       <?php
-      $empty_renderer = new EmptyRenderer( $this );
+      $empty_renderer = new EmptyRenderer($this);
       foreach ($this->blocks as $block){
         $rand_id = Core::generateRandomString(8);
         $block_args = $block['args'];
-        if( !in_array($block['renderer'], $renderers_available) ){
+        if (!in_array($block['renderer'], $renderers_available)) {
           $renderer = $empty_renderer;
           $block_args = [
             'message' => sprintf('Renderer <code>%s</code> not found!', $block['renderer'])
           ];
         }else{
-          $renderer = new $block['renderer']( $this );
+          $renderer = new $block['renderer']($this);
         }
         // draw block
         $renderer->draw(
@@ -88,23 +92,55 @@ class MissionControl{
         });
       });
 
-      function mission_control_switch_shape( box_id, new_rows, new_cols ){
+      function mission_control_switch_shape(box_id, new_rows, new_cols){
         // get box
-        box = $('#'+box_id);
+        var box = $('#'+box_id);
         // remove previous class
         box.removeClass( function(_, classes){
           classes_to_remove = (classes.match(/\s*mission-control-item-r([0-9]+)-c([0-9]+)\s*/g) || []).join(' ');
           return classes_to_remove;
         } );
         // add new class
-        box.addClass( "mission-control-item-r{0}-c{1}".format( new_rows, new_cols ) );
+        box.addClass("mission-control-item-r{0}-c{1}".format(new_rows, new_cols));
+        // update block data
+        var new_shape = {'rows': new_rows, 'cols': new_cols};
+        box.data(
+          'shape',
+          CryptoJS.enc.Base64.stringify(CryptoJS.enc.Utf8.parse(JSON.stringify(new_shape)))
+        );
         // update the grid
         box.closest('.mission-control-grid').packery();
-      }
+      }//mission_control_switch_shape
 
       function mission_control_dispose_block( block_id ){
-        $('.block_renderer_canvas').remove( '#{0}'.format(block_id) );
-        $('#<?php echo $this->grid_id ?>').packery();
+        var grid = $('#<?php echo $this->grid_id ?>');
+        var block = $('#{0}'.format(block_id));
+        grid.packery('remove', block).packery();
+        // highlight the Save button in the menu
+        $('#mission-control-side-menu-save-button').removeClass('btn-default');
+        $('#mission-control-side-menu-save-button').addClass('btn-warning');
+      }//mission_control_dispose_block
+
+      function mission_control_serialize_block(box_id){
+        // get box
+        var box = $('#'+box_id);
+        // create JSON string
+        var json_str = `
+        {
+          "shape": {0},
+  				"renderer": "{1}",
+  				"title": "{2}",
+  				"subtitle": "{3}",
+  				"args": {4}
+        }
+        `.format(
+          CryptoJS.enc.Base64.parse(box.data('shape')).toString(CryptoJS.enc.Utf8),
+          box.data('renderer'),
+          CryptoJS.enc.Base64.parse(box.data('title')).toString(CryptoJS.enc.Utf8),
+          CryptoJS.enc.Base64.parse(box.data('subtitle')).toString(CryptoJS.enc.Utf8),
+          CryptoJS.enc.Base64.parse(box.data('properties')).toString(CryptoJS.enc.Utf8)
+        );
+        return json_str;
       }
     </script>
 
@@ -263,14 +299,18 @@ class MissionControl{
 
 class MissionControlMenu{
 
-  function __construct($grid_id, $side, $package_name, $mission_db_name, $mission_name=NULL){
-    $db = new Database($package_name, $mission_db_name);
+  function __construct($grid_id, $side, $package_name, $mission_db_name, $mission_name=NULL, $mission_regex=null){
+    $db = new Database($package_name, $mission_db_name, $mission_regex);
     // get list of missions available
     $missions_list = $db->list_keys();
     // render side menu
     self::render_menu($grid_id, $side, $mission_name);
     // add load mission modal
     self::add_load_modal($missions_list);
+    // add new block modal
+    if (!is_null($mission_name)) {
+      self::add_new_block_modal($mission_name);
+    }
   }//__construct
 
   public static function render_menu($grid_id, $side, $mission_name){
@@ -304,7 +344,7 @@ class MissionControlMenu{
     </style>
 
     <div class="btn-group-vertical mission-control-side-menu" id="mission-control-side-menu" role="group" aria-label="...">
-      <button type="button" class="btn btn-default mission-control-side-menu-button">
+      <button type="button" class="btn btn-default mission-control-side-menu-button" onclick="mission_control_new_mission_fcn()">
         <div>
           <span class="glyphicon glyphicon-asterisk" aria-hidden="true"></span>
         </div>
@@ -322,6 +362,7 @@ class MissionControlMenu{
       </button>
       <button
         type="button"
+        id="mission-control-side-menu-save-button"
         class="btn btn-default mission-control-side-menu-button <?php echo ($is_mission_loaded)? '' : 'disabled' ?>"
         <?php echo ($is_mission_loaded)? 'onclick="mission_control_save_fcn()"' : '' ?>
         >
@@ -332,7 +373,7 @@ class MissionControlMenu{
           Save
         </div>
       </button>
-      <button type="button" class="btn btn-default mission-control-side-menu-button">
+      <button type="button" class="btn btn-default mission-control-side-menu-button" onclick="mission_control_save_as_fcn()">
         <div>
           <span class="glyphicon glyphicon-floppy-save" aria-hidden="true"></span>
         </div>
@@ -343,7 +384,12 @@ class MissionControlMenu{
 
       <legend style="margin: 0; margin-top: 4px; border: 0"></legend>
 
-      <button type="button" class="btn btn-default mission-control-side-menu-button">
+      <button
+        type="button"
+        class="btn btn-default mission-control-side-menu-button <?php echo ($is_mission_loaded)? '' : 'disabled' ?>"
+        data-toggle="modal"
+        <?php echo ($is_mission_loaded)? 'data-target="#mission-control-add-block-modal"' : '' ?>
+        >
         <div>
           <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
         </div>
@@ -355,18 +401,99 @@ class MissionControlMenu{
 
     <script type="text/javascript">
 
-      function mission_control_save_confirm_fcn(){
-        alert('SAVED!');
+      function mission_control_get_blocks_json(){
+        // get blocks order
+        var blocks = $("#<?php echo $grid_id ?>").packery('getItemElements');
+        // turn each block into a JSON string
+        var blocks_json = [];
+        $.each(blocks, function(_, block){
+          blocks_json.push(mission_control_serialize_block(block.id));
+        });
+        // ---
+        return blocks_json;
+      }//mission_control_get_blocks_json
+
+      function mission_control_save_confirm_fcn(mission_name){
+        var blocks_json = mission_control_get_blocks_json();
+        // compile blocks into a single JSON string
+        var mission_str = '{"blocks": [{0}]}'.format(
+          blocks_json.join(',')
+        );
+        // trigger save event
+        $(window).trigger('MISSION_CONTROL_MENU_SAVE', [mission_name, mission_str]);
       }//mission_control_save_confirm_fcn
+
+      function mission_control_save_as_fcn(){
+        var mission_name = prompt("Name of the new mission", "");
+        if (mission_name != null) {
+          mission_control_save_confirm_fcn(mission_name);
+        }
+      }//mission_control_save_as_fcn
+
+      function mission_control_new_mission_fcn(){
+        var mission_name = prompt("Name of the new mission", "");
+        if (mission_name != null) {
+          var empty_mission = '{"blocks": []}';
+          // trigger save event
+          $(window).trigger('MISSION_CONTROL_MENU_SAVE', [mission_name, empty_mission]);
+        }
+      }//mission_control_new_mission_fcn
+
+      function mission_control_load_fcn(mission_name){
+        // trigger load event
+        $(window).trigger('MISSION_CONTROL_MENU_LOAD', [mission_name]);
+        // close modal
+        $('#mission-control-load-modal').modal('hide');
+      }//mission_control_load_fcn
 
       function mission_control_save_fcn(){
         var question = "Are you sure you want to save?";
         openYesNoModal(
           question,
-          mission_control_save_confirm_fcn,
+          function(){
+            mission_control_save_confirm_fcn("<?php echo $mission_name ?>")
+          },
           false
         );
       }//mission_control_save_fcn
+
+      function mission_control_delete_confirm_fcn(mission_name){
+        // trigger delete event
+        $(window).trigger('MISSION_CONTROL_MENU_DELETE', [mission_name]);
+      }//mission_control_delete_confirm_fcn
+
+      function mission_control_delete_fcn(mission_name){
+        var question = "Are you sure you want to save?";
+        openYesNoModal(
+          question,
+          function(){
+            mission_control_delete_confirm_fcn(mission_name)
+          },
+          false
+        );
+      }//mission_control_delete_fcn
+
+      function mission_control_add_block_fcn(mission_name, block_json_b64){
+        var new_block_json = CryptoJS.enc.Base64.parse(block_json_b64).toString(CryptoJS.enc.Utf8);
+        // get mission blocks json
+        var blocks_json = mission_control_get_blocks_json();
+        blocks_json.push(new_block_json);
+        // compile blocks into a single JSON string
+        var mission_str = '{"blocks": [{0}]}'.format(
+          blocks_json.join(',')
+        );
+        // trigger save event
+        $(window).trigger('MISSION_CONTROL_MENU_SAVE', [mission_name, mission_str]);
+      }//mission_control_add_block_fcn
+
+      <?php if ($is_mission_loaded) {
+        ?>
+        $(window).on('MISSION_CONTROL_SAVE', function(grid_id){
+          mission_control_save_confirm_fcn("<?php echo $mission_name ?>");
+        });
+        <?php
+      }
+      ?>
 
       function mission_control_center_toolbox() {
         var side_menu = $('#mission-control-side-menu');
@@ -383,7 +510,7 @@ class MissionControlMenu{
   }
 
 
-  public static function add_load_modal($missions_list, $qs_key='mission'){
+  private static function add_load_modal($missions_list, $qs_key='mission'){
     ?>
     <div class="modal fade" id="mission-control-load-modal" tabindex="-1" role="dialog">
       <div class="modal-dialog" role="document">
@@ -402,21 +529,17 @@ class MissionControlMenu{
               <?php
               $i = 1;
               foreach ($missions_list as $mission) {
-                // render a table row
-                $resource_url = Core::getCurrentResourceURL(
-                  [$qs_key => $mission]
-                );
                 ?>
                 <tr>
                   <td class="text-center"><?php echo $i ?></td>
                   <td><?php echo $mission ?></td>
                   <td class="text-center">
-                    <a class="btn btn-default btn-xs" href="<?php echo $resource_url ?>" role="button">
+                    <a class="btn btn-default btn-xs" onclick="mission_control_load_fcn('<?php echo $mission ?>')" role="button">
                       <span class="glyphicon glyphicon-download-alt" aria-hidden="true"></span>
                       Open
                     </a>
                     &nbsp; | &nbsp;
-                    <a class="btn btn-danger btn-xs" href="#" role="button">
+                    <a class="btn btn-danger btn-xs" role="button" onclick="mission_control_delete_fcn('<?php echo $mission ?>')">
                       <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
                       Delete
                     </a>
@@ -430,13 +553,66 @@ class MissionControlMenu{
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-            <button type="button" class="btn btn-primary">Load</button>
           </div>
         </div><!-- /.modal-content -->
       </div><!-- /.modal-dialog -->
     </div><!-- /.modal -->
     <?php
-  }
+  }//add_load_modal
+
+
+  private static function add_new_block_modal($mission_name){
+    // load all block renderers registered
+    Core::loadPackagesModules('renderers/blocks');
+    // get all block renderers registered
+    $renderers_available = Core::getClasses('system\classes\BlockRenderer');
+    ?>
+    <div class="modal fade" id="mission-control-add-block-modal" tabindex="-1" role="dialog">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title">Add Block</h4>
+          </div>
+          <div class="modal-body">
+            <table class="table table-striped">
+              <tr>
+                <td class="col-md-1 text-center text-bold">#</td>
+                <td class="col-md-7 text-bold">Name</td>
+                <td class="col-md-4 text-center text-bold">Actions</td>
+              </tr>
+              <?php
+              $i = 1;
+              foreach ($renderers_available as $renderer) {
+                if ($renderer::is_private()) {
+                  continue;
+                }
+                $default_json = base64_encode($renderer::get_default_JSON());
+                ?>
+                <tr>
+                  <td class="text-center"><?php echo $i ?></td>
+                  <td><?php echo $renderer ?></td>
+                  <td class="text-center">
+                    <a class="btn btn-default btn-xs" onclick="mission_control_add_block_fcn('<?php echo $mission_name ?>', '<?php echo $default_json ?>')" role="button">
+                      <i class="fa fa-plus" aria-hidden="true"></i>
+                      Add
+                    </a>
+                  </td>
+                </tr>
+                <?php
+                $i += 1;
+              }
+              ?>
+            </table>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+          </div>
+        </div><!-- /.modal-content -->
+      </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
+    <?php
+  }//add_new_block_modal
 
 }//MissionControlMenu
 
