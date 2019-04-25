@@ -367,7 +367,7 @@ class Core{
       $service,
       $action,
       $format,
-      sprintf('token=%s', $token),
+      sprintf('token=%s&', $token),
       (count($qs) > 0)? toQueryString(array_keys($qs), $qs, false, true) : ''
     );
   }//getAPIurl
