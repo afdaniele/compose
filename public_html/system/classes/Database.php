@@ -22,6 +22,9 @@ class Database{
     if (!Core::packageExists($package)) {
       Core::throwError(sprintf('Tried to create a Database for the package `%s` but the package does not exist', $package));
     }
+    if (is_null($database) || strlen(trim($database)) <= 0) {
+      Core::throwError(sprintf('Invalid database name "%s".', $database));
+    }
     $this->package = $package;
     $this->database = $database;
     $this->entry_regex = $entry_regex;

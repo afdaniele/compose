@@ -11,30 +11,39 @@ class BlockRenderer{
 
   static protected $ARGUMENTS = [];
 
+  static protected $PRIVATE = false;
+
+  static protected $DEFAULT_SIZE = ['rows' => 2, 'cols' => 2];
+
   private $mission_control;
 
-  function __construct( $mission_control ){
+  function __construct($mission_control){
     $this->mission_control = $mission_control;
   }//__construct
 
-  public function draw( $class, $id, $title, $subtitle, &$shape, &$args=[], &$opts=[], $DEPRECATED_show_header=True ){
-    $args['title'] = $title;
-    $args['subtitle'] = $subtitle;
+  public function draw($class, $id, $title, $subtitle, &$shape, &$args=[], &$opts=[]){
+    $grid_id = $this->mission_control->get_ID();
     ?>
-    <div class="block_renderer_canvas text-center <?php echo $class ?>" id="<?php echo $id ?>" data-renderer="<?php echo get_called_class() ?>">
+    <div
+      class="block_renderer_canvas text-center <?php echo $class ?>"
+      id="<?php echo $id ?>"
+      data-title="<?php echo base64_encode($title) ?>"
+      data-subtitle="<?php echo base64_encode($subtitle) ?>"
+      data-shape='<?php echo base64_encode(json_encode($shape)) ?>'
+      data-renderer="<?php echo get_called_class() ?>"
+      data-properties='<?php echo base64_encode(json_encode($args)) ?>'
+      >
+      <?php
+      $args['title'] = $title;
+      $args['subtitle'] = $subtitle;
+      ?>
       <table>
         <tr class="block_renderer_header text-left" style="height:32px">
           <?php
-          if( !isset($opts['show_icon']) || boolval($opts['show_icon']) ){
+          if (!isset($opts['show_icon']) || boolval($opts['show_icon'])) {
             ?>
             <td class="block_renderer_icon">
-              <?php
-              if( $DEPRECATED_show_header ){
-                ?>
-                <i class="<?php echo self::get_icon_class() ?>" aria-hidden="true"></i>
-                <?php
-              }
-              ?>
+              <i class="<?php echo self::get_icon_class() ?>" aria-hidden="true"></i>
             </td>
             <?php
           }
@@ -149,7 +158,7 @@ class BlockRenderer{
         </tr>
         <tr class="block_renderer_container">
           <td colspan="3">
-            <?php static::render( $id, $args ); ?>
+            <?php static::render($id, $args); ?>
           </td>
         </tr>
       </table>
@@ -197,14 +206,18 @@ class BlockRenderer{
                     'value' => $args[$key],
                     'name' => $desc['name']
                   ];
+                  if ($desc['type'] == 'enum') {
+                    $layout_desc['placeholder_id'] = $desc['enum_values'];
+                    $layout_desc['placeholder'] = array_map(ucfirst, $desc['enum_values']);
+                  }
                   // add item to the layout
                   $layout[$layout_key] = $layout_desc;
                 }
-                $formID = null;
+                $formID = sprintf('mission-control-block-%s-form', $id);
                 $formClass = 'mission-control-block-properties-form';
                 $method = 'post';
                 // generate form
-                generateFormByLayout( $layout, $formID, $formClass, $method, $action=null, $values=$args );
+                generateFormByLayout($layout, $formID, $formClass, $method, $action=null, $values=$args);
                 ?>
               </div>
 
@@ -221,18 +234,39 @@ class BlockRenderer{
     </div>
 
     <script type="text/javascript">
-    document.getElementById("<?php echo $id ?>").addEventListener(
-      'DOMAttrModified',
-      function(e){
-        console.log('prevValue: ' + e.prevValue, 'newValue: ' + e.newValue);
-      },
-      false
-    );
+      $('#<?php echo $id ?>_properties_modal #save-button').on('click', function(){
+        // get properties from form object
+        var form = '#mission-control-block-<?php echo $id ?>-form';
+        var key_value_pairs = $(form).serializeArray();
+        // turn list of pairs into object
+        var properties = {};
+        var block = "#<?php echo $id ?>";
+        var reserved_keys = ['title', 'subtitle'];
+        $.each(key_value_pairs, function(_, pair) {
+          if (reserved_keys.indexOf(pair['name']) != -1) {
+            $(block).data(
+              pair['name'],
+              CryptoJS.enc.Base64.stringify(CryptoJS.enc.Utf8.parse(pair['value']))
+            );
+            return;
+          }
+          properties[pair['name']] = pair['value'];
+        });
+        // serialize properties as JSON
+        $('#<?php echo $id ?>').data(
+          'properties',
+          CryptoJS.enc.Base64.stringify(CryptoJS.enc.Utf8.parse(JSON.stringify(properties)))
+        );
+        // close modal
+        $('#<?php echo $id ?>_properties_modal').modal('hide');
+        // save mission control
+        $(window).trigger('MISSION_CONTROL_SAVE', ["<?php echo $grid_id ?>"]);
+      });
     </script>
     <?php
   }//draw
 
-  protected static function render( $id, &$args ){
+  protected static function render($id, &$args){
     ?>
     <p style="position:relative; top:50%; transform:translateY(-50%)">
       Your renderer must implement the method <code>render()</code>.
@@ -240,9 +274,32 @@ class BlockRenderer{
     <?php
   }//render
 
+  final public function get_default_JSON(){
+    $json_str = sprintf('
+      {
+        "shape": %s,
+        "renderer": "%s",
+        "title": "%s",
+        "subtitle": "%s",
+        "args": %s
+      }
+      ',
+      json_encode(static::$DEFAULT_SIZE),
+      get_called_class(),
+      sprintf('New %s block...', get_called_class()),
+      sprintf('New %s block subtitle.', get_called_class()),
+      json_encode(array_map(function($arg){return $arg['default'];}, static::$ARGUMENTS))
+    );
+    return $json_str;
+  }//get_default_JSON
+
   final public function get_icon_class(){
     return sprintf('%s %s-%s', static::$ICON['class'], static::$ICON['class'], static::$ICON['name']);
   }//get_icon_class
+
+  final public function is_private(){
+    return boolval(static::$PRIVATE);
+  }//is_private
 
 }//BlockRenderer
 ?>
