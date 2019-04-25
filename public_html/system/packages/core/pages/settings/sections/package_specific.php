@@ -165,7 +165,7 @@ function settings_custom_package_tab( $package_settings, $settings_tab_id ){
                 $(unsaved_mark_id).css('display', 'none');
             }
             //
-    		callAPI( url, true, false, succ_fcn );
+    		callAPI(url, true, true, succ_fcn);
     	});
 
         $('#<?php echo $package_name ?>-settings-form :input').change(function(){
