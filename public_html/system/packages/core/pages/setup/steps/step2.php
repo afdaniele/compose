@@ -27,8 +27,9 @@ if(
       isset($_GET['confirm']) && $_GET['confirm'] == '1' && Core::isUserLoggedIn()
     )
   ){
+  _compose_first_setup_step_in_progress();
+
   // confirm step
-  $first_setup_db = new Database('core', 'first_setup');
   $first_setup_db->write('step'.$step_no, null);
 
   // redirect to setup page
