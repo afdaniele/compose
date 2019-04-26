@@ -40,7 +40,7 @@
 	Configuration::$BASE = Configuration::$BASE_URL;
 
 	// parse arguments
-	$args = explode( '/', strtolower($_GET['arg']) );
+	$args = explode('/', strtolower($_GET['arg']));
 	$requested_page = $args[0];
 	$requested_action = (count($args) > 1 && $args[1]!=='') ? $args[1] : $_GET['action'];
 	$requested_action = ($requested_action !== '')? $requested_action : NULL;
@@ -50,30 +50,33 @@
 
 	// init Core
 	$safe_mode = in_array($requested_page, ['error', 'maintenance']);
-	$res = Core::init( $safe_mode );
-	if( !$res['success'] ) Core::throwError( $res['data'] );
+	$res = Core::init($safe_mode);
+	if (!$res['success'])
+    Core::throwError($res['data']);
 
 	// get info about the current user
 	$main_user_role = Core::getUserRole();
 	$user_roles = Core::getUserRolesList();
 
   // redirect user to the setup page (if necessary)
-  if(!Core::isComposeConfigured() &&
-    !in_array($requested_page, ['error', 'setup', 'maintenance'])) Core::redirectTo('setup');
+  if (!Core::isComposeConfigured() &&
+      !in_array($requested_page, ['error', 'setup', 'maintenance']))
+    Core::redirectTo('setup');
 
 	// redirect user to maintenance mode (if necessary)
-	if( $main_user_role != 'administrator' &&
-		Core::getSetting('maintenance_mode', 'core', true) &&
-		!in_array($requested_page, ['login', 'error', 'maintenance']) ) Core::redirectTo('maintenance');
+	if ($main_user_role != 'administrator' &&
+    	Core::getSetting('maintenance_mode', 'core', true) &&
+    	!in_array($requested_page, ['login', 'error', 'maintenance']))
+    Core::redirectTo('maintenance');
 
 	// get the list of pages the current user has access to
-	$pages_list = Core::getFilteredPagesList( 'list', true, $user_roles );
-	$available_pages = array_map( function($p){ return $p['id']; }, $pages_list );
+	$pages_list = Core::getFilteredPagesList('list', true, $user_roles);
+	$available_pages = array_map(function($p){return $p['id'];}, $pages_list);
 
 	// get factory default page
-	$factory_default_page = Core::getFactoryDefaultPagePerRole( $main_user_role );
-	if( strcmp($factory_default_page, "NO_DEFAULT_PAGE") == 0 ){
-		if( $main_user_role == 'guest' ){
+	$factory_default_page = Core::getFactoryDefaultPagePerRole($main_user_role);
+	if (strcmp($factory_default_page, "NO_DEFAULT_PAGE") == 0) {
+		if ($main_user_role == 'guest') {
 			$factory_default_page = 'login';
 		}else{
 			$factory_default_page = 'profile';
@@ -81,23 +84,23 @@
 	}
 
 	// get default page
-	$default_page = Core::getDefaultPagePerRole( $main_user_role, 'core' );
-	foreach( array_keys(Core::getPackagesList()) as $pkg_id ){
-		if( $pkg_id == 'core' ) continue;
-		$pkg_user_role = Core::getUserRole( $pkg_id );
-		if( !is_null($pkg_user_role) ){
-			$default_page_per_pkg = Core::getDefaultPagePerRole( $pkg_user_role, $pkg_id );
-			if( $default_page_per_pkg != 'NO_DEFAULT_PAGE' ){
+	$default_page = Core::getDefaultPagePerRole($main_user_role, 'core');
+	foreach(array_keys(Core::getPackagesList()) as $pkg_id) {
+		if ($pkg_id == 'core') continue;
+		$pkg_user_role = Core::getUserRole($pkg_id);
+		if (!is_null($pkg_user_role)) {
+			$default_page_per_pkg = Core::getDefaultPagePerRole($pkg_user_role, $pkg_id);
+			if ($default_page_per_pkg != 'NO_DEFAULT_PAGE') {
 				$default_page = $default_page_per_pkg;
 				break;
 			}
 		}
 	}
-	if( !in_array($default_page, $available_pages) )
+	if (!in_array($default_page, $available_pages))
 		$default_page = $factory_default_page;
 
 	// redirect to default page if the page is invalid
-	if( $requested_page == '' || !in_array($requested_page, $available_pages) ){
+	if ($requested_page == '' || !in_array($requested_page, $available_pages)) {
 		// invalid page
 		$redirect_page = $default_page;
 		Core::redirectTo($redirect_page, $redirect_page == 'login');
@@ -171,9 +174,9 @@
 	<!-- Google API Library -->
 	<script src="<?php echo Configuration::$BASE_URL ?>js/platform.js"></script>
 	<?php
-	if( Core::getSetting('login_enabled', 'core') ){
+	if (Core::getSetting('login_enabled', 'core')) {
 		?>
-		<meta name="google-signin-client_id" content="<?php echo Core::getSetting('google_client_id', 'core') ?>">
+		<meta name="google-signin-client_id" content="<?php echo Core::getSetting('google_client_id') ?>">
 		<?php
 	}
 	?>
@@ -185,27 +188,27 @@
 	<![endif]-->
 </head>
 
-<body <?php echo ( (Configuration::$PAGE == 'error')? 'style="background-color:white"' : '' ) ?>>
+<body <?php echo ((Configuration::$PAGE == 'error')? 'style="background-color:white"' : '') ?>>
 
 	<!-- Fixed navbar -->
 	<?php
-  include( 'system/packages/core/modules/navbar.php' );
+  include('system/packages/core/modules/navbar.php');
 
   // google sign-in
-	include( 'system/packages/core/modules/google_signin.php' );
+	include('system/packages/core/modules/google_signin.php');
 	?>
 
 	<!-- Begin page content -->
 	<div id="page_container" class="container">
 
-		<?php include( 'system/packages/core/modules/alerts.php' ); ?>
+		<?php include('system/packages/core/modules/alerts.php'); ?>
 
 		<br>
 
 		<!-- Main Container -->
 		<div id="page_canvas">
 			<?php
-			include( Core::getPageDetails(Configuration::$PAGE, 'path')."/index.php" );
+			include(Core::getPageDetails(Configuration::$PAGE, 'path')."/index.php");
 			?>
 		</div>
 		<!-- Main Container End -->
@@ -215,25 +218,25 @@
 	</div>
 
 	<?php
-	include( 'system/packages/core/modules/modals/loading_modal.php' );
-	include( 'system/packages/core/modules/modals/success_modal.php' );
-	include( 'system/packages/core/modules/modals/yes_no_modal.php' );
+	include('system/packages/core/modules/modals/loading_modal.php');
+	include('system/packages/core/modules/modals/success_modal.php');
+	include('system/packages/core/modules/modals/yes_no_modal.php');
 	?>
 
 
 	<!-- Debug section (Admin only) -->
 	<?php
-	include( 'system/packages/core/modules/debug.php' );
+	include('system/packages/core/modules/debug.php');
 	?>
 
 	<!-- Fixed footer -->
 	<?php
-	include( 'system/packages/core/modules/footer.php' );
+	include('system/packages/core/modules/footer.php');
 	?>
 
 	<!-- Package-specific CSS stylesheets -->
 	<?php
-	foreach( Core::getRegisteredCSSstylesheets() as $css_file ){
+	foreach(Core::getRegisteredCSSstylesheets() as $css_file) {
 		echo sprintf('<style type="text/css">%s</style>', file_get_contents($css_file));
 	}
 	?>
@@ -249,7 +252,7 @@
 
 	<script type="text/javascript">
 		// configure button groups
-		$(".btn-group > .btn").click(function(){
+		$(".btn-group > .btn").click(function() {
 			$(this).addClass("active").siblings().removeClass("active");
 		});
 	</script>
