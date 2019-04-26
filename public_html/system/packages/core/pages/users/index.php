@@ -1,9 +1,7 @@
 <?php
 # @Author: Andrea F. Daniele <afdaniele>
-# @Date:   Tuesday, January 9th 2018
 # @Email:  afdaniele@ttic.edu
 # @Last modified by:   afdaniele
-# @Last modified time: Monday, January 15th 2018
 
 require_once $GLOBALS['__PACKAGES__DIR__'].'/core/modules/modals/record_editor_modal.php';
 require_once $GLOBALS['__SYSTEM__DIR__'].'templates/tableviewers/TableViewer.php';
