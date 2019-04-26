@@ -134,9 +134,6 @@
 	<!-- FontAwesome v4.7 by fontawesome.io -->
 	<link rel="stylesheet" href="<?php echo Configuration::$BASE_URL ?>css/font-awesome/css/font-awesome.min.css">
 
-	<!-- videoJS v5.19 by videojs.com -->
-	<link href="<?php echo Configuration::$BASE_URL ?>css/video-js.min.css" rel="stylesheet">
-
 	<!-- Utility CSS -->
 	<link href="<?php echo Configuration::$BASE_URL ?>css/sticky-footer-navbar.css" rel="stylesheet" media="all">
 
@@ -150,14 +147,8 @@
 	<!-- JQuery v1.11.1 by Google -->
 	<script src="<?php echo Configuration::$BASE_URL ?>js/jquery.1.11.1.min.js"></script>
 
-	<!-- videoJS v5.19 by videojs.com -->
-	<script src="<?php echo Configuration::$BASE_URL ?>js/video.min.js"></script>
-
 	<!-- HighlightJS v9.12.0 by highlightjs.org -->
 	<script src="<?php echo Configuration::$BASE_URL ?>js/highlight.min.js"></script>
-
-	<!-- momentJS v2.18.1 by momentjs.com -->
-	<script src="<?php echo Configuration::$BASE_URL ?>js/moment.js"></script>
 
 	<!-- ChartJS v2.7.0 by chartjs.org  -->
 	<script src="<?php echo Configuration::$BASE_URL ?>js/Chart.min.js"></script>
@@ -222,7 +213,6 @@
 	include('system/packages/core/modules/modals/success_modal.php');
 	include('system/packages/core/modules/modals/yes_no_modal.php');
 	?>
-
 
 	<!-- Debug section (Admin only) -->
 	<?php
