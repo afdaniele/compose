@@ -15,7 +15,7 @@ $styleFile = preg_replace('/[^a-zA-Z0-9_.-]/', '', $styleFile);
 // check whether the stylesheet exists
 $stylePath = sprintf("%s/../system/packages/%s/css/%s", __DIR__, $packageName, $styleFile);
 if( !file_exists($stylePath) ){
-    $stylePath = sprintf("%s/../css/empty.css", __DIR__);
+  $stylePath = sprintf("%s/../css/empty.css", __DIR__);
 }
 
 // open the file in a binary mode
