@@ -30,7 +30,7 @@ use \system\classes\Core;
           $login_enabled = Core::getSetting('login_enabled', 'core', False);
           if( $login_enabled ){
             ?>
-            <div class="g-signin2" id="google-signin-button" data-width="240" data-height="50" data-longtitle="true" style="margin-left:100px" data-prompt="select_account"></div>
+            <div id="g-signin" style="margin-left: 100px;"></div>
             <!--  -->
             <img id="signin-loader" src="<?php echo Configuration::$BASE_URL ?>images/loading_blue.gif" style="display:none; width:32px; height:32px; margin-top:10px">
             <?php
@@ -65,3 +65,9 @@ use \system\classes\Core;
   </div>
   <p class="text-center muted" style="color:grey; margin-top:-10px">&copy; Copyright <?php echo date("Y"); ?> - <?php echo Core::getSiteName() ?></p>
 </section>
+
+<script type="text/javascript">
+  $(window).on('COMPOSE_LOGGED_IN', function(){
+    window.open("<?php echo Configuration::$BASE_URL.base64_decode($_GET['q']) ?>", "_top");
+  });
+</script>

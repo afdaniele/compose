@@ -168,7 +168,7 @@ function hidePleaseWait() {
 };
 
 
-function userLogInWithGoogle( baseurl, apiversion, token, id_token, successFcn ){
+function userLogInWithGoogle(baseurl, apiversion, token, id_token, successFcn){
     if( successFcn == undefined ) successFcn = function(){window.location.reload(true);};
     showPleaseWait();
     // compile URI

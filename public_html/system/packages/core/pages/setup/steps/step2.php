@@ -44,28 +44,14 @@ if(
     </p>
     <br/>
 
-    <div id="g-signin2"></div>
+    <div id="g-signin"></div>
+
   </form>
 
 </div>
 
 <script type="text/javascript">
-  function onSuccess(googleUser) {
+  $(window).on('COMPOSE_LOGGED_IN', function(evt){
     location.href = 'setup?step=<?php echo $step_no ?>&confirm=1';
-  }
-  function onFailure(error) {
-    openAlert('danger', error);
-  }
-  function renderButton() {
-    gapi.signin2.render('g-signin2', {
-      'scope': 'profile email',
-      'width': 240,
-      'height': 50,
-      'longtitle': true,
-      'onsuccess': onSuccess,
-      'onfailure': onFailure
-    });
-  }
+  });
 </script>
-
-<script src="https://apis.google.com/js/platform.js?onload=renderButton" async defer></script>
