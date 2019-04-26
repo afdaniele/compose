@@ -189,7 +189,10 @@
 
 	<!-- Fixed navbar -->
 	<?php
-	include( 'system/packages/core/modules/navbar.php' );
+  include( 'system/packages/core/modules/navbar.php' );
+
+  // google sign-in
+	include( 'system/packages/core/modules/google_signin.php' );
 	?>
 
 	<!-- Begin page content -->

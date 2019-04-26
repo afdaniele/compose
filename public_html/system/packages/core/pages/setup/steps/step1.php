@@ -12,6 +12,12 @@ use \system\classes\enum\StringType;
 
 $step_no = 1;
 
+// get configuration for core package
+$res = Core::getPackageSettings('core');
+if( !$res['success'] )
+  Core::throwError($res['data']);
+$core_pkg_setts = $res['data'];
+
 if( (isset($_GET['step']) && $_GET['step'] == $step_no) ||
   (isset($_GET['force_step']) && $_GET['force_step'] == $step_no)
   ){
@@ -20,12 +26,6 @@ if( (isset($_GET['step']) && $_GET['step'] == $step_no) ||
 
   // ---
   if( isset($_GET['data']) ){
-    // get configuration for core package
-    $res = Core::getPackageSettings( 'core' );
-    if( !$res['success'] )
-      Core::throwError($res['data']);
-    $core_pkg_setts = $res['data'];
-
     // check data
     $google_client_id = $_GET['data'];
     if( !StringType::isValid($google_client_id, StringType::TEXT) )
@@ -46,7 +46,7 @@ if( (isset($_GET['step']) && $_GET['step'] == $step_no) ||
   }
 
   // ---
-  if( isset($_GET['skip']) && $_GET['skip'] == '1' ){
+  if (isset($_GET['skip']) && $_GET['skip'] == '1') {
     $first_setup_db->write('no_admin', null);
     // mark the steps as completed
     array_push($confirm_steps, 1);
@@ -58,11 +58,18 @@ if( (isset($_GET['step']) && $_GET['step'] == $step_no) ||
     $first_setup_db->write('step'.$step_id, null);
   }
 
-  if( count($confirm_steps) ){
+  if (count($confirm_steps)) {
+    _compose_first_setup_step_in_progress();
     // redirect to setup page
     Core::redirectTo('setup');
   }
 }
+
+$client_id = Core::getSetting('google_client_id');
+$core_pkg_setts_meta = $core_pkg_setts->getMetadata();
+$default_client_id = $core_pkg_setts_meta['configuration_content']['google_client_id']['default'];
+
+$client_id = ($client_id != $default_client_id)? $client_id : null;
 ?>
 
 <div style="margin: 10px 20px">
@@ -85,7 +92,14 @@ if( (isset($_GET['step']) && $_GET['step'] == $step_no) ||
         <i class="fa fa-google" aria-hidden="true"></i>&nbsp; |&nbsp;
         Google Client ID
       </span>
-      <input name="data" type="text" class="form-control" placeholder="Your Google Client ID" aria-describedby="google-id">
+      <input
+        name="data"
+        type="text"
+        class="form-control"
+        placeholder="Your Google Client ID"
+        aria-describedby="google-id"
+        <?php echo is_null($client_id)? '' : sprintf('value="%s"', $client_id)?>
+        >
     </div>
 
     <div style="float: right; margin-top: 20px">

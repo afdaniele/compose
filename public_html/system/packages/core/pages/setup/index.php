@@ -67,6 +67,15 @@ select.form-control{
 
 
   <?php
+  function _compose_first_setup_step_in_progress(){
+    ?>
+    <div class="progress">
+      <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%">
+      </div>
+    </div>
+    <?php
+  }//_compose_first_setup_step_in_progress
+
   for ($step_no = 1; $step_no <= $num_steps; $step_no++) {
     $collapse = $step_no == $cur_step? 'in' : '';
     $icon = ($step_no == $cur_step)? 'square' : (($step_no < $cur_step)? 'check-square' : 'square-o');
@@ -88,6 +97,14 @@ select.form-control{
                 <span class="fa fa-pencil" aria-hidden="true"></span>
                 &nbsp;
                 Edit
+              </a>
+              <?php
+            }elseif($step_no > $cur_step && $first_setup_db->key_exists('step'.($step_no-1))){
+              ?>
+              <a role="button" class="btn btn-xs" href="setup?force_step=<?php echo $step_no ?>" style="float:right">
+                <span class="fa fa-mail-forward" aria-hidden="true"></span>
+                &nbsp;
+                Return
               </a>
               <?php
             }
