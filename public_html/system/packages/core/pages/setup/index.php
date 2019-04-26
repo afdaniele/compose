@@ -69,7 +69,7 @@ select.form-control{
   <?php
   for ($step_no = 1; $step_no <= $num_steps; $step_no++) {
     $collapse = $step_no == $cur_step? 'in' : '';
-    $icon = ($step_no == $cur_step)? 'square-o' : (($step_no < $cur_step)? 'check-square' : 'square');
+    $icon = ($step_no == $cur_step)? 'square' : (($step_no < $cur_step)? 'check-square' : 'square-o');
     $color = ($step_no < $cur_step)? 'green' : 'black';
     $panel_style = ($step_no < $cur_step)? 'panel-success' : 'panel-default';
     // ---
