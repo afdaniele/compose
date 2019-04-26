@@ -1,4 +1,4 @@
-# Setup
+# Install natively
 
 **\\compose\\** is designed to work on Linux machines. This part of the documentation
 will guide through all the steps needed to prepare you Linux environment for hosting
@@ -68,8 +68,8 @@ ServerName SERVER_HOSTNAME
 
 where `SERVER_HOSTNAME` is the public hostname of your server. If you don't know what a public
 hostname is, then it is likely that your server does not have one. In that case you can simply
-specify the IP address of your Linux machine. Once done, press **Ctrl-X**, then **Y** and **Enter**
-to save the changes and close the editor.
+specify the IP address of your Linux machine or `localhost`.
+Once done, press **Ctrl-X**, then **Y** and **Enter** to save the changes and close the editor.
 
 Check your Apache configuration again
 
@@ -195,7 +195,7 @@ sudo nano /etc/apache2/sites-available/000-default.conf
 
 You should be able to see something like the following.
 Change the file so that it matches the one shown below.
-You can decide where to install compose, it can be the default directory (i.e., `/var/www/html/`)
+You can decide where to install **\\compose\\**, it can be the default directory (i.e., `/var/www/html/`)
 or a new one in your home folder (e.g., `~/www/`). Let's refer to this directory as
 `COMPOSE_ROOT`.
 
@@ -268,19 +268,20 @@ git clone https://github.com/afdaniele/compose.git ./
 
 ## Test
 
-If you followed all the steps correctly, you should be able to see the configuration page
-of **\\compose\\** simply by typing the following URL in the address bar of your browser.
+Open your browser and navigate to the page
+[http://SERVER_HOSTNAME/](#).
+You should be able to see a **Setup** page like the following.
 
-```http
-http://SERVER_HOSTNAME/
-```
+<p style="text-align: center;">
+  <img src="images/setup/first_setup.png" width="80%" height="100%" style="border: 1px solid black">
+</p>
+
+You can now move to the step [First Setup](first-setup).
 
 If you experience problems reaching your installation of **\\compose\\**, please check again
 all the steps above. If you still have problems, take a look at the
 [Troubleshooting](troubleshooting) section of our documentation. If the problem persists,
 do not hesitate to open a new *Issue* on our [GitHub page](https://github.com/afdaniele/compose).
-
-
 
 
 ## Configure

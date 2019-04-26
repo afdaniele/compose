@@ -10,11 +10,15 @@ provides functionalities for fast-developing web applications on Linux servers.
     - [Introduction](#introduction)
     - [Architecture](#architecture)
 
-- [Setup](setup)
+- [Install using Docker (recommended)](setup-docker)
+
+- [Install natively](setup)
     - [Prepare environment](setup#prepare-environment)
     - [Install \\compose\\](setup#install-compose)
     - [Test](setup#test)
     - [Configure](setup#configure)
+
+- [First setup](first-setup)
 
 - [Libraries](libraries)
     - [Javascript libraries](libraries#javascript-libraries)

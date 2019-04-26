@@ -1,9 +1,7 @@
 <?php
 # @Author: Andrea F. Daniele <afdaniele>
-# @Date:   Sunday, January 7th 2018
 # @Email:  afdaniele@ttic.edu
 # @Last modified by:   afdaniele
-# @Last modified time: Saturday, January 13th 2018
 
 $page_file_name = $_GET['file'];
 
@@ -16,7 +14,6 @@ $dom = new DomDocument;
 $dom->loadHTMLFile( $page_file_name );
 /* Create a new XPath object */
 $xpath = new DomXPath($dom);
-
 ?>
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
