@@ -17,7 +17,7 @@ on [Bootstrap v3.3.1](https://getbootstrap.com/docs/3.3/getting-started/).
 
 The following image shows the layout of the HTML document provided by **\\compose\\**.
 
-![center](images/html-layout.svg =80%x100%)
+![center](images/html-layout/html-layout.svg =80%x100%)
 
 A detailed description of all the parts identified in the image above follows.
 
@@ -28,7 +28,7 @@ The Navigation Bar (Nav Bar) provides an intuitive and easy way to navigate cont
 It is a fixed header that remains visible at any time with the content of the page scrolling underneath
 it. The following image shows the NavBar shown to a user with administration privileges.
 
-![center](images/html-layout-navbar.png =90%x100%)
+![center](images/html-layout/navbar.jpg =90%x100%)
 
 The navbar presents a customizable logo on the left-hand side and a menu on the right-hand side.
 The menu contains a button for each page. Buttons in the Nav Bar are automatically added/removed
@@ -46,7 +46,7 @@ move from the main NavBar to a dropdown menu as the viewport gets smaller and sm
 image shows an example of this behavior, with 2 buttons out of 5 already moved to the dropdown menu and
 3 still on the default menu.
 
-![center](images/html-layout-navbar-responsive.png =70%x100%)
+![center](images/html-layout/navbar-responsive.jpg =70%x100%)
 
 The order with which buttons are moved from the main menu to the dropdown is defined by the parameter
 `menu_entry > responsive > priority` defined in the metadata file of each page
@@ -59,8 +59,8 @@ The page container is a `<div>` element that hosts both *page alerts* and *page 
 It constraints the [Page Canvas](#page-canvas) to a width of `970px` that guarantees optimal
 visibility on a broad variety of desktop and mobile devices.
 
-It is possible to relax this constraint by adding the following CSS style snippet to the beginning
-of your code while implementing a new page.
+It is possible to relax this constraint simply by adding the following CSS style snippet
+to the source code of your pages.
 
 ```html
 <style type="text/css">
@@ -87,7 +87,7 @@ It is possible to create four different types of alerts, namely **Success** (`ty
 The argument `message` supports HTML code.
 The image below shows one example for each type of alert, in the same order as listed above.
 
-![center](images/html-layout-alerts-example.png =80%x100%)
+![center](images/html-layout/alerts-example.jpg =80%x100%)
 
 
 ### Page Canvas
@@ -97,7 +97,7 @@ Let `PAGE_ROOT` be the main level of the folder containing the current page (e.g
 `PAGE_ROOT=/system/packages/my_package/pages/my_page/`), the page canvas will
 contain everything that is rendered by the file `PAGE_ROOT/index.php`.
 
-Visit the document [Create new page](FAKELINK#create-new-page) to learn more
+Visit the document [Create new page](new-page) to learn more
 about how to create a new page.
 
 
@@ -107,11 +107,11 @@ about how to create a new page.
 current version of **\\compose\\**, and a dropdown menu with the pages currently installed.
 The image below shows an example.
 
-![center](images/html-layout-user-footer.png =70%x100%)
+![center](images/html-layout/user-footer.jpg =70%x100%)
 
 Guest users will see a different (simpler) footer.
 
-![center](images/html-layout-guest-footer.png =70%x100%)
+![center](images/html-layout/guest-footer.jpg =70%x100%)
 
 
 <!-- LINKS -->
