@@ -1,5 +1,5 @@
 <div class="modal fade modal-vertical-centered" id="yes-no-modal">
-	<div class="modal-dialog modal-sm">
+	<div class="modal-dialog">
 		<div class="modal-content">
 
 			<div class="modal-header">
@@ -24,12 +24,16 @@
 
 <script type="text/javascript">
 
-	var configured = false;
+  var configured = false;
+	var yesNoSize = 'sm';
   var yesfunction = null;
 	var showPleaseWaitModal = true;
 
-	$('#yes-no-modal').on('show.bs.modal', function( e ){
+	$('#yes-no-modal').on('show.bs.modal', function(e){
 		if( !configured ){
+      // set size
+      $('#yes-no-modal .modal-dialog').addClass('modal-'+yesNoSize);
+      // set question
 			var question = $(e.relatedTarget).data('question');
 			$('#yes-no-modal #question-p').html( question );
 			//
@@ -48,7 +52,7 @@
 			yesfunction();
       if(showPleaseWaitModal){hidePleaseWait()};
 		}else{
-			var url = $('#yes-no-modal #yes-button').data( 'url' );
+			var url = $('#yes-no-modal #yes-button').data('url');
 			//
 			$.ajax({type: 'GET', url:url, dataType: 'json', success:function( result ){
 				if( result.code == 200 ){
@@ -69,10 +73,12 @@
 		}
 	});
 
-	function openYesNoModal( question, yes_fcn, silentMode ){
+	function openYesNoModal(question, yes_fcn, silentMode, size) {
 		$('#yes-no-modal #question-p').html( question );
+    size = (size == undefined)? 'sm' : size;
 		yesfunction = yes_fcn;
     showPleaseWaitModal = !silentMode;
+    yesNoSize = size;
 		//
 		configured = true;
 		//
