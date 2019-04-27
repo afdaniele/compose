@@ -16,7 +16,6 @@ provides functionalities for fast-developing web applications on Linux servers.
     - [Prepare environment](setup#prepare-environment)
     - [Install \\compose\\](setup#install-compose)
     - [Test](setup#test)
-    - [Configure](setup#configure)
 
 - [First setup](first-setup)
 
@@ -38,12 +37,13 @@ provides functionalities for fast-developing web applications on Linux servers.
     - [Install packages](FAKELINK#install-packages)
 
 - Intermediate
-    - [Create new package](FAKELINK#create-new-package)
-    - [Create new page](FAKELINK#create-new-page)
+    - [Create new package](new-package)
+    - [Create new page](new-page)
     - [Create new API end-point](FAKELINK#create-new-api-end-point)
     - [Package configuration](FAKELINK#package-configuration)
     - [Show alert](FAKELINK#show-alert)
     - [Show error page](FAKELINK#show-error-page)
+    - [Database API](FAKELINK#database-api)
 
 - Advanced
     - [URL Rewrite](url-rewrite)
@@ -59,6 +59,7 @@ provides functionalities for fast-developing web applications on Linux servers.
     - [\system\classes\Core](classsystem_1_1classes_1_1_core)
     - [\system\classes\Configuration](classsystem_1_1classes_1_1_configuration)
     - [\system\classes\EditableConfiguration](classsystem_1_1classes_1_1_editable_configuration)
+    - [\system\classes\Database](classsystem_1_1classes_1_1_database)
 
 - [Troubleshooting](troubleshooting)
 

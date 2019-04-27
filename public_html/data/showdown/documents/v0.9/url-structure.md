@@ -47,14 +47,11 @@ The value of **PAGE** can be retrieved by accessing the parameter `Configuration
 the user is redirected to a default page.
 
 The ID of all the pages installed can be found in the section *Pages*, page
-*Settings* of your installation of **\\compose\\**. You can find an example of list
-in the section [Settings->Pages](settings#pages).
+*Settings* of your instance of **\\compose\\**. You can find an example of list
+in the section [Settings->Pages](settings#section-pages).
 
 NOTE: Further details about the page ID will be
 provided later in the documentation (section [Packages->Pages](packages#pages)).
-
-NOTE: Default pages will be discussed later in
-the documentation (section [Settings->Default pages](settings#default-pages)).
 
 
 ## Action

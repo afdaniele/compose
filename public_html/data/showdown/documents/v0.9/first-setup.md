@@ -15,14 +15,17 @@ By default, **\\compose\\** uses
 [Google Sign-In](https://developers.google.com/identity/) to authenticate the users.
 This is very important, as it provides a high level of security when you deploy
 your application.
-If this is a test or a local application, you can skip the first step.
-Remember, even if you skip the first step now, you can always go back and enable
-**Google Sign-In** by providing your **Google Client ID** in the **Settings** page
-of your **\\compose\\** application.
 
-WARN: If you skip the first step, everybody with access to your application will
-have **administrator** privileges. It is very UNSAFE to deploy an application without
-configuring Google Sign-In first.
+For test or local applications, though, you can skip this step.
+If you skip the first step, the platform will automatically active the **Developer Mode**.
+When **\\compose\\** is in Developer Mode, the login system is disabled. This means
+that everybody who has access to your application is automatically considered an
+administrator. Visit the page
+<a href="developer-mode" target="\_blank">Developer Mode</a> to learn more
+about it.
+
+Remember that you can always go back and enable **Google Sign-In** at a later time,
+by providing your **Google Client ID** in the **Settings** page.
 
 If you want to enable **Google Sign-In**, visit
 [this page](https://developers.google.com/identity/protocols/OAuth2WebServer#enable-apis)

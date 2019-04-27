@@ -15,15 +15,6 @@ A package can add new
 
 [toc]
 
-## Package manager
-
-**\\compose\\** features a **Package Manager** that allows the administrator to monitor the status of installed
-packages and easily Enable/Disable them from the *Settings* page.
-The following image shows the **Package Manager** for an instance of **\\compose\\** with 5 packages installed.
-
-![center](images/packages_settings_page.png =90%x100%)
-
-
 
 ## Packages setup
 
@@ -58,19 +49,11 @@ PACKAGE_ROOT
 ├── css
 │   └── ...
 ├── data
-├── modules
-│   ├── api
-│   │   └── <api_version>
-│   │       └── api-services
-│   │           ├── executors
-│   │           │   └── ...
-│   │           └── specifications
-│   │               └── ...
-│   ├── modules
-│   │   ├── renderers
-│   │   │   └── blocks
-│   │   │       └── ...
+│   ├── public
 │   │   └── ...
+│   └── private
+│       └── ...
+├── modules
 │   └── ...
 ├── pages
 │   ├── <page_id>
@@ -78,7 +61,8 @@ PACKAGE_ROOT
 │   │   ├── index.php
 │   │   └── ...
 │   └── ...
-└── metadata.json
+├── metadata.json
+└── VERSION
 ```
 
 ### Minimal package
@@ -90,7 +74,7 @@ in the main level of the package complying with the
 In other words, **\\compose\\** will recognize `example` as a package
 if the file `/system/packages/example/metadata.json` exists and obeys the
 template defined by the [Package Metadata Requirements](standards#package-metadata-requirements)
-document. Visit the page [Create new package](FAKELINK#create-new-package)
+document. Visit the page [Create new package](new-package)
 to learn more about how to create a new package in **\\compose\\**.
 
 
@@ -114,7 +98,7 @@ in the main level of the page folder complying with the
 In other words, **\\compose\\** will recognize `test_page` as a page
 if the file `PACKAGE_ROOT/pages/test_page/metadata.json` exists and obeys the
 template defined by the [Page Metadata Requirements](standards#page-metadata-requirements)
-document. Visit the page [Create new page](FAKELINK#create-new-page)
+document. Visit the page [Create new page](new-page)
 to learn more about how to create a new page in **\\compose\\**.
 
 
@@ -161,13 +145,17 @@ if you want to learn more about how to register new user types in **\\compose\\*
 
 **\\compose\\** provides an easy way to add configurable parameters to our
 packages. Configurable parameters are defined in the file
-`PACKAGE_ROOT/configuration/metadata.json`. If you add a new entry to the
-list of parameters of this file, **\\compose\\** will automatically
+`PACKAGE_ROOT/configuration/metadata.json`, their values are stored in
+`PACKAGE_ROOT/configuration/configuration.json`.
 
-- create a new entry in the *Settings* page so that you can tune your parameter directly from the browser
-- load the current value and make it accessible via the Core API
-- save new values to the permanent configuration file
-- type-check the new values
+The file `metadata.json` is created when the package is defined and
+becomes part of the package source code. **\\compose\\** will only read
+from this file, never write to it.
+Conversely, the file `configuration.json` is created and maintained
+by **\\compose\\**, it should never be included in the source code
+of the package. The values stored in `configuration.json` are computed
+by fusing default values from the file `metadata.json` and
+and the custom values set using the page **Settings**.
 
 
 ## Custom Javascript libraries
@@ -222,28 +210,35 @@ A package can store two types of data:
 
 ### Public data
 
-The public data of a package with ID `package_id` is stored under `/data/<package_id>/`, where
-`/data/` is located in the root directory of **\\compose\\**. The administrator of the platform is
-responsible for making the public data available to the package by physically copying the data to this
-location. Different packages have different reasons for requiring public data. For example, a
-package that implements functionalities for monitoring the usage of the server may render available
-to the public periodic reports about the server usage.
+The public data of a package is stored under `PACKAGE_ROOT/data/public/`.
 
-Packages do not have access control over public data, which means that everybody can download it.
+Let `my_package` be a package that contains the image `my_image.jpg` in its public
+data directory (i.e., `PACKAGE_ROOT/data/public/my_image.jpg`).
+This file will be accessible at the URL
+`http://SERVER_HOSTNAME/data/my_package/my_image.jpg`.
+
+NOTE: Neither **\\compose\\** nor the packages have access control over this data.
+This means that everybody who has access to your application can download it.
 Make sure you don't use it to store sensible information.
 
 
 ### Private data
 
-The private data of a package is stored under `PACKAGE_ROOT/data/`. Unlike the public data,
-the administrator of the platform is NOT responsible for copying data to this location.
-Usually this type of data is used to store sensible information since the public does not have
-access to it. Packages have exclusive control over private data and usually neither the administrator
-nor the user of the platform is asked to manually intervene on it.
+The private data of a package is stored under `PACKAGE_ROOT/data/private/`.
+This is usually sensible information and the public does not have
+access to it. Packages have exclusive control over private data and usually
+neither the administrator nor the user is asked to manually intervene on it.
 
-As an example, a package could use private data to store access logs about the users.
+**\\compose\\**, for example, uses this directory to store the database
+of users.
 
-NOTE: Packages within the same instance of **\\compose\\** can access each others private data.
+If you are developing a package and need to store sensible data, you can
+use this directory. **\\compose\\** provides a **Database** API that you
+can use to read and write private data. Visit the page
+[Database API](database-api) to learn more about it.
+
+NOTE: Packages within the same instance of **\\compose\\** can access each
+others private data.
 
 
 [getJSscriptURL-documentation-link]: http://compose.afdaniele.com/documentation/classsystem_1_1classes_1_1_core.html#abf8818b9689322325d35a9a85debefda

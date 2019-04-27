@@ -273,7 +273,7 @@ Open your browser and navigate to the page
 You should be able to see a **Setup** page like the following.
 
 <p style="text-align: center;">
-  <img src="images/setup/first_setup.png" width="80%" height="100%" style="border: 1px solid black">
+  <img src="images/setup/first_setup_step1.jpg" width="80%" height="100%" style="border: 1px solid black">
 </p>
 
 You can now move to the step [First Setup](first-setup).
@@ -282,9 +282,3 @@ If you experience problems reaching your installation of **\\compose\\**, please
 all the steps above. If you still have problems, take a look at the
 [Troubleshooting](troubleshooting) section of our documentation. If the problem persists,
 do not hesitate to open a new *Issue* on our [GitHub page](https://github.com/afdaniele/compose).
-
-
-## Configure
-
-TODO: here we have to (because already linked somewhere else) talk about the `/system/config/configuration.php`
-and the class `\system\classes\Configuration` and its parameters.
