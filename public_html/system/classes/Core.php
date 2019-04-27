@@ -661,6 +661,15 @@ class Core{
 		// create administrator if this is the first user
 		if ($users_db->size() < 1) {
 			$user_info['role'] = 'administrator';
+      // disable the developer mode (if it is enabled)
+      if (self::getSetting('developer_mode')) {
+        $res = self::setSetting('core', 'developer_mode', false);
+        if (!$res['success']) {
+          return $res;
+        }
+        // warn the user of what happened
+        self::requestAlert('INFO', 'Administrator account created! The Developer Mode was disabled automatically.');
+      }
 		}
 		// create a new user account on the server
 		$res = $users_db->write($user_id, $user_info);
@@ -1189,8 +1198,9 @@ class Core{
 		if (key_exists($package_name, self::$settings )) {
 			if (self::$settings[$package_name]['success']) {
 				$res = self::$settings[$package_name]['data']->get($key, $default_value);
-				if (!$res['success'])
+				if (!$res['success']){
 					return $default_value;
+        }
 				return $res['data'];
 			}
 			return $default_value;
@@ -1221,16 +1231,25 @@ class Core{
 			if (self::$settings[$package_name]['success']) {
 				// update the key,value pair
 				$res = self::$settings[$package_name]['data']->set($key, $value);
-				if (!$res['success']) return $res['data'];
+				if (!$res['success']) {
+          return $res;
+        }
 				// commit the new configuration
 				$res = self::$settings[$package_name]['data']->commit();
-				if (!$res['success']) return $res['data'];
+				if (!$res['success']) {
+          return $res;
+        }
+        // update cache (if necessary)
+    		$cache_key = "packages_settings";
+    		if (self::$cache->has($cache_key)) {
+          self::$cache->set($cache_key, self::$settings, CacheTime::HOURS_24);
+        }
 				// success
-				return true;
+				return ['success' => true, 'data' => null];
 			}
-			return self::$settings[$package_name]['data']; // error message
+			return ['success' => false, 'data' => self::$settings[$package_name]['data']];
 		}
-		return null;
+    return ['success' => false, 'data' => sprintf('Package "%s" not found', $package_name)];
 	}//setSetting
 
 

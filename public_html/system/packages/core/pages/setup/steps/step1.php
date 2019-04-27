@@ -11,12 +11,6 @@ use \system\classes\enum\StringType;
 
 $step_no = 1;
 
-// get configuration for core package
-$res = Core::getPackageSettings('core');
-if( !$res['success'] )
-  Core::throwError($res['data']);
-$core_pkg_setts = $res['data'];
-
 if(
     (isset($_GET['step']) && $_GET['step'] == $step_no) ||
     (isset($_GET['force_step']) && $_GET['force_step'] == $step_no)
@@ -31,12 +25,7 @@ if(
       Core::throwError('Invalid value for parameter "data" for page "/setup", step #'.$step_no.'.');
     }
     // store google client ID
-    $res = $core_pkg_setts->set('google_client_id', $google_client_id);
-    if (!$res['success']) {
-      Core::throwError($res['data']);
-    }
-    // commit configuration file to disk
-    $res = $core_pkg_setts->commit();
+    $res = Core::setSetting('core', 'google_client_id', $google_client_id);
     if (!$res['success']) {
       Core::throwError($res['data']);
     }
@@ -48,12 +37,7 @@ if(
   if (isset($_GET['skip']) && $_GET['skip'] == '1') {
     $first_setup_db->write('no_admin', null);
     // enable developer mode
-    $res = $core_pkg_setts->set('developer_mode', true);
-    if (!$res['success']) {
-      Core::throwError($res['data']);
-    }
-    // commit configuration file to disk
-    $res = $core_pkg_setts->commit();
+    $res = Core::setSetting('core', 'developer_mode', true);
     if (!$res['success']) {
       Core::throwError($res['data']);
     }
@@ -77,6 +61,12 @@ if(
     Core::redirectTo('setup');
   }
 }
+
+// get configuration for core package
+$res = Core::getPackageSettings('core');
+if( !$res['success'] )
+  Core::throwError($res['data']);
+$core_pkg_setts = $res['data'];
 
 $client_id = Core::getSetting('google_client_id');
 $core_pkg_setts_meta = $core_pkg_setts->getMetadata();
