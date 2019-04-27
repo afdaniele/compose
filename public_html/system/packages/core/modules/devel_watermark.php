@@ -7,6 +7,7 @@
     text-align: center;
     font-size: 20pt;
     line-height: 24px;
+    z-index: 9999;
   }
 
   .developer_mode_watermark_bottom_right{
