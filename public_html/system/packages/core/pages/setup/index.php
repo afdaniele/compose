@@ -63,7 +63,6 @@ select.form-control{
     </tr>
   </table>
 
-
   <?php
   function _compose_first_setup_step_in_progress(){
     ?>

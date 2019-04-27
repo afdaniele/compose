@@ -43,7 +43,6 @@ use \system\classes\Core;
               require_once $login_addon_file;
               echo "<br/><br/>";
             }
-
           }else{
             ?>
             <h3>Login disabled.</h3>
@@ -58,7 +57,6 @@ use \system\classes\Core;
           <?php echo Core::getSiteName() ?> uses the <a href="https://developers.google.com/identity/">Google Sign-In API</a>
           authentication service.
         </p>
-
       </div>
     </div>
   </div>
