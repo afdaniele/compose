@@ -193,6 +193,16 @@ class Core{
 		]
 	];
 
+  private static $DEVELOPER_USER_INFO = [
+    "username" => '_compose_developer',
+    "name" => 'Developer',
+    "email" => null,
+    "picture" => 'images/developer.jpg',
+    "role" => "administrator",
+    "active" => true,
+    "pkg_role" => []
+  ];
+
 
 	//Disable the constructor
 	private function __construct() {}
@@ -526,6 +536,35 @@ class Core{
 	}//logInUserWithGoogle
 
 
+  /** Logs in as developer.
+  *
+  *	@retval array
+  *		a status array of the form
+  *	<pre><code class="php">[
+  *		"success" => boolean, 	// whether the call succeded
+  *		"data" => mixed 		// error message or NULL
+  *	]</code></pre>
+  *		where, the `success` field indicates whether the call succeded.
+  *		The `data` field contains an error string when `success` is `FALSE`.
+  */
+  public static function logInAsDeveloper(){
+    if ($_SESSION['USER_LOGGED']) {
+      return ['success' => false, 'data' => 'You are already logged in!'];
+    }
+    if (!self::getSetting('developer_mode')) {
+      return ['success' => false, 'data' => 'You can login as Developer only when the Developer Mode is active'];
+    }
+    // create user descriptor
+    $user_info = self::$DEVELOPER_USER_INFO;
+    // set login variables
+    $_SESSION['USER_LOGGED'] = true;
+    $_SESSION['USER_RECORD'] = $user_info;
+    // ---
+    Core::regenerateSessionID();
+    return ['success' => true, 'data' => $user_info];
+  }//logInAsDeveloper
+
+
 	/** Authorizes a user using an API Application.
 	 *
 	 *	@param string $app_id
@@ -778,8 +817,12 @@ class Core{
 	 *		logged in (similar to getUserInfo());
 	 *		If a value for `$field` is passed, only the value of the field specified is returned (e.g., name).
 	 */
-	public static function getUserLogged( $field=null) {
-		return (isset($_SESSION['USER_RECORD'])) ? ( ($field==null) ? $_SESSION['USER_RECORD'] : $_SESSION['USER_RECORD'][$field] ) : null;
+	public static function getUserLogged($field=null) {
+    if (!isset($_SESSION['USER_RECORD']) || is_null($_SESSION['USER_RECORD'])) {
+      return null;
+    }
+    $user_record = $_SESSION['USER_RECORD'];
+    return ($field == null)? $user_record : $user_record[$field];
 	}//getUserLogged
 
 
@@ -820,7 +863,10 @@ class Core{
 	 *
 	 *	@retval void
 	 */
-	public static function setUserRole( $user_role, $package='core') {
+	public static function setUserRole($user_role, $package='core') {
+    if (!isset($_SESSION['USER_RECORD'])) {
+      return;
+    }
 		//TODO: make sure that the give <pkg,role> pair was previously registered
 		if ($package == 'core') {
 			if (in_array($user_role, ['guest', 'user', 'supervisor', 'administrator']) )
