@@ -186,7 +186,12 @@
   include('system/packages/core/modules/navbar.php');
 
   // google sign-in
-	include('system/packages/core/modules/google_signin.php');
+  include('system/packages/core/modules/google_signin.php');
+
+  // developer mode watermark
+  if (Core::getSetting('developer_mode')) {
+    include('system/packages/core/modules/devel_watermark.php');
+  }
 	?>
 
 	<!-- Begin page content -->

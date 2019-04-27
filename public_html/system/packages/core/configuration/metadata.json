@@ -6,6 +6,12 @@
             "default" : false,
             "details" : "Whether the platform is in maintenance mode"
         },
+        "developer_mode" : {
+            "title" : "Developer mode (use with caution)",
+            "type" : "boolean",
+            "default" : false,
+            "details" : "Whether the platform is in developer mode"
+        },
         "website_name" : {
             "title" : "Website name",
             "type" : "text",
