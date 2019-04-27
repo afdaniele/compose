@@ -327,7 +327,7 @@ class Core{
     $resource_parts = array_filter(
       $resource_parts,
       function($e){return !is_null($e) && strlen($e) > 0;}
-   );
+    );
     return implode('/', $resource_parts);
   }//getCurrentResource
 
@@ -350,7 +350,7 @@ class Core{
       is_null($arg2)? '' : $arg2,
       (count($qs) > 0)? toQueryString(array_keys($qs), $qs, true) : '',
       (is_null($anchor) || strlen($anchor) <= 0)? '' : sprintf('#%s', $anchor)
-   );
+    );
   }//getURL
 
 
@@ -367,7 +367,7 @@ class Core{
       $format,
       sprintf('token=%s&', $token),
       (count($qs) > 0)? toQueryString(array_keys($qs), $qs, false, true) : ''
-   );
+    );
   }//getAPIurl
 
 
@@ -1571,12 +1571,14 @@ class Core{
 	public static function getPackageCodebaseInfo($package_name){
 		// check if this object is cached
 		$cache_key = sprintf("pkg_%s_codebase_info", $package_name);
-		if (self::$cache->has( $cache_key ) ) return self::$cache->get( $cache_key );
+		if (self::$cache->has($cache_key)) {
+      return self::$cache->get($cache_key);
+    }
 		// hash not present in cache, get it from git
     $package_dir = sprintf('%s%s', $GLOBALS['__PACKAGES__DIR__'], $package_name);
     $codebase_info = self::getGitRepositoryInfo($package_dir);
 		// cache object
-		self::$cache->set( $cache_key, $codebase_info, CacheTime::HOURS_24 );
+		self::$cache->set($cache_key, $codebase_info, CacheTime::HOURS_24);
 		//
 		return $codebase_info;
 	}//getCodebaseInfo
@@ -1720,7 +1722,7 @@ class Core{
       </script>",
       $type,
       addslashes($message)
-   );
+    );
   }//openAlert
 
 	public static function throwError($errorMsg) {
