@@ -4,6 +4,7 @@
 # @Last modified by:   afdaniele
 
 use \system\classes\Core;
+use \system\classes\Cache;
 use \system\classes\Configuration;
 use \system\classes\Database;
 use \system\classes\enum\StringType;
@@ -16,29 +17,29 @@ if( !$res['success'] )
   Core::throwError($res['data']);
 $core_pkg_setts = $res['data'];
 
-if( (isset($_GET['step']) && $_GET['step'] == $step_no) ||
-  (isset($_GET['force_step']) && $_GET['force_step'] == $step_no)
+if(
+    (isset($_GET['step']) && $_GET['step'] == $step_no) ||
+    (isset($_GET['force_step']) && $_GET['force_step'] == $step_no)
   ){
   $confirm_steps = [];
   $first_setup_db = new Database('core', 'first_setup');
-
   // ---
   if( isset($_GET['data']) ){
     // check data
     $google_client_id = $_GET['data'];
-    if( !StringType::isValid($google_client_id, StringType::TEXT) )
+    if (!StringType::isValid($google_client_id, StringType::TEXT)) {
       Core::throwError('Invalid value for parameter "data" for page "/setup", step #'.$step_no.'.');
-
+    }
     // store google client ID
     $res = $core_pkg_setts->set('google_client_id', $google_client_id);
-    if( !$res['success'] )
+    if (!$res['success']) {
       Core::throwError($res['data']);
-
+    }
     // commit configuration file to disk
     $res = $core_pkg_setts->commit();
-    if( !$res['success'] )
+    if (!$res['success']) {
       Core::throwError($res['data']);
-
+    }
     // mark the step as completed
     array_push($confirm_steps, $step_no);
   }
@@ -46,6 +47,16 @@ if( (isset($_GET['step']) && $_GET['step'] == $step_no) ||
   // ---
   if (isset($_GET['skip']) && $_GET['skip'] == '1') {
     $first_setup_db->write('no_admin', null);
+    // enable developer mode
+    $res = $core_pkg_setts->set('developer_mode', true);
+    if (!$res['success']) {
+      Core::throwError($res['data']);
+    }
+    // commit configuration file to disk
+    $res = $core_pkg_setts->commit();
+    if (!$res['success']) {
+      Core::throwError($res['data']);
+    }
     // mark the steps as completed
     array_push($confirm_steps, 1);
     array_push($confirm_steps, 2);
@@ -58,6 +69,10 @@ if( (isset($_GET['step']) && $_GET['step'] == $step_no) ||
 
   if (count($confirm_steps)) {
     _compose_first_setup_step_in_progress();
+    // clear cache
+    if (Cache::enabled()) {
+      Cache::clearAll();
+    }
     // redirect to setup page
     Core::redirectTo('setup');
   }
@@ -72,7 +87,6 @@ $client_id = ($client_id != $default_client_id)? $client_id : null;
 
 <div style="margin: 10px 20px">
   <form id="step-form">
-
     <p>
       <strong>\compose\</strong> uses the
       <a href="https://developers.google.com/identity/" target="_blank">Google Sign-In</a>
@@ -101,7 +115,7 @@ $client_id = ($client_id != $default_client_id)? $client_id : null;
     </div>
 
     <div style="float: right; margin-top: 20px">
-      <a role="button" class="btn btn-default" href="setup?force_step=<?php echo $step_no ?>&skip=1">
+      <a role="button" class="btn btn-default" onclick="_first_setup_skip_step1()">
         <span class="fa fa-fast-forward" aria-hidden="true"></span>
         &nbsp;
         Skip
@@ -114,13 +128,29 @@ $client_id = ($client_id != $default_client_id)? $client_id : null;
       </button>
     </div>
   </form>
-
 </div>
 
 <script type="text/javascript">
+
+  function _first_setup_skip_step1(){
+    var url = "<?php echo Core::getURL('setup', null, null, null, ['force_step' => $step_no, 'skip' => 1]) ?>";
+    var question = "If you skip this step, the <strong>Developer Mode</strong> will be enabled.";
+    question += "<br/>The Developer Mode allows everybody to access the platform without logging in.";
+    question += "<br/>Remember to turn it off before deploying your application.";
+    question += "<br/>Learn more about <a href=\"http://compose.afdaniele.com/docs/latest/developer-mode\" target=\"_blank\">Developer Mode</a>.";
+    question += "<br/><br/><strong>Do you want to continue?<strong>";
+    openYesNoModal(
+      question,
+      function(){location.href = url;},
+      true,
+      'md'
+    );
+  }//_first_setup_skip_step1
+
   $('#confirm-step-button').on('click', function(){
     qs = serializeForm( '#step-form' );
     //
     location.href = 'setup?step=<?php echo $step_no ?>&'+qs;
   });
+
 </script>
