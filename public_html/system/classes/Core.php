@@ -1771,6 +1771,18 @@ class Core{
     );
   }//openAlert
 
+  public static function requestAlert($type, $message){
+    if (!in_array($type, ['INFO', 'ERROR', 'WARNING'])) {
+      self::throwErrorF(
+        'Unknown alert type "%s". Allowed values are ["%s"]',
+        $type,
+        implode('", "', ['INFO', 'ERROR', 'WARNING'])
+      );
+    }
+    $alert_key = sprintf('_ALERT_%s', $type);
+    $_SESSION[$alert_key] = $message;
+  }//requestAlert
+
 	public static function throwError($errorMsg) {
 		$_SESSION['_ERROR_PAGE_MESSAGE'] = $errorMsg;
 		//
