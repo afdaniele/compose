@@ -41,6 +41,7 @@ use \system\classes\Core;
             // render add-ons
             foreach ($login_addon_files as $login_addon_file) {
               require_once $login_addon_file;
+              echo "<br/><br/>";
             }
 
           }else{
