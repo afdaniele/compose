@@ -1,0 +1,12 @@
+{
+    "name" : "Not Found",
+    "package" : "core",
+    "menu_entry" : null,
+    "child_pages" : [],
+    "access_level" : [
+        "administrator",
+        "supervisor",
+        "user",
+        "guest"
+    ]
+}
