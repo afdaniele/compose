@@ -46,7 +46,7 @@ foreach ($buttons as &$button) {
 }
 
 // define responsive parameters
-$responsive_width_per_button = 120;
+$responsive_width_per_button = 140;
 $responsive_min_width =
 	400 + // logo and name
 	$responsive_width_per_button * $non_responsive_btns + // non responsive buttons
@@ -88,10 +88,9 @@ foreach ($buttons as &$button) {
 
 			</a>
 		</div>
+
 		<div id="navbar" class="collapse navbar-collapse">
-
 			<ul class="nav navbar-nav navbar-right">
-
 				<?php
 				$pages = Core::getFilteredPagesList(
 					'by-menuorder',

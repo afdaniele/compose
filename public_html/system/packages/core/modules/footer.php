@@ -102,53 +102,62 @@ function footer_user_menu(){
         );
 
         foreach($pages as &$elem) {
-          if( !is_null($pages_whitelist) && !in_array($elem['id'], $pages_whitelist) )
-          continue;
-          if( !is_null($pages_blacklist) && in_array($elem['id'], $pages_blacklist) )
-          continue;
+          if (!is_null($pages_whitelist) && !in_array($elem['id'], $pages_whitelist)) {
+            continue;
+          }
+          if (!is_null($pages_blacklist) && in_array($elem['id'], $pages_blacklist)) {
+            continue;
+          }
           // hide pages if maintenance mode is enabled
-          if( $main_user_role!='administrator' && Core::getSetting('maintenance_mode','core',true) && $elem['id']!='login' )
-          continue;
+          if ($main_user_role != 'administrator' && Core::getSetting('maintenance_mode', 'core', true) && $elem['id']!='login') {
+            continue;
+          }
           // hide page if the current user' role is excluded
-          if( count( array_intersect($user_roles, $elem['menu_entry']['exclude_roles']) ) > 0 )
-          continue;
+          if (count(array_intersect($user_roles, $elem['menu_entry']['exclude_roles'])) > 0) {
+            continue;
+          }
           $icon = sprintf('%s %s-%s', $elem['menu_entry']['icon']['class'], $elem['menu_entry']['icon']['class'], $elem['menu_entry']['icon']['name']);
           ?>
           <li role="presentation">
-            <a role="menuitem" tabindex="-1"
-            href="<?php echo \system\classes\Configuration::$BASE . $elem['id'] ?>"
-            style="color:white" onMouseOver="this.style.color='#000'" onMouseOut="this.style.color='#FFF'">
-            <span class="<?php echo $icon ?>" aria-hidden="true"></span> &nbsp;
-            <?php echo $elem['name'] ?>
-          </a>
-        </li>
-        <?php
-      }
-      ?>
-      <li class="divider"></li>
-      <!-- Logout button -->
-      <li role="presentation" style="margin-bottom:20px">
-        <a role="menuitem" tabindex="-1" href="#"
-        onclick="userLogOut('<?php echo \system\classes\Configuration::$BASE ?>', '<?php echo \system\classes\Configuration::$BASE_URL ?>', '<?php echo \system\classes\Configuration::$WEBAPI_VERSION ?>', '<?php echo $_SESSION['TOKEN'] ?>');"
-        style="color:#ffc864" onMouseOver="this.style.color='#000'" onMouseOut="this.style.color='#ffc864'">
-        <span class="glyphicon glyphicon-log-out" aria-hidden="true"></span> &nbsp;Log out
-      </a>
-    </li>
+            <a
+            role="menuitem"
+            tabindex="-1"
+            href="<?php echo Configuration::$BASE . $elem['id'] ?>"
+            style="color:white"
+            onMouseOver="this.style.color='#000'"
+            onMouseOut="this.style.color='#FFF'"
+            >
+              <span class="<?php echo $icon ?>" aria-hidden="true"></span>
+              &nbsp; <?php echo $elem['name'] ?>
+            </a>
+          </li>
+          <?php
+        }
+        ?>
+        <li class="divider"></li>
+        <!-- Logout button -->
+        <li role="presentation" style="margin-bottom:20px">
+          <a role="menuitem" tabindex="-1" href="#"
+          onclick="userLogOut('<?php echo Configuration::$BASE ?>', '<?php echo Configuration::$BASE_URL ?>', '<?php echo Configuration::$WEBAPI_VERSION ?>', '<?php echo $_SESSION['TOKEN'] ?>');"
+          style="color:#ffc864" onMouseOver="this.style.color='#000'" onMouseOut="this.style.color='#ffc864'">
+          <span class="glyphicon glyphicon-log-out" aria-hidden="true"></span> &nbsp;Log out
+        </a>
+      </li>
+    </ul>
+
+  </li>
+
   </ul>
 
-</li>
-
-</ul>
-
-<div style="float:left">
-  <p style="margin:0; font-size:16px; margin-top:8px"><strong><?php echo $user['name'] ?></strong></p>
-  <p style="margin:0; font-size:12px; margin-top:-4px"><?php echo $user['email'] ?></p>
-</div>
+  <div style="float:left">
+    <p style="margin:0; font-size:16px; margin-top:8px"><strong><?php echo $user['name'] ?></strong></p>
+    <p style="margin:0; font-size:12px; margin-top:-4px"><?php echo $user['email'] ?></p>
+  </div>
 <?php
 }
 
 
-function footer_credits( $float ){
+function footer_credits( $float) {
   ?>
   <table id="credits_table_<?php echo $float ?>">
     <tr>
@@ -158,7 +167,7 @@ function footer_credits( $float ){
             powered by &nbsp;
           </span>
           <a href="https://github.com/afdaniele/compose" target="_blank">
-            <img src="<?php echo \system\classes\Configuration::$BASE ?>images/compose-white-logo.svg"></img>
+            <img src="<?php echo Configuration::$BASE ?>images/compose-white-logo.svg"></img>
           </a>
         </p>
       </td>
@@ -200,7 +209,7 @@ function footer_credits( $float ){
     <tr>
 
       <?php
-      if( Core::isUserLoggedIn() ){
+      if (Core::isUserLoggedIn()) {
         ?>
         <td class="text-left">
           <?php footer_user_menu(); ?>
