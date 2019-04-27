@@ -7,7 +7,7 @@
             "details" : "Whether the platform is in maintenance mode"
         },
         "developer_mode" : {
-            "title" : "Developer mode (use with caution)",
+            "title" : "Developer mode",
             "type" : "boolean",
             "default" : false,
             "details" : "Whether the platform is in developer mode"
