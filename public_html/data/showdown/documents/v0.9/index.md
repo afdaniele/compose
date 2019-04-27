@@ -20,6 +20,8 @@ provides functionalities for fast-developing web applications on Linux servers.
 
 - [First setup](first-setup)
 
+- [Developer Mode](developer-mode)
+
 - [Libraries](libraries)
     - [Javascript libraries](libraries#javascript-libraries)
     - [CSS libraries](libraries#css-libraries)
