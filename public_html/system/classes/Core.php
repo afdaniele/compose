@@ -216,7 +216,7 @@ class Core{
 	 *		where, the `success` field indicates whether the call succeded.
 	 *		The `data` field contains an error string when `success` is `FALSE`.
 	 */
-	public static function init( $safe_mode=false) {
+	public static function init($safe_mode=false) {
 		if (!self::$initialized) {
 			mb_internal_encoding("UTF-8");
 			//
@@ -231,13 +231,13 @@ class Core{
 			//
 			// load settings for the core module only (needed to initialize the cache)
 			self::$packages = ['core' => null];
-			self::$settings = self::_load_packages_settings( true );
+			self::$settings = self::_load_packages_settings(true);
 			//
 			// set timezone
 			date_default_timezone_set(self::getSetting('timezone', 'core', 'America/Chicago'));
 			//
 			// load default page per role
-			foreach( self::$registered_user_roles['core'] as $user_role => &$user_role_config) {
+			foreach(self::$registered_user_roles['core'] as $user_role => &$user_role_config) {
 				$key = sprintf('%s_default_page', $user_role);
 				$user_role_config['default_page'] = self::getSetting($key, 'core', $user_role_config['factory_default_page']);
 			}
@@ -248,16 +248,16 @@ class Core{
 			}
 			//
 			// load list of available packages
-			self::$packages = self::_load_available_packages( $safe_mode );
+			self::$packages = self::_load_available_packages($safe_mode);
 			// load list of available pages
-			self::$pages = self::_load_available_pages( $safe_mode );
+			self::$pages = self::_load_available_pages($safe_mode);
 			// load package-specific settings
-			self::$settings = self::_load_packages_settings( $safe_mode );
+			self::$settings = self::_load_packages_settings($safe_mode);
 			//
 			// safe mode (everything after this point should be optional)
 			if ($safe_mode) {
 				self::$initialized = true;
-				return array( 'success' => true, 'data' => null );
+				return array('success' => true, 'data' => null);
 			}
 			//
 			// load email templates
@@ -265,33 +265,33 @@ class Core{
 			//
 			// create dependencies graph for the packages
 			$dep_graph = [];
-			foreach( self::$packages as $pkg_id => $pkg) {
+			foreach(self::$packages as $pkg_id => $pkg) {
 				if ($pkg_id=='core' ) continue;
 				// collect dependencies
 				$dep_graph[$pkg_id] = $pkg['dependencies']['packages'];
 			}
 			// solve the dependencies graph
 			$res = self::_solve_dependencies_graph($dep_graph);
-			if (!$res['success'] ) return $res;
+			if (!$res['success']) return $res;
 			$package_order = $res['data'];
 			//
 			// initialize all the packages
-			foreach( $package_order as $pkg_id) {
+			foreach($package_order as $pkg_id) {
 				$pkg = self::$packages[$pkg_id];
-				if (!$pkg['enabled'] ) continue;
+				if (!$pkg['enabled']) continue;
 				// initialize package Core class
 				if (!is_null($pkg['core'])) {
 					// try to load the core file
 					$file_loaded = include_once $pkg['core']['file'];
 					if ($file_loaded) {
 						// TODO: do not prepend \system\classes if it is already in $pkg['core']['namespace']
-						$php_init_command = sprintf( "return \system\packages\%s\%s::init();", $pkg['core']['namespace'], $pkg['core']['class'] );
+						$php_init_command = sprintf("return \system\packages\%s\%s::init();", $pkg['core']['namespace'], $pkg['core']['class']);
 						// try to initialize the package core class
 						try {
-							$res = eval( $php_init_command );
+							$res = eval($php_init_command);
 							if (!is_array($res) )
 								return ['success' => false, 'data' => sprintf('An error occurred while initializing the package `%s`. Command `%s`', $pkg['id'], $php_init_command)];
-							if (!$res['success'] )
+							if (!$res['success'])
 								return ['success' => false, 'data' => sprintf('An error occurred while initializing the package `%s`. Command `%s`. The module reports: "%s"', $pkg['id'], $php_init_command, $res['data'])];
 						} catch (\Error $e) {
 							return ['success' => false, 'data' => $e->getMessage()];
@@ -327,7 +327,7 @@ class Core{
     $resource_parts = array_filter(
       $resource_parts,
       function($e){return !is_null($e) && strlen($e) > 0;}
-    );
+   );
     return implode('/', $resource_parts);
   }//getCurrentResource
 
@@ -350,7 +350,7 @@ class Core{
       is_null($arg2)? '' : $arg2,
       (count($qs) > 0)? toQueryString(array_keys($qs), $qs, true) : '',
       (is_null($anchor) || strlen($anchor) <= 0)? '' : sprintf('#%s', $anchor)
-    );
+   );
   }//getURL
 
 
@@ -367,39 +367,39 @@ class Core{
       $format,
       sprintf('token=%s&', $token),
       (count($qs) > 0)? toQueryString(array_keys($qs), $qs, false, true) : ''
-    );
+   );
   }//getAPIurl
 
 
-	public static function loadPackagesModules( $module_family=null, $pkg_id=null) {
-		foreach( self::$packages as $pkg) {
-			if (!$pkg['enabled'] || ( !is_null($pkg_id) && $pkg_id != $pkg['id'] ) )
+	public static function loadPackagesModules($module_family=null, $pkg_id=null) {
+		foreach(self::$packages as $pkg) {
+			if (!$pkg['enabled'] || (!is_null($pkg_id) && $pkg_id != $pkg['id']) )
 				continue;
 			// load package modules
-			foreach( $pkg['modules'] as $module_fam => $module_scripts) {
+			foreach($pkg['modules'] as $module_fam => $module_scripts) {
 				if (!is_null($module_family) && $module_family != $module_fam )
 					continue;
-				foreach( $module_scripts as $module_script) {
+				foreach($module_scripts as $module_script) {
 					// check file
 					if (!file_exists($module_script)) {
-						self::collectDebugInfo( $pkg['id'], sprintf('Load module script %s of type %s', $module_script, $module_family), false, Formatter::BOOLEAN );
+						self::collectDebugInfo($pkg['id'], sprintf('Load module script %s of type %s', $module_script, $module_family), false, Formatter::BOOLEAN);
 						continue;
 					}
 					// load module
 					require_once $module_script;
-					self::collectDebugInfo( $pkg['id'], sprintf('Load module %s of type %s', $module_script, $module_family), true, Formatter::BOOLEAN );
+					self::collectDebugInfo($pkg['id'], sprintf('Load module %s of type %s', $module_script, $module_family), true, Formatter::BOOLEAN);
 				}
 			}
 		}
 	}//loadPackagesModules
 
 
-	public static function getClasses( $parent_class=null) {
+	public static function getClasses($parent_class=null) {
 		$classes = [];
-		foreach( get_declared_classes() as $class) {
+		foreach(get_declared_classes() as $class) {
 		    if (!is_null($parent_class) && !is_subclass_of($class, $parent_class) )
 				continue;
-			array_push( $classes, $class );
+			array_push($classes, $class);
 		}
 		return $classes;
 	}//getClasses
@@ -419,7 +419,7 @@ class Core{
 	 *		The `data` field contains an error string when `success` is `FALSE`.
 	 */
 	public static function close(){
-		return array( 'success' => true, 'data' => null );
+		return array('success' => true, 'data' => null);
 	}//close
 
 
@@ -470,9 +470,9 @@ class Core{
 	 *		where, the `success` field indicates whether the call succeded.
 	 *		The `data` field contains an error string when `success` is `FALSE`.
 	 */
-	public static function logInUserWithGoogle( $id_token) {
+	public static function logInUserWithGoogle($id_token) {
 		if ($_SESSION['USER_LOGGED']) {
-			return array( 'success' => false, 'data' => 'You are already logged in!' );
+			return array('success' => false, 'data' => 'You are already logged in!');
 		}
 		// verify id_token
 		$client = new \Google_Client([
@@ -483,13 +483,13 @@ class Core{
 			$userid = $payload['sub'];
 			// create user descriptor
 			$user_info = [
-				"username" => $userid,
-			    "name" => $payload['name'],
-			    "email" => $payload['email'],
-				"picture" => $payload['picture'],
-			    "role" => "user",
-				"active" => true,
-				"pkg_role" => []
+        "username" => $userid,
+        "name" => $payload['name'],
+        "email" => $payload['email'],
+        "picture" => $payload['picture'],
+        "role" => "user",
+        "active" => true,
+        "pkg_role" => []
 			];
 			// look for a pre-existing user profile
 			$user_exists = self::userExists($userid);
@@ -544,26 +544,33 @@ class Core{
 	 *		The `data` field will contain the info about the API Application used to
 	 *		authenticate the user or an error string when `success` is `FALSE`.
 	 */
-	public static function authorizeUserWithAPIapp( $app_id, $app_secret) {
+	public static function authorizeUserWithAPIapp($app_id, $app_secret) {
 		RESTfulAPI::init();
 		// check if the app exists
-		$res = RESTfulAPI::getApplication( $app_id );
-		if (!$res['success'] ) return $res;
+		$res = RESTfulAPI::getApplication($app_id);
+		if (!$res['success']) {
+      return $res;
+    }
 		// get the app
 		$app = $res['data'];
 		// check if the app_secret matches
-		if (!boolval($app_secret == $app['secret']) )
+		if (!boolval($app_secret == $app['secret'])) {
 			return ['success' => false, 'data' => 'The application secret key provided is not correct'];
+    }
 		// check if the app is enabled
-		if (!boolval($app['enabled']) )
+		if (!boolval($app['enabled'])) {
 			return ['success' => false, 'data' => sprintf('The application `%s` is not enabled, thus it cannot be used', $app['id'])];
+    }
 		// get owner of the app
 		$username = $app['user'];
-		if (!self::userExists($username) )
+		if (!self::userExists($username)) {
 			return ['success' => false, 'data' => sprintf('The application `%s` is not enabled, thus it cannot be used', $app['id'])];
+    }
 		// load user info
 		$res = self::openUserInfo($username);
-		if (!$res['success'] ) return $res;
+		if (!$res['success']) {
+      return $res;
+    }
 		$user_info = $res['data']->asArray();
 		$user_info['pkg_role'] = [];
 		// this data will be deleted if the PHP session was not initialized before this call
@@ -598,14 +605,14 @@ class Core{
 	 *		where, the `success` field indicates whether the call succeded.
 	 *		The `data` field contains an error string when `success` is `FALSE`.
 	 */
-	public static function createNewUserAccount( $user_id, &$user_info) {
+	public static function createNewUserAccount($user_id, &$user_info) {
 		$user_exists = self::userExists($user_id);
 		if ($user_exists) {
 			return ['success' => false, 'data' => sprintf('The user `%s` already exists', $user_id) ];
 		}
 		// validate user info
-		$mandatory_fields = array_keys( self::$USER_ACCOUNT_TEMPLATE );
-		foreach( $mandatory_fields as $field) {
+		$mandatory_fields = array_keys(self::$USER_ACCOUNT_TEMPLATE);
+		foreach($mandatory_fields as $field) {
 			if (!isset($user_info[$field])) {
 				return ['success' => false, 'data' => sprintf('The field "%s" is required for a new user account', $field)];
 			}
@@ -628,7 +635,7 @@ class Core{
 	 *		whether a user is currently logged in;
 	 */
 	public static function isUserLoggedIn(){
-		return ( isset($_SESSION['USER_LOGGED'])? $_SESSION['USER_LOGGED'] : false );
+    return isset($_SESSION['USER_LOGGED'])? $_SESSION['USER_LOGGED'] : false;
 	}//isUserLoggedIn
 
 
@@ -705,30 +712,30 @@ class Core{
 	 *		The JsonDB object will contain at least the keys specified in $USER_ACCOUNT_TEMPLATE.
 	 *		See the documentation for the class JsonDB to understand how to edit and commit information.
 	 */
-	public static function openUserInfo( $user_id) {
+	public static function openUserInfo($user_id) {
 		// open users DB
 		$users_db = new Database('core', 'users');
 		// make sure that the user exists
 		if (!$users_db->key_exists($user_id) )
-			return array( 'success' => false, 'data' => 'User "'.$user_id.'" not found!' );
+			return array('success' => false, 'data' => 'User "'.$user_id.'" not found!');
 		// load user info
 		$res = $users_db->get_entry($user_id);
-		if (!$res['success'] )
+		if (!$res['success'])
 			return $res;
 		$user_info = $res['data'];
 		// sanity check on user entry
 		$static_user_info = $user_info->asArray();
-		$mandatory_fields = array_keys( self::$USER_ACCOUNT_TEMPLATE );
-		foreach( $mandatory_fields as $field) {
+		$mandatory_fields = array_keys(self::$USER_ACCOUNT_TEMPLATE);
+		foreach($mandatory_fields as $field) {
 			if (!isset($static_user_info[$field])) {
-				return array( 'success' => false, 'data' => 'The descriptor file for the user "'.$user_id.'" is corrupted! Contact the administrator' );
+				return array('success' => false, 'data' => 'The descriptor file for the user "'.$user_id.'" is corrupted! Contact the administrator');
 			}
 		}
 		if (strcmp($static_user_info['username'], $user_id) != 0) {
-			return array( 'success' => false, 'data' => 'The descriptor file for the user "'.$user_id.'" is corrupted! Contact the administrator' );
+			return array('success' => false, 'data' => 'The descriptor file for the user "'.$user_id.'" is corrupted! Contact the administrator');
 		}
 		//
-		return array( 'success' => true, 'data' => $user_info );
+		return array('success' => true, 'data' => $user_info);
 	}//openUserInfo
 
 
@@ -749,13 +756,13 @@ class Core{
 	 *		otherwise it will contain an associative array containing the information about the user specified.
 	 *		The associative array in `data` will contain at least the keys specified in $USER_ACCOUNT_TEMPLATE.
 	 */
-	public static function getUserInfo( $user_id) {
-		$res = self::openUserInfo( $user_id );
+	public static function getUserInfo($user_id) {
+		$res = self::openUserInfo($user_id);
 		if (!$res['success']) {
 			return $res;
 		}
 		//
-		return array( 'success' => true, 'data' => $res['data']->asArray() );
+		return array('success' => true, 'data' => $res['data']->asArray());
 	}//getUserInfo
 
 
@@ -786,11 +793,11 @@ class Core{
 	 *		defined by <b>\\compose\\</b> or any other role registered by third-party packages. A list
 	 *		of all the user roles registered can be retrieved using the function getAllRegisteredUserRoles();
 	 */
-	public static function getUserRole( $package='core') {
+	public static function getUserRole($package='core') {
 		// not logged => guest
-		if (!self::isUserLoggedIn() ) return 'guest';
+		if (!self::isUserLoggedIn()) return 'guest';
 		// core package
-		if ($package == 'core' ) return self::getUserLogged('role');
+		if ($package == 'core') return self::getUserLogged('role');
 		// third-party packages
 		$pkg_role = self::getUserLogged('pkg_role');
 		if (in_array($package, array_keys($pkg_role))) {
@@ -833,9 +840,9 @@ class Core{
 	 *		list of unique strings. Each string represents a different role;
 	 */
 	public static function getUserRolesList(){
-		$roles = [ self::getUserRole('core') ];
+		$roles = [self::getUserRole('core')];
 		$pkg_role = self::getUserLogged('pkg_role');
-		foreach( $pkg_role as $pkg_id => $pkg_role) {
+		foreach($pkg_role as $pkg_id => $pkg_role) {
 			$role = sprintf('%s:%s', $pkg_id, $pkg_role);
 			array_push($roles, $role);
 		}
@@ -849,9 +856,9 @@ class Core{
 	 *	@retval array
 	 *		list of unique strings. Each string represents a different user role;
 	 */
-	public static function getPackageRegisteredUserRoles( $package='core') {
+	public static function getPackageRegisteredUserRoles($package='core') {
 		if (array_key_exists($package, self::$registered_user_roles)) {
-			return array_keys( self::$registered_user_roles[$package] );
+			return array_keys(self::$registered_user_roles[$package]);
 		}
 		return [];
 	}//getPackageRegisteredUserRoles
@@ -865,10 +872,10 @@ class Core{
 	 */
 	public static function getAllRegisteredUserRoles(){
 		$roles = [];
-		foreach( array_keys(self::getPackagesList()) as $pkg_id) {
+		foreach(array_keys(self::getPackagesList()) as $pkg_id) {
 			$prefix = boolval($pkg_id == 'core')? '' : sprintf('%s:', $pkg_id);
-			$pkg_roles = self::getPackageRegisteredUserRoles( $pkg_id );
-			array_merge( $roles, array_map(function($v){ return sprintf('%s%s',$prefix,$v); }, $pkg_roles) );
+			$pkg_roles = self::getPackageRegisteredUserRoles($pkg_id);
+			array_merge($roles, array_map(function($v){ return sprintf('%s%s',$prefix,$v); }, $pkg_roles));
 		}
 		return array_unique($roles);
 	}//getAllRegisteredUserRoles
@@ -878,7 +885,7 @@ class Core{
 	 *
 	 *	@retval void
 	 */
-	public static function registerNewUserRole( $package, $user_role, $default_page='NO_DEFAULT_PAGE') {
+	public static function registerNewUserRole($package, $user_role, $default_page='NO_DEFAULT_PAGE') {
 		if (!array_key_exists($package, self::$registered_user_roles) ) self::$registered_user_roles[$package] = [];
 		// add the user role if not present
 		if (!array_key_exists($user_role, self::$registered_user_roles[$package])) {
@@ -1019,14 +1026,14 @@ class Core{
 	 *		where, the `success` field indicates whether the call succeded.
 	 *		The `data` field contains an error string when `success` is `FALSE`.
 	 */
-	public static function enablePackage( $package) {
+	public static function enablePackage($package) {
 		$package_meta = sprintf('%s%s/metadata.json', $GLOBALS['__PACKAGES__DIR__'], $package);
 		if (!file_exists($package_meta)) {
 			return ['success' => false, 'data' => sprintf('The package "%s" does not exist', $package)];
 		}
 		$package_disabled_flag = sprintf('%s%s/disabled.flag', $GLOBALS['__PACKAGES__DIR__'], $package);
 		if (file_exists($package_disabled_flag)) {
-			$success = unlink( $package_disabled_flag );
+			$success = unlink($package_disabled_flag);
 			return ['success' => $success, 'data' => null];
 		}
 		return ['success' => true, 'data' => null];
@@ -1048,7 +1055,7 @@ class Core{
 	 *		where, the `success` field indicates whether the call succeded.
 	 *		The `data` field contains an error string when `success` is `FALSE`.
 	 */
-	public static function disablePackage( $package) {
+	public static function disablePackage($package) {
 		if ($package == 'core' )
 			return ['success' => false, 'data' => 'The Core package cannot be disabled'];
 		$package_meta = sprintf('%s%s/metadata.json', $GLOBALS['__PACKAGES__DIR__'], $package);
@@ -1057,7 +1064,7 @@ class Core{
 		}
 		$package_disabled_flag = sprintf('%s%s/disabled.flag', $GLOBALS['__PACKAGES__DIR__'], $package);
 		if (!file_exists($package_disabled_flag)) {
-			$success = touch( $package_disabled_flag );
+			$success = touch($package_disabled_flag);
 			return ['success' => $success, 'data' => null];
 		}
 		return ['success' => true, 'data' => null];
@@ -1079,8 +1086,8 @@ class Core{
 	 *		The `data` field contains a string with the error when `success` is `FALSE`.
 	 *		If the package is not installed, the function returns `NULL`.
 	 */
-	public static function getPackageSettings( $package_name) {
-		if (key_exists( $package_name, self::$settings )) {
+	public static function getPackageSettings($package_name) {
+		if (key_exists($package_name, self::$settings )) {
 			return self::$settings[$package_name];
 		}
 		return null;
@@ -1104,8 +1111,8 @@ class Core{
 	 *		If an error occurred while reading the configuration of the given
 	 *		package, a `string` containing the error is returned.
 	 */
-	public static function getPackageSettingsAsArray( $package_name) {
-		if (key_exists( $package_name, self::$settings )) {
+	public static function getPackageSettingsAsArray($package_name) {
+		if (key_exists($package_name, self::$settings )) {
 			if (self::$settings[$package_name]['success']) {
 				return self::$settings[$package_name]['data']->asArray();
 			}
@@ -1132,11 +1139,11 @@ class Core{
 	 *		If the package is not installed or an error occurred while reading the
 	 *		configuration for the given package, `NULL` is returned.
 	 */
-	public static function getSetting( $key, $package_name='core', $default_value=null) {
-		if (key_exists( $package_name, self::$settings )) {
+	public static function getSetting($key, $package_name='core', $default_value=null) {
+		if (key_exists($package_name, self::$settings )) {
 			if (self::$settings[$package_name]['success']) {
-				$res = self::$settings[$package_name]['data']->get( $key, $default_value );
-				if (!$res['success'] )
+				$res = self::$settings[$package_name]['data']->get($key, $default_value);
+				if (!$res['success'])
 					return $default_value;
 				return $res['data'];
 			}
@@ -1163,15 +1170,15 @@ class Core{
 	 *		If an error occurred while writing the configuration of the given
 	 *		package, a `string` containing the error is returned.
 	 */
-	public static function setSetting( $package_name, $key, $value) {
-		if (key_exists( $package_name, self::$settings )) {
+	public static function setSetting($package_name, $key, $value) {
+		if (key_exists($package_name, self::$settings )) {
 			if (self::$settings[$package_name]['success']) {
 				// update the key,value pair
-				$res = self::$settings[$package_name]['data']->set( $key, $value );
-				if (!$res['success'] ) return $res['data'];
+				$res = self::$settings[$package_name]['data']->set($key, $value);
+				if (!$res['success']) return $res['data'];
 				// commit the new configuration
 				$res = self::$settings[$package_name]['data']->commit();
-				if (!$res['success'] ) return $res['data'];
+				if (!$res['success']) return $res['data'];
 				// success
 				return true;
 			}
@@ -1198,12 +1205,12 @@ class Core{
 	 *	@retval string
 	 *		URL to the requested image.
 	 */
-	public static function getImageURL( $image_file_with_extension, $package_name="core") {
+	public static function getImageURL($image_file_with_extension, $package_name="core") {
 		if ($package_name == "core") {
 			// TODO: return placeholder if the image does not exist (only for core case, image.php does the same)
-			return sprintf("%s/images/%s", Configuration::$BASE_URL, $image_file_with_extension );
+			return sprintf("%s/images/%s", Configuration::$BASE_URL, $image_file_with_extension);
 		}else{
-			return sprintf("%s/image.php?package=%s&image=%s", Configuration::$BASE, $package_name, $image_file_with_extension );
+			return sprintf("%s/image.php?package=%s&image=%s", Configuration::$BASE, $package_name, $image_file_with_extension);
 		}
 	}//getImageURL
 
@@ -1222,9 +1229,9 @@ class Core{
 	 */
 	public static function getJSscriptURL($js_file_with_extension, $package_name="core"){
 		if ($package_name == "core") {
-			return sprintf("%s/js/%s", Configuration::$BASE_URL, $js_file_with_extension );
+			return sprintf("%s/js/%s", Configuration::$BASE_URL, $js_file_with_extension);
 		}else{
-			return sprintf("%s/js.php?package=%s&script=%s", Configuration::$BASE, $package_name, $js_file_with_extension );
+			return sprintf("%s/js.php?package=%s&script=%s", Configuration::$BASE, $package_name, $js_file_with_extension);
 		}
 	}//getJSscriptURL
 
@@ -1241,16 +1248,16 @@ class Core{
 	 *	@retval string
 	 *		URL to the requested CSS file.
 	 */
-	public static function getCSSstylesheetURL( $css_file_with_extension, $package_name="core") {
+	public static function getCSSstylesheetURL($css_file_with_extension, $package_name="core") {
 		if ($package_name == "core") {
-			return sprintf("%s/css/%s", Configuration::$BASE_URL, $css_file_with_extension );
+			return sprintf("%s/css/%s", Configuration::$BASE_URL, $css_file_with_extension);
 		}else{
-			return sprintf("%s/css.php?package=%s&stylesheet=%s", Configuration::$BASE, $package_name, $css_file_with_extension );
+			return sprintf("%s/css.php?package=%s&stylesheet=%s", Configuration::$BASE, $package_name, $css_file_with_extension);
 		}
 	}//getCSSstylesheetURL
 
 
-	public static function registerCSSstylesheet( $css_file_with_extension, $package_name) {
+	public static function registerCSSstylesheet($css_file_with_extension, $package_name) {
 		array_push(
 			self::$registered_css_stylesheets,
 			sprintf('%s%s/css/%s', $GLOBALS['__PACKAGES__DIR__'], $package_name, $css_file_with_extension)
@@ -1267,7 +1274,7 @@ class Core{
 	// =======================================================================================================
 	// Pages management functions
 
-	public static function getPagesList( $order=null) {
+	public static function getPagesList($order=null) {
 		if (is_null($order) || !isset(self::$pages[$order])) {
 			return self::$pages;
 		}else{
@@ -1275,15 +1282,15 @@ class Core{
 		}
 	}//getPagesList
 
-	public static function getFilteredPagesList( $order='list', $enabledOnly=false, $accessibleBy=null) {
+	public static function getFilteredPagesList($order='list', $enabledOnly=false, $accessibleBy=null) {
 		$pages = array();
 		$pages_collection = self::getPagesList($order);
 		$accessibleBy = is_null($accessibleBy)? null : (is_array($accessibleBy)? $accessibleBy : [$accessibleBy]);
 		if (is_assoc($pages_collection)) {
 			if ($order == 'by-id') {
 				// collection in which pages are organized in an associative array by-id
-				foreach( $pages_collection as $key => $page) {
-					if ($enabledOnly && !$page['enabled'] ) continue;
+				foreach($pages_collection as $key => $page) {
+					if ($enabledOnly && !$page['enabled']) continue;
 					if (!is_null($accessibleBy) && count(array_intersect($accessibleBy, $page['access_level'])) == 0 ) continue;
 					//
 					$pages[$key] = $page;
@@ -1291,13 +1298,13 @@ class Core{
 				return $pages;
 			}else{
 				// collection in which pages are organized in sub-categories
-				foreach( $pages_collection as $group_id => $pages_per_group) {
+				foreach($pages_collection as $group_id => $pages_per_group) {
 					$pages_this_group = [];
-					foreach( $pages_per_group as $page) {
-						if ($enabledOnly && !$page['enabled'] ) continue;
+					foreach($pages_per_group as $page) {
+						if ($enabledOnly && !$page['enabled']) continue;
 						if (!is_null($accessibleBy) && count(array_intersect($accessibleBy, $page['access_level'])) == 0 ) continue;
 						//
-						array_push( $pages_this_group, $page );
+						array_push($pages_this_group, $page);
 					}
 					$pages[$group_id] = $pages_this_group;
 				}
@@ -1305,11 +1312,11 @@ class Core{
 			}
 		}else{
 			// collection in which pages are arranged in a sequence, no keys
-			foreach( $pages_collection as $page) {
-				if ($enabledOnly && !$page['enabled'] ) continue;
+			foreach($pages_collection as $page) {
+				if ($enabledOnly && !$page['enabled']) continue;
 				if (!is_null($accessibleBy) && count(array_intersect($accessibleBy, $page['access_level'])) == 0 ) continue;
 				//
-				array_push( $pages, $page );
+				array_push($pages, $page);
 			}
 			return $pages;
 		}
@@ -1317,7 +1324,7 @@ class Core{
 	}//getFilteredPagesList
 
 
-	public static function getPageDetails( $page_id, $attribute=null) {
+	public static function getPageDetails($page_id, $attribute=null) {
 		$pages = self::getPagesList('by-id');
 		$page_details = $pages[$page_id];
 		if (is_null($attribute)) {
@@ -1340,7 +1347,7 @@ class Core{
 	 *	@retval boolean
 	 * 		whether the page exists.
 	 */
-	public static function pageExists( $package, $page) {
+	public static function pageExists($package, $page) {
 		$page_meta = sprintf('%s%s/pages/%s/metadata.json', $GLOBALS['__PACKAGES__DIR__'], $package, $page);
 		return file_exists($page_meta);
 	}//pageExists
@@ -1357,7 +1364,7 @@ class Core{
 	 *	@retval boolean
 	 *		whether the page is enabled.
 	 */
-	public static function isPageEnabled( $package, $page) {
+	public static function isPageEnabled($package, $page) {
 		$page_disabled_flag = sprintf('%s%s/pages/%s/disabled.flag', $GLOBALS['__PACKAGES__DIR__'], $package, $page);
 		return !file_exists($page_disabled_flag);
 	}//isPageEnabled
@@ -1380,14 +1387,14 @@ class Core{
 	 *		where, the `success` field indicates whether the call succeded.
 	 *		The `data` field contains an error string when `success` is `FALSE`.
 	 */
-	public static function enablePage( $package, $page) {
+	public static function enablePage($package, $page) {
 		$page_meta = sprintf('%s%s/pages/%s/metadata.json', $GLOBALS['__PACKAGES__DIR__'], $package, $page);
 		if (!file_exists($page_meta)) {
 			return ['success' => false, 'data' => sprintf('The page "%s.%s" does not exist', $package, $page)];
 		}
 		$page_disabled_flag = sprintf('%s%s/pages/%s/disabled.flag', $GLOBALS['__PACKAGES__DIR__'], $package, $page);
 		if (file_exists($page_disabled_flag)) {
-			$success = unlink( $page_disabled_flag );
+			$success = unlink($page_disabled_flag);
 			return ['success' => $success, 'data' => null];
 		}
 		return ['success' => true, 'data' => null];
@@ -1411,7 +1418,7 @@ class Core{
 	 *		where, the `success` field indicates whether the call succeded.
 	 *		The `data` field contains an error string when `success` is `FALSE`.
 	 */
-	public static function disablePage( $package, $page) {
+	public static function disablePage($package, $page) {
 		if ($package == 'core' )
 			return ['success' => false, 'data' => 'Core pages cannot be disabled'];
 		$page_meta = sprintf('%s%s/pages/%s/metadata.json', $GLOBALS['__PACKAGES__DIR__'], $package, $page);
@@ -1420,14 +1427,14 @@ class Core{
 		}
 		$page_disabled_flag = sprintf('%s%s/pages/%s/disabled.flag', $GLOBALS['__PACKAGES__DIR__'], $package, $page);
 		if (!file_exists($page_disabled_flag)) {
-			$success = touch( $page_disabled_flag );
+			$success = touch($page_disabled_flag);
 			return ['success' => $success, 'data' => null];
 		}
 		return ['success' => true, 'data' => null];
 	}//disablePage
 
 
-	public static function getFactoryDefaultPagePerRole( $user_role) {
+	public static function getFactoryDefaultPagePerRole($user_role) {
 		$no_default = 'NO_DEFAULT_PAGE';
 		if (!array_key_exists($user_role, self::$registered_user_roles['core']) ) return $no_default;
 		// return default page
@@ -1435,7 +1442,7 @@ class Core{
 	}//getFactoryDefaultPagePerRole
 
 
-	public static function getDefaultPagePerRole( $user_role, $package='core') {
+	public static function getDefaultPagePerRole($user_role, $package='core') {
 		$no_default = 'NO_DEFAULT_PAGE';
 		if (!array_key_exists($package, self::$registered_user_roles) ) return $no_default;
 		if (!array_key_exists($user_role, self::$registered_user_roles[$package]) ) return $no_default;
@@ -1454,10 +1461,10 @@ class Core{
 		//
 
 		// TODO: Configuration::$CACHE_ENABLED is no longer available
-		// Configuration::$CACHE_ENABLED = ( self::$cache !== null && self::$cache instanceof phpFastCache );
+		// Configuration::$CACHE_ENABLED = (self::$cache !== null && self::$cache instanceof phpFastCache);
 		// // cache stats
-		// $statistics['STATS_TOTAL_SELECT_REQS'] = ( (Configuration::$CACHE_ENABLED && self::$cache->isExisting('STATS_TOTAL_SELECT_REQS'))? self::$cache->get( 'STATS_TOTAL_SELECT_REQS' ) : 1 );
-		// $statistics['STATS_CACHED_SELECT_REQS'] = ( (Configuration::$CACHE_ENABLED && self::$cache->isExisting('STATS_CACHED_SELECT_REQS'))? self::$cache->get( 'STATS_CACHED_SELECT_REQS' ) : 1 );
+		// $statistics['STATS_TOTAL_SELECT_REQS'] = ((Configuration::$CACHE_ENABLED && self::$cache->isExisting('STATS_TOTAL_SELECT_REQS'))? self::$cache->get('STATS_TOTAL_SELECT_REQS' ) : 1);
+		// $statistics['STATS_CACHED_SELECT_REQS'] = ((Configuration::$CACHE_ENABLED && self::$cache->isExisting('STATS_CACHED_SELECT_REQS'))? self::$cache->get('STATS_CACHED_SELECT_REQS' ) : 1);
 
 		//
 		return $statistics;
@@ -1501,7 +1508,7 @@ class Core{
     // check if this object is cached
 		$cache_key = sprintf("pkg_%s_codebase_hash_%s", $package_name, $long_hash? 'long' : 'short');
 		if(self::$cache->has($cache_key))
-      return self::$cache->get( $cache_key );
+      return self::$cache->get($cache_key);
 		// hash not present in cache, get it from git
     $package_dir = sprintf('%s%s', $GLOBALS['__PACKAGES__DIR__'], $package_name);
     $hash = self::getGitRepositoryHash($package_dir, $long_hash);
@@ -1614,7 +1621,7 @@ class Core{
 			$codebase_info['git_user'] = 'ND';
 			$codebase_info['git_repo'] = 'ND';
 		}else{
-			if (strcasecmp( substr($info[0], 0, 4), "http") == 0) {
+			if (strcasecmp(substr($info[0], 0, 4), "http") == 0) {
         // the remote URL is in the format "http(s)://(<user>@)<host>/<owner>/<repo>(.git)"
         $pattern = "/http(s)?:\/\/([^@]+@)?(.*)\/(.*)\/(.*)(\.git)?/";
         preg_match_all($pattern, $info[0], $matches);
@@ -1713,31 +1720,31 @@ class Core{
       </script>",
       $type,
       addslashes($message)
-    );
+   );
   }//openAlert
 
-	public static function throwError( $errorMsg) {
+	public static function throwError($errorMsg) {
 		$_SESSION['_ERROR_PAGE_MESSAGE'] = $errorMsg;
 		//
-		self::redirectTo( 'error' );
+		self::redirectTo('error');
 	}//throwError
 
 
-	public static function throwErrorF( ...$args) {
+	public static function throwErrorF(...$args) {
 		$_SESSION['_ERROR_PAGE_MESSAGE'] = call_user_func_array('sprintf', $args);
 		//
-		self::redirectTo( 'error' );
+		self::redirectTo('error');
 	}//throwErrorF
 
 
-	public static function throwException( $exceptionMsg) {
-		self::throwError( $exceptionMsg );
+	public static function throwException($exceptionMsg) {
+		self::throwError($exceptionMsg);
 	}//throwException
 
 
 	// public static function sendEMail($to, $subject, $template, $replace, $replyTo=null){
 	// 	// prepare the message body
-	// 	$res = EmailTemplates::fill( $template, $replace );
+	// 	$res = EmailTemplates::fill($template, $replace);
 	// 	if (!$res['success']) {
 	// 		return $res;
 	// 	}
@@ -1750,17 +1757,17 @@ class Core{
 	// 	$mail->SMTPAuth = Configuration::$NOREPLY_MAIL_AUTH;  				// Enable SMTP authentication
 	// 	$mail->Username = Configuration::$NOREPLY_MAIL_USERNAME;           	// SMTP username
 	// 	$mail->Password = Configuration::$NOREPLY_MAIL_PASSWORD;      		// SMTP password
-	// 	if (!in_array( Configuration::$NOREPLY_MAIL_SECURE_PROTOCOL, array('', 'none') )) {
+	// 	if (!in_array(Configuration::$NOREPLY_MAIL_SECURE_PROTOCOL, array('', 'none') )) {
 	// 		$mail->SMTPSecure = Configuration::$NOREPLY_MAIL_SECURE_PROTOCOL;  	// Enable TLS encryption, `ssl` also accepted
 	// 	}
 	// 	$mail->Port = Configuration::$NOREPLY_MAIL_SERVER_PORT;
 	// 	//
 	// 	$mail->From = Configuration::$NOREPLY_MAIL_ADDRESS;
 	// 	$mail->FromName = self::getSiteName();
-	// 	$mail->addAddress( $to );     										// Add a recipient
+	// 	$mail->addAddress($to);     										// Add a recipient
 	// 	//
 	// 	if ($replyTo !== null) {
-	// 		$mail->addReplyTo( $replyTo['email'], $replyTo['name'] );
+	// 		$mail->addReplyTo($replyTo['email'], $replyTo['name']);
 	// 	}
 	// 	//
 	// 	//$mail->addAttachment('/tmp/image.jpg', 'new.jpg');    			// Add an Attachment
@@ -1770,9 +1777,9 @@ class Core{
 	// 	$mail->Body = $body;
 	// 	//
 	// 	if(!$mail->send()) {
-	// 		return array( 'success' => false, 'data' => $mail->ErrorInfo );
+	// 		return array('success' => false, 'data' => $mail->ErrorInfo);
 	// 	} else {
-	// 		return array( 'success' => true, 'data' => null );
+	// 		return array('success' => true, 'data' => null);
 	// 	}
 	// }//sendEMail
 
@@ -1785,21 +1792,22 @@ class Core{
 	}//getErrorRecordsList
 
 
-	public static function getErrorRecord( $error_id) {
+	public static function getErrorRecord($error_id) {
 		// open errors DB
 		$errors_db = new Database('core', 'errors');
 		// get item
-		return $errors_db->read( $error_id );
+		return $errors_db->read($error_id);
 	}//getErrorRecord
 
 
-	public static function collectErrorInfo( $error_msg) {
+	public static function collectErrorInfo($error_msg) {
 		// open errors DB
 		$errors_db = new Database('core', 'errors');
 		// get user info
 		$user = null;
-		if (self::isUserLoggedIn() )
+		if (self::isUserLoggedIn()) {
 			$user = Core::getUserLogged('username');
+    }
 		// create error record
 		$error_id = strtotime("now");
 		$error = [
@@ -1809,19 +1817,19 @@ class Core{
 			'user' => $user
 		];
 		// push error to DB
-		$errors_db->write( $error_id, $error );
+		$errors_db->write($error_id, $error);
 	}//collectErrorInfo
 
 
-	public static function deleteErrorRecord( $error_id) {
+	public static function deleteErrorRecord($error_id) {
 		// open errors DB
 		$errors_db = new Database('core', 'errors');
 		// remove item
-		return $errors_db->delete( $error_id );
+		return $errors_db->delete($error_id);
 	}//deleteErrorRecord
 
 
-	public static function collectDebugInfo( $package, $test_id, $test_value, $test_type) {
+	public static function collectDebugInfo($package, $test_id, $test_value, $test_type) {
 		if (!Configuration::$DEBUG ) return;
 		if (!key_exists($package, self::$debugger_data) ) self::$debugger_data[$package] = array();
 		// add debug test tuple
@@ -1829,7 +1837,7 @@ class Core{
 	}//collectDebugInfo
 
 	// TODO: DO NOT USE: moving to Utils, use Utils::generateRandomString() instead
-	public static function generateRandomString( $length ) {
+	public static function generateRandomString($length) {
 		$chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
 		$count = mb_strlen($chars);
 		//
@@ -1841,26 +1849,26 @@ class Core{
 	}//generateRandomString
 
 
-	public static function verbose( $verbose_flag=True) {
+	public static function verbose($verbose_flag=True) {
 		self::$verbose = $verbose_flag;
 	}//verbose
 
 
-	public static function debug( $debug_flag=True) {
+	public static function debug($debug_flag=True) {
 		self::$debug = $debug_flag;
 	}//debug
 
 
-	public static function log( $type, $message, ...$args) {
+	public static function log($type, $message, ...$args) {
 		if (self::$debug) {
-			echo vsprintf( $message, $args );
+			echo vsprintf($message, $args);
 			echo '<br>';
 		}
 	}//log
 
 
-  public static function regenerateSessionID( $delete_old_session = false) {
-		session_regenerate_id( $delete_old_session );
+  public static function regenerateSessionID($delete_old_session = false) {
+		session_regenerate_id($delete_old_session);
 	}//regenerateSessionID
 
 
@@ -1907,11 +1915,11 @@ class Core{
 	}//_dep_solve_dependencies_graph
 
 
-	private static function _solve_dependencies_graph( $graph) {
+	private static function _solve_dependencies_graph($graph) {
 		$resolved = [];
 		$unresolved = [];
 		// resolve dependencies for each node
-		foreach( array_keys($graph) as $node) {
+		foreach(array_keys($graph) as $node) {
 		    try {
 		        list ($resolved, $unresolved) = self::_dep_solve_dependencies_graph($node, $graph, $resolved, $unresolved);
 		    } catch (\Exception $e) {
@@ -1923,18 +1931,18 @@ class Core{
 	}//_solve_dependencies_graph
 
 
-	private static function _load_packages_settings( $core_only=false) {
+	private static function _load_packages_settings($core_only=false) {
 		// check if this object is cached
-		$cache_key = sprintf( "packages_settings%s", $core_only? '_core_only' : '' );
-		if (self::$cache->has( $cache_key ) ) return self::$cache->get( $cache_key );
+		$cache_key = sprintf("packages_settings%s", $core_only? '_core_only' : '');
+		if (self::$cache->has($cache_key ) ) return self::$cache->get($cache_key);
 		//
 		$packages = self::getPackagesList();
-		$packages_ids = array_keys( $packages );
+		$packages_ids = array_keys($packages);
 		$settings = [];
 		// iterate over the packages
-		foreach( $packages_ids as $pkg_id) {
+		foreach($packages_ids as $pkg_id) {
 			if ($core_only && $pkg_id != 'core' ) continue;
-			$pkg_settings = new EditableConfiguration( $pkg_id );
+			$pkg_settings = new EditableConfiguration($pkg_id);
 			$res = $pkg_settings->sanityCheck();
 			if (!$res['success']) {
 				$settings[$pkg_id] = $res;
@@ -1946,7 +1954,7 @@ class Core{
 			}
 		}
 		// cache object
-		self::$cache->set( $cache_key, $settings, CacheTime::HOURS_24 );
+		self::$cache->set($cache_key, $settings, CacheTime::HOURS_24);
 		//
 		return $settings;
 	}//_load_packages_settings
@@ -1955,17 +1963,17 @@ class Core{
 	/*	Loads and returns the list of pages available in every package installed on the platform.
 	*TODO: add return description
 	*/
-	private static function _load_available_pages( $core_only=false) {
+	private static function _load_available_pages($core_only=false) {
 		// check if this object is cached
-		$cache_key_pages = sprintf( "available_pages%s", $core_only? '_core_only' : '' );
-		$cache_key_user_types = sprintf( "user_types%s", $core_only? '_core_only' : '' );
+		$cache_key_pages = sprintf("available_pages%s", $core_only? '_core_only' : '');
+		$cache_key_user_types = sprintf("user_types%s", $core_only? '_core_only' : '');
 		if (self::$cache->has($cache_key_pages) && self::$cache->has($cache_key_user_types)) {
-			self::$registered_user_roles = self::$cache->get( $cache_key_user_types );
-			return self::$cache->get( $cache_key_pages );
+			self::$registered_user_roles = self::$cache->get($cache_key_user_types);
+			return self::$cache->get($cache_key_pages);
 		}
 		//
 		$packages = self::getPackagesList();
-		$packages_ids = array_keys( $packages );
+		$packages_ids = array_keys($packages);
 		// iterate over the packages
 		$pages = [
 			'list' => [],
@@ -1976,90 +1984,90 @@ class Core{
 			'by-responsive-priority' => []
 		];
 		//
-		foreach( $packages_ids as $pkg_id) {
+		foreach($packages_ids as $pkg_id) {
 			if ($core_only && $pkg_id != 'core' ) continue;
 			$pages_descriptors = sprintf("%s%s/pages/*/metadata.json", $GLOBALS['__PACKAGES__DIR__'], $pkg_id);
-			$jsons = glob( $pages_descriptors );
+			$jsons = glob($pages_descriptors);
 			$pages['by-package'][$pkg_id] = [];
 			//
 			foreach ($jsons as $json) {
 				$page_id = Utils::regex_extract_group($json, "/.*pages\/(.+)\/metadata.json/", 1);
 				$page_path = Utils::regex_extract_group($json, "/(.+)\/metadata.json/", 1);
-				$page = json_decode( file_get_contents($json), true );
+				$page = json_decode(file_get_contents($json), true);
 				$page['package'] = $pkg_id;
 				$page['id'] = $page_id;
 				$page['path'] = $page_path;
 				$page['enabled'] = $packages[$pkg_id]['enabled'] && self::isPageEnabled($pkg_id, $page_id);
 				// list
-				array_push( $pages['list'], $page );
+				array_push($pages['list'], $page);
 				// by-id
 				$pages['by-id'][$page_id] = $page;
 				// by-package
-				array_push( $pages['by-package'][$pkg_id], $page );
+				array_push($pages['by-package'][$pkg_id], $page);
 				// by-usertype
 				foreach ($page['access_level'] as $access) {
 					if (!isset($pages['by-usertype'][$access]) ) $pages['by-usertype'][$access] = [];
-					array_push( $pages['by-usertype'][$access], $page );
+					array_push($pages['by-usertype'][$access], $page);
 				}
 				// collect user types
-				foreach( $page['access_level'] as $lvl) {
+				foreach($page['access_level'] as $lvl) {
 					$parts = explode(':', $lvl);
-					$package = ( count($parts) == 1 )? 'core' : $parts[0];
-					$role = ( count($parts) == 1 )? $parts[0] : $parts[1];
+					$package = (count($parts) == 1 )? 'core' : $parts[0];
+					$role = (count($parts) == 1 )? $parts[0] : $parts[1];
 					self::registerNewUserRole($package, $role);
 				}
 			}
 		}
 		// by-menuorder
-		$menuorder = array_filter($pages['list'], function($e){ return !is_null($e['menu_entry']); } );
+		$menuorder = array_filter($pages['list'], function($e){ return !is_null($e['menu_entry']); });
 		usort($menuorder, function($a, $b){
 			return ($a['menu_entry']['order'] < $b['menu_entry']['order'])? -1 : 1;
 		});
 		$pages['by-menuorder'] = $menuorder;
 		// by-responsive-priority
-		$responsive_priority = array_filter($pages['list'], function($e){ return !is_null($e['menu_entry']); } );
+		$responsive_priority = array_filter($pages['list'], function($e){ return !is_null($e['menu_entry']); });
 		usort($responsive_priority, function($a, $b){
 			return ($a['menu_entry']['responsive']['priority'] < $b['menu_entry']['responsive']['priority'])? -1 : 1;
 		});
 		$pages['by-responsive-priority'] = $responsive_priority;
 		// cache objects
-		self::$cache->set( $cache_key_pages, $pages, CacheTime::HOURS_24 );
-		self::$cache->set( $cache_key_user_types, self::$registered_user_roles, CacheTime::HOURS_24 );
+		self::$cache->set($cache_key_pages, $pages, CacheTime::HOURS_24);
+		self::$cache->set($cache_key_user_types, self::$registered_user_roles, CacheTime::HOURS_24);
 		//
 		return $pages;
 	}//_load_available_pages
 
 
-	private static function _load_available_packages( $core_only=false) {
+	private static function _load_available_packages($core_only=false) {
 		// check if this object is cached
-		$cache_key = sprintf( "available_packages%s", $core_only? '_core_only' : '' );
-		if (self::$cache->has( $cache_key ) ) return self::$cache->get( $cache_key );
+		$cache_key = sprintf("available_packages%s", $core_only? '_core_only' : '');
+		if (self::$cache->has($cache_key ) ) return self::$cache->get($cache_key);
 		//
 		$pkgs_descriptors = $GLOBALS['__PACKAGES__DIR__']."*/metadata.json";
-		$jsons = glob( $pkgs_descriptors );
+		$jsons = glob($pkgs_descriptors);
 		// check if this object is cached
-		$cache_key = sprintf( "available_packages%s", $core_only? '_core_only' : '' );
-		if (self::$cache->has( $cache_key ) ) return self::$cache->get( $cache_key );
+		$cache_key = sprintf("available_packages%s", $core_only? '_core_only' : '');
+		if (self::$cache->has($cache_key ) ) return self::$cache->get($cache_key);
 		// iterate over the packages
 		$pkgs = [];
 		foreach ($jsons as $json) {
 			$pkg_id = Utils::regex_extract_group($json, "/.*packages\/(.+)\/metadata.json/", 1);
 			if ($core_only && $pkg_id != 'core' ) continue;
 			$pkg_path = Utils::regex_extract_group($json, "/(.+)\/metadata.json/", 1);
-			$pkg = json_decode( file_get_contents($json), true );
+			$pkg = json_decode(file_get_contents($json), true);
 			$pkg['id'] = $pkg_id;
 			if (!key_exists('core', $pkg)) {
 				$pkg['core'] = null;
-				$pkg_core_file = sprintf( "%s/%s.php", $pkg_path, ucfirst($pkg_id) );
+				$pkg_core_file = sprintf("%s/%s.php", $pkg_path, ucfirst($pkg_id));
 				if (file_exists($pkg_core_file)) {
 					$pkg['core'] = [
 						'namespace' => $pkg_id,
-						'file' => sprintf( "%s.php", ucfirst($pkg_id) ),
+						'file' => sprintf("%s.php", ucfirst($pkg_id) ),
 						'class' => ucfirst($pkg_id)
 					];
 				}
 			}
-			$pkg['core']['file'] = sprintf( "%s/%s", $pkg_path, $pkg['core']['file'] );
+			$pkg['core']['file'] = sprintf("%s/%s", $pkg_path, $pkg['core']['file']);
 			// check whether the package is enabled
 			$pkg['enabled'] = self::isPackageEnabled($pkg_id);
       // get package codebase version
@@ -2067,10 +2075,10 @@ class Core{
 			// load modules
 			self::_load_package_modules_list($pkg_id, $pkg);
 			// create public data symlink (if it does not exist)
-			$sym_link = sprintf( "%s%s", $GLOBALS['__DATA__DIR__'], $pkg_id );
+			$sym_link = sprintf("%s%s", $GLOBALS['__DATA__DIR__'], $pkg_id);
 			$sym_link_exists = file_exists($sym_link);
 			if (!$sym_link_exists) {
-				$public_data_dir = sprintf( "%s%s/data/public", $GLOBALS['__PACKAGES__DIR__'], $pkg_id );
+				$public_data_dir = sprintf("%s%s/data/public", $GLOBALS['__PACKAGES__DIR__'], $pkg_id);
 				$pubdata_exists = file_exists($public_data_dir);
 				if ($pubdata_exists) {
 					$symlink_success = symlink($public_data_dir, $sym_link);
@@ -2080,20 +2088,20 @@ class Core{
 			$pkgs[$pkg_id] = $pkg;
 		}
 		// cache object
-		self::$cache->set( $cache_key, $pkgs, CacheTime::HOURS_24 );
+		self::$cache->set($cache_key, $pkgs, CacheTime::HOURS_24);
 		//
 		return $pkgs;
 	}//_load_available_packages
 
 
-	private static function _load_package_modules_list( &$pkg_id, &$package_descriptor) {
+	private static function _load_package_modules_list(&$pkg_id, &$package_descriptor) {
 		$package_descriptor['modules'] = [
 			'renderers/blocks' => []
 		];
 		// load renderers
 		// => block renderers
-		$block_rends_path = sprintf( "%s%s/modules/renderers/blocks/*.php", $GLOBALS['__PACKAGES__DIR__'], $pkg_id );
-		$block_rends = glob( $block_rends_path );
+		$block_rends_path = sprintf("%s%s/modules/renderers/blocks/*.php", $GLOBALS['__PACKAGES__DIR__'], $pkg_id);
+		$block_rends = glob($block_rends_path);
 		$package_descriptor['modules']['renderers/blocks'] = $block_rends;
 	}//_load_package_modules_list
 
