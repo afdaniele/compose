@@ -5,7 +5,7 @@ TODO: to be completed
 
 ## Package Metadata Requirements
 
-TODO: to be completed
+TODO: referenced in [New Package](new-package)
 
 
 ## Page Metadata Requirements

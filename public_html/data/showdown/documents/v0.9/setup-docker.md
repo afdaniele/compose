@@ -18,6 +18,10 @@ on an **x86(\_64)** machine, thus we will refer to the Docker image
 `afdaniele/compose:latest`. If you are using a machine with **arm** architecture
 (e.g., Raspberry Pi), you need to replace it with `afdaniele/compose-arm32v7:latest`.
 
+Remember to check out the list of
+[Important directories and terminology](index#important-directories-and-terminology)
+if you get confused while reading this documentation.
+
 
 ## Table of Contents
 
@@ -35,7 +39,7 @@ https://docs.docker.com/install/
 
 In this page, we will use the word `SERVER_HOSTNAME` to indicate the public
 hostname of your server. If you don't know what a public hostname is, then it is
-likely that your server does not have one. In that case you can simply
+likely that your server does not have one. In that case you can just
 replace it with the IP address of your machine or simply `localhost`.
 
 

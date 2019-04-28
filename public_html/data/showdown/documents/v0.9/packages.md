@@ -11,6 +11,11 @@ A package can add new
 - Custom CSS Stylesheets
 - Data (both public and private)
 
+Remember to check out the list of
+[Important directories and terminology](index#important-directories-and-terminology)
+if you get confused while reading this documentation.
+
+
 ## Table of Contents
 
 [toc]
@@ -40,23 +45,23 @@ will have package ID `example`.
 The `PACKAGE_ROOT` directory of a package has the following structure:
 
 ```treeview
-PACKAGE_ROOT
-├── configuration
+PACKAGE_ROOT&frasl;
+├── configuration&frasl;
 │   ├── metadata.json
 │   └── configuration.json
-├── js
+├── js&frasl;
 │   └── ...
-├── css
+├── css&frasl;
 │   └── ...
-├── data
-│   ├── public
+├── data&frasl;
+│   ├── public&frasl;
 │   │   └── ...
-│   └── private
+│   └── private&frasl;
 │       └── ...
-├── modules
+├── modules&frasl;
 │   └── ...
-├── pages
-│   ├── <page_id>
+├── pages&frasl;
+│   ├── <page_id>&frasl;
 │   │   ├── metadata.json
 │   │   ├── index.php
 │   │   └── ...

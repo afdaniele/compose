@@ -4,6 +4,11 @@
 will guide through all the steps needed to prepare you Linux environment for hosting
 **\\compose\\**.
 
+Remember to check out the list of
+[Important directories and terminology](index#important-directories-and-terminology)
+if you get confused while reading this documentation.
+
+
 ## Table of Contents
 
 [toc]

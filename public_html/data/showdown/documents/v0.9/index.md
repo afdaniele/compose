@@ -1,7 +1,8 @@
 # **\\compose\\**  -  A lightweight web-based CMS
 
 **\\compose\\** is a CMS (Content Management System) platform written in PHP that
-provides functionalities for fast-developing web applications on Linux servers.
+provides functionalities for the fast development of web applications on Linux
+servers.
 
 
 ## Table of Contents
@@ -9,36 +10,33 @@ provides functionalities for fast-developing web applications on Linux servers.
 - [Home](index)
     - [Introduction](#introduction)
     - [Architecture](#architecture)
+    - [Important directories and terminology](#important-directories-and-terminology)
 
-- [Install using Docker (recommended)](setup-docker)
-
-- [Install natively](setup)
-    - [Prepare environment](setup#prepare-environment)
-    - [Install \\compose\\](setup#install-compose)
-    - [Test](setup#test)
-
-- [First setup](first-setup)
-
-- [Developer Mode](developer-mode)
-
-- [Libraries](libraries)
-    - [Javascript libraries](libraries#javascript-libraries)
-    - [CSS libraries](libraries#css-libraries)
+- Get Started
+    - Installation
+        - [Install using Docker (recommended)](setup-docker)
+        - [Install natively](setup)
+    - [First setup](first-setup)
+    - [Developer Mode](developer-mode)
+    - [Package Store](package-store)
+    - [Packages](packages)
+    - [Create new package](new-package)
+    - [Create new page](new-page)
 
 - Beginners
     - [URL structure](url-structure)
     - [HTML Layout](html-layout)
     - [Settings](settings)
-    - [Code flow](FAKELINK#code-flow)
-    - [Packages](packages)
-    - [Pages](FAKELINK#pages)
+    - [Code flow](code-flow)
     - [Core package](FAKELINK#core-package)
     - [Users](FAKELINK#users)
     - [Install packages](FAKELINK#install-packages)
 
+- [Libraries](libraries)
+    - [Javascript libraries](libraries#javascript-libraries)
+    - [CSS libraries](libraries#css-libraries)
+
 - Intermediate
-    - [Create new package](new-package)
-    - [Create new page](new-page)
     - [Create new API end-point](FAKELINK#create-new-api-end-point)
     - [Package configuration](FAKELINK#package-configuration)
     - [Show alert](FAKELINK#show-alert)
@@ -72,7 +70,6 @@ third-party packages and allows us to install, remove, update, enable/disable
 packages and single components such as API End-points or Pages directly from
 the browser.
 
-<!-- REF to Bootstrap v3.3.1 -->
 Features:
 - Built-in support for different types of users;
 - 4 types of users supported by default: `guest`, `user`, `supervisor`, `administrator`;
@@ -109,3 +106,38 @@ The [RESTful](https://restfulapi.net/) API module in **\\compose\\** offers an e
 way for packages to export API end-points accessible via HTTP.
 Visit the page [Create new API end-point](FAKELINK#create-new-api-end-point) to learn more about
 how **\\compose\\** handles package-specific API end-points.
+
+
+## Important directories and terminology
+
+The image below shows the path to the source code of a page with ID `my_page`,
+contained in a package with ID `my_package`, within an instance of **\\compose\\**
+installed in `/var/www/html/`.
+
+![center](images/directories.svg =90%x100%)
+
+We use the following placeholders throughout the documentation to indicate
+specific paths in your machine.
+Some of them will not make sense to you right now. Just keep in mind that
+you can always come back here and check them out if you get confused while
+reading through the documentation.
+
+- `COMPOSE_ROOT`: The absolute path to the directory containing the source code
+of **\\compose\\** (e.g., `/var/www/html/`). This path must contain the folder
+`public_html` that comes with **\\compose\\**.
+- `PACKAGES_DIR`: Defined as `COMPOSE_ROOT/public_html/system/packages/`.
+This is the directory that contains all the installed packages.
+- `PACKAGE_ROOT`: This is the directory containing the source code of a single package.
+This directory is relative to a specific package, and it is usually clear from the
+context which package we are referring to. The `PACKAGE_ROOT` of the package
+`my_package` is `PACKAGES_DIR/my_package/`.
+- `PAGES_DIR`: Defined as `PACKAGE_ROOT/pages/`.
+This is the directory inside a `PACKAGE_ROOT` that contains all the
+pages of a package. Similarly to `PACKAGE_ROOT`, it makes sense to talk about
+`PAGES_DIR` only in the context of a given package.
+- `PAGE_ROOT`: This is the directory containing the source code of a single page.
+This directory is relative to a specific package and page, and it is usually
+clear from the context which package and page we are referring to.
+The `PAGE_ROOT` of the page `my_page` in the package `my_package` is
+`PAGES_DIR/my_page/` (or equivalently,
+`PACKAGE_ROOT/pages/my_page/`, `PACKAGES_DIR/my_package/pages/my_page/`).

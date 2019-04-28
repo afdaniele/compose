@@ -75,7 +75,7 @@ Each package can declare (register) its own roles and assign them to the users.
 to decide to which page a user should be redirected when no page is requested.
 Second, to control which user can access which pages.
 
-Visit the page [Create new page](#new-page) to learn more about how to use user
+Visit the page [Create new page](new-page) to learn more about how to use user
 roles to define access privileges.
 
 The **User roles** section shows the list of all user types (roles)
