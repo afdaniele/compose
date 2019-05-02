@@ -112,9 +112,144 @@ to learn more about the package metadata files.
 
 ## Configurable parameters
 
-TODO: linked from [settings#package-specific-settings](settings#package-specific-settings).
+TODO: Available soon!
+Linked from:<br/>- [settings#package-specific-settings](settings#package-specific-settings).
 
 
 ## Publish your package
 
-TODO: Available soon!
+Now that we have a new package, we want all our friends to be able to use it.
+Packages in **\\compose\\** are shared using `git`. Each package goes in
+a separate git repository. The package store in **\\compose\\** installs
+new packages by cloning the corresponding repository in `PACKAGES_DIR`.
+
+In order for your package to be accessible via the package store, your
+package has to be **public** and hosted on a **public index**.<br/>
+**\\compose\\** supports both [GitHub](https://www.github.com) and
+[BitBucket](https://www.bitbucket.org).
+
+Login on GitHub or BitBucket and create a public repository.
+
+NOTE: It is not mandatory that the repository name follows a
+specific naming convention, but we suggest using the format
+**compose-pkg-PACKAGE**, where you replace **PACKAGE** with the
+package ID.
+
+In this example, we will assume that the repository name is
+**compose-pkg-my\_package**, it is hosted on GitHub, and it is owned
+by the user **my\_username**. The URL to your repository would in this case be
+`https://github.com/my_username/compose-pkg-my_package`.
+
+Open a terminal, move to the directory `PACKAGE_ROOT` of the package
+that you want to publish (`PACKAGES_DIR/my_package` in this case), and run the
+following commands,
+
+```plain
+git init
+git remote add origin https://github.com/my_username/compose-pkg-my_package
+git add ./*
+git commit -m "first commit"
+git push origin master
+```
+
+This will tell **git** that:
+- this package is now a repository (`git init`);
+- the remote repository is hosted at a certain URL (`git remote add origin ...`);
+- every file in the package should be included in the repository (`git add/commit ...`);
+- we want to transfer our files to the remote repository (`git push ...`);
+
+Your package is now ready to be used by other people.<br/>But, how do we let people know
+about this new awesome package? The answer is: **\\compose\\ Package Store**.
+
+The package store is a tool used to discover and install packages that are
+publicly available on the internet.
+The package store gets the list of packages from a public registry hosted on GitHub
+by the repository
+[afdaniele/compose-assets-store](https://github.com/afdaniele/compose-assets-store/).
+
+Now that we have a public package, we need to add it to the registry so that everybody
+can find it in the package store. For security reasons, we don't let everybody
+modify the registry, instead, we ask developers to submit a change (pull) request,
+that we will approve and propagate to the public registry.
+
+The procedure for doing this is quite simple, and it comprises of three steps.
+1. we make a copy of the registry;
+2. we add our new package to it;
+3. we submit the new registry for approval;
+
+### Step 1:
+
+Go to
+[https://github.com/afdaniele/compose-assets-store](https://github.com/afdaniele/compose-assets-store/)
+and click on the
+<span class="keystroke"> <i class="fa fa-code-fork" aria-hidden="true"></i> Fork</span>
+button in the top-right corner of the page.
+
+This will create a copy of the registry in your personal account.
+Follow the instructions and you will be redirected to a page with a URL
+that looks like the following.
+
+```plain
+https://github.com/USERNAME/compose-assets-store
+```
+
+where `USERNAME` will be replaced with your GitHub username.
+
+
+### Step 2:
+
+Now that we have our copy of the registry, we can add our package.
+Open a terminal and run the following commands (remember to replace
+`USERNAME` with your GitHub username),
+
+```plain
+cd ~/
+git clone https://github.com/USERNAME/compose-assets-store
+cd compose-assets-store/
+```
+
+Use your preferred text-editor to modify the file `./index` contained in
+this directory.
+Move to the bottom of the file and add the following block:
+
+```yaml
+  - id: PACKAGE_ID
+    name: "PACKAGE_NAME"
+    git_provider: GIT_PROVIDER
+    git_owner: GIT_OWNER
+    git_repository: compose-pkg-PACKAGE_ID
+    git_branch: master
+    icon: "images/_default.png"
+    description: "PACKAGE_DESCRIPTION"
+    dependencies: []
+```
+
+Replace the following placeholders in the block above with the right
+information about your package.
+
+- `PACKAGE_ID`: the ID of your package (e.g., `my_package`);
+- `PACKAGE_NAME`: the name of your package as set in the file `PACKAGE_ROOT/metadata.json`;
+- `GIT_PROVIDER`: this field can have two values, `github.com` or `bitbucket.org`.
+  It indicates which websites hosts your package repository;
+- `GIT_OWNER`: your username on GitHub or BitBucket;
+- `PACKAGE_DESCRIPTION`: the description of your package as set in the
+  file `PACKAGE_ROOT/metadata.json`;
+
+Save the changes to the file `index` and run the following commands:
+
+```plain
+git commit -m "added new package" index
+git push origin
+```
+
+### Step 3:
+
+Now that we updated our copy of the registry, we can submit the change
+for approval. Open the URL
+[https://github.com/USERNAME/compose-assets-store](#),
+click on the button that reads
+<span class="keystroke"><i class="fa fa-code-fork" aria-hidden="true"></i> Pull Request</span>,
+and follow the instructions to create a **Pull Request**.
+
+We will review your Pull Request and apply your changes to the public registry
+as soon as possible.
