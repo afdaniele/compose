@@ -355,9 +355,9 @@ class Core{
       '%s%s%s%s%s%s%s',
       Configuration::$BASE_URL,
       is_null($page)? '' : $page,
-      is_null($action)? '' : $action,
-      is_null($arg1)? '' : $arg1,
-      is_null($arg2)? '' : $arg2,
+      is_null($action)? '' : '/'.$action,
+      is_null($arg1)? '' : '/'.$arg1,
+      is_null($arg2)? '' : '/'.$arg2,
       (count($qs) > 0)? toQueryString(array_keys($qs), $qs, true) : '',
       (is_null($anchor) || strlen($anchor) <= 0)? '' : sprintf('#%s', $anchor)
     );
