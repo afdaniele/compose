@@ -69,6 +69,12 @@ footer #avatar{
     font-weight: bold;
 }
 
+.page-title{
+  padding: 10px 0;
+  border-bottom: 1px solid #ddd;
+  margin-bottom: 32px;
+}
+
 /*
 TODO: Duckietown specific stuff, move to duckietown package
 
