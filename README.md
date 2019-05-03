@@ -31,6 +31,7 @@ modular with a built-in `core` package that provides all the functionalities nee
 managing additional packages and their components. A `Configuration` class provides
 functionalities for managing settings for both the `core` package and other
 additional packages.
+
 The [RESTful](https://restfulapi.net/) API module in **\\compose\\** offers an easy
 way for packages to export API end-points accessible via HTTP.
 
