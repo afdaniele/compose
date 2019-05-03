@@ -1,12 +1,14 @@
 This is a checklist for what to do before creating a new release:
+Assume we go X.Y -> X.Z
 
 [ ] - change the version in `doxygen_documentation_project`
     PROJECT_NUMBER         = X.Y
 
-[ ] - copy the documentation from /data/showdown/vX.Y to /data/showdown/vX.Z
-    where X.Y is the latest release and X.Z is the new release
+[ ] - branch `vX.Z` out of `devel` in afdaniele/compose-docs
 
-[ ] - update the symlink in the documentation, from vX.Y to vX.Z
+[ ] - add `vX.Z` as submodule in afdaniele/compose-docs that points to the `vX.Z` branch
+
+[ ] - update the symlink `latest` in afdaniele/compose-docs to point to `vX.Z`
 
 [ ] - change the destination of the MD files in Settings > Package: Doxygen Documentation to X.Z
     [ ] - Rebuild the documentation for the new release
