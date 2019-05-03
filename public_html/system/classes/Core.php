@@ -1759,6 +1759,30 @@ class Core{
 	}//getDebugInfo
 
 
+  public static function updateBase($version=null){
+    exec(
+      sprintf('git -C "%s" pull origin master 2>&1', $GLOBALS['__COMPOSE__DIR__']),
+      $info,
+      $exit_code
+    );
+		if ($exit_code != 0) {
+			return ['success' => false, 'data' => implode('<br/>', $info)];
+		}else{
+      if (!is_null($version)) {
+        exec(
+          sprintf('git -C "%s" checkout %s 2>&1', $GLOBALS['__COMPOSE__DIR__'], $version),
+          $info,
+          $exit_code
+        );
+        if ($exit_code != 0) {
+    			return ['success' => false, 'data' => implode('<br/>', $info)];
+    		}
+      }
+		}
+    return ['success' => true, 'data' => null];
+  }//updateBase
+
+
 	public static function redirectTo($resource, $append_qs=false){
     $qs = '';
     $uri = ltrim(trim($_SERVER['REQUEST_URI']), '/');

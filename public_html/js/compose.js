@@ -317,13 +317,14 @@ function callAPI( url, successDialog, reload, funct, silentMode, suppressErrors,
 }
 
 
-function callExternalAPI( url, callType, resultDataType, successDialog, reload, funct, silentMode, suppressErrors, errorFcn, errorArgs ){
+function callExternalAPI(url, callType, resultDataType, successDialog, reload, funct, silentMode, suppressErrors, errorFcn, errorArgs, customHeaders){
     if( successDialog == undefined ) successDialog = false;
     if( reload == undefined ) reload = false;
     if( funct == undefined ) funct = function( res ){ /* do nothing! */ };
     if( silentMode == undefined ) silentMode = false;
     if( suppressErrors == undefined ) suppressErrors = false;
     if( errorFcn == undefined ) errorFcn = function( res ){ /* do nothing! */ };
+    if( customHeaders == undefined ) customHeaders = {};
     //
     url = encodeURI( url );
     //
@@ -331,10 +332,15 @@ function callExternalAPI( url, callType, resultDataType, successDialog, reload, 
         showPleaseWait();
     }
     //
-    $.ajax({type: callType, url:url, dataType: resultDataType, success:function( result ){
+    $.ajax({
+      type: callType,
+      url:url,
+      dataType: resultDataType,
+      headers: customHeaders,
+      success:function(result, status, xhr){
         // success
         // call the callback function
-        funct( result );
+        funct(result, status, xhr);
         //
         hidePleaseWait();
         //
@@ -345,7 +351,8 @@ function callExternalAPI( url, callType, resultDataType, successDialog, reload, 
                 window.location.reload(true);
             }
         }
-    }, error:function( jqXHR, textStatus, errorThrown ){
+      },
+      error:function(jqXHR, textStatus, errorThrown){
         // error
         // call the callback function
         errorFcn( errorThrown );
@@ -354,7 +361,8 @@ function callExternalAPI( url, callType, resultDataType, successDialog, reload, 
         if( !suppressErrors ){
             openAlert( 'danger', 'An error occurred while trying to communicate with the server. Details: `{0}`'.format(errorThrown) );
         }
-    }});
+      }
+    });
 }
 
 function serializeForm( formID, excludeDisabled ){
@@ -416,7 +424,7 @@ function hmsToSeconds( str ){
 }//hmsToSeconds
 
 function redirectTo( page, action, arg1, arg2, query_array ){
-    var url = "{0}//{1}/".format( location.protocol, location.host );
+    var url = "{0}//{1}/".format(location.protocol, location.host);
     // append PAGE
     if( page != null && page != undefined )
         url += ( url.slice(-1)=='/'? '' : '/' )+page;
@@ -491,3 +499,70 @@ $(document).on('ready', function(){
         });
     });
 });
+
+
+// Check for updates
+function checkForUpdates(git_provider, git_owner, git_repo, git_local_head, allow_unstable, on_success_fcn, on_error_fcn, ignore_cache){
+  // 0: git_owner, 1: git_repo, 2: action, 3: arguments
+  var api_url = '';
+  if (git_provider == 'github.com'){
+    api_url = 'https://api.github.com/repos/{0}/{1}/{2}/{3}';
+  }
+  var headers = {};
+  if (ignore_cache == undefined || !ignore_cache) {
+    headers = {
+      'release' : {
+        'If-Modified-Since': localStorage.getItem('github_compose_release_last_modified'),
+        'If-None-Match': localStorage.getItem('github_compose_release_etag')
+      },
+      'compare' : {
+        'If-Modified-Since': localStorage.getItem('github_compose_compare_last_modified'),
+        'If-None-Match': localStorage.getItem('github_compose_compare_etag')
+      }
+    };
+  }
+  // function that compares two heads
+  function compareHeads(local_head, remote_head){
+    var args_str = '{0}...{1}'.format(local_head, remote_head);
+    var url_compare_commits = api_url.format(git_owner, git_repo, 'compare', args_str);
+    function fmt_fcn1(result, status, xhr){
+      if (xhr.status == 304) {
+        // use cache values
+        var needs_update = localStorage.getItem('github_compose_needs_update') == 'true';
+        on_success_fcn(needs_update);
+      }else{
+        var needs_update = result.status == 'ahead';
+        localStorage.setItem('github_compose_compare_last_modified', xhr.getResponseHeader("Last-Modified"));
+        localStorage.setItem('github_compose_compare_etag', xhr.getResponseHeader("ETag"));
+        localStorage.setItem('github_compose_needs_update', needs_update);
+        return on_success_fcn(needs_update);
+      }
+    }
+    callExternalAPI(url_compare_commits, 'GET', 'json', false, false, fmt_fcn1, true, true, on_error_fcn, [], headers['compare']);
+  }
+  // ---
+  if (allow_unstable) {
+    compareHeads(git_local_head, 'master');
+  } else {
+    // get latest release
+    var url_latest_release = api_url.format(git_owner, git_repo, 'releases', 'latest');
+    function fmt_fcn2(result, status, xhr){
+      localStorage.setItem('github_compose_release_last_modified', xhr.getResponseHeader("Last-Modified"));
+      localStorage.setItem('github_compose_release_etag', xhr.getResponseHeader("ETag"));
+      if (xhr.status == 304) {
+        // use cache values
+        var needs_update = localStorage.getItem('github_compose_needs_update') == 'true';
+        on_success_fcn(needs_update);
+      }else{
+        compareHeads(git_local_head, result.tag_name);
+      }
+    }
+    callExternalAPI(url_latest_release, 'GET', 'json', false, false, fmt_fcn2, true, true, on_error_fcn, [], headers['release']);
+  }
+}//checkForUpdates
+
+
+function clearUpdatesCache(){
+  localStorage.removeItem('github_compose_compare_last_modified');
+  localStorage.removeItem('github_compose_compare_etag');
+}//clearUpdatesCache

@@ -7,6 +7,11 @@ use \system\classes\Core;
 use \system\classes\Configuration;
 use \system\classes\Cache;
 
+// update
+if (isset($_GET['base_update']) && boolval($_GET['base_update'])) {
+  include_once "update.php";
+  return;
+}
 ?>
 
 <style type="text/css">

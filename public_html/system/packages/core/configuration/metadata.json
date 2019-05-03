@@ -68,6 +68,18 @@
             "default" : false,
             "details" : "Cache status"
         },
+        "check_updates" : {
+            "title" : "Automatically check for updates",
+            "type" : "boolean",
+            "default" : true,
+            "details" : "Whether the system should constantly check for updates"
+        },
+        "allow_devel_updates" : {
+            "title" : "Allow non-release updates",
+            "type" : "boolean",
+            "default" : false,
+            "details" : "Whether to allow updating to non-production ready versions"
+        },
         "guest_default_page" : {
             "title" : "Default page: Guest",
             "type" : "enum",

@@ -192,6 +192,11 @@
   if (Core::getSetting('developer_mode')) {
     include('system/packages/core/modules/devel_watermark.php');
   }
+
+  // updates helper
+  if (Core::getUserRole() == 'administrator' && Core::getSetting('check_updates')) {
+    include('system/packages/core/modules/updates_helper.php');
+  }
 	?>
 
 	<!-- Begin page content -->
