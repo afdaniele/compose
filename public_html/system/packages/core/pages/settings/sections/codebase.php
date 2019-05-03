@@ -117,7 +117,7 @@ function settings_codebase_tab(){
         $('#settings_codebase_update_check_button').html(
           '<i class="glyphicon glyphicon-cloud-download" aria-hidden="true"></i>&nbsp; Update <b>\\compose\\</b>'
         );
-        $(this).data('action', 'update');
+        $('#settings_codebase_update_check_button').data('action', 'update');
       }else{
         $('#settings_codebase_update_result').html(
           'Your copy of <b>\\compose\\</b> is up to date!'
@@ -126,7 +126,7 @@ function settings_codebase_tab(){
         $('#settings_codebase_update_check_button').html(
           '<i class="glyphicon glyphicon-thumbs-up" aria-hidden="true"></i>&nbsp; Nothing to do!'
         );
-        $(this).data('action', 'none');
+        $('#settings_codebase_update_check_button').data('action', 'none');
       }
       $('#settings_codebase_update_check_button').removeClass('btn-info');
       $('#settings_codebase_update_check_button').addClass('btn-success');
