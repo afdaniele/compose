@@ -1,0 +1,340 @@
+## 0.9 (May 03, 2019)
+  - minor
+  - documentation moved to afdaniele/compose-docs repo
+  - added updates helper and auto-update feature
+  - improved VERSION regex in StringType
+  - minor
+  - Update README.md
+  - minor
+  - improved docs
+  - added page-title css
+  - updated docs
+  - improved docs
+  - removed doxygen
+  - moved images for html-layout page in docs
+  - removed doxygen images
+  - minor
+  - added fake data page to core package. this is our 404 page
+  - updated docs
+  - added developer mode page to docs
+  - when the first user is created, the Developer Mode is disabled
+  - added Core::requestAlert
+  - minor
+  - improved login buttons
+  - added developer_mode to setup page
+  - minor
+  - added size to yesNoModal
+  - code format
+  - added login as developer feature
+  - code format
+  - minor
+  - added developer mode setting and watermark
+  - minor
+  - format Core
+  - format
+  - removed videojs and momentjs from standard libraries
+  - minor
+  - code format
+  - Merge pull request #16 from afdaniele/remove-date
+  - removed date, last modif
+  - Merge branch 'master' of github.com:afdaniele/compose
+  - minor
+  - improved docs
+  - improved Setup page
+  - refactored google sign-in to use events.
+  - bug fix
+  - added menu to mission control
+  - saving package-specific settings now refreshes the page
+  - fixed bug in form template
+  - improved mission control and blocks; added mission control menu
+  - minor
+  - format
+  - format
+  - added pre_update to package manager
+  - minor
+  - added Core::getAPIurl
+  - added Database::delete_db
+  - minor
+  - updated bump-version
+  - added bump-version
+  - removed Debug page. It is now part of the developer package
+  - solved #12
+  - minor
+  - added clear cache button to Cache collapse in Settings page
+  - added is_JSON function
+  - minor
+  - format
+  - fixed bug in record editor modal
+  - added list_dbs to Database class
+  - format
+  - minor
+  - format
+  - fixed bug in RestAPI docs page
+  - format
+  - format
+  - added Core::getURL
+  - added redirect-after-login feature
+  - added SSL support to Dockerfile
+  - fixed bug in http/https protocol selection
+  - fixed maintenance<>setup loop
+  - added update action to package_store
+  - added Core::openAlert function
+  - minor
+  - minor
+  - we now read ASSETS_STORE_URL and ASSETS_STORE_BRANCH from php config file in package manager
+  - package store page now shows installed version and available version
+  - minor
+  - refactored package manager. It now supports tab-based package upgrade
+  - added __COMPOSE__DIR__ to globals
+  - switched to assets-store index v1
+  - added menu to MissionControl
+  - we now retrieve the codebase info (version) for each package we load
+  - updated debug Dockerfile
+  - we can now logout when not logged in with google
+  - minor
+  - allow for Jenkins to fail cleaning up
+  - Moved arm to another Jenkins file
+  - added arm32v7 to Jenkins
+  - added Jenkinsfile
+  - fixed bug in API end-point configuration/set
+  - added profile add-on loader
+  - fixed problem with google signin id
+  - added first-setup case to configuration.set api
+  - added toposort as dependency
+  - added toposort as dependency
+  - added dependency graph to package manager
+  - migrated to python3
+  - minor
+  - added login add-ons loader
+  - minor
+  - Core::regenerateSessionID is now public
+  - added response 412 to API utils
+  - added css for custom login button
+  - cleaned up deps
+  - renamed page 'packages' -> 'package_store'
+  - minor
+  - python package manager now supports post_install step and error report
+  - Core::install/remove now return errors
+  - format fix in Cache
+  - minor
+  - moved name and description to index file, avoid fetching all packages in list.php
+  - added ASSETS_STORE_BRANCH to Configuration
+  - sanitized URL in package manager
+  - renamed page 'packages' -> 'package_store'
+  - minor
+  - added package store, install/uninstall functions in Core
+  - handled errors while installing packages
+  - pulled platform.js locally
+  - implemented python package manager and ability to install packages from web
+  - implemented install/uninstall selection
+  - fixed format/wording in setup page
+  - implemented github/bitbucket package list fetching
+  - added JS yaml library
+  - added packages page
+  - Merge branch 'master' of https://github.com/afdaniele/compose
+  - refactored some code; format update
+  - added Setup page
+  - Update changelog
+  - moved jquery to loval js folder
+  - minor
+  - minor
+  - improved select objects in form template
+  - added transparent block
+  - minor
+  - blocks can now be removed in MissionControl grids, added BlockRenderers options
+  - added JS libraries
+  - minor
+  - added options to BlockRenderer class
+  - added options to BlockRenderer class
+  - added new ideas for package versioning
+  - minor
+  - search in User page is now case-insensitive
+  - added class to Block title and subtitle in BlockRenderer
+  - minor
+  - added $ignoreKeys to `toQueryString` function
+  - fixed bug
+  - fixed bug
+  - missing keys in custom config are filled with default from metadata
+  - fixed bug in user_roles section of settings page
+  - fixed bug in debug module
+  - minor
+  - added ARRAY format option
+  - added dependencies graph between packages
+  - fixed default page
+  - added per-package user roles
+  - added package to the configure python script
+  - remove apt-utils
+  - chmod +x now in shell form
+  - extended ARM section
+  - a2enmod -> cp
+  - minor
+  - added qemu for cross-building
+  - minor
+  - minor
+  - warn when no volume is used
+  - no need to reinstall \compose\ when mounting a volume
+  - updated docker
+  - minor
+  - removed port from hostname
+  - minor
+  - init gapi only if login_enabled
+  - add google-signin-client_id meta only if login_enabled
+  - added $HOSTNAME to Configuration class
+  - it is now possible to register custom CSS stylesheets
+  - fixed typo
+  - docker: compose installed via entrypoint
+  - docker: compose is now installed by the entrypoint
+  - compose is now installed as ONBUILD
+  - removed VOLUME from base dockerfile(s)
+  - improved configure.py
+  - replaced `*.disabled.flag` files with DBs in core package to keep track of disabled API service/action
+  - minor
+  - hide dropdown in navbar if no buttons are present
+  - added python to arm32v7 dockerfile
+  - merge
+  - minor
+  - implemented user enable/disable
+  - Added VOLUME to Docker file
+  - added VOLUME for Docker Compose
+  - Added a Python configuration script (useful for Docker)
+  - Moved all config params from /system/config/configuration.php to core settings
+  - updated API docs. Added authentication details
+  - Merge branch 'arm32v7'
+  - minor
+  - BASE and BASE_URL now are populated from HTTP_HOST
+  - replaced `bootstrap-switch` with `bootstrap-toggle`
+  - Merge branch 'arm32v7'
+  - Merge branch 'arm32v7' of https://github.com/afdaniele/compose into arm32v7
+  - minor
+  - added fallback File-based cache when selected cache system is not available
+  - Merge branch 'arm32v7' of github.com:afdaniele/compose into arm32v7
+  - added arm32v7 dockerfile
+  - updated docker docs
+  - minor
+  - updated docker file
+  - added app_info API endpoint
+  - fixed bug
+  - debug section moved from Settings to bottom of each page, added debug page for error analysis
+  - added debug module to index.php
+  - changelog updated
+  - changed icon
+  - minor
+  - implemented check on package core initialization function
+  - minor
+  - minor
+  - minor
+  - index.php now inits Core within <head> tag
+  - updated docker
+  - minor
+  - minor
+  - added `Database::database_exists()` function; added check on package name in `Database::__construct()`
+  - updated datetime format
+  - renamed `RestfulAPI.php`->`RESTfulAPI.php`
+  - added `Core::throwErrorF()`
+  - bug fixed
+  - added 'authentication' bit to each API action
+  - implemented API applications
+  - moved `token` from mandatory to optional list of parameters
+  - fixed style in API docs
+  - removed `read_only_session` from API service descriptor files
+  - added key filter to Database class
+  - removed old API service `session`
+  - refactored /api/ page, introduced API Apps w/ API endpoints (create/update/delete), added delete() to Database
+  - minor fixes
+  - minor
+  - added POST method to callAPI function
+  - cleaned up CSS
+  - renamed RestfulAPI->RESTfulAPI (2)
+  - Databases now stored in /data/private/databases/
+  - changelog updated
+  - renamed RestfulAPI->RESTfulAPI
+  - cleaned up repo
+  - fixed bug in webapi
+  - implemented maintenance mode
+  - minor
+  - split _load_API_setup in _load_settings and _load_configuration
+  - updating settings clears both pkg-cache and core-cache
+  - renamed Core::initCore()->Core::init()
+  - minor
+  - clear cache after enabling/disabling pages or packages
+  - minor
+  - switched from Apc to Apcu cache system
+  - added __DATA__DIR__ global var
+  - fixed description
+  - minor
+  - package private data is now stored in /<pkg>/data/private/
+  - added safe_mode
+  - refactored RestfulAPI. It is now modeled by the class RestfulAPI
+  - minor
+  - cache section added to settings page
+  - docker images revisited
+  - refactoring cache
+  - minor
+  - docker images revisited
+  - minor
+  - fixed typo in docs
+  - added class Formatter to standardize object formatting; added debug tab to settings page w/ DEBUG flag in Configuration class
+  - refactored the code to use StringType as an enum for string validation in \compose\
+  - minor
+  - updated branch in Docker file for v0.9
+  - refactored Docker files
+  - minor
+  - added README for docker images
+  - added Dockerfile based on Ubuntu 16.04.4 LTS, Apache2, PHP7
+  - added template configuration file
+  - default configuration file updated. removed duckietown stuff
+  - user_info now passed by reference to createNewUserAccount()
+  - the first user to login is always an administrator
+  - fixed bug in chmod call
+  - Update setup.md
+  - added new classes to doxygen project
+  - readme updated
+  - update form template
+  - cleaned up Configuration class
+  - added string_to_valid_filename as utility function
+  - minor
+  - minor
+  - new classes loaded in index.php
+  - js library improved
+  - added Database interface to private data storage for packages
+  - added block renderers
+  - documentation updated
+  - minor
+  - new favicon
+  - compose now supports static enumerations as configuration parameters
+  - settings page now supports default values from `metadata.json`
+  - base config file cleaned up
+  - doxygen now takes as input php files
+  - navbar: decreased width triggering responsive behavior
+  - minor
+  - Merge branch 'master' of github.com:afdaniele/compose
+  - documentation updated
+  - minor
+  - documentation corrected; libraries page completed;
+  - documentation improved
+  - doxygen now generates XML as well
+  - Update dependencies.json
+  - docs for old versions linked to v0.9
+  - documentation WIP added
+  - doxygen project updated
+  - doxygen project updated
+  - doxygen project updated
+  - README updated
+  - doxygen project updated
+  - doxygen project updated
+  - disabled packages now are not initialized
+  - bug fixed with guest always redirected to login page
+  - Bootstrap callout CSS library added
+  - footer now shows the version tag
+  - ARG1 and ARG2 added to the Configuration
+  - URL Rewrite feature added
+  - dependencies updated
+  - README updated
+  - minor
+  - bug fixed in EditableConfiguration, the keys were checked against the JSON rather than the MetaData
+  - minor
+  - minor style change
+  - administrator can now select the default page per user role in the settings menu
+  - bug fixed in function getting the latest tag of the codebase
+  - minor
+
