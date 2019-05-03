@@ -22,7 +22,7 @@ class StringType {
 	const TEXT = "/^[\\w\\D\\s_.,-:\(\)]*$/";
 	const EMAIL = "/^[a-zA-Z0-9_.-]+@[a-zA-Z0-9-]+.[a-zA-Z0-9-.]+$/";
 	const KEY = "/^[a-zA-Z_]+$/";
-	const VERSION = "/^\\d+\\.\\d+$/";
+	const VERSION = "/^v?\\d+(\\.\\d+)?(\\.\\d+)?$/";
 
 
 	// methods
