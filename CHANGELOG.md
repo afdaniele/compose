@@ -1,3 +1,10 @@
+## 0.9.1 (May 03, 2019)
+  - minor
+  - bug fixes
+  - fixed bug
+  - minor
+  - minor
+
 ## 0.9 (May 03, 2019)
   - minor
   - documentation moved to afdaniele/compose-docs repo
