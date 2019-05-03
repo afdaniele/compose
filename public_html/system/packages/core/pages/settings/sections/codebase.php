@@ -102,7 +102,7 @@ function settings_codebase_tab(){
     $('#settings_codebase_update_check_button').on('click', function(){
       if ($(this).data('action') == 'check') {
         check_for_updates_action();
-      }else{
+      }else if ($(this).data('action') == 'update') {
         redirectTo('settings', null, null, null, {'base_update': 1});
       }
     });
@@ -117,6 +117,7 @@ function settings_codebase_tab(){
         $('#settings_codebase_update_check_button').html(
           '<i class="glyphicon glyphicon-cloud-download" aria-hidden="true"></i>&nbsp; Update <b>\\compose\\</b>'
         );
+        $(this).data('action', 'update');
       }else{
         $('#settings_codebase_update_result').html(
           'Your copy of <b>\\compose\\</b> is up to date!'
@@ -125,6 +126,7 @@ function settings_codebase_tab(){
         $('#settings_codebase_update_check_button').html(
           '<i class="glyphicon glyphicon-thumbs-up" aria-hidden="true"></i>&nbsp; Nothing to do!'
         );
+        $(this).data('action', 'none');
       }
       $('#settings_codebase_update_check_button').removeClass('btn-info');
       $('#settings_codebase_update_check_button').addClass('btn-success');
