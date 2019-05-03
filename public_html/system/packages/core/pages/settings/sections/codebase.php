@@ -89,7 +89,7 @@ function settings_codebase_tab(){
         Press "Check updates" to check whether an updated version of <b>\compose\</b> is available.
       </div>
       <span class="input-group-btn" style="width:180px">
-        <a class="btn btn-info" type="button" id="settings_codebase_update_check_button" style="width:100%; text-align:left">
+        <a class="btn btn-info" type="button" id="settings_codebase_update_check_button" data-action="check" style="width:100%; text-align:left">
           <i class="glyphicon glyphicon-refresh" aria-hidden="true"></i>&nbsp; Check for updates
         </a>
       </span>
@@ -97,12 +97,15 @@ function settings_codebase_tab(){
 
   </div>
 
-  <?php
-  $update_url = Core::getURL('settings', null, null, null, ['base_update' => 1]);
-  ?>
 
   <script type="text/javascript">
-    $('#settings_codebase_update_check_button').on('click', check_for_updates_action);
+    $('#settings_codebase_update_check_button').on('click', function(){
+      if ($(this).data('action') == 'check') {
+        check_for_updates_action();
+      }else{
+        redirectTo('settings', null, null, null, {'base_update': 1});
+      }
+    });
 
     function on_success_fcn(update_available){
       if (update_available) {
@@ -114,7 +117,6 @@ function settings_codebase_tab(){
         $('#settings_codebase_update_check_button').html(
           '<i class="glyphicon glyphicon-cloud-download" aria-hidden="true"></i>&nbsp; Update <b>\\compose\\</b>'
         );
-        $('#settings_codebase_update_check_button').attr('href', '<?php echo $update_url ?>');
       }else{
         $('#settings_codebase_update_result').html(
           'Your copy of <b>\\compose\\</b> is up to date!'
