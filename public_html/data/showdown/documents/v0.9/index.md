@@ -114,7 +114,7 @@ The image below shows the path to the source code of a page with ID `my_page`,
 contained in a package with ID `my_package`, within an instance of **\\compose\\**
 installed in `/var/www/html/`.
 
-![center](images/directories.svg =90%x100%)
+![center](images/directories.svg =80%x100%)
 
 We use the following placeholders throughout the documentation to indicate
 specific paths in your machine.
