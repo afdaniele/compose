@@ -137,18 +137,12 @@
 	<!-- Utility CSS -->
 	<link href="<?php echo Configuration::$BASE_URL ?>css/sticky-footer-navbar.css" rel="stylesheet" media="all">
 
-	<!-- HighlightJS Arduino-light CSS v9.12.0 -->
-	<link href="<?php echo Configuration::$BASE_URL ?>css/highlight.js/arduino-light.css" rel="stylesheet" media="all">
-
 	<!-- Custom CSS -->
 	<link href="<?php echo Configuration::$BASE_URL ?>css/compose.css" rel="stylesheet" media="all">
 
 
 	<!-- JQuery v1.11.1 by Google -->
 	<script src="<?php echo Configuration::$BASE_URL ?>js/jquery.1.11.1.min.js"></script>
-
-	<!-- HighlightJS v9.12.0 by highlightjs.org -->
-	<script src="<?php echo Configuration::$BASE_URL ?>js/highlight.min.js"></script>
 
 	<!-- ChartJS v2.7.0 by chartjs.org  -->
 	<script src="<?php echo Configuration::$BASE_URL ?>js/Chart.min.js"></script>
