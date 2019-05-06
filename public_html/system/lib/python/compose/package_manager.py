@@ -182,12 +182,22 @@ class PackageManager(object):
     )
 
   def get_available_packages(self):
-    index_url = '%s/%s/index' % (self._assets_store_url, self._assets_store_branch)
-    response = requests.get(index_url)
-    data = yaml.load(response.text, Loader=yaml.BaseLoader)
-    packages = {
-      p['id'] : p for p in data['packages']
-    }
+    num_trials = 3
+    packages = []
+    for i in range(num_trials):
+      log('Retrieving index of packages from registry (%d/%d)...' % (i+1, num_trials))
+      index_url = '%s/%s/index' % (self._assets_store_url, self._assets_store_branch)
+      try:
+        response = requests.get(index_url, timeout=5)
+      except requests.exceptions.Timeout:
+        continue
+      # parse data
+      data = yaml.load(response.text, Loader=yaml.BaseLoader)
+      packages = {
+        p['id'] : p for p in data['packages']
+      }
+      log('Done!')
+      break
     return packages
 
   def solve_dependencies_graph(self, packages_to_install):
