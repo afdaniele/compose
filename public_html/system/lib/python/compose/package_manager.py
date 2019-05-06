@@ -1,5 +1,4 @@
 import json
-import yaml
 import requests
 import subprocess
 from enum import Enum
@@ -192,7 +191,7 @@ class PackageManager(object):
       except requests.exceptions.Timeout:
         continue
       # parse data
-      data = yaml.load(response.text, Loader=yaml.BaseLoader)
+      data = json.loads(response.text)
       packages = {
         p['id'] : p for p in data['packages']
       }
@@ -418,23 +417,27 @@ class Package(object):
     if not version:
       version = self._remote_version
     # perform git fetch and checkout
-    cmd = ['git', '-C', self.path, 'checkout', '--track', 'origin/%s' % version]
-    returncode, _, error_str = exec_cmd(cmd)
-    if returncode != 0:
-      log(' < ERROR updating package "%s"...' % self.name)
-      error(
-        PackageManager.Task.UPDATE,
-        PackageManager.UpdateStep.UPDATE,
-        self.name,
-        'Error checking out version "%s" of the package "%s":\n\tExit code: %s\n\t: %s' % (
-          version,
+    cmds = [
+      ['git', '-C', self.path, 'checkout', '-B', version],
+      ['git', '-C', self.path, 'pull', 'origin', version]
+    ]
+    for cmd in cmds:
+      returncode, _, error_str = exec_cmd(cmd)
+      if returncode != 0:
+        log(' < ERROR updating package "%s"...' % self.name)
+        error(
+          PackageManager.Task.UPDATE,
+          PackageManager.UpdateStep.UPDATE,
           self.name,
-          str(returncode),
-          error_str
-        ),
-        returncode,
-        PackageManager.Error.GIT_CHECKOUT_TRACK_ERROR
-      )
+          'Error checking out version "%s" of the package "%s":\n\tExit code: %s\n\t: %s' % (
+            version,
+            self.name,
+            str(returncode),
+            error_str
+          ),
+          returncode,
+          PackageManager.Error.GIT_CHECKOUT_TRACK_ERROR
+        )
     log(' < Done!')
 
   def post_update(self, dryrun=False):
@@ -500,6 +503,7 @@ class Package(object):
 if __name__ == '__main__':
 
   import argparse
+  log('\\compose\\ Package Manager:')
 
   parser = argparse.ArgumentParser(description='Manage compose packages')
   parser.add_argument('--install', metavar='N', type=str, nargs='+',

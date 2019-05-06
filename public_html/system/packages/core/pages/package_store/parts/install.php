@@ -28,7 +28,7 @@ if (!$content){
     )
   );
 }
-$data = spyc_load($content);
+$data = json_decode($content, true);
 $available_packages = [];
 foreach ($data['packages'] as $package) {
   $available_packages[$package['id']] = $package;

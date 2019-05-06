@@ -10,9 +10,6 @@ use \system\classes\Formatter;
 $installed_packages = Core::getPackagesList();
 ?>
 
-<!-- Load YAML library -->
-<script type="text/javascript" src="<?php echo Configuration::$BASE_URL ?>js/js-yaml.min.js"></script>
-
 <style type="text/css">
   #packages-table > thead > tr{
     font-weight: bold;
@@ -435,7 +432,7 @@ $assets_index_url = sanitize_url(
 
   function fetch_package_list_success_fcn(result){
     $('#status_label').html('Downloading packages list...');
-    var doc = jsyaml.load(result);
+    var doc = JSON.parse(result);
     // add packages to the list
     $('#loading_status_bar').removeClass('progress-bar-striped progress-bar-default');
     $('#loading_status_bar').addClass('progress-bar-success');
