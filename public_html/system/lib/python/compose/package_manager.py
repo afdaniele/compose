@@ -8,7 +8,6 @@ from collections import defaultdict
 from os.path import join, abspath, dirname, isdir, isfile, basename, exists
 from toposort import toposort_flatten
 import shutil
-import git
 
 
 def exit_with_code(exit_code, message, data):
@@ -17,6 +16,7 @@ def exit_with_code(exit_code, message, data):
     'message': message,
     'data': data
   })
+  log('------------------------------------')
   print(exit_str)
   exit(exit_code.value)
 
@@ -34,6 +34,16 @@ def error(task, step, package_name, error_msg, source_error_code, exit_code):
     'source_error_code': source_error_code
   }
   exit_with_code(exit_code, message_str, data)
+
+def log(message):
+  print('# %s' % message)
+
+def exec_cmd(command):
+  # get remote url from repo
+  pipe = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+  pipe.wait()
+  output_str, error_str = pipe.communicate()
+  return pipe.returncode, output_str, error_str
 
 
 class PackageManager(object):
@@ -82,13 +92,16 @@ class PackageManager(object):
     # generic error codes: 1-9
     NO_PACKAGES_DIR = 1
     NO_CONFIG_FILE = 2
+    GIT_REMOTE_GET_URL_ERROR = 3
     # installation error codes: 10-19
     PACKAGE_NOT_INSTALLED = 11
     PACKAGE_NOT_FOUND = 12
     PACKAGE_ALREADY_INSTALLED = 13
+    GIT_CLONE_ERROR = 14
     POST_INSTALL = 19
     # update error codes: 20-29
     PRE_UPDATE = 20
+    GIT_CHECKOUT_TRACK_ERROR = 21
     POST_UPDATE = 29
     # update error codes: 30-39
     PRE_UNINSTALL = 30
@@ -261,10 +274,24 @@ class Package(object):
     self._remote_version = remote_version
     # check if the package is installed
     self._is_installed = isdir(self._path)
-    # set remte URL
+    # set remote URL
     if self._is_installed and not remote_url:
-      repo = git.Repo(self._path)
-      remote_url = repo.remotes.origin.url
+      # get remote url from repo
+      cmd = ['git', '-C', self._path, 'remote', 'get-url', 'origin']
+      returncode, _, error_str = exec_cmd(cmd)
+      if returncode != 0:
+        error(
+          PackageManager.Task.INIT_PACKAGE,
+          PackageManager.InitPackageStep.INIT,
+          self._name,
+          'Error retrieving the remote url from the package "%s":\n\tExit code: %s\n\t: %s' % (
+            self._name,
+            str(returncode),
+            error_str
+          ),
+          returncode,
+          PackageManager.Error.GIT_REMOTE_GET_URL_ERROR
+        )
     self._remote_url = remote_url
     # load metadata
     if self._is_installed:
@@ -311,6 +338,7 @@ class Package(object):
     return pages
 
   def install(self, version=None, dryrun=False):
+    log(' > INSTALLING package "%s"...' % self.name)
     if self.is_installed:
       error(
         PackageManager.Task.INSTALL,
@@ -322,16 +350,28 @@ class Package(object):
       )
     # ---
     if dryrun:
+      log(' < Done!')
       return
     if not version:
       version = self._remote_version
     # clone git repository
-    git.Repo.clone_from(
-      self.remote_url,
-      self.path,
-      branch=version,
-      depth=1
-    )
+    cmd = ['git', 'clone', '--depth', '1', '--branch', version, self.remote_url, self.path]
+    returncode, _, error_str = exec_cmd(cmd)
+    if returncode != 0:
+      log(' < ERROR installing package "%s"...' % self.name)
+      error(
+        PackageManager.Task.INSTALL,
+        PackageManager.InstallStep.INSTALL,
+        self.name,
+        'Error installing the package "%s":\n\tExit code: %s\n\t: %s' % (
+          self.name,
+          str(returncode),
+          error_str
+        ),
+        returncode,
+        PackageManager.Error.GIT_CLONE_ERROR
+      )
+    log(' < Done!')
 
   def post_install(self, dryrun=False):
     self._perform_aux_action(
@@ -350,6 +390,7 @@ class Package(object):
     )
 
   def update(self, version=None, dryrun=False):
+    log(' > UPDATING package "%s"...' % self.name)
     # make sure that the package is installed
     if not self.is_installed:
       error(
@@ -362,13 +403,29 @@ class Package(object):
       )
     # ---
     if dryrun:
+      log(' < Done!')
       return
     if not version:
       version = self._remote_version
-    # perform git checkout
-    repo = git.Repo(self._path)
-    repo.git.fetch('origin', '+refs/tags/%s:refs/tags/%s' % (version, version))
-    repo.git.checkout(version)
+    # perform git fetch and checkout
+    cmd = ['git', '-C', self.path, 'checkout', '--track', 'origin/%s' % version]
+    returncode, _, error_str = exec_cmd(cmd)
+    if returncode != 0:
+      log(' < ERROR updating package "%s"...' % self.name)
+      error(
+        PackageManager.Task.UPDATE,
+        PackageManager.UpdateStep.UPDATE,
+        self.name,
+        'Error checking out version "%s" of the package "%s":\n\tExit code: %s\n\t: %s' % (
+          version,
+          self.name,
+          str(returncode),
+          error_str
+        ),
+        returncode,
+        PackageManager.Error.GIT_CHECKOUT_TRACK_ERROR
+      )
+    log(' < Done!')
 
   def post_update(self, dryrun=False):
     self._perform_aux_action(
@@ -387,6 +444,7 @@ class Package(object):
     )
 
   def uninstall(self, dryrun=False):
+    log(' > UNINSTALLING package "%s"...' % self.name)
     # make sure that the package is installed
     if not self.is_installed:
       error(
@@ -399,11 +457,16 @@ class Package(object):
       )
     # ---
     if dryrun:
+      log(' < Done!')
       return
     shutil.rmtree(self.path)
+    log(' < Done!')
+
 
   def _perform_aux_action(self, task, step, error_code, dryrun=False):
+    log(' > Executing action %s.%s on package "%s"...' % (task.name, step.name, self.name))
     if dryrun:
+      log(' < Done!')
       return
     # exec aux file script (if available)
     action_file = join(self.path, step.name.lower())
@@ -421,6 +484,7 @@ class Package(object):
           action_process.returncode,
           error_code
         )
+    log(' < Done!')
 
 
 if __name__ == '__main__':
@@ -457,37 +521,49 @@ if __name__ == '__main__':
 
   # perform uninstall
   for package_name in args.uninstall or []:
+    log('Performing UNINSTALL on package "%s"...' % package_name)
     pm.uninstall(package_name, dryrun=args.dry_run)
     out_data['uninstalled'].append(package_name)
+    log('Done!')
 
   # perform pre_update
   for package_name in to_update:
     if package_name in pm.list_installed_packages():
+      log('Performing PRE_UPDATE on package "%s"...' % package_name)
       pm.pre_update(package_name, dryrun=args.dry_run)
+      log('Done!')
 
   # perform update
   requires_post_update = []
   for package_name in to_update:
     if package_name in pm.list_installed_packages():
+      log('Performing UPDATE on package "%s"...' % package_name)
       pm.update(package_name, dryrun=args.dry_run)
       requires_post_update.append(package_name)
       out_data['updated'].append(package_name)
+      log('Done!')
 
   # perform install
   requires_post_install = []
   for package_name in to_install:
     if package_name not in pm.list_installed_packages():
+      log('Performing INSTALL on package "%s"...' % package_name)
       pm.install(package_name, dryrun=args.dry_run)
       requires_post_install.append(package_name)
       out_data['installed'].append(package_name)
+      log('Done!')
 
   # perform post_update
   for package_name in requires_post_update:
+    log('Performing POST_UPDATE on package "%s"...' % package_name)
     pm.post_update(package_name, dryrun=args.dry_run)
+    log('Done!')
 
   # perform post_install
   for package_name in requires_post_install:
+    log('Performing POST_INSTALL on package "%s"...' % package_name)
     pm.post_install(package_name, dryrun=args.dry_run)
+    log('Done!')
 
   # exit
   exit_with_code(

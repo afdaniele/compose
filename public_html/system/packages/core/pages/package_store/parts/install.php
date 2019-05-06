@@ -147,8 +147,13 @@ if(count($in_out_conflicts) + count($up_out_conflicts) > 0){
   if(isset($_GET['confirm']) && $_GET['confirm'] == '1'){
     // perform install/uninstall operations in batch
     $res = Core::packageManagerBatch($to_install_full, $to_update_full, $to_uninstall_full);
-    if(!$res['success'])
-      Core::throwError($res['data']);
+    if(!$res['success']){
+      $error_str = implode('<br/>&nbsp;', [
+        "Package Manager Errors:",
+        implode('<br/>&nbsp;&nbsp;', $res['data'])
+      ]);
+      Core::throwError($error_str);
+    }
     // redirect to verification page
     $href = sprintf(
       'package_store/verify?install=%s&update=%s&uninstall=%s',

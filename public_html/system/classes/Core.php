@@ -1051,17 +1051,23 @@ class Core{
       (count($to_update) > 0)? $update_arg : '',
       (count($to_remove) > 0)? $uninstall_arg : ''
     );
-    $output = "";
+    $output = [];
     $exit_code = 0;
     exec($cmd, $output, $exit_code);
     $success = boolval($exit_code == 0);
     // invalidate cache
     self::$cache->clear();
     // ---
-    return [
-      'success' => $success,
-      'data' => $success? null : implode('<br/>', array_merge(['Package Manager Error:'], $output))
-    ];
+    if ($success) {
+      return ['success' => true, 'data' => null];
+    }
+    // parse error (remove comments)
+    $output = array_values(array_filter(
+      array_values($output),
+      function($e){return substr(ltrim($e), 0, 1) !== '#';}
+    ));
+    $err_data = json_decode($output[0], true);
+    return ['success' => false, 'data' => explode('\n', $err_data['message'])];
   }//packageManagerBatch
 
 
