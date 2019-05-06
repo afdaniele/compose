@@ -242,6 +242,13 @@ $assets_index_url = sanitize_url(
   }//render_changes
 
   function mark_to_install(package_name){
+    // if marked to update, remove it from the list
+    idx = packages_to_update.indexOf(package_name);
+    if(idx >= 0){
+      packages_to_update.splice(idx, 1);
+      render_changes();
+      return;
+    }
     // if already marked, do nothing
     idx = packages_to_install.indexOf(package_name);
     if(idx >= 0)
@@ -282,10 +289,6 @@ $assets_index_url = sanitize_url(
   }//mark_to_update
 
   function mark_to_uninstall(package_name){
-    // if marked to update, remove it from the list
-    idx = packages_to_update.indexOf(package_name);
-    if(idx >= 0)
-      packages_to_update.splice(idx, 1);
     // if already marked, do nothing
     idx = packages_to_uninstall.indexOf(package_name);
     if(idx >= 0)
@@ -393,7 +396,7 @@ $assets_index_url = sanitize_url(
         <i class="fa fa-cloud-download" aria-hidden="true"></i>&nbsp;
         Update
       </a>
-      <a role="button" class="btn btn-warning update-button undo-button" style="display:none" onclick="mark_to_uninstall('{0}')" href="javascript:void(0);">
+      <a role="button" class="btn btn-warning update-button undo-button" style="display:none" onclick="mark_to_install('{0}')" href="javascript:void(0);">
         <i class="fa fa-times" aria-hidden="true"></i>&nbsp;
         Cancel
       </a>`;
