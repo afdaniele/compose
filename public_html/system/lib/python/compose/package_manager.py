@@ -1,3 +1,4 @@
+import sys
 import json
 import requests
 import subprocess
@@ -36,18 +37,40 @@ def error(task, step, package_name, error_msg, source_error_code, exit_code):
 
 def log(message):
   print('# %s' % message)
+  sys.stdout.flush()
 
-def exec_cmd(command):
-  # get remote url from repo
-  pipe = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-  pipe.wait()
-  output_str, error_str = pipe.communicate()
-  return pipe.returncode, output_str, error_str
+def exec_cmd(command, retry_cleanup_command=None):
+  num_trials = 3
+  for i in range(num_trials):
+    timeout = 20 * (i + 1)
+    if i > 0:
+      log(' >   Trial %d/%d...' % (i, num_trials))
+    # get remote url from repo
+    try:
+      pipe = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+      pipe.wait(timeout=timeout)
+      output_str, error_str = pipe.communicate()
+      return pipe.returncode, output_str, error_str
+    except subprocess.TimeoutExpired:
+      if retry_cleanup_command is not None:
+        pipe = subprocess.Popen(retry_cleanup_command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        pipe.wait()
+      continue
+  # raise an error
+  error(
+    PackageManager.Task.GENERIC,
+    PackageManager.InitStep.INIT,
+    None,
+    'The command "%s" timed out after %d trials' % (' '.join(command), num_trials),
+    None,
+    PackageManager.Error.GIT_SUBPROCESS_TIMEOUT
+  )
 
 
 class PackageManager(object):
 
   class Task(Enum):
+    GENERIC = 0
     INIT = 1
     DEPENDENCIES_SOLVER = 2
     INSTALL = 3
@@ -91,6 +114,7 @@ class PackageManager(object):
     # generic error codes: 1-9
     NO_PACKAGES_DIR = 1
     NO_CONFIG_FILE = 2
+    GIT_SUBPROCESS_TIMEOUT = 3
     GIT_REMOTE_GET_URL_ERROR = 3
     # installation error codes: 10-19
     PACKAGE_NOT_INSTALLED = 11
@@ -184,10 +208,11 @@ class PackageManager(object):
     num_trials = 3
     packages = []
     for i in range(num_trials):
+      timeout = 5 * (i + 1)
       log('Retrieving index of packages from registry (%d/%d)...' % (i+1, num_trials))
       index_url = '%s/%s/index' % (self._assets_store_url, self._assets_store_branch)
       try:
-        response = requests.get(index_url, timeout=5)
+        response = requests.get(index_url, timeout=timeout)
       except requests.exceptions.Timeout:
         continue
       # parse data
@@ -365,7 +390,8 @@ class Package(object):
       version = self._remote_version
     # clone git repository
     cmd = ['git', 'clone', '--depth', '1', '--branch', version, self.remote_url, self.path]
-    returncode, _, error_str = exec_cmd(cmd)
+    cleanup_cmd = ['rm', '-rf', self.path]
+    returncode, _, error_str = exec_cmd(cmd, cleanup_cmd)
     if returncode != 0:
       log(' < ERROR installing package "%s"...' % self.name)
       error(
@@ -484,17 +510,15 @@ class Package(object):
     # exec aux file script (if available)
     action_file = join(self.path, step.name.lower())
     if isfile(action_file):
-      action_command = '%s > /dev/null 2>&1' % action_file
-      action_process = subprocess.Popen(action_command, shell=True, stdout=None, stderr=None)
-      action_process.wait()
-      _, error_str = action_process.communicate()
-      if action_process.returncode != 0:
+      action_command = [action_file, '> /dev/null 2>&1']
+      returncode, _, error_str = exec_cmd(action_command)
+      if returncode != 0:
         error(
           task,
           step,
           self.name,
           error_str,
-          action_process.returncode,
+          returncode,
           error_code
         )
     log(' < Done!')
