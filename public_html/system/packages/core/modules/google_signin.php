@@ -67,6 +67,8 @@ $login_with_google = $is_login_enabled && $is_google_client_id_set;
   }//logOutButtonClick
 
   function onGoogleLoginError(error){
+    if (error.hasOwnProperty('error') && error.error == 'popup_closed_by_user')
+      return;
     var msg = "An error occurred while authenticating with Google. The server returns: '{0}'.";
     msg += "<br/>Make sure the hostname <strong>{1}</strong> is whitelisted on";
     msg += " <a href=\"https://console.developers.google.com/\">https://console.developers.google.com/</a>"
@@ -77,7 +79,7 @@ $login_with_google = $is_login_enabled && $is_google_client_id_set;
 
   function renderGoogleLoginButton() {
     gapi.auth2.init();
-    if ($("#g-signin" ).length) {
+    if ($("#g-signin").length) {
       gapi.signin2.render('g-signin', {
         'scope': 'profile email',
         'width': 240,
@@ -90,8 +92,18 @@ $login_with_google = $is_login_enabled && $is_google_client_id_set;
   }//renderGoogleLoginButton
 
   $(document).on('ready', function(){
-    // initialize Google Sign-in library and there is at least one Google button
-		gapi.load('signin2', renderGoogleLoginButton);
+    <?php
+    if($login_with_google){
+      ?>
+      // initialize Google Sign-in library and there is at least one Google button
+  		gapi.load('signin2', renderGoogleLoginButton);
+    <?php
+    }else{
+    ?>
+      $("#g-signin").html('Login with Google is not configured yet');
+    <?php
+    }
+    ?>
   });
 
 </script>

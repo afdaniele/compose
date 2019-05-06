@@ -28,7 +28,7 @@ use \system\classes\Core;
           $login_enabled = Core::getSetting('login_enabled', 'core', False);
           if( $login_enabled ){
             ?>
-            <div id="g-signin" style="margin-left: 100px;"></div>
+            <div id="g-signin" class="text-left" style="margin-left:100px;"></div>
             <!--  -->
             <img id="signin-loader" src="<?php echo Configuration::$BASE_URL ?>images/loading_blue.gif" style="display:none; width:32px; height:32px; margin-top:10px">
             <?php
