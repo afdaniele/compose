@@ -50,10 +50,6 @@ RUN a2ensite 000-default
 # disable (default) HTTPS website
 RUN a2dissite 000-default-ssl
 
-# configure git
-RUN git config --global user.email "compose@compose.afdaniele.com"
-RUN git config --global user.name "Compose"
-
 # install \compose\
 RUN git clone --depth 1 $COMPOSE_URL $COMPOSE_DIR
 

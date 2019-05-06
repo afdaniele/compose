@@ -41,10 +41,6 @@ RUN cp /etc/apache2/mods-available/rewrite.load /etc/apache2/mods-enabled/
 # update website configuration file
 ADD assets/etc/apache2/sites-available/000-default.conf /etc/apache2/sites-available/000-default.conf
 
-# configure git
-RUN git config --global user.email "compose@compose.afdaniele.com"
-RUN git config --global user.name "Compose"
-
 # install \compose\
 RUN git clone --depth 1 $COMPOSE_URL $COMPOSE_DIR
 

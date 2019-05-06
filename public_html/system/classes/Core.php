@@ -1067,7 +1067,8 @@ class Core{
       function($e){return substr(ltrim($e), 0, 1) !== '#';}
     ));
     $err_data = json_decode($output[0], true);
-    return ['success' => false, 'data' => explode('\n', $err_data['message'])];
+    $err_data = array_map(htmlspecialchars, explode('\n', $err_data['message']));
+    return ['success' => false, 'data' => $err_data];
   }//packageManagerBatch
 
 

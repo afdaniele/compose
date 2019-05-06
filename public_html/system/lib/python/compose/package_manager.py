@@ -42,7 +42,7 @@ def log(message):
 def exec_cmd(command, retry_cleanup_command=None):
   num_trials = 3
   for i in range(num_trials):
-    timeout = 20 * (i + 1)
+    timeout = 60 * (i + 1)
     if i > 0:
       log(' >   Trial %d/%d...' % (i, num_trials))
     # get remote url from repo
@@ -389,23 +389,27 @@ class Package(object):
     if not version:
       version = self._remote_version
     # clone git repository
-    cmd = ['git', 'clone', '--depth', '1', '--branch', version, self.remote_url, self.path]
+    cmds = [
+      ['git', 'clone', self.remote_url, self.path],
+      ['git', '-C', self.path, 'checkout', version]
+    ]
     cleanup_cmd = ['rm', '-rf', self.path]
-    returncode, _, error_str = exec_cmd(cmd, cleanup_cmd)
-    if returncode != 0:
-      log(' < ERROR installing package "%s"...' % self.name)
-      error(
-        PackageManager.Task.INSTALL,
-        PackageManager.InstallStep.INSTALL,
-        self.name,
-        'Error installing the package "%s":\n\tExit code: %s\n\t: %s' % (
+    for cmd in cmds:
+      returncode, _, error_str = exec_cmd(cmd, cleanup_cmd)
+      if returncode != 0:
+        log(' < ERROR installing package "%s"...' % self.name)
+        error(
+          PackageManager.Task.INSTALL,
+          PackageManager.InstallStep.INSTALL,
           self.name,
-          str(returncode),
-          error_str
-        ),
-        returncode,
-        PackageManager.Error.GIT_CLONE_ERROR
-      )
+          'Error installing the package "%s":\n\tExit code: %s\n\t: %s' % (
+            self.name,
+            str(returncode),
+            error_str
+          ),
+          returncode,
+          PackageManager.Error.GIT_CLONE_ERROR
+        )
     log(' < Done!')
 
   def post_install(self, dryrun=False):
@@ -444,8 +448,8 @@ class Package(object):
       version = self._remote_version
     # perform git fetch and checkout
     cmds = [
-      ['git', '-C', self.path, 'checkout', '-B', version],
-      ['git', '-C', self.path, 'pull', 'origin', version]
+      ['git', '-C', self.path, 'fetch', 'origin', 'master'],
+      ['git', '-C', self.path, 'checkout', version]
     ]
     for cmd in cmds:
       returncode, _, error_str = exec_cmd(cmd)
@@ -510,7 +514,7 @@ class Package(object):
     # exec aux file script (if available)
     action_file = join(self.path, step.name.lower())
     if isfile(action_file):
-      action_command = [action_file, '> /dev/null 2>&1']
+      action_command = [action_file]
       returncode, _, error_str = exec_cmd(action_command)
       if returncode != 0:
         error(
