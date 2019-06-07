@@ -1,3 +1,16 @@
+## 0.9.2 (June 06, 2019)
+  - fixed bug in package and base updaters
+  - minor
+  - Fixed login error when google client id is not set
+  - fixed #18
+  - improved package manager
+  - package manager improved
+  - removed yaml
+  - added timeout to package manager index http req
+  - removed python-git as deps from Dockerfiles
+  - improved package manager, removed python-git dependency
+  - hightlight.js moved to showdown
+
 ## 0.9.1 (May 03, 2019)
   - minor
   - bug fixes
