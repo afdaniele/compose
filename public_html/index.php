@@ -228,6 +228,27 @@
 	include('system/packages/core/modules/footer.php');
 	?>
 
+  <!-- Global Background modules -->
+	<?php
+  // get list of background/global module files
+  $global_background_scripts_per_pkg = Core::getPackagesModules('background/global');
+  foreach ($global_background_scripts_per_pkg as $pkg_id => $global_background_scripts) {
+    foreach ($global_background_scripts as $global_background_script) {
+      include($global_background_script);
+    }
+  }
+	?>
+
+  <!-- Local Background modules -->
+	<?php
+  // get list of background/local module files
+  $page_package = Core::getPageDetails(Configuration::$PAGE, 'package');
+  $local_background_scripts = Core::getPackagesModules('background/local', $page_package);
+  foreach ($local_background_scripts as $local_background_script) {
+    include($local_background_script);
+  }
+	?>
+
 	<!-- Package-specific CSS stylesheets -->
 	<?php
 	foreach(Core::getRegisteredCSSstylesheets() as $css_file) {
