@@ -39,9 +39,7 @@ use \system\classes\Core;
             }
             // render add-ons
             foreach ($login_addon_files_per_pkg as $pkg_id => $login_addon_files) {
-              foreach ($login_addon_files as $pkg_id => $login_addon_file) {
-                require_once $login_addon_file;
-              }
+              require_once $login_addon_files[0];
             }
           }else{
             ?>

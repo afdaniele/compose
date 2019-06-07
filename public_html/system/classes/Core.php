@@ -2244,20 +2244,19 @@ class Core{
 
 
 	private static function _load_package_modules_list(&$pkg_id, &$package_descriptor) {
-		$package_descriptor['modules'] = [
-			'renderers/blocks' => null,
-      'background/global' => null,
-      'background/local' => null,
-      'login' => null
+		$package_descriptor['modules'] = [];
+    $modules_entrypoint = [
+			'renderers/blocks' => '*.php',
+      'background/global' => '*.php',
+      'background/local' => '*.php',
+      'login' => 'index.php'
 		];
 		// load modules
-    foreach ($package_descriptor['modules'] as $key => $_) {
-  		$modules_path = sprintf("%s%s/modules/%s/*.php", $GLOBALS['__PACKAGES__DIR__'], $pkg_id, $key);
+    foreach ($modules_entrypoint as $key => $entrypoint) {
+  		$modules_path = sprintf("%s%s/modules/%s/%s", $GLOBALS['__PACKAGES__DIR__'], $pkg_id, $key, $entrypoint);
   		$modules = glob($modules_path);
       if (count($modules)) {
         $package_descriptor['modules'][$key] = $modules;
-      } else {
-        unset($package_descriptor['modules'][$key]);
       }
     }
 	}//_load_package_modules_list
