@@ -1,3 +1,9 @@
+## 0.9.3 (June 06, 2019)
+  - added global and local background modules feature
+  - added entrypoints to module loader
+  - minor
+  - added Core::getPackagesModules
+
 ## 0.9.2 (June 06, 2019)
   - fixed bug in package and base updaters
   - minor
