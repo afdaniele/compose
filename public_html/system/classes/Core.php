@@ -381,14 +381,50 @@ class Core{
   }//getAPIurl
 
 
+	public static function getPackagesModules($module_family=null, $pkg_id=null, $include_disabled=false) {
+    $modules = [];
+    foreach(self::$packages as $pkg) {
+			if ((!$include_disabled && !$pkg['enabled']) || (!is_null($pkg_id) && $pkg_id != $pkg['id'])) {
+				continue;
+      }
+      $modules[$pkg['id']] = [];
+			// collect package modules
+			foreach($pkg['modules'] as $module_fam => $module_scripts) {
+				if (!is_null($module_family) && $module_family != $module_fam) {
+					continue;
+        }
+        $modules[$pkg['id']][$module_fam] = $module_scripts;
+			}
+		}
+    // remove pkg_id level if pjg_id was given
+    $out = $modules;
+    if (!is_null($pkg_id)) {
+      $out = $modules[$pkg_id];
+      if (!is_null($module_family)) {
+        $out = $out[$module_family];
+      }
+    } elseif (!is_null($module_family)) {
+      $out = [];
+      foreach ($modules as $pkg => &$mods) {
+        if (count($mods[$module_family]) > 0) {
+          $out[$pkg] = $mods[$module_family];
+        }
+      }
+    }
+    return $out;
+	}//getPackagesModules
+
+
 	public static function loadPackagesModules($module_family=null, $pkg_id=null) {
 		foreach(self::$packages as $pkg) {
-			if (!$pkg['enabled'] || (!is_null($pkg_id) && $pkg_id != $pkg['id']) )
+			if (!$pkg['enabled'] || (!is_null($pkg_id) && $pkg_id != $pkg['id'])) {
 				continue;
+      }
 			// load package modules
 			foreach($pkg['modules'] as $module_fam => $module_scripts) {
-				if (!is_null($module_family) && $module_family != $module_fam )
+				if (!is_null($module_family) && $module_family != $module_fam) {
 					continue;
+        }
 				foreach($module_scripts as $module_script) {
 					// check file
 					if (!file_exists($module_script)) {
@@ -2209,13 +2245,21 @@ class Core{
 
 	private static function _load_package_modules_list(&$pkg_id, &$package_descriptor) {
 		$package_descriptor['modules'] = [
-			'renderers/blocks' => []
+			'renderers/blocks' => null,
+      'background/global' => null,
+      'background/local' => null,
+      'login' => null
 		];
-		// load renderers
-		// => block renderers
-		$block_rends_path = sprintf("%s%s/modules/renderers/blocks/*.php", $GLOBALS['__PACKAGES__DIR__'], $pkg_id);
-		$block_rends = glob($block_rends_path);
-		$package_descriptor['modules']['renderers/blocks'] = $block_rends;
+		// load modules
+    foreach ($package_descriptor['modules'] as $key => $_) {
+  		$modules_path = sprintf("%s%s/modules/%s/*.php", $GLOBALS['__PACKAGES__DIR__'], $pkg_id, $key);
+  		$modules = glob($modules_path);
+      if (count($modules)) {
+        $package_descriptor['modules'][$key] = $modules;
+      } else {
+        unset($package_descriptor['modules'][$key]);
+      }
+    }
 	}//_load_package_modules_list
 
 }//Core

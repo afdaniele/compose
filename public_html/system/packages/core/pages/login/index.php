@@ -32,15 +32,16 @@ use \system\classes\Core;
             <!--  -->
             <img id="signin-loader" src="<?php echo Configuration::$BASE_URL ?>images/loading_blue.gif" style="display:none; width:32px; height:32px; margin-top:10px">
             <?php
-
             // get list of login plugins files
-            $login_addon_files = glob(sprintf('%s/*/modules/login/index.php', $GLOBALS['__PACKAGES__DIR__']));
-            if(count($login_addon_files) > 0){
+            $login_addon_files_per_pkg = Core::getPackagesModules('login', null);
+            if(count($login_addon_files_per_pkg) > 0){
               echo '<legend style="width: 100px; margin: 20px auto"></legend>';
             }
             // render add-ons
-            foreach ($login_addon_files as $login_addon_file) {
-              require_once $login_addon_file;
+            foreach ($login_addon_files_per_pkg as $pkg_id => $login_addon_files) {
+              foreach ($login_addon_files as $pkg_id => $login_addon_file) {
+                require_once $login_addon_file;
+              }
             }
           }else{
             ?>
