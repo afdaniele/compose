@@ -1772,7 +1772,7 @@ class Core{
     }
     // pull new code
     exec(
-      sprintf('git -C "%s" pull origin master 2>&1', $GLOBALS['__COMPOSE__DIR__']),
+      sprintf('git -C "%s" pull origin master --tags 2>&1', $GLOBALS['__COMPOSE__DIR__']),
       $info,
       $exit_code
     );

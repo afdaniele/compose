@@ -448,7 +448,7 @@ class Package(object):
       version = self._remote_version
     # perform git fetch and checkout
     cmds = [
-      ['git', '-C', self.path, 'fetch', 'origin', 'master'],
+      ['git', '-C', self.path, 'fetch', '--tags'],
       ['git', '-C', self.path, 'checkout', version]
     ]
     for cmd in cmds:
