@@ -101,7 +101,7 @@ function convertBytesToHumanReadableString($size){
 
 
 function echoArray( $array ){
-	echo '<pre>'.print_r($array, true).'</pre>';
+	echo '<pre style="text-align:justify">'.print_r($array, true).'</pre>';
 }//echoArray
 
 
