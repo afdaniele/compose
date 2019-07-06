@@ -12,6 +12,7 @@
     RewriteRule ^image.php$ /scripts/image.php [QSA,NC,L]
     RewriteRule ^css.php$ /scripts/css.php [QSA,NC,L]
     RewriteRule ^js.php$ /scripts/js.php [QSA,NC,L]
+    RewriteRule ^script.php$ /scripts/script.php [QSA,NC,L]
 
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteRule ^(.*)$ index.php?arg=$1 [QSA,NC,L]
