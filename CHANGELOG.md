@@ -1,3 +1,6 @@
+## 0.9.4 (July 06, 2019)
+  - added package scripts
+
 ## 0.9.3 (June 06, 2019)
   - added global and local background modules feature
   - added entrypoints to module loader
