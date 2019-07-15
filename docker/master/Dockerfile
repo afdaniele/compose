@@ -57,5 +57,14 @@ RUN git clone --depth 1 $COMPOSE_URL $COMPOSE_DIR
 ADD assets/entrypoint.sh /root/entrypoint.sh
 ENTRYPOINT ["/root/entrypoint.sh"]
 
+# configure health check
+HEALTHCHECK \
+  --interval=10s \
+  --timeout=8s \
+  CMD \
+    curl --fail 'http://localhost/script.php?script=healthcheck' \
+    || \
+    exit 1
+
 # configure HTTP port
 EXPOSE 80/tcp

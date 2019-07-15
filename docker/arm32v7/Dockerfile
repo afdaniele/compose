@@ -53,5 +53,14 @@ RUN [ "cross-build-end" ]
 # configure entrypoint
 ENTRYPOINT ["/root/entrypoint.sh"]
 
+# configure health check
+HEALTHCHECK \
+  --interval=10s \
+  --timeout=8s \
+  CMD \
+    curl --fail 'http://localhost/script.php?script=healthcheck' \
+    || \
+    exit 1
+
 # configure HTTP port
 EXPOSE 80/tcp

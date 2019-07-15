@@ -327,6 +327,14 @@ class Core{
   }//isComposeConfigured
 
 
+  public static function healthCheck(){
+    return [
+      'success' => true,
+      'data' => null
+    ];
+  }//healthCheck
+
+
   public static function getCurrentResource(){
     $resource_parts = [
       Configuration::$PAGE,
