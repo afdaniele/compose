@@ -14,13 +14,13 @@ class AUTH_MODE{
 	const API_APP = 1;
 }//AUTH_MODE
 
+// load constants
+require_once __DIR__.'/../system/environment.php';
+
 // error received from .htaccess due to an invalid API url
 if( isset($_GET['__error__']) ){
 	sendResponse( 400, 'Bad Request', 'Invalid API call, please check and retry!', 'plaintext', null );
 }
-
-// load constants
-require_once __DIR__.'/../system/environment.php';
 
 // load core classes and utility
 require_once $GLOBALS['__SYSTEM__DIR__'].'/classes/Core.php';
@@ -230,6 +230,27 @@ if( !$authorized ){
 }
 
 
+// register error callback
+require_once sprintf("%s/api/%s/utils/error_handler.php", $GLOBALS['__SYSTEM__DIR__'], $version);
+
+register_shutdown_function('_error_handler_shutdown_function');
+
+function _error_handler_shutdown_function(){
+  // get error
+  $error = error_get_last();
+  $message = null;
+  // pass the error to the generic error handler function
+  if($error && ($error['type'] & E_FATAL)){
+    $message = _error_handler_generic_error_function($error['type'], $error['message'], $error['file'], $error['line']);
+  }
+  //
+  if (is_null($message)) {
+    $message = 'Generic Error';
+  }
+  // sendResponse(500, 'Internal Server Error', $message, 'plain', null);
+}//_error_handler_shutdown_function
+
+
 // 11. decode the arguments
 $arguments = array();
 foreach( $_GET as $key => $value ){
@@ -237,7 +258,7 @@ foreach( $_GET as $key => $value ){
 }
 
 // <= LOAD INTERPRETER
-require_once sprintf("%s/api/%s/api-interpreter/APIinterpreter.php", $GLOBALS['__SYSTEM__DIR__'], $version );
+require_once sprintf("%s/api/%s/api-interpreter/APIinterpreter.php", $GLOBALS['__SYSTEM__DIR__'], $version);
 use system\api\apiinterpreter\APIinterpreter as Interpreter;
 
 
@@ -256,7 +277,7 @@ sendResponse( $result['code'], $result['status'], $result['message'], $format, $
 
 function sendResponse( $code, $status, $message, $format, $data, $reFormatData=true ){
 	//usleep( 10 /* sec */ * 1000 /* ms */ * 1000 /* us */ ); //DEBUG only
-	$content_type = array('plaintext' => 'text/plain', 'json' => 'application/json', 'xml' => 'text/xml', 'html' => 'text/html');
+	$content_type = array('plain' => 'text/plain', 'plaintext' => 'text/plain', 'json' => 'application/json', 'xml' => 'text/xml', 'html' => 'text/html');
 	//
 	if( $reFormatData ){
 		$container = array();
