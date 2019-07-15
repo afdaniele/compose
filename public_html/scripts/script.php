@@ -6,8 +6,22 @@
 // clean buffer
 ob_clean();
 
+// define default arguments' values
+$default_values = [
+  'package' => 'core'
+];
+foreach ($default_values as $arg => $dval) {
+  if (!isset($_GET[$arg])) {
+    $_GET[$arg] = $dval;
+  }
+}
+
 // check arguments
-foreach (['package', 'script'] as $arg) {
+$mandatory_arguments = [
+  'package',
+  'script'
+];
+foreach ($mandatory_arguments as $arg) {
   if (!isset($_GET[$arg]) || strlen(trim($_GET[$arg])) < 1) {
     echo sprintf('The argument "%s" is mandatory', $arg);
     exit;
