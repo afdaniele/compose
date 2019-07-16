@@ -230,27 +230,6 @@ if( !$authorized ){
 }
 
 
-// register error callback
-require_once sprintf("%s/api/%s/utils/error_handler.php", $GLOBALS['__SYSTEM__DIR__'], $version);
-
-register_shutdown_function('_error_handler_shutdown_function');
-
-function _error_handler_shutdown_function(){
-  // get error
-  $error = error_get_last();
-  $message = null;
-  // pass the error to the generic error handler function
-  if($error && ($error['type'] & E_FATAL)){
-    $message = _error_handler_generic_error_function($error['type'], $error['message'], $error['file'], $error['line']);
-  }
-  //
-  if (is_null($message)) {
-    $message = 'Generic Error';
-  }
-  // sendResponse(500, 'Internal Server Error', $message, 'plain', null);
-}//_error_handler_shutdown_function
-
-
 // 11. decode the arguments
 $arguments = array();
 foreach( $_GET as $key => $value ){
