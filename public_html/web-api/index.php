@@ -14,13 +14,13 @@ class AUTH_MODE{
 	const API_APP = 1;
 }//AUTH_MODE
 
+// load constants
+require_once __DIR__.'/../system/environment.php';
+
 // error received from .htaccess due to an invalid API url
 if( isset($_GET['__error__']) ){
 	sendResponse( 400, 'Bad Request', 'Invalid API call, please check and retry!', 'plaintext', null );
 }
-
-// load constants
-require_once __DIR__.'/../system/environment.php';
 
 // load core classes and utility
 require_once $GLOBALS['__SYSTEM__DIR__'].'/classes/Core.php';
@@ -237,7 +237,7 @@ foreach( $_GET as $key => $value ){
 }
 
 // <= LOAD INTERPRETER
-require_once sprintf("%s/api/%s/api-interpreter/APIinterpreter.php", $GLOBALS['__SYSTEM__DIR__'], $version );
+require_once sprintf("%s/api/%s/api-interpreter/APIinterpreter.php", $GLOBALS['__SYSTEM__DIR__'], $version);
 use system\api\apiinterpreter\APIinterpreter as Interpreter;
 
 
@@ -256,7 +256,7 @@ sendResponse( $result['code'], $result['status'], $result['message'], $format, $
 
 function sendResponse( $code, $status, $message, $format, $data, $reFormatData=true ){
 	//usleep( 10 /* sec */ * 1000 /* ms */ * 1000 /* us */ ); //DEBUG only
-	$content_type = array('plaintext' => 'text/plain', 'json' => 'application/json', 'xml' => 'text/xml', 'html' => 'text/html');
+	$content_type = array('plain' => 'text/plain', 'plaintext' => 'text/plain', 'json' => 'application/json', 'xml' => 'text/xml', 'html' => 'text/html');
 	//
 	if( $reFormatData ){
 		$container = array();
