@@ -4,12 +4,13 @@ FROM afdaniele/compose:latest
 #=======> DEVELOPMENT only tools
 
 # install dependencies, then clean the apt cache
-RUN apt-get update && apt-get install -y \
+RUN apt-get update \
+  && apt-get install -y \
     php-xdebug \
     graphviz \
     doxygen \
-    # clean the apt cache
-    && rm -rf /var/lib/apt/lists/*
+  # clean the apt cache
+  && rm -rf /var/lib/apt/lists/*
 
 # enable xDebug
 RUN echo "zend_extension=`find /usr/lib/php | grep xdebug.so`;" >> /etc/php/7.0/apache2/php.ini
@@ -18,10 +19,10 @@ RUN echo "zend_extension=`find /usr/lib/php | grep xdebug.so`;" >> /etc/php/7.0/
 RUN git clone --depth 1 https://github.com/jokkedk/webgrind.git $COMPOSE_DIR/public_html/webgrind/
 
 # copy phpinfo script
-ADD assets/phpinfo.php $COMPOSE_DIR/public_html/
+ADD assets.devel/phpinfo.php $COMPOSE_DIR/public_html/
 
 # copy APCu monitor script
-ADD assets/apc.php $COMPOSE_DIR/public_html/
+ADD assets.devel/apc.php $COMPOSE_DIR/public_html/
 
 # copy xDebug config file
-ADD assets/xdebug.ini /etc/php/7.0/mods-available/xdebug.ini
+ADD assets.devel/xdebug.ini /etc/php/7.0/mods-available/xdebug.ini
