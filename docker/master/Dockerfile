@@ -8,6 +8,7 @@ ENV SSL_DIR ${APP_DIR}/ssl
 ENV COMPOSE_URL https://github.com/afdaniele/compose.git
 ENV COMPOSE_PACKAGES_DIR "$COMPOSE_DIR/public_html/system/packages"
 ENV COMPOSE_VERSION master
+ENV COMPOSE_HTTP_PORT 80
 
 # install dependencies, then clean the apt cache
 RUN apt-get update \
@@ -67,4 +68,4 @@ HEALTHCHECK \
     exit 1
 
 # configure HTTP port
-EXPOSE 80/tcp
+EXPOSE ${COMPOSE_HTTP_PORT}/tcp
