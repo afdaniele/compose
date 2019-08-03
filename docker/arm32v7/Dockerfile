@@ -42,7 +42,7 @@ RUN cp /etc/apache2/mods-available/rewrite.load /etc/apache2/mods-enabled/
 ADD assets/etc/apache2/sites-available/000-default.conf /etc/apache2/sites-available/000-default.conf
 
 # install \compose\
-RUN git clone --depth 1 $COMPOSE_URL $COMPOSE_DIR
+RUN git clone $COMPOSE_URL $COMPOSE_DIR
 
 # copy entrypoint
 ADD assets/entrypoint.sh /root/entrypoint.sh

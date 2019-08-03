@@ -51,7 +51,7 @@ RUN a2ensite 000-default
 RUN a2dissite 000-default-ssl
 
 # install \compose\
-RUN git clone --depth 1 $COMPOSE_URL $COMPOSE_DIR
+RUN git clone $COMPOSE_URL $COMPOSE_DIR
 
 # configure entrypoint
 ADD assets/entrypoint.sh /root/entrypoint.sh
