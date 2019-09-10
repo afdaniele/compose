@@ -43,12 +43,13 @@ def exec_cmd(command, retry_cleanup_command=None):
   num_trials = 3
   for i in range(1, num_trials+1, 1):
     timeout = 30 * i
-    log(' >    Trial %d/%d (timeout %d secs)...' % (i, num_trials, timeout))
+    log('   > Trial %d/%d (timeout %d secs)...' % (i, num_trials, timeout))
     # get remote url from repo
     try:
       pipe = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
       pipe.wait(timeout=timeout)
       output_str, error_str = pipe.communicate()
+      log('   > Trial: Done!')
       return pipe.returncode, output_str, error_str
     except subprocess.TimeoutExpired:
       if retry_cleanup_command is not None:
@@ -383,7 +384,7 @@ class Package(object):
       )
     # ---
     if dryrun:
-      log(' < Done!')
+      log(' < INSTALLING: Done!')
       return
     if not version:
       version = self._remote_version
@@ -412,8 +413,8 @@ class Package(object):
           returncode,
           PackageManager.Error.GIT_CLONE_ERROR
         )
-      log('  < Done!')
-    log(' < Done!')
+      log('  < Substep: Done!')
+    log(' < INSTALLING: Done!')
 
   def post_install(self, dryrun=False):
     self._perform_aux_action(
@@ -445,7 +446,7 @@ class Package(object):
       )
     # ---
     if dryrun:
-      log(' < Done!')
+      log(' < UPDATING: Done!')
       return
     if not version:
       version = self._remote_version
@@ -474,8 +475,8 @@ class Package(object):
           returncode,
           PackageManager.Error.GIT_CHECKOUT_TRACK_ERROR
         )
-      log('  < Done!')
-    log(' < Done!')
+      log('  < Substep: Done!')
+    log(' < UPDATING: Done!')
 
   def post_update(self, dryrun=False):
     self._perform_aux_action(
@@ -506,11 +507,9 @@ class Package(object):
         PackageManager.Error.PACKAGE_NOT_INSTALLED
       )
     # ---
-    if dryrun:
-      log(' < Done!')
-      return
-    shutil.rmtree(self.path)
-    log(' < Done!')
+    if not dryrun:
+      shutil.rmtree(self.path)
+    log(' < UNINSTALLING: Done!')
 
 
   def _perform_aux_action(self, task, step, error_code, dryrun=False):
@@ -573,14 +572,14 @@ if __name__ == '__main__':
     log('Performing UNINSTALL on package "%s"...' % package_name)
     pm.uninstall(package_name, dryrun=args.dry_run)
     out_data['uninstalled'].append(package_name)
-    log('Done!')
+    log('Done!\n')
 
   # perform pre_update
   for package_name in to_update:
     if package_name in pm.list_installed_packages():
       log('Performing PRE_UPDATE on package "%s"...' % package_name)
       pm.pre_update(package_name, dryrun=args.dry_run)
-      log('Done!')
+      log('Done!\n')
 
   # perform update
   requires_post_update = []
@@ -590,7 +589,7 @@ if __name__ == '__main__':
       pm.update(package_name, dryrun=args.dry_run)
       requires_post_update.append(package_name)
       out_data['updated'].append(package_name)
-      log('Done!')
+      log('Done!\n')
 
   # perform install
   requires_post_install = []
@@ -600,19 +599,19 @@ if __name__ == '__main__':
       pm.install(package_name, dryrun=args.dry_run)
       requires_post_install.append(package_name)
       out_data['installed'].append(package_name)
-      log('Done!')
+      log('Done!\n')
 
   # perform post_update
   for package_name in requires_post_update:
     log('Performing POST_UPDATE on package "%s"...' % package_name)
     pm.post_update(package_name, dryrun=args.dry_run)
-    log('Done!')
+    log('Done!\n')
 
   # perform post_install
   for package_name in requires_post_install:
     log('Performing POST_INSTALL on package "%s"...' % package_name)
     pm.post_install(package_name, dryrun=args.dry_run)
-    log('Done!')
+    log('Done!\n')
 
   # exit
   exit_with_code(
