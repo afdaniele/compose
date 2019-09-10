@@ -28,6 +28,7 @@ RUN apt-get update \
     # python libraries
     python3-requests \
     python3-toposort \
+    python3-pip \
     # php libraries
     # <empty> \
   # clean the apt cache

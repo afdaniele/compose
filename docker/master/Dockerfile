@@ -26,6 +26,7 @@ RUN apt-get update \
     # python libraries
     python3-requests \
     python3-toposort \
+    python3-pip \
     # clean the apt cache
   && rm -rf /var/lib/apt/lists/*
 
