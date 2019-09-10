@@ -41,10 +41,9 @@ def log(message):
 
 def exec_cmd(command, retry_cleanup_command=None):
   num_trials = 3
-  for i in range(num_trials):
-    timeout = 30 * (i + 1)
-    if i > 0:
-      log(' >   Trial %d/%d (timeout %d secs)...' % (i, num_trials, timeout))
+  for i in range(1, num_trials+1, 1):
+    timeout = 30 * i
+    log(' >   Trial %d/%d (timeout %d secs)...' % (i, num_trials, timeout))
     # get remote url from repo
     try:
       pipe = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
