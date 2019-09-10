@@ -17,7 +17,7 @@ RUN [ "cross-build-start" ]
 
 # install dependencies, then clean the apt cache
 RUN apt-get update \
-  && apt-get install -y \
+  && apt-get install -y --no-install-recommends \
     # system utilities (used by user)
     nano \
     wget \
@@ -28,6 +28,7 @@ RUN apt-get update \
     # python libraries
     python3-requests \
     python3-toposort \
+    python3-pip \
     # php libraries
     # <empty> \
   # clean the apt cache
