@@ -12,7 +12,7 @@ ENV COMPOSE_HTTP_PORT 80
 
 # install dependencies, then clean the apt cache
 RUN apt-get update \
-  && apt-get install -y \
+  && apt-get install -y --no-install-recommends \
     # system utilities (used by user)
     nano \
     wget \
@@ -26,6 +26,7 @@ RUN apt-get update \
     # python libraries
     python3-requests \
     python3-toposort \
+    python3-pip \
     # clean the apt cache
   && rm -rf /var/lib/apt/lists/*
 
