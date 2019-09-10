@@ -43,7 +43,7 @@ def exec_cmd(command, retry_cleanup_command=None):
   num_trials = 3
   for i in range(1, num_trials+1, 1):
     timeout = 30 * i
-    log(' >   Trial %d/%d (timeout %d secs)...' % (i, num_trials, timeout))
+    log(' >    Trial %d/%d (timeout %d secs)...' % (i, num_trials, timeout))
     # get remote url from repo
     try:
       pipe = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -393,10 +393,13 @@ class Package(object):
       ['git', '-C', self.path, 'checkout', version]
     ]
     cleanup_cmd = ['rm', '-rf', self.path]
-    for cmd in cmds:
+    num_cmds = len(cmds)
+    for i in range(num_cmds):
+      cmd = cmds[i]
+      log('  > Substep %d/%d...' % (i+1, num_cmds))
       returncode, _, error_str = exec_cmd(cmd, cleanup_cmd)
       if returncode != 0:
-        log(' < ERROR installing package "%s"...' % self.name)
+        log('  < ERROR installing package "%s"...' % self.name)
         error(
           PackageManager.Task.INSTALL,
           PackageManager.InstallStep.INSTALL,
@@ -409,6 +412,7 @@ class Package(object):
           returncode,
           PackageManager.Error.GIT_CLONE_ERROR
         )
+      log('  < Done!')
     log(' < Done!')
 
   def post_install(self, dryrun=False):
@@ -450,10 +454,13 @@ class Package(object):
       ['git', '-C', self.path, 'fetch', '--tags'],
       ['git', '-C', self.path, 'checkout', version]
     ]
-    for cmd in cmds:
+    num_cmds = len(cmds)
+    for i in range(num_cmds):
+      cmd = cmds[i]
+      log('  > Substep %d/%d...' % (i+1, num_cmds))
       returncode, _, error_str = exec_cmd(cmd)
       if returncode != 0:
-        log(' < ERROR updating package "%s"...' % self.name)
+        log('  < ERROR updating package "%s"...' % self.name)
         error(
           PackageManager.Task.UPDATE,
           PackageManager.UpdateStep.UPDATE,
@@ -467,6 +474,7 @@ class Package(object):
           returncode,
           PackageManager.Error.GIT_CHECKOUT_TRACK_ERROR
         )
+      log('  < Done!')
     log(' < Done!')
 
   def post_update(self, dryrun=False):
