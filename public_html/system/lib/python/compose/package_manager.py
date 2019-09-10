@@ -534,12 +534,12 @@ if __name__ == '__main__':
   log('\\compose\\ Package Manager:')
 
   parser = argparse.ArgumentParser(description='Manage compose packages')
-  parser.add_argument('--install', metavar='N', type=str, nargs='+',
-                      help='a comma-separated list of packages to install')
-  parser.add_argument('--uninstall', metavar='N', type=str, nargs='+',
-                      help='a comma-separated list of packages to uninstall')
-  parser.add_argument('--update', metavar='N', type=str, nargs='+',
-                      help='a comma-separated list of packages to update')
+  parser.add_argument('--install', metavar='package', type=str, nargs='*',
+                      help='a space-separated list of packages to install')
+  parser.add_argument('--uninstall', metavar='package', type=str, nargs='*',
+                      help='a space-separated list of packages to uninstall')
+  parser.add_argument('--update', metavar='package', type=str, nargs='*',
+                      help='a space-separated list of packages to update')
   parser.add_argument('--dry-run', action='store_true', default=False,
                       help='do not commit changes')
   args = parser.parse_args()
