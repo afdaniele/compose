@@ -55,8 +55,8 @@ RUN a2dissite 000-default-ssl
 RUN git clone $COMPOSE_URL $COMPOSE_DIR
 
 # configure entrypoint
-ADD assets/entrypoint.sh /root/entrypoint.sh
-ENTRYPOINT ["/root/entrypoint.sh"]
+ADD assets/entrypoint.sh /entrypoint.sh
+ENTRYPOINT ["/entrypoint.sh"]
 
 # configure health check
 HEALTHCHECK \

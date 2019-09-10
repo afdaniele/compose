@@ -28,7 +28,6 @@ RUN apt-get update \
     # python libraries
     python3-requests \
     python3-toposort \
-    python3-pip \
     # php libraries
     # <empty> \
   # clean the apt cache
@@ -47,13 +46,13 @@ ADD assets/etc/apache2/sites-available/000-default.conf /etc/apache2/sites-avail
 RUN git clone $COMPOSE_URL $COMPOSE_DIR
 
 # copy entrypoint
-ADD assets/entrypoint.sh /root/entrypoint.sh
+ADD assets/entrypoint.sh /entrypoint.sh
 
 # disable ARM
 RUN [ "cross-build-end" ]
 
 # configure entrypoint
-ENTRYPOINT ["/root/entrypoint.sh"]
+ENTRYPOINT ["/entrypoint.sh"]
 
 # configure health check
 HEALTHCHECK \
