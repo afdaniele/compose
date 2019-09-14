@@ -2,13 +2,13 @@
 FROM nimmis/apache-php7:latest
 
 # constants
-ENV APP_DIR /var/www
-ENV COMPOSE_DIR ${APP_DIR}/html
-ENV SSL_DIR ${APP_DIR}/ssl
-ENV COMPOSE_URL https://github.com/afdaniele/compose.git
-ENV COMPOSE_PACKAGES_DIR "$COMPOSE_DIR/public_html/system/packages"
-ENV COMPOSE_VERSION master
+ENV APP_DIR "/var/www"
+ENV COMPOSE_DIR "${APP_DIR}/html"
+ENV COMPOSE_URL "https://github.com/afdaniele/compose.git"
+ENV COMPOSE_PACKAGES_DIR "${COMPOSE_DIR}/public_html/system/packages"
+ENV COMPOSE_VERSION "master"
 ENV COMPOSE_HTTP_PORT 80
+ENV COMPOSE_HTTPS_PORT 443
 
 # install dependencies, then clean the apt cache
 RUN apt-get update \
@@ -30,11 +30,8 @@ RUN apt-get update \
     # clean the apt cache
   && rm -rf /var/lib/apt/lists/*
 
-# create container for SSL certificates
-RUN mkdir -p $SSL_DIR
-
 # remove pre-installed app
-RUN rm -rf $COMPOSE_DIR
+RUN rm -rf "${COMPOSE_DIR}"
 
 # enable mod rewrite
 RUN a2enmod rewrite
@@ -53,7 +50,7 @@ RUN a2ensite 000-default
 RUN a2dissite 000-default-ssl
 
 # install \compose\
-RUN git clone $COMPOSE_URL $COMPOSE_DIR
+RUN git clone "${COMPOSE_URL}" "${COMPOSE_DIR}"
 
 # configure entrypoint
 ADD assets/entrypoint.sh /entrypoint.sh
@@ -68,5 +65,6 @@ HEALTHCHECK \
     || \
     exit 1
 
-# configure HTTP port
+# configure HTTP/HTTPS port
 EXPOSE ${COMPOSE_HTTP_PORT}/tcp
+EXPOSE ${COMPOSE_HTTPS_PORT}/tcp
