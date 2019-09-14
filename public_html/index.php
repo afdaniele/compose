@@ -157,7 +157,7 @@
 	<script src="<?php echo Configuration::$BASE_URL ?>js/string.format.js"></script>
 
 	<!-- Google API Library -->
-	<script src="<?php echo Configuration::$BASE_URL ?>js/platform.js"></script>
+  <script src="https://apis.google.com/js/platform.js" async defer></script>
 	<?php
 	if (Core::getSetting('login_enabled', 'core')) {
 		?>
