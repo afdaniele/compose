@@ -9,6 +9,9 @@ ENV COMPOSE_PACKAGES_DIR "${COMPOSE_DIR}/public_html/system/packages"
 ENV COMPOSE_VERSION "master"
 ENV COMPOSE_HTTP_PORT 80
 ENV COMPOSE_HTTPS_PORT 443
+ENV SSL_DIR "${APP_DIR}/ssl"
+ENV SSL_CERTFILE "${SSL_DIR}/certfile.pem"
+ENV SSL_KEYFILE "${SSL_DIR}/privkey.pem"
 
 # install dependencies, then clean the apt cache
 RUN apt-get update \
