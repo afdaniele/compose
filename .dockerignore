@@ -1,0 +1,8 @@
+# Ignore everything
+**
+
+# Allow files and directories
+!assets
+!public_html
+!configure.py
+!VERSION

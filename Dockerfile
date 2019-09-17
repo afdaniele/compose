@@ -17,9 +17,7 @@ ENV OS_DISTRO=${OS_DISTRO}
 # configure environment: \compose\
 ENV APP_DIR "/var/www"
 ENV COMPOSE_DIR "${APP_DIR}/html"
-ENV COMPOSE_URL "https://github.com/afdaniele/compose.git"
 ENV COMPOSE_PACKAGES_DIR "${COMPOSE_DIR}/public_html/system/packages"
-ENV COMPOSE_VERSION "master"
 ENV COMPOSE_HTTP_PORT 80
 ENV COMPOSE_HTTPS_PORT 443
 ENV SSL_DIR "${APP_DIR}/ssl"
@@ -55,8 +53,8 @@ RUN a2enmod rewrite
 RUN a2enmod ssl
 
 # update website configuration file
-ADD assets/etc/apache2/sites-available/000-default.conf /etc/apache2/sites-available/000-default.conf
-ADD assets/etc/apache2/sites-available/000-default-ssl.conf /etc/apache2/sites-available/000-default-ssl.conf
+COPY assets/etc/apache2/sites-available/000-default.conf /etc/apache2/sites-available/000-default.conf
+COPY assets/etc/apache2/sites-available/000-default-ssl.conf /etc/apache2/sites-available/000-default-ssl.conf
 
 # enable HTTP website
 RUN a2ensite 000-default
@@ -65,10 +63,11 @@ RUN a2ensite 000-default
 RUN a2dissite 000-default-ssl
 
 # install \compose\
-RUN git clone "${COMPOSE_URL}" "${COMPOSE_DIR}"
+COPY ./public_html "${COMPOSE_DIR}"
+COPY ./configure.py "${COMPOSE_DIR}"
 
 # configure entrypoint
-ADD assets/entrypoint.sh /entrypoint.sh
+COPY assets/entrypoint.sh /entrypoint.sh
 ENTRYPOINT ["/entrypoint.sh"]
 
 # configure health check

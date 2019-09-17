@@ -52,10 +52,7 @@ learn more about **\\compose\\**
 You can download our Docker files from (here)[https://github.com/afdaniele/compose/tree/master/docker].
 To build a Docker image from one of our Docker files run:
 
-`docker build -t <image_name>:<image_tag> --build-arg VERSION=<github_compose_tag_name> .`
-
-**NOTE:** `<github_compose_tag_name>` can be any (GitHub release)[https://github.com/afdaniele/compose/releases],
-or `master` for the development version.
+`docker build -t <image_name>:<image_tag> .`
 
 
 ### Pre-built Docker images
