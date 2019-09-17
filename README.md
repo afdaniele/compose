@@ -40,3 +40,43 @@ way for packages to export API end-points accessible via HTTP.
 
 Check the [Full Documentation](http://compose.afdaniele.com/docs/latest/) if you want to
 learn more about **\\compose\\**
+
+
+## \\compose\\ in Docker
+
+**\\compose\\** is also available as a Docker image.
+
+
+### Build your own image using Dockerfile
+
+You can download our Docker files from (here)[https://github.com/afdaniele/compose/tree/master/docker].
+To build a Docker image from one of our Docker files run:
+
+`docker build -t <image_name>:<image_tag> --build-arg VERSION=<github_compose_tag_name> .`
+
+**NOTE:** `<github_compose_tag_name>` can be any (GitHub release)[https://github.com/afdaniele/compose/releases],
+or `master` for the development version.
+
+
+### Pre-built Docker images
+
+You can find the list of pre-built images on
+(Docker Hub)[https://cloud.docker.com/repository/docker/afdaniele/compose/tags].
+
+
+### Run image with \\compose\\ outside the container (suggested)
+
+Run
+
+`docker run -itd -p <PORT>:80 -v <COMPOSE_ROOT_HOST_DIR>:/var/www/html afdaniele/compose:<IMAGE_TAG>`
+
+**NOTE:** `<COMPOSE_ROOT_HOST_DIR>` is the path to the directory on the host that contains the root of the `\compose\` repository. This path should contain a `public_html` dir.
+
+
+### Run image with \\compose\\ inside the container
+
+**NOTE:** All the changes made in **\\compose\\** will be saved inside the container. If you delete the container without committing, all the changes will be lost.
+
+Run
+
+`docker run -d -p <PORT>:80 afdaniele/compose:<IMAGE_TAG>`
