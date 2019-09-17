@@ -6,27 +6,29 @@ pipeline {
     BUILD_IMAGE = "afdaniele/compose:latest"
   }
   stages {
-    stage('Update Base Image') {
+    stage('Configure Environment') {
       steps {
-        sh 'docker pull $BASE_IMAGE'
+        sh 'docker run --rm --privileged multiarch/qemu-user-static:register --reset'
       }
     }
     stage('Build Image') {
       steps {
-        sh 'docker build -t $BUILD_IMAGE --no-cache -f docker/master/Dockerfile ./docker/master/'
+        sh 'make build ARCH=amd64'
+        sh 'make build ARCH=arm32v7'
       }
     }
     stage('Push Image') {
       steps {
         withDockerRegistry(credentialsId: 'DockerHub', url: 'https://index.docker.io/v1/') {
-          sh 'docker push $BUILD_IMAGE'
+          sh 'make push ARCH=amd64'
+          sh 'make push ARCH=arm32v7'
         }
       }
     }
     stage('Clean up') {
       steps {
-        sh 'docker rmi $BASE_IMAGE || :'
-        sh 'docker rmi $BUILD_IMAGE || :'
+        sh 'make clean ARCH=amd64'
+        sh 'make clean ARCH=arm32v7'
 
         cleanWs()
       }
