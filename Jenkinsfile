@@ -1,10 +1,5 @@
 pipeline {
   agent any
-  environment {
-    // Tag: latest
-    BASE_IMAGE = "nimmis/apache-php7:latest"
-    BUILD_IMAGE = "afdaniele/compose:latest"
-  }
   stages {
     stage('Configure Environment') {
       steps {
