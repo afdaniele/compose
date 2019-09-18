@@ -45,6 +45,12 @@
 	$requested_action = (count($args) > 1 && $args[1]!=='') ? $args[1] : $_GET['action'];
 	$requested_action = ($requested_action !== '')? $requested_action : NULL;
 
+  // set configuration
+  Configuration::$PAGE = $requested_page;
+	Configuration::$ACTION = $requested_action;
+	Configuration::$ARG1 = (count($args) > 2 && $args[2] !== '') ? $args[2] : NULL;
+	Configuration::$ARG2 = (count($args) > 3 && $args[3] !== '') ? $args[3] : NULL;
+
 	// create a Session
 	Core::startSession();
 
@@ -105,11 +111,6 @@
 		$redirect_page = $default_page;
 		Core::redirectTo($redirect_page, $redirect_page == 'login');
 	}
-
-	Configuration::$PAGE = $requested_page;
-	Configuration::$ACTION = $requested_action;
-	Configuration::$ARG1 = (count($args) > 2 && $args[2] !== '') ? $args[2] : NULL;
-	Configuration::$ARG2 = (count($args) > 3 && $args[3] !== '') ? $args[3] : NULL;
 
 	// execute URL rewrite
 	URLrewrite::match();
