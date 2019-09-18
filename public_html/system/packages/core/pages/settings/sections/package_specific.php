@@ -9,7 +9,7 @@ function create_row( $settings_entry_id, $settings_entry, $settings_entry_value 
     ?>
     <div style="margin-bottom:4px">
         <label class="col-md-6 text-right"><?php echo $settings_entry['title'] ?></label>
-        <p class="col-md-6" style="margin-bottom:20px">
+        <p class="col-md-5" style="margin-bottom:20px">
             <?php
             switch( $settings_entry['type'] ) {
                 case 'text':
@@ -77,6 +77,20 @@ function create_row( $settings_entry_id, $settings_entry, $settings_entry_value 
                     break;
             }
             ?>
+        </p>
+        <p class="col-md-1" style="margin-top:6px">
+          <span
+            class="glyphicon glyphicon-info-sign"
+            style="color: #2e6da4; font-size: 12pt"
+            aria-hidden="true"
+            data-toggle="popover"
+            data-trigger="focus"
+            data-container="body"
+            data-placement="bottom"
+            tabindex="0"
+            title="Info"
+            data-content="<?php echo $settings_entry['details'] ?>"
+            ></span>
         </p>
     </div>
     <?php
