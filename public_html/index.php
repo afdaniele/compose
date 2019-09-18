@@ -27,9 +27,9 @@
 	require_once 'system/packages/core/modules/error_handler.php';
 
 	// simplify namespaces
-	use system\classes\Core as Core;
-	use system\classes\Configuration as Configuration;
-	use system\utils\URLrewrite as URLrewrite;
+	use system\classes\Core;
+	use system\classes\Configuration;
+	use system\utils\URLrewrite;
 
 	// set the $BASE and $BASE_URL variables (Experimental)
   $is_https = boolval(isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off');
