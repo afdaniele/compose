@@ -75,6 +75,10 @@ footer #avatar{
   margin-bottom: 32px;
 }
 
+select.form-control{
+  padding: 0 4px;
+}
+
 /*
 TODO: Duckietown specific stuff, move to duckietown package
 
