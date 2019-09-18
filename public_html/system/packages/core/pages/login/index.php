@@ -16,7 +16,12 @@ use \system\classes\Core;
           <h3 style="margin-top:0"><strong><span class="glyphicon glyphicon-lock" aria-hidden="true"></span> &nbsp;Sign in</strong></h3>
         </div>
         <div class="col-md-6">
-          <img id="loginLogo" src="<?php echo Core::getSetting('logo_black') ?>"/>
+          <?php
+          $logo = Core::getSetting('logo_black');
+          $base = Configuration::$BASE;
+          $logo = str_replace('~', $base, str_replace('~/', '~', $logo));
+          ?>
+          <img id="loginLogo" src="<?php echo $logo ?>"/>
         </div>
         <br>
         <br>

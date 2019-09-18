@@ -78,7 +78,12 @@ foreach ($buttons as &$button) {
 				<table>
 					<tr>
 						<td>
-							<img id="navbarLogo" src="<?php echo Core::getSetting('logo_white') ?>"></img>
+              <?php
+              $logo = Core::getSetting('logo_white');
+              $base = Configuration::$BASE;
+              $logo = str_replace('~', $base, str_replace('~/', '~', $logo));
+              ?>
+							<img id="navbarLogo" src="<?php echo $logo ?>"></img>
 						</td>
 						<td style="vertical-align:top">
 							<h3 style="margin:0 0 0 15px">&nbsp;<?php echo Core::getSetting('navbar_title') ?></h3>

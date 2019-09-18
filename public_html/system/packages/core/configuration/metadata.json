@@ -36,13 +36,13 @@
             "title" : "Application logo (white version)",
             "type" : "text",
             "default" : "http://compose.afdaniele.com/images/compose-white-logo.svg",
-            "details" : "Logo of the web application (light version for dark backgrounds)"
+            "details" : "Web app logo (for dark backgrounds). '~' autocompletes to 'http(s)://SERVER_HOSTNAME'."
         },
         "logo_black" : {
             "title" : "Application logo (dark version)",
             "type" : "text",
             "default" : "http://compose.afdaniele.com/images/compose-black-logo.svg",
-            "details" : "Logo of the web application (dark version for light backgrounds)"
+            "details" : "Web app logo (for light backgrounds). '~' autocompletes to 'http(s)://SERVER_HOSTNAME'."
         },
         "admin_contact_email_address" : {
             "title" : "Administrator e-mail address",
