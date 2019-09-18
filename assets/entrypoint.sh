@@ -3,6 +3,9 @@
 # constants
 ssldir_apache="/var/www/ssl-apache"
 
+# set umask
+umask 0002
+
 # check volume
 mountpoint -q ${COMPOSE_DIR}
 if [ $? -ne 0 ]; then

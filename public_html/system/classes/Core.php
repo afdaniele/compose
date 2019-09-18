@@ -228,8 +228,10 @@ class Core{
 	 */
 	public static function init($safe_mode=false) {
 		if (!self::$initialized) {
+      // set encoding
 			mb_internal_encoding("UTF-8");
-			//
+      // configure umask
+      self::_set_umask(0002);
 			// init configuration
 			$res = Configuration::init();
 			if (!$res['success']) {
@@ -2036,6 +2038,30 @@ class Core{
 	//
 	// Private functions
 
+
+  private static function _set_umask($umask){
+    /*
+    The umask defines what privileges can be assigned to newly created files and directories.
+
+      umask = 0WGE
+
+    where,
+      W = Owner
+      G = Group
+      E = Everybody
+
+    each channel above can be masked using the following values:
+      0 : read, write and execute
+      1 : read and write
+      2 : read and execute
+      3 : read only
+      4 : write and execute
+      5 : write only
+      6 : execute only
+      7 : no permissions
+    */
+    umask(octdec($umask));
+  }//_set_umask
 
 
 	/**
