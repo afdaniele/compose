@@ -7,7 +7,7 @@ IMAGE="afdaniele/compose"
 TAG="latest"
 
 build:
-	@docker build -t "${IMAGE}:${TAG}-${ARCH}" ./; \
+	@docker build -t "${IMAGE}:${TAG}-${ARCH}" --build-arg ARCH=${ARCH} ./; \
 	if [ "${ARCH}" = "${DEFAULT_ARCH}" ]; then \
     docker tag "${IMAGE}:${TAG}-${ARCH}" "${IMAGE}:${TAG}"; \
   fi
