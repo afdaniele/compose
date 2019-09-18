@@ -44,7 +44,7 @@ class URLrewrite{
                 $redirect_url = sprintf( "%s/%s", \system\classes\Configuration::$BASE_URL, $rewritten_uri );
 
                 // redirect
-                ob_clean();
+                if (ob_get_length()) ob_clean();
                 header( "HTTP/1.1 301 Moved Permanently" );
                 header(
                     sprintf("Location: %s", $redirect_url),

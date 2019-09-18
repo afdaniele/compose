@@ -269,7 +269,7 @@ function sendResponse( $code, $status, $message, $format, $data, $reFormatData=t
 		$data = formatData( $container );
 	}
 	//
-	ob_clean();
+	if (ob_get_length()) ob_clean();
 	//
 	header('HTTP/1.x 200 OK');
 	header('Connection: close');

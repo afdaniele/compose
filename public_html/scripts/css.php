@@ -23,7 +23,7 @@ $fp = fopen($stylePath, 'rb');
 $fsize = filesize($stylePath);
 
 // clean buffer
-ob_clean();
+if (ob_get_length()) ob_clean();
 
 // send the right headers
 header( "Content-Type: text/css", true );

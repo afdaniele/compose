@@ -24,7 +24,7 @@ $fp = fopen($scriptPath, 'rb');
 $fsize = filesize($scriptPath);
 
 // clean buffer
-ob_clean();
+if (ob_get_length()) ob_clean();
 
 // send the right headers
 header( "Content-Type: application/javascript" );

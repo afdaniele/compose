@@ -77,7 +77,7 @@ function _error_handler_generic_error_function( $errno, $errstr, $errfile, $errl
 }//_error_handler_generic_error_function
 
 function _output($code, $status, $data) {
-  ob_clean();
+  if (ob_get_length()) ob_clean();
   //
   header(sprintf('HTTP/1.x %d %s', $code, $status));
   header('Connection: close');

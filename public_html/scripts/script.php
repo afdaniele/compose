@@ -4,7 +4,7 @@
 # @Last modified by:   afdaniele
 
 // clean buffer
-ob_clean();
+if (ob_get_length()) ob_clean();
 
 // define default arguments' values
 $default_values = [
