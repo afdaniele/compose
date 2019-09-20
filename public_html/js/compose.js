@@ -277,7 +277,7 @@ function callAPI( url, successDialog, reload, funct, silentMode, suppressErrors,
         url:url,
         dataType: 'json',
         data: postData,
-        success:function( result ){
+        success: function( result ){
             if( result.code == 200 ){
                 // success
                 // call the callback function
@@ -303,7 +303,7 @@ function callAPI( url, successDialog, reload, funct, silentMode, suppressErrors,
                 }
             }
         },
-        error:function( jqXHR, textStatus, errorThrown ){
+        error: function( jqXHR, textStatus, errorThrown ){
             // error
             // call the callback function
             errorFcn( errorThrown );
