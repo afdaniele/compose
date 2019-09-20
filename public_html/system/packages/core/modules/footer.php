@@ -191,8 +191,36 @@ function footer_credits( $float) {
           <strong>serial</strong> &nbsp; <span style="font-family:monospace">git | <?php echo $codebase_str.$codebase_hash ?></span>
         </p>
       </td>
+
+      <?php
+      if (Core::getSetting('cache_enabled')) {
+        ?>
+        <td style="text-align:right; color: grey">
+          <span
+            id="emergency-clear-cache"
+            class="glyphicon glyphicon-fire focus-on-hover pointer-hand"
+            aria-hidden="true"
+            data-toggle="tooltip"
+            data-placement="top"
+            title="Burn cache"
+            ></span>
+        </td>
+        <?php
+      }
+      ?>
     </tr>
   </table>
+
+  <script type="text/javascript">
+    $('#emergency-clear-cache').on('click', function(){
+			let url = "<?php echo Configuration::$BASE_URL ?>script.php?script=clearcache";
+      successDialog = true;
+			reload = true;
+      callType = 'GET';
+      resultDataType = 'text';
+      callExternalAPI(url, callType, resultDataType, successDialog, reload );
+    });
+  </script>
   <?php
 }
 
