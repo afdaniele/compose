@@ -43,6 +43,13 @@ RUN apt-get update \
   # clean the apt cache
   && rm -rf /var/lib/apt/lists/*
 
+# install apcu
+RUN pecl channel-update pecl.php.net \
+  && pecl install apcu
+
+# configure apcu
+COPY assets/usr/local/etc/php/conf.d/apcu.ini /usr/local/etc/php/conf.d/
+
 # remove pre-installed app
 RUN rm -rf "${COMPOSE_DIR}"
 
