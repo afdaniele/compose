@@ -7,19 +7,21 @@ IMAGE="afdaniele/compose"
 TAG="latest"
 
 build:
-	@docker build -t "${IMAGE}:${TAG}-${ARCH}" --build-arg ARCH=${ARCH} ./; \
+	docker build -t "${IMAGE}:${TAG}-${ARCH}" --build-arg ARCH=${ARCH} ./; \
 	if [ "${ARCH}" = "${DEFAULT_ARCH}" ]; then \
     docker tag "${IMAGE}:${TAG}-${ARCH}" "${IMAGE}:${TAG}"; \
   fi
 
 push:
-	@docker push "${IMAGE}:${TAG}-${ARCH}"; \
+	@set -e; \
+	docker push "${IMAGE}:${TAG}-${ARCH}"; \
 	if [ "${ARCH}" = "${DEFAULT_ARCH}" ]; then \
     docker push "${IMAGE}:${TAG}"; \
   fi
 
 pull:
-	@docker pull "${IMAGE}:${TAG}-${ARCH}"; \
+	@set -e; \
+	docker pull "${IMAGE}:${TAG}-${ARCH}"; \
 	if [ "${ARCH}" = "${DEFAULT_ARCH}" ]; then \
     docker pull "${IMAGE}:${TAG}"; \
   fi
