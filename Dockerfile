@@ -23,6 +23,10 @@ ENV COMPOSE_HTTPS_PORT 443
 ENV SSL_DIR "${APP_DIR}/ssl"
 ENV SSL_CERTFILE "${SSL_DIR}/certfile.pem"
 ENV SSL_KEYFILE "${SSL_DIR}/privkey.pem"
+ENV QEMU_EXECVE 1
+
+# copy QEMU
+COPY ./assets/qemu/${ARCH}/ /usr/bin/
 
 # install dependencies, then clean the apt cache
 RUN apt-get update \
