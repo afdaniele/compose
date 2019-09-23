@@ -74,7 +74,7 @@ RUN a2ensite 000-default
 RUN a2dissite 000-default-ssl
 
 # install \compose\
-COPY ./public_html "${COMPOSE_DIR}"
+COPY ./public_html "${COMPOSE_DIR}/public_html"
 COPY ./configure.py "${COMPOSE_DIR}"
 
 # configure entrypoint
