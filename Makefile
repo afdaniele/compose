@@ -1,10 +1,10 @@
 # Created by Andrea F. Daniele
 # ----------------------------------------
 
-DEFAULT_ARCH="amd64"
-ARCH="${DEFAULT_ARCH}"
-IMAGE="afdaniele/compose"
-TAG="latest"
+DEFAULT_ARCH=amd64
+ARCH=${DEFAULT_ARCH}
+IMAGE=afdaniele/compose
+TAG=latest
 
 build:
 	docker build -t "${IMAGE}:${TAG}-${ARCH}" --build-arg ARCH=${ARCH} ./; \
