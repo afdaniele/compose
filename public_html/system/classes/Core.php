@@ -406,7 +406,7 @@ class Core{
         $modules[$pkg['id']][$module_fam] = $module_scripts;
 			}
 		}
-    // remove pkg_id level if pjg_id was given
+    // remove pkg_id level if pkg_id is given
     $out = $modules;
     if (!is_null($pkg_id)) {
       $out = $modules[$pkg_id];
@@ -1202,6 +1202,35 @@ class Core{
 	}//getPackageSettings
 
 
+  /** Returns information for a given package as an associative array;
+   *
+   *	@param string $package_name
+   *		the ID of the package to retrieve the info for.
+   *
+   *	@param string $attribute
+   *		(optional) the key of the attribute to fetch from the info array.
+   *
+   *	@retval mixed
+   *		If the parameter $attribute is passed, it returns the value of such
+   *    attribute for the given package, `NULL` if the attribute cannot be found.
+   *
+   *    If the parameter $attribute is NOT passed, it returns an associative array
+   *    where keys are attribute names and values their value.
+   */
+  public static function getPackageDetails($package_name, $attribute=null) {
+		$pkgs = self::getPackagesList('by-id');
+		$pkg_details = $pkgs[$package_name];
+		if (is_null($attribute)) {
+			return $pkg_details;
+		}else{
+			if (is_array($pkg_details)) {
+				return $pkg_details[$attribute];
+			}
+			return null;
+		}
+	}//getPackageDetails
+
+
 	/** Returns the settings for a given package as an associative array.
 	 *
 	 *	@param string $package_name
@@ -1442,6 +1471,21 @@ class Core{
 	}//getFilteredPagesList
 
 
+  /** Returns information for a given page as an associative array;
+   *
+   *	@param string $page_id
+   *		the ID of the page to retrieve the info for.
+   *
+   *	@param string $attribute
+   *		(optional) the key of the attribute to fetch from the info array.
+   *
+   *	@retval mixed
+   *		If the parameter $attribute is passed, it returns the value of such
+   *    attribute for the given page, `NULL` if the attribute cannot be found.
+   *
+   *    If the parameter $attribute is NOT passed, it returns an associative array
+   *    where keys are attribute names and values their value.
+   */
 	public static function getPageDetails($page_id, $attribute=null) {
 		$pages = self::getPagesList('by-id');
 		$page_details = $pages[$page_id];
@@ -2283,7 +2327,8 @@ class Core{
 			'renderers/blocks' => '*.php',
       'background/global' => '*.php',
       'background/local' => '*.php',
-      'login' => 'index.php'
+      'login' => 'index.php',
+      'setup' => 'index.php'
 		];
 		// load modules
     foreach ($modules_entrypoint as $key => $entrypoint) {
