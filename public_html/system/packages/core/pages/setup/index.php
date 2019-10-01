@@ -11,13 +11,41 @@ use \system\classes\Database;
 if (Core::isComposeConfigured())
   Core::redirectTo('');
 
-// define steps
+// add \compose\ setup steps
 $steps = [
-  1 => 'Configure Google Sign-In',
-  2 => 'Create an Administrator account',
-  3 => 'Configure \\compose\\',
-  4 => 'Complete'
+  1 => [
+    'title' => 'Configure Google Sign-In',
+    'content_file' => __DIR__.'/steps/step1.php'
+  ],
+  2 => [
+    'title' => 'Create an Administrator account',
+    'content_file' => __DIR__.'/steps/step2.php'
+  ],
+  3 => [
+    'title' => 'Configure \\compose\\',
+    'content_file' => __DIR__.'/steps/step3.php'
+  ]
 ];
+
+// get list of setup plugins files
+$setup_addon_files_per_pkg = Core::getPackagesModules('setup', null);
+foreach ($setup_addon_files_per_pkg as $pkg_id => $addon_files) {
+  $package_name = Core::getPackageDetails($pkg_id, 'name');
+  foreach ($addon_files as $addon_file) {
+    $steps[count($steps)+1] = [
+      'title' => sprintf('Package: <b>%s</b>', $package_name),
+      'content_file' => $addon_file
+    ];
+  }
+}
+
+// add Complete step
+$steps[count($steps)+1] = [
+  'title' => 'Complete',
+  'content_file' => __DIR__.'/steps/step_complete.php'
+];
+
+// count number of steps
 $num_steps = count($steps);
 
 // look for edit actions
@@ -86,7 +114,7 @@ select.form-control{
           <h4 class="panel-title">
             <span class="fa fa-<?php echo $icon ?>" style="color:<?php echo $color ?>" aria-hidden="true"></span>
             &nbsp;
-            <strong>Step <?php echo $step_no ?>:</strong> <?php echo $steps[$step_no] ?>
+            <strong>Step <?php echo $step_no ?>:</strong> <?php echo $steps[$step_no]['title'] ?>
             <?php
             if ($step_no < $cur_step){
               ?>
@@ -113,7 +141,8 @@ select.form-control{
         <div class="panel-body">
           <?php
           if ($step_no == $cur_step){
-            include_once __DIR__.'/steps/step'.$step_no.'.php';
+            $_COMPOSE_SETUP_STEP_NO = $step_no;
+            include_once $steps[$step_no]['content_file'];
           }
           ?>
         </div>
