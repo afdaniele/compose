@@ -9,7 +9,7 @@ use \system\classes\Database;
 use \system\classes\enum\StringType;
 
 
-$step_no = 4;
+$step_no = $_COMPOSE_SETUP_STEP_NO;
 
 if(
     (
