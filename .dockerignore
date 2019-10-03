@@ -6,3 +6,7 @@
 !public_html
 !configure.py
 !VERSION
+
+# exclude packages (but core)
+public_html/system/packages
+!public_html/system/packages/core
