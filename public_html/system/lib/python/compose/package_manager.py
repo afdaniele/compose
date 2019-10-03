@@ -182,7 +182,7 @@ class PackageManager(object):
     packages = [basename(d) for d in dirs if isfile(join(d, 'metadata.json'))]
     return packages
 
-  def get_package(self, package_name):
+  def get_package(self, package_name, version=None):
     package_path = join(self._packages_dir, package_name)
     if package_name in self.list_installed_packages():
       return Package(package_name, package_path)
@@ -193,7 +193,8 @@ class PackageManager(object):
         package_info['git_owner'],
         package_info['git_repository']
       )
-      return Package(package_name, package_path, package_git_url, package_info['git_branch'])
+      package_version = version if (version is not None) else package_info['git_branch']
+      return Package(package_name, package_path, package_git_url, package_version)
     # ---
     error(
       PackageManager.Task.INIT,
@@ -253,7 +254,7 @@ class PackageManager(object):
     # get flatten list of packages to install
     return toposort_flatten(dep_graph)
 
-  def install(self, package_name, dryrun=False):
+  def install(self, package_name, version=None, dryrun=False):
     # nothing to do if the package is already installed
     if package_name in self.list_installed_packages():
       return
@@ -268,7 +269,7 @@ class PackageManager(object):
         PackageManager.Error.PACKAGE_NOT_FOUND
       )
     # create package
-    package = self.get_package(package_name)
+    package = self.get_package(package_name, version)
     package.install(dryrun=dryrun)
 
   def post_install(self, package_name, dryrun=False):
@@ -561,10 +562,30 @@ if __name__ == '__main__':
     'uninstalled': []
   }
 
-  # solve dependency graph
+  def package_and_version(package_str):
+    # split package=version  =>  (package, version)
+    package_version = None
+    parts = package_str.split('=')
+    package_name = parts[0]
+    if len(parts) > 1:
+      package_version = parts[1]
+    return (package_name, package_version)
+
+  # get input
   to_install = set(args.install or [])
   to_update = set(args.update or [])
   to_install = to_install.union(to_update)
+
+  force_version = defaultdict(lambda: None)
+  to_install_names = set()
+  for package_str in to_install:
+    package_name, package_version = package_and_version(package_str)
+    if package_version:
+      force_version[package_name] = package_version
+    to_install_names.add(package_name)
+  to_install = to_install_names
+
+  # solve dependency graph
   to_install = pm.solve_dependencies_graph(to_install)
 
   # perform uninstall
@@ -595,8 +616,10 @@ if __name__ == '__main__':
   requires_post_install = []
   for package_name in to_install:
     if package_name not in pm.list_installed_packages():
-      log('Performing INSTALL on package "%s"...' % package_name)
-      pm.install(package_name, dryrun=args.dry_run)
+      package_version = force_version[package_name]
+      version_info = " (forced version %s)" % package_version if package_version else ""
+      log('Performing INSTALL on package "%s"%s...' % (package_name, version_info))
+      pm.install(package_name, version=package_version, dryrun=args.dry_run)
       requires_post_install.append(package_name)
       out_data['installed'].append(package_name)
       log('Done!\n')
