@@ -151,7 +151,7 @@ class Database{
     if ($this->read_only) {
       return [
         'success' => false,
-        'data' => sprintf('The database "%s/%s" is read-only!', $this->$package, $this->$database)
+        'data' => sprintf('The database "%s/%s" is read-only!', $this->package, $this->database)
       ];
     }
     // get filename from key
@@ -173,7 +173,7 @@ class Database{
     if ($this->read_only) {
       return [
         'success' => false,
-        'data' => sprintf('The database "%s/%s" is read-only!', $this->$package, $this->$database)
+        'data' => sprintf('The database "%s/%s" is read-only!', $this->package, $this->database)
       ];
     }
     $key = self::_safe_key($key);
