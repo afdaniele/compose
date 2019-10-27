@@ -9,8 +9,7 @@ use \system\classes\jsonDB\JsonDB as JsonDB;
 class Database{
 
   // private static attributes
-  private static $userdata_dbs_location = "%spackages/%s/databases/";
-  private static $dbs_location = "%s%s/data/private/databases/";
+  private static $dbs_location = "%spackages/%s/databases/";
 
   // private attributes
   private $package;
@@ -29,89 +28,51 @@ class Database{
     $this->package = $package;
     $this->database = $database;
     $this->entry_regex = $entry_regex;
-    $this->read_only = false;
-    // set the DB dir
-    $db_dir_user = self::_get_db_dir($package, $database);
-    $db_dir_pkg = self::_get_db_dir($package, $database, true);
-    if (!file_exists($db_dir_user) && file_exists($db_dir_pkg)) {
-      $this->read_only = false;
-      $this->db_dir = $db_dir_pkg;
-    } else {
-      $this->db_dir = $db_dir_user;
-    }
+    $this->db_dir = self::_get_db_dir($package, $database);
   }//__construct
 
 
-  // Public static functions
+  // Private static functions
 
-  private static function _get_db_dir($package, $database, $skip_userdata=false) {
-    if ($skip_userdata) {
-      return sprintf(self::$dbs_location."%s", $GLOBALS['__PACKAGES__DIR__'], $package, $database);
-    }
-    return sprintf(self::$userdata_dbs_location."%s", $GLOBALS['__USERDATA__DIR__'], $package, $database);
+  private static function _get_db_dir($package, $database) {
+    return sprintf(self::$dbs_location."%s", $GLOBALS['__USERDATA__DIR__'], $package, $database);
   }//_get_db_dir
 
-  private static function _get_db_location($package, $database) {
-    $db_dir_user = self::_get_db_dir($package, $database);
-    $db_dir_pkg = self::_get_db_dir($package, $database, true);
-    if (!Core::packageExists($package)) {
-      return false;
-    }
-    if (!file_exists($db_dir_user) && file_exists($db_dir_pkg)) {
-      return $db_dir_pkg;
-    }
-    return $db_dir_user;
-  }//_get_db_location
+  // Public static functions
 
   public static function database_exists($package, $database) {
-    $db_dir_user = self::_get_db_dir($package, $database);
-    $db_dir_pkg = self::_get_db_dir($package, $database, true);
-    if (!Core::packageExists($package) || (!file_exists($db_dir_user) && !file_exists($db_dir_pkg))) {
+    $db_dir = self::_get_db_dir($package, $database);
+    if (!Core::packageExists($package) || !file_exists($db_dir)) {
       return false;
     }
     return true;
   }//database_exists
 
   public static function list_dbs($package) {
-    $db_dir_user = self::_get_db_dir($package, '*').'/';
-    $db_dir_pkg = self::_get_db_dir($package, '*', true).'/';
+    // get list of all json files
+    $entry_wild = self::_get_db_dir($package, '*').'/';
+    $files = glob($entry_wild);
+    // cut the path and keep the key
     $keys = [];
-    foreach ([$db_dir_pkg, $db_dir_user] as $entry_wild) {
-      // get list of all json files
-      $files = glob($entry_wild);
-      // cut the path and keep the key
-      foreach($files as $file) {
-        $parts = explode('/', rtrim($file, '/'));
-        if (count($parts) <= 0) {
-          continue;
-        }
-        $key = $parts[count($parts)-1];
-        // add key to list of keys
-        array_push($keys, $key);
+    foreach($files as $file) {
+      $parts = explode('/', rtrim($file, '/'));
+      if (count($parts) <= 0) {
+        continue;
       }
+      $key = $parts[count($parts)-1];
+      // add key to list of keys
+      array_push($keys, $key);
     }
     // return list of keys
     return $keys;
   }//list_dbs
 
   public static function delete_db($package, $database) {
-    if (!self::database_exists($package, $database)) {
-      return [
-        'success' => false,
-        'data' => sprintf('The database "%s/%s" does not exist!', $package, $database)
-      ];
-    }
-    $db_dir_user = self::_get_db_dir($package, $database);
-    if (!file_exists($db_dir_user)) {
-      return [
-        'success' => false,
-        'data' => sprintf('The database "%s/%s" is read-only!', $package, $database)
-      ];
-    }
+    $db_dir = self::_get_db_dir($package, $database);
     // remove all keys
-    array_map('unlink', glob("$db_dir_user/*.*"));
+    array_map('unlink', glob("$db_dir/*.*"));
     // remove empty db
-    rmdir($db_dir_user);
+    rmdir($db_dir);
     // ---
     return ['success' => true, 'data' => null];
   }//delete_db
@@ -148,12 +109,6 @@ class Database{
         'data' => 'The given key does not match the given pattern. This instance of Database has a limited scope'
       ];
     }
-    if ($this->read_only) {
-      return [
-        'success' => false,
-        'data' => sprintf('The database "%s/%s" is read-only!', $this->package, $this->database)
-      ];
-    }
     // get filename from key
     $entry_file = self::_key_to_db_file($key);
     // create json object
@@ -170,12 +125,6 @@ class Database{
   }//write
 
   public function delete($key) {
-    if ($this->read_only) {
-      return [
-        'success' => false,
-        'data' => sprintf('The database "%s/%s" is read-only!', $this->package, $this->database)
-      ];
-    }
     $key = self::_safe_key($key);
     $entry_file = self::_key_to_db_file($key);
     // delete if exists
