@@ -9,7 +9,7 @@ use \system\classes\jsonDB\JsonDB as JsonDB;
 class Database{
 
   // private static attributes
-  private static $dbs_location = "%s%s/data/private/databases/";
+  private static $dbs_location = "%spackages/%s/databases/";
 
   // private attributes
   private $package;
@@ -28,14 +28,20 @@ class Database{
     $this->package = $package;
     $this->database = $database;
     $this->entry_regex = $entry_regex;
-    $this->db_dir = sprintf(self::$dbs_location."%s", $GLOBALS['__PACKAGES__DIR__'], $package, $database);
+    $this->db_dir = self::_get_db_dir($package, $database);
   }//__construct
 
+
+  // Private static functions
+
+  private static function _get_db_dir($package, $database) {
+    return sprintf(self::$dbs_location."%s", $GLOBALS['__USERDATA__DIR__'], $package, $database);
+  }//_get_db_dir
 
   // Public static functions
 
   public static function database_exists($package, $database) {
-    $db_dir = sprintf(self::$dbs_location."%s", $GLOBALS['__PACKAGES__DIR__'], $package, $database);
+    $db_dir = self::_get_db_dir($package, $database);
     if (!Core::packageExists($package) || !file_exists($db_dir)) {
       return false;
     }
@@ -44,7 +50,7 @@ class Database{
 
   public static function list_dbs($package) {
     // get list of all json files
-    $entry_wild = sprintf(self::$dbs_location."*/", $GLOBALS['__PACKAGES__DIR__'], $package);
+    $entry_wild = self::_get_db_dir($package, '*').'/';
     $files = glob($entry_wild);
     // cut the path and keep the key
     $keys = [];
@@ -62,7 +68,7 @@ class Database{
   }//list_dbs
 
   public static function delete_db($package, $database) {
-    $db_dir = sprintf(self::$dbs_location."%s", $GLOBALS['__PACKAGES__DIR__'], $package, $database);
+    $db_dir = self::_get_db_dir($package, $database);
     // remove all keys
     array_map('unlink', glob("$db_dir/*.*"));
     // remove empty db
