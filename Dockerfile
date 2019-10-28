@@ -17,6 +17,8 @@ ENV OS_DISTRO=${OS_DISTRO}
 # configure environment: \compose\
 ENV APP_DIR "/var/www"
 ENV COMPOSE_DIR "${APP_DIR}/html"
+ENV COMPOSE_URL "https://github.com/afdaniele/compose.git"
+ENV COMPOSE_VERSION "master"
 ENV COMPOSE_PACKAGES_DIR "${COMPOSE_DIR}/public_html/system/packages"
 ENV COMPOSE_HTTP_PORT 80
 ENV COMPOSE_HTTPS_PORT 443
@@ -54,8 +56,13 @@ RUN pecl channel-update pecl.php.net \
 # configure apcu
 COPY assets/usr/local/etc/php/conf.d/apcu.ini /usr/local/etc/php/conf.d/
 
+# configure PHP errors logging
+COPY assets/usr/local/etc/php/conf.d/log_errors.ini /usr/local/etc/php/conf.d/
+
 # remove pre-installed app
 RUN rm -rf "${COMPOSE_DIR}"
+RUN mkdir -p "${COMPOSE_DIR}"
+RUN chown www-data:www-data "${COMPOSE_DIR}"
 
 # enable mod rewrite
 RUN a2enmod rewrite
@@ -73,12 +80,15 @@ RUN a2ensite 000-default
 # disable (default) HTTPS website
 RUN a2dissite 000-default-ssl
 
-# install \compose\
-COPY ./public_html "${COMPOSE_DIR}/public_html"
-COPY ./configure.py "${COMPOSE_DIR}"
+# switch to simple user
+USER www-data
 
-# copy git workspace
-COPY .git "${COMPOSE_DIR}/.git"
+# install \compose\
+RUN git clone -b "${COMPOSE_VERSION}" "${COMPOSE_URL}" "${COMPOSE_DIR}"
+RUN git -C "${COMPOSE_DIR}" fetch --tags
+
+# switch back to root
+USER root
 
 # configure entrypoint
 COPY assets/entrypoint.sh /entrypoint.sh
