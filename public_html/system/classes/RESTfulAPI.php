@@ -330,10 +330,9 @@ class RESTfulAPI{
 		if( $service_name == 'api' && in_array($action_name, ['service_enable', 'action_enable']) )
 			return ['success' => false, 'data' => sprintf('The API action "%s.%s" cannot be disabled', $service_name, $action_name)];
 		// make sure that the action exists
-		if( !self::actionExists($api_version, $service_name, $action_name) )
+		if( !self::actionExists($api_version, $service_name, $action_name) ) {
 			return ['success' => false, 'data' => sprintf('The API action "%s.%s(v%s)" does not exist', $service_name, $action_name, $api_version)];
-
-
+    }
 		// open API action status database
 		$db_name = sprintf('api_%s_disabled_action', $api_version);
 		$action_db = new Database('core', $db_name);
