@@ -5,10 +5,14 @@ DEFAULT_ARCH=amd64
 ARCH=${DEFAULT_ARCH}
 IMAGE=afdaniele/compose
 TAG=latest
+DOCKERFILE=Dockerfile
+
+devel-build:
+	${MAKE} build DOCKERFILE=Dockerfile.devel TAG=devel
 
 build:
 	set -e; \
-	docker build -t "${IMAGE}:${TAG}-${ARCH}" --build-arg ARCH=${ARCH} ./; \
+	docker build -t "${IMAGE}:${TAG}-${ARCH}" -f "${DOCKERFILE}" --build-arg ARCH=${ARCH} ./; \
 	if [ "${ARCH}" = "${DEFAULT_ARCH}" ]; then \
     docker tag "${IMAGE}:${TAG}-${ARCH}" "${IMAGE}:${TAG}"; \
   fi
