@@ -549,13 +549,15 @@ function checkForUpdates(git_provider, git_owner, git_repo, git_local_head, allo
     function fmt_fcn2(result, status, xhr){
       localStorage.setItem('github_compose_release_last_modified', xhr.getResponseHeader("Last-Modified"));
       localStorage.setItem('github_compose_release_etag', xhr.getResponseHeader("ETag"));
+      var tag_name = "";
       if (xhr.status == 304) {
         // use cache values
-        var needs_update = localStorage.getItem('github_compose_needs_update') == 'true';
-        on_success_fcn(needs_update);
+        tag_name = localStorage.getItem('github_compose_latest_tag_name');
       }else{
-        compareHeads(git_local_head, result.tag_name);
+        localStorage.setItem('github_compose_latest_tag_name', result.tag_name);
+        tag_name = result.tag_name;
       }
+      compareHeads(git_local_head, tag_name);
     }
     callExternalAPI(url_latest_release, 'GET', 'json', false, false, fmt_fcn2, true, true, on_error_fcn, [], headers['release']);
   }
@@ -565,4 +567,5 @@ function checkForUpdates(git_provider, git_owner, git_repo, git_local_head, allo
 function clearUpdatesCache(){
   localStorage.removeItem('github_compose_compare_last_modified');
   localStorage.removeItem('github_compose_compare_etag');
+  localStorage.removeItem('github_compose_needs_update');
 }//clearUpdatesCache
