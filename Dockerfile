@@ -83,7 +83,7 @@ ENTRYPOINT ["/entrypoint.sh"]
 
 # configure health check
 HEALTHCHECK \
-  --interval=10s \
+  --interval=30s \
   --timeout=8s \
   CMD \
     curl --fail 'http://localhost/script.php?script=healthcheck' \
