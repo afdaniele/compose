@@ -18,7 +18,7 @@ set -e
 
 # change the ownership of the code
 echo "Giving ownership of the code to the user 'www-data'..."
-chown www-data:www-data -R ${COMPOSE_DIR}/public_html
+chown www-data:www-data -R ${COMPOSE_DIR}
 echo "Done!"
 
 # check if SSL is enabled and the keys are provided
