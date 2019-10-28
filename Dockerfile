@@ -77,6 +77,9 @@ RUN a2dissite 000-default-ssl
 COPY ./public_html "${COMPOSE_DIR}/public_html"
 COPY ./configure.py "${COMPOSE_DIR}"
 
+# copy git workspace
+COPY .git "${COMPOSE_DIR}/.git"
+
 # configure entrypoint
 COPY assets/entrypoint.sh /entrypoint.sh
 ENTRYPOINT ["/entrypoint.sh"]

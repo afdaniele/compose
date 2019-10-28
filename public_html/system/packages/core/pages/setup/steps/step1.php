@@ -89,8 +89,8 @@ $client_id = ($client_id != $default_client_id)? $client_id : null;
 
       Once you have your <strong>Client ID</strong>, insert it in the area below and click <strong>Next</strong>.
     </p>
-    <div class="input-group">
-      <span class="input-group-addon">
+    <div class="input-group" style="width: 100%">
+      <span class="input-group-addon" style="width: 180px">
         <i class="fa fa-google" aria-hidden="true"></i>&nbsp; |&nbsp;
         Google Client ID
       </span>
@@ -100,6 +100,7 @@ $client_id = ($client_id != $default_client_id)? $client_id : null;
         class="form-control"
         placeholder="Your Google Client ID"
         aria-describedby="google-id"
+        style="width: 100%"
         <?php echo is_null($client_id)? '' : sprintf('value="%s"', $client_id)?>
         >
     </div>
