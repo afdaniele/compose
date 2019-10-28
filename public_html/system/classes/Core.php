@@ -1061,8 +1061,13 @@ class Core{
 	 *		whether the package is enabled.
 	 */
 	public static function isPackageEnabled($package){
-		$package_disabled_flag = sprintf('%s%s/disabled.flag', $GLOBALS['__PACKAGES__DIR__'], $package);
-		return !file_exists($package_disabled_flag);
+    if (!self::packageExists($package)) {
+			return ['success' => false, 'data' => sprintf('The package "%s" does not exist', $package)];
+		}
+    // open package status database
+		$packages_db = new Database('core', 'disabled_packages');
+		// remove key if it exists
+		return $packages_db->key_exists($package);
 	}//isPackageEnabled
 
 
@@ -1135,14 +1140,14 @@ class Core{
 	 *		The `data` field contains an error string when `success` is `FALSE`.
 	 */
 	public static function enablePackage($package) {
-		$package_meta = sprintf('%s%s/metadata.json', $GLOBALS['__PACKAGES__DIR__'], $package);
-		if (!file_exists($package_meta)) {
+    if (!self::packageExists($package)) {
 			return ['success' => false, 'data' => sprintf('The package "%s" does not exist', $package)];
 		}
-		$package_disabled_flag = sprintf('%s%s/disabled.flag', $GLOBALS['__PACKAGES__DIR__'], $package);
-		if (file_exists($package_disabled_flag)) {
-			$success = unlink($package_disabled_flag);
-			return ['success' => $success, 'data' => null];
+    // open package status database
+		$packages_db = new Database('core', 'disabled_packages');
+		// remove key if it exists
+		if( $packages_db->key_exists($package) ){
+			return $packages_db->delete($package);
 		}
 		return ['success' => true, 'data' => null];
 	}//enablePackage
@@ -1164,18 +1169,16 @@ class Core{
 	 *		The `data` field contains an error string when `success` is `FALSE`.
 	 */
 	public static function disablePackage($package) {
-		if ($package == 'core' )
+		if ($package == 'core' ) {
 			return ['success' => false, 'data' => 'The Core package cannot be disabled'];
-		$package_meta = sprintf('%s%s/metadata.json', $GLOBALS['__PACKAGES__DIR__'], $package);
-		if (!file_exists($package_meta)) {
+    }
+    if (!self::packageExists($package)) {
 			return ['success' => false, 'data' => sprintf('The package "%s" does not exist', $package)];
 		}
-		$package_disabled_flag = sprintf('%s%s/disabled.flag', $GLOBALS['__PACKAGES__DIR__'], $package);
-		if (!file_exists($package_disabled_flag)) {
-			$success = touch($package_disabled_flag);
-			return ['success' => $success, 'data' => null];
-		}
-		return ['success' => true, 'data' => null];
+    // open package status database
+		$packages_db = new Database('core', 'disabled_packages');
+    // create key if it does not exist
+		return $packages_db->write($package, []);
 	}//disablePackage
 
 
