@@ -3,6 +3,7 @@
 
 # Allow files and directories
 !assets
+!assets.devel
 !public_html
 !configure.py
 !VERSION
