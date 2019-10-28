@@ -223,12 +223,7 @@ function footer_credits( $float) {
   </script>
   <?php
 }
-
 ?>
-
-
-
-
 
 
 <footer id="footer" class="footer navbar-inverse" style="height:50px; color:#c3c3c3">
