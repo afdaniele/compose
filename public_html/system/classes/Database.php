@@ -191,6 +191,12 @@ class Database{
     return filesize(self::_key_to_db_file($key));
   }//key_size
 
+  public function is_writable($key) {
+    // return wether the key can be written to disk
+    $entry_file = self::_key_to_db_file($key);
+    return is_writable($entry_file);
+  }//is_writable
+
 
 
   // Private functions
