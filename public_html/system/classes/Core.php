@@ -1066,7 +1066,7 @@ class Core{
 		}
     // open package status database
 		$packages_db = new Database('core', 'disabled_packages');
-		// remove key if it exists
+    // disabled if the key exists
 		return !$packages_db->key_exists($package);
 	}//isPackageEnabled
 
@@ -1530,8 +1530,14 @@ class Core{
 	 *		whether the page is enabled.
 	 */
 	public static function isPageEnabled($package, $page) {
-		$page_disabled_flag = sprintf('%s%s/pages/%s/disabled.flag', $GLOBALS['__PACKAGES__DIR__'], $package, $page);
-		return !file_exists($page_disabled_flag);
+    if (!self::pageExists($package, $page)) {
+			return ['success' => false, 'data' => sprintf('The page "%s/%s" does not exist', $package, $page)];
+		}
+    // open page status database
+		$pages_db = new Database('core', 'disabled_pages');
+		// disabled if the key exists
+    $page_db_key = $package.'__'.$page;
+		return !$pages_db->key_exists($page_db_key);
 	}//isPageEnabled
 
 
@@ -1553,14 +1559,15 @@ class Core{
 	 *		The `data` field contains an error string when `success` is `FALSE`.
 	 */
 	public static function enablePage($package, $page) {
-		$page_meta = sprintf('%s%s/pages/%s/metadata.json', $GLOBALS['__PACKAGES__DIR__'], $package, $page);
-		if (!file_exists($page_meta)) {
-			return ['success' => false, 'data' => sprintf('The page "%s.%s" does not exist', $package, $page)];
+    if (!self::pageExists($package, $page)) {
+			return ['success' => false, 'data' => sprintf('The page "%s/%s" does not exist', $package, $page)];
 		}
-		$page_disabled_flag = sprintf('%s%s/pages/%s/disabled.flag', $GLOBALS['__PACKAGES__DIR__'], $package, $page);
-		if (file_exists($page_disabled_flag)) {
-			$success = unlink($page_disabled_flag);
-			return ['success' => $success, 'data' => null];
+    // open page status database
+		$pages_db = new Database('core', 'disabled_pages');
+		// remove key if it exists
+    $page_db_key = $package.'__'.$page;
+		if($pages_db->key_exists($page_db_key)) {
+			return $pages_db->delete($page_db_key);
 		}
 		return ['success' => true, 'data' => null];
 	}//enablePage
@@ -1584,18 +1591,17 @@ class Core{
 	 *		The `data` field contains an error string when `success` is `FALSE`.
 	 */
 	public static function disablePage($package, $page) {
-		if ($package == 'core' )
+    if ($package == 'core' ) {
 			return ['success' => false, 'data' => 'Core pages cannot be disabled'];
-		$page_meta = sprintf('%s%s/pages/%s/metadata.json', $GLOBALS['__PACKAGES__DIR__'], $package, $page);
-		if (!file_exists($page_meta)) {
-			return ['success' => false, 'data' => sprintf('The page "%s.%s" does not exist', $package, $page)];
+    }
+    if (!self::pageExists($package, $page)) {
+			return ['success' => false, 'data' => sprintf('The page "%s/%s" does not exist', $package, $page)];
 		}
-		$page_disabled_flag = sprintf('%s%s/pages/%s/disabled.flag', $GLOBALS['__PACKAGES__DIR__'], $package, $page);
-		if (!file_exists($page_disabled_flag)) {
-			$success = touch($page_disabled_flag);
-			return ['success' => $success, 'data' => null];
-		}
-		return ['success' => true, 'data' => null];
+    // open page status database
+		$pages_db = new Database('core', 'disabled_pages');
+		// create key if it does not exist
+    $page_db_key = $package.'__'.$page;
+    return $pages_db->write($page_db_key, []);
 	}//disablePage
 
 
