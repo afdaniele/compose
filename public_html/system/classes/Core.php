@@ -1067,7 +1067,7 @@ class Core{
     // open package status database
 		$packages_db = new Database('core', 'disabled_packages');
 		// remove key if it exists
-		return $packages_db->key_exists($package);
+		return !$packages_db->key_exists($package);
 	}//isPackageEnabled
 
 
