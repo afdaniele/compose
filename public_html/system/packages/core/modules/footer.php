@@ -109,7 +109,7 @@ function footer_user_menu(){
             continue;
           }
           // hide pages if maintenance mode is enabled
-          if ($main_user_role != 'administrator' && Core::getSetting('maintenance_mode', 'core', true) && $elem['id']!='login') {
+          if ($main_user_role != 'administrator' && Core::getSetting('maintenance_mode', 'core') && $elem['id']!='login') {
             continue;
           }
           // hide page if the current user' role is excluded

@@ -71,8 +71,8 @@
 
 	// redirect user to maintenance mode (if necessary)
 	if ($main_user_role != 'administrator' &&
-    	Core::getSetting('maintenance_mode', 'core', true) &&
-    	!in_array($requested_page, ['login', 'error', 'maintenance']))
+    	Core::getSetting('maintenance_mode', 'core') &&
+    	!in_array($requested_page, ['login', 'setup', 'error', 'maintenance']))
     Core::redirectTo('maintenance');
 
 	// get the list of pages the current user has access to

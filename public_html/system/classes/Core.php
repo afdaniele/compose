@@ -255,7 +255,7 @@ class Core{
 			}
 			//
 			// initialize cache
-			if (self::getSetting('cache_enabled', 'core', false)) {
+			if (self::getSetting('cache_enabled', 'core')) {
 				Cache::init();
 			}
 			//
