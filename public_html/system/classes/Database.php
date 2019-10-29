@@ -9,8 +9,7 @@ use \system\classes\jsonDB\JsonDB as JsonDB;
 class Database{
 
   // private static attributes
-  private static $userdata_dbs_location = "%spackages/%s/databases/";
-  private static $dbs_location = "%s%s/data/private/databases/";
+  private static $dbs_location = "%spackages/%s/databases/";
 
   // private attributes
   private $package;
@@ -29,18 +28,15 @@ class Database{
     $this->package = $package;
     $this->database = $database;
     $this->entry_regex = $entry_regex;
-    $this->read_only = false;
-    // set the DB dir
-    $db_dir_user = self::_get_db_dir($package, $database);
-    $db_dir_pkg = self::_get_db_dir($package, $database, true);
-    if (!file_exists($db_dir_user) && file_exists($db_dir_pkg)) {
-      $this->read_only = true;
-      $this->db_dir = $db_dir_pkg;
-    } else {
-      $this->db_dir = $db_dir_user;
-    }
+    $this->db_dir = self::_get_db_dir($package, $database);
   }//__construct
 
+
+  // Private static functions
+
+  private static function _get_db_dir($package, $database) {
+    return sprintf(self::$dbs_location."%s", $GLOBALS['__USERDATA__DIR__'], $package, $database);
+  }//_get_db_dir
 
   // Public static functions
 
@@ -64,17 +60,18 @@ class Database{
   }//_get_db_location
 
   public static function database_exists($package, $database) {
-    $db_dir_user = self::_get_db_dir($package, $database);
-    $db_dir_pkg = self::_get_db_dir($package, $database, true);
-    if (!Core::packageExists($package) || (!file_exists($db_dir_user) && !file_exists($db_dir_pkg))) {
+    $db_dir = self::_get_db_dir($package, $database);
+    if (!Core::packageExists($package) || !file_exists($db_dir)) {
       return false;
     }
     return true;
   }//database_exists
 
   public static function list_dbs($package) {
-    $db_dir_user = self::_get_db_dir($package, '*').'/';
-    $db_dir_pkg = self::_get_db_dir($package, '*', true).'/';
+    // get list of all json files
+    $entry_wild = self::_get_db_dir($package, '*').'/';
+    $files = glob($entry_wild);
+    // cut the path and keep the key
     $keys = [];
     foreach ([$db_dir_pkg, $db_dir_user] as $entry_wild) {
       // get list of all json files
@@ -95,19 +92,7 @@ class Database{
   }//list_dbs
 
   public static function delete_db($package, $database) {
-    if (!self::database_exists($package, $database)) {
-      return [
-        'success' => false,
-        'data' => sprintf('The database "%s/%s" does not exist!', $package, $database)
-      ];
-    }
-    $db_dir_user = self::_get_db_dir($package, $database);
-    if (!file_exists($db_dir_user)) {
-      return [
-        'success' => false,
-        'data' => sprintf('The database "%s/%s" is read-only!', $package, $database)
-      ];
-    }
+    $db_dir = self::_get_db_dir($package, $database);
     // remove all keys
     array_map('unlink', glob("$db_dir_user/*.*"));
     // remove empty db
