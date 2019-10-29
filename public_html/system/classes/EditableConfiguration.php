@@ -63,15 +63,6 @@ class EditableConfiguration {
 			}
       $this->configuration = $res['data'];
     }
-		// // if the DB doesn't exist, create a new one with the default values
-		// if (!Database::database_exists($package_name, $this->database_name)) {
-		// 	// create new DB
-    //   $res = $this->configuration_db->write('content', $this->default_configuration);
-    //   if (!$res['success']) {
-    //     $this->error_state = $res['data'];
-    //     return;
-    //   }
-		// }
 	}//__construct
 
 
