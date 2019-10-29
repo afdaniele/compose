@@ -5,7 +5,7 @@
 use \system\classes\Core;
 use \system\classes\Configuration;
 
-if( !Core::getSetting('maintenance_mode', 'core', true) ){
+if( !Core::getSetting('maintenance_mode', 'core') ){
 	\system\classes\Core::redirectTo('');
 }
 

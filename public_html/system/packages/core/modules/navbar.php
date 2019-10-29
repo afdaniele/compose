@@ -32,7 +32,7 @@ if (!Core::isComposeConfigured()){
 }
 
 // remove login if the functionality is not enabled
-$login_enabled = Core::getSetting('login_enabled', 'core', False);
+$login_enabled = Core::getSetting('login_enabled', 'core');
 
 // count non-responsive buttons
 $non_responsive_btns = 0;
@@ -110,7 +110,7 @@ foreach ($buttons as &$button) {
           if( !is_null($pages_whitelist) && !in_array($elem['id'], $pages_whitelist) ) continue;
           if( !is_null($pages_blacklist) && in_array($elem['id'], $pages_blacklist) ) continue;
 					// hide pages if maintenance mode is enabled
-					if( $main_user_role!='administrator' && Core::getSetting('maintenance_mode','core',true) && $elem['id']!='login' )
+					if ($main_user_role != 'administrator' && Core::getSetting('maintenance_mode', 'core') && $elem['id']!='login')
 						continue;
 					// hide page if the current user' role is excluded
 					if( count( array_intersect($user_roles, $elem['menu_entry']['exclude_roles']) ) > 0 )

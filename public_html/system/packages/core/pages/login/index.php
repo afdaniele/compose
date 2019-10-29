@@ -30,7 +30,7 @@ use \system\classes\Core;
 
         <div class="text-center" style="padding:25px 0 35px 0">
           <?php
-          $login_enabled = Core::getSetting('login_enabled', 'core', False);
+          $login_enabled = Core::getSetting('login_enabled', 'core');
           if( $login_enabled ){
             ?>
             <div id="g-signin" class="text-left" style="margin-left:100px;"></div>
