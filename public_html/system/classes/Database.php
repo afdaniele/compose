@@ -40,25 +40,6 @@ class Database{
 
   // Public static functions
 
-  private static function _get_db_dir($package, $database, $skip_userdata=false) {
-    if ($skip_userdata) {
-      return sprintf(self::$dbs_location."%s", $GLOBALS['__PACKAGES__DIR__'], $package, $database);
-    }
-    return sprintf(self::$userdata_dbs_location."%s", $GLOBALS['__USERDATA__DIR__'], $package, $database);
-  }//_get_db_dir
-
-  private static function _get_db_location($package, $database) {
-    $db_dir_user = self::_get_db_dir($package, $database);
-    $db_dir_pkg = self::_get_db_dir($package, $database, true);
-    if (!Core::packageExists($package)) {
-      return false;
-    }
-    if (!file_exists($db_dir_user) && file_exists($db_dir_pkg)) {
-      return $db_dir_pkg;
-    }
-    return $db_dir_user;
-  }//_get_db_location
-
   public static function database_exists($package, $database) {
     $db_dir = self::_get_db_dir($package, $database);
     if (!Core::packageExists($package) || !file_exists($db_dir)) {
