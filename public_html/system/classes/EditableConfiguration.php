@@ -117,7 +117,7 @@ class EditableConfiguration {
 
 	public function is_writable(){
     if (!$this->is_configurable()) {
-      return ['success' => false, 'data' => 'The package is not configurable'];
+      return false;
     }
 		return $this->configuration_db->is_writable($this->configuration_key);
 	}//is_writable
