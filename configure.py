@@ -16,7 +16,7 @@ def main():
   # get metadata and configuration files
   public_html = join(dirname(realpath(__file__)), 'public_html')
   config_metadata = join(public_html, 'system', 'packages', package_name, 'configuration', 'metadata.json')
-  config_file = join(public_html, 'system', 'packages', package_name, 'configuration', 'configuration.json')
+  config_file = join(public_html, 'system', 'user-data', 'packages', package_name, 'databases', 'configuration', 'content.json')
   # make sure the metadata file exists
   if not exists(config_metadata) or not isfile(config_metadata):
     print('The file `%s` does not exist, check and try again' % config_metadata)
@@ -29,9 +29,12 @@ def main():
       config[k] = d['default']
   if DEBUG:
     print('Metadata loaded.\nConfig so far:\n%s\n' % pformat(config))
+  config_metadata = []
   if exists(config_file) and isfile(config_file):
     with open(config_file) as f:
-      config_data = json.load(f)
+      config_data_in = json.load(f)
+      config_data = config_data_in['_data']
+      config_metadata = config_data_in['_metadata']
       if DEBUG:
         change = {
           e[0]: config_data[e[0]]
@@ -57,7 +60,15 @@ def main():
   # dump config
   if DEBUG:
     print('Final configuration:\n%s' % pformat(config))
-  json.dump(config, open(config_file, 'wt'))
+  json.dump(
+    {
+      '_data': config,
+      '_metadata': config_metadata
+    },
+    open(config_file, 'wt'),
+    sort_keys=True,
+    indent=2
+  )
   print('Done!')
 
 
