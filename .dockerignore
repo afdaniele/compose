@@ -12,5 +12,4 @@
 # exclude packages (but core)
 public_html/system/packages
 !public_html/system/packages/core
-public_html/system/packages/core/configuration/configuration.json
-public_html/system/packages/*/data/private
+public_html/system/user-data
