@@ -51,9 +51,11 @@ class Database{
   public static function list_dbs($package) {
     // get list of all json files
     $entry_wild = self::_get_db_dir($package, '*').'/';
-    $files = glob($entry_wild);
     // cut the path and keep the key
     $keys = [];
+    // get list of all json files
+    $files = glob($entry_wild);
+    // cut the path and keep the key
     foreach($files as $file) {
       $parts = explode('/', rtrim($file, '/'));
       if (count($parts) <= 0) {
