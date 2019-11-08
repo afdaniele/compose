@@ -34,7 +34,7 @@ class Database{
     $db_dir_user = self::_get_db_dir($package, $database);
     $db_dir_pkg = self::_get_db_dir($package, $database, true);
     if (!file_exists($db_dir_user) && file_exists($db_dir_pkg)) {
-      $this->read_only = true;
+      $this->read_only = false;
       $this->db_dir = $db_dir_pkg;
     } else {
       $this->db_dir = $db_dir_user;
