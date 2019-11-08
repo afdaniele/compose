@@ -1,6 +1,7 @@
 ARG ARCH=amd64
 ARG PHP_VERSION=7.0.31
 ARG OS_DISTRO=stretch
+ARG COMMIT_ID=ND
 
 FROM ${ARCH}/php:${PHP_VERSION}-apache-${OS_DISTRO}
 
@@ -8,6 +9,7 @@ FROM ${ARCH}/php:${PHP_VERSION}-apache-${OS_DISTRO}
 ARG ARCH
 ARG PHP_VERSION
 ARG OS_DISTRO
+ARG COMMIT_ID
 
 # configure environment: system & libraries
 ENV ARCH=${ARCH}
@@ -84,6 +86,7 @@ RUN a2dissite 000-default-ssl
 USER www-data
 
 # install \compose\
+ENV COMMIT_ID "${COMMIT_ID}"
 RUN git clone -b "${COMPOSE_VERSION}" "${COMPOSE_URL}" "${COMPOSE_DIR}"
 RUN git -C "${COMPOSE_DIR}" fetch --tags
 

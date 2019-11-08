@@ -12,9 +12,17 @@ devel-build:
 
 build:
 	set -e; \
-	docker build -t "${IMAGE}:${TAG}-${ARCH}" --cache-from "${IMAGE}:${TAG}-${ARCH}" -f "${DOCKERFILE}" --build-arg ARCH=${ARCH} ./; \
+	docker build \
+		-t "${IMAGE}:${TAG}-${ARCH}" \
+		--cache-from "${IMAGE}:${TAG}-${ARCH}" \
+		-f "${DOCKERFILE}" \
+		--build-arg ARCH=${ARCH} \
+		--build-arg COMMIT_ID=`git rev-parse HEAD` \
+			./; \
 	if [ "${ARCH}" = "${DEFAULT_ARCH}" ]; then \
-    docker tag "${IMAGE}:${TAG}-${ARCH}" "${IMAGE}:${TAG}"; \
+    docker tag \
+			"${IMAGE}:${TAG}-${ARCH}" \
+			"${IMAGE}:${TAG}"; \
   fi
 
 push:
