@@ -12,7 +12,7 @@ devel-build:
 
 build:
 	set -e; \
-	docker build -t "${IMAGE}:${TAG}-${ARCH}" -f "${DOCKERFILE}" --build-arg ARCH=${ARCH} ./; \
+	docker build -t "${IMAGE}:${TAG}-${ARCH}" --cache-from "${IMAGE}:${TAG}-${ARCH}" -f "${DOCKERFILE}" --build-arg ARCH=${ARCH} ./; \
 	if [ "${ARCH}" = "${DEFAULT_ARCH}" ]; then \
     docker tag "${IMAGE}:${TAG}-${ARCH}" "${IMAGE}:${TAG}"; \
   fi
