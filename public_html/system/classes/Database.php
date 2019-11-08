@@ -111,12 +111,6 @@ class Database{
         'data' => 'The given key does not match the given pattern. This instance of Database has a limited scope'
       ];
     }
-    if ($this->read_only) {
-      return [
-        'success' => false,
-        'data' => sprintf('The database "%s/%s" is read-only!', $this->package, $this->database)
-      ];
-    }
     // get filename from key
     $entry_file = self::_key_to_db_file($key);
     // create json object
@@ -133,12 +127,6 @@ class Database{
   }//write
 
   public function delete($key) {
-    if ($this->read_only) {
-      return [
-        'success' => false,
-        'data' => sprintf('The database "%s/%s" is read-only!', $this->package, $this->database)
-      ];
-    }
     $key = self::_safe_key($key);
     $entry_file = self::_key_to_db_file($key);
     // delete if exists
