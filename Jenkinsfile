@@ -6,6 +6,11 @@ pipeline {
         sh 'docker run --rm --privileged multiarch/qemu-user-static:register --reset'
       }
     }
+    stage('Pull Image') {
+      steps {
+        sh 'make pull ARCH=${ARCH}'
+      }
+    }
     stage('Build Image') {
       steps {
         sh 'make build ARCH=${ARCH}'
