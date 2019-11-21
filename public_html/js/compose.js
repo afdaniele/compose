@@ -186,7 +186,9 @@ function userLogInWithGoogle(baseurl, apiversion, token, id_token, successFcn){
             hidePleaseWait();
             openAlert( 'danger', result.message );
             // Sign-out from Google
-    		    gapi.auth2.getAuthInstance().signOut();
+            try {
+              gapi.auth2.getAuthInstance().signOut();
+            } catch (e) {}
         }
     }, error:function( jqXHR, textStatus, errorThrown ){
         hidePleaseWait();

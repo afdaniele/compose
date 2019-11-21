@@ -569,6 +569,8 @@ class Core{
 					'data' => 'The user profile you are trying to login with is not active. Please, contact the administrator'
 				];
 			}
+      // set login system
+      self::setLoginSystem('__GOOGLE_SIGNIN__');
 			//
 			$_SESSION['USER_LOGGED'] = true;
 			$_SESSION['USER_RECORD'] = $user_info;
@@ -602,6 +604,8 @@ class Core{
     }
     // create user descriptor
     $user_info = self::$DEVELOPER_USER_INFO;
+    // set login system
+    self::setLoginSystem('__DEVELOPER__');
     // set login variables
     $_SESSION['USER_LOGGED'] = true;
     $_SESSION['USER_RECORD'] = $user_info;
@@ -951,8 +955,11 @@ class Core{
 	}//getUserRolesList
 
 
-	/**TODO: Returns the list of all user roles known to the platform. It includes all the user roles defined
-	 *	by <b>\\compose\\</b> plus all the user roles introduced by third-party packages.
+	/** Returns the list of user roles registered by a given package.
+	 *
+	 *	@param string $package
+	 *		package to query for user roles;
+   *    DEFAULT=core;
 	 *
 	 *	@retval array
 	 *		list of unique strings. Each string represents a different user role;
@@ -965,7 +972,7 @@ class Core{
 	}//getPackageRegisteredUserRoles
 
 
-	/**TODO: Returns the list of all user roles known to the platform. It includes all the user roles defined
+	/** Returns the list of all user roles known to the platform. It includes all the user roles defined
 	 *	by <b>\\compose\\</b> plus all the user roles introduced by third-party packages.
 	 *
 	 *	@retval array
@@ -983,6 +990,15 @@ class Core{
 
 
 	/** Adds a new user role to the list of roles known to the platform.
+   *
+   *	@param string $package
+   *		package registering the new user role;
+   *
+   *	@param string $user_role
+   *		ID of the user_role to register;
+   *
+   *	@param string $default_page
+   *		ID of the page to set as default for this user role;
 	 *
 	 *	@retval void
 	 */
@@ -1000,6 +1016,27 @@ class Core{
 			self::$registered_user_roles[$package][$user_role]['default_page'] = $default_page;
 		}
 	}//registerNewUserRole
+
+
+	/** Sets the login system used to login the current user.
+   *
+   *	@param string $login_system
+   *		ID of the login system used to authenticate the current user;
+	 *
+	 *	@retval void
+	 */
+	public static function setLoginSystem($login_system) {
+    $_SESSION['LOGIN_SYSTEM'] = $login_system;
+	}//setLoginSystem
+
+
+	/** Returns the login system used to login the current user (null if the user is not logged in).
+	 *
+	 *	@retval string: ID of the login system used to authenticate the current user;
+	 */
+	public static function getLoginSystem($login_system) {
+		return $_SESSION['LOGIN_SYSTEM'];
+	}//getLoginSystem
 
 
 
