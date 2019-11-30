@@ -1,3 +1,6 @@
+## 0.9.7 (November 30, 2019)
+  - updated Makefile
+
 ## 0.9.6 (November 30, 2019)
   - updated Jenkinsfile
   - updated version in Dockerfile
