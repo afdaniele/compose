@@ -1,3 +1,86 @@
+## 0.9.5 (November 30, 2019)
+  - developer login now goes through the API
+  - added JS Configuration class
+  - improved COMMIT_ID
+  - added COMMIT_ID to Dockerfile to invalidate the cache
+  - added --cache-from to docker build in Jenkinsfile
+  - added Pull stage to Jenkinsfile
+  - DBs in PACKAGES_DIR are writeable again (it was a breaking change)
+  - minor
+  - Merge branch 'user-data'
+  - minor
+  - fixed git-based update of compose
+  - added log_errors configuration
+  - minor
+  - added devel-build target to Makefile
+  - source is now git cloned (again)
+  - added devel Docker version
+  - exclude private data and config files in docker
+  - copied .git to docker image
+  - Merge branch 'master' into fixing-git-update
+  - enabled logging of PHP errors in apache2 log file
+  - increased healthcheck interval
+  - fixed bug
+  - added .git dir to docker build context
+  - Database now supports pkg and user DBs
+  - added support for pinned version in package manager
+  - excluded packages from build context
+  - setup/step4 -> setup/step_complete
+  - setup page now supports modules
+  - added Core::getPackageDetails
+  - removed old image
+  - fixed bug
+  - minor
+  - fixed Makefile
+  - added QEMU
+  - updated Makefile
+  - added clear cache public btn
+  - minor
+  - added apcu to Docker
+  - config moved up
+  - minor
+  - set umask to 0002
+  - fixed issue with ob_clean on empty buffer
+  - fixed bug in makefile
+  - removed Jenkins_arm
+  - added help to setup page
+  - tilde autocompletes to http(s)://SERVER_HOSTNAME
+  - fixed issue with rendering of select inputs
+  - new Jenkinsfile
+  - added .dockerignore, source is now copied and not git cloned
+  - removed env from Jenkinsfile
+  - Jenkinsfile now uses Makefile
+  - added default arch to makefile
+  - SSL-enabled entrypoint
+  - minor
+  - removed setup.sh
+  - added makefile
+  - moved dockerfile to root
+  - first building cross-arch Dockerfile
+  - platform.js is now fetched from google website
+  - added SSL vars to Dockerfile
+  - simplified SSL configuration
+  - improved handling of SSL files
+  - better logs from package manager
+  - minor
+  - minor
+  - re-added pip3 to arm32v7 as well
+  - re-added pip as deps but with no-install-recommends
+  - removed pip3 from deps on arm and moved entrypoint script
+  - nevermind, removed python3-pip
+  - added python3-pip as deps
+  - lowered timeout in package manager
+  - package manager now takes an empty list as well
+  - minor
+  - removed `depth=1` from git clone in Dockerfile
+  - refactored docker files
+  - removed devel code
+  - Merge branch 'master' of https://github.com/afdaniele/compose
+  - fixed bug
+  - fixed bug in web-api
+  - added healthcheck to Dockerfile
+  - added support for default package in script.php
+
 ## 0.9.4 (July 06, 2019)
   - added package scripts
 
