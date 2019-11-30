@@ -1,74 +1,90 @@
 {
-    "details" : "Provides the tools for authenticating a user on the platform",
-	"actions" : {
-        "login_with_google" : {
-			"details" : "Authenticates a user on the platform using the Google Sign-In OAuth2 authentication system",
-            "access_level" : [
-                "guest"
-            ],
-            "authentication" : [
-                "web"
-            ],
-			"parameters" : {
-				"mandatory" : {
-					"id_token" : {
-						"type" : "text",
-						"length" : null,
-						"details" : "ID Token provided by Google Sign-In"
-					}
-				},
-				"optional" : {}
-			},
-			"return" : {
-				"values" : {}
-			}
-		},
-        "edit" : {
-            "details" : "Updates a user's profile",
-            "access_level" : [
-                "administrator"
-            ],
-            "authentication" : [
-                "web",
-                "app"
-            ],
-            "parameters" : {
-                "mandatory" : {
-                    "userid" : {
-						"type" : "text",
-						"length" : null,
-						"details" : "User ID"
-					}
-                },
-                "optional" : {
-                    "active" : {
-						"type" : "boolean",
-						"length" : null,
-						"details" : "Whether the user is enabled or not"
-					}
-                }
-            },
-            "return" : {
-                "values" : {}
-            }
+  "details" : "Provides the tools for authenticating a user on the platform",
+  "actions" : {
+    "login_with_google" : {
+      "details" : "Authenticates a user on the platform using the Google Sign-In OAuth2 authentication system",
+      "access_level" : [
+        "guest"
+      ],
+      "authentication" : [
+        "web"
+      ],
+      "parameters" : {
+        "mandatory" : {
+          "id_token" : {
+            "type" : "text",
+            "length" : null,
+            "details" : "ID Token provided by Google Sign-In"
+          }
         },
-        "logout" : {
-            "details" : "Closes the current session and logs out the user from the platform",
-            "access_level" : [
-                "administrator",
-                "supervisor",
-                "user"
-            ],
-            "authentication" : [
-                "web"
-            ],
-            "parameters" : {
-                "mandatory" : {},
-                "optional" : {}
-            },
-            "return" : {
-                "values" : {}
-            }
+        "optional" : {}
+      },
+      "return" : {
+        "values" : {}
+      }
+    },
+    "edit" : {
+      "details" : "Updates a user's profile",
+      "access_level" : [
+        "administrator"
+      ],
+      "authentication" : [
+        "web",
+        "app"
+      ],
+      "parameters" : {
+        "mandatory" : {
+          "userid" : {
+            "type" : "text",
+            "length" : null,
+            "details" : "User ID"
+          }
+        },
+        "optional" : {
+          "active" : {
+            "type" : "boolean",
+            "length" : null,
+            "details" : "Whether the user is enabled or not"
+          }
         }
-	}
+      },
+      "return" : {
+        "values" : {}
+      }
+    },
+  },
+  "login_as_developer" : {
+    "details" : "Authenticates a developer on the platform (must be enabled by an admin)",
+    "access_level" : [
+      "guest"
+    ],
+    "authentication" : [
+      "web"
+    ],
+    "parameters" : {
+      "mandatory" : {},
+      "optional" : {}
+    },
+    "return" : {
+      "values" : {}
+    }
+  },
+  "logout" : {
+    "details" : "Closes the current session and logs out the user from the platform",
+    "access_level" : [
+      "administrator",
+      "supervisor",
+      "user"
+    ],
+    "authentication" : [
+      "web"
+    ],
+    "parameters" : {
+      "mandatory" : {},
+      "optional" : {}
+    },
+    "return" : {
+      "values" : {}
+    }
+  }
 }

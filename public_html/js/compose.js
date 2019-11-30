@@ -194,6 +194,19 @@ function userLogInWithGoogle(baseurl, apiversion, token, id_token, successFcn){
     }});
 }
 
+function developerLogIn(){
+    showPleaseWait();
+    let baseurl = Configuration.get('core', 'BASE_URL');
+    let apiversion = Configuration.get('core', 'WEBAPI_VERSION');
+    let token = Configuration.get('core', 'TOKEN');
+    // compile URI
+    var uri = "web-api/"+apiversion+"/userprofile/login_as_developer/json?token="+token;
+    // compile URL
+    var url = baseurl + encodeURI( uri );
+    // call the API
+    callAPI(url, false, true);
+}
+
 function userLogOut( baseurl, apiversion, token, successFcn ){
     if( successFcn == undefined ) successFcn = function( res ){ /* do nothing! */ };
     showPleaseWait();

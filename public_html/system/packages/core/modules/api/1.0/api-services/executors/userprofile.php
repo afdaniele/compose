@@ -27,6 +27,20 @@ function execute(&$service, &$actionName, &$arguments){
 			return response200OK(null);
 			break;
     //
+    case 'login_as_developer':
+			if(Core::isUserLoggedIn()){
+				// error
+        return response412PreconditionFailed('You are already logged in');
+			}
+			//
+			$res = Core::logInAsDeveloper();
+			if(!$res['success']){
+        return response500InternalServerError($res['data']);
+			}
+			// success
+			return response200OK(null);
+			break;
+    //
 		case 'edit':
 			// open user profile
 			$res = Core::openUserInfo($arguments['userid']);
