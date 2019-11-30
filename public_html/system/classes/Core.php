@@ -491,8 +491,14 @@ class Core{
 			$token = self::generateRandomString(16);
 			$_SESSION['TOKEN'] = $token;
 		}
+    // init configuration
+    $res = Configuration::init();
+    if (!$res['success']) {
+      return $res;
+    }
+    Configuration::$TOKEN = $_SESSION['TOKEN'];
 		//
-		return true;
+		return ['success' => true, 'data' => null];
 	}//startSession
 
 

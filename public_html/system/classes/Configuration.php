@@ -26,7 +26,8 @@ class Configuration {
 	public static $PAGE;
 	public static $ACTION;
 	public static $ARG1;
-	public static $ARG2;
+  public static $ARG2;
+	public static $TOKEN;
 
 	public static $IS_MOBILE = false;
 
