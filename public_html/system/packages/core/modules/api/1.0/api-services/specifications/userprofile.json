@@ -52,6 +52,22 @@
         "values" : {}
       }
     },
+    "login_as_developer" : {
+      "details" : "Authenticates a developer on the platform (must be enabled by an admin)",
+      "access_level" : [
+        "guest"
+      ],
+      "authentication" : [
+        "web"
+      ],
+      "parameters" : {
+        "mandatory" : {},
+        "optional" : {}
+      },
+      "return" : {
+        "values" : {}
+      }
+    },
     "logout" : {
       "details" : "Closes the current session and logs out the user from the platform",
       "access_level" : [

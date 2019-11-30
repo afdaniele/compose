@@ -177,6 +177,11 @@
 
 <body <?php echo ((Configuration::$PAGE == 'error')? 'style="background-color:white"' : '') ?>>
 
+  <!-- Load JS Configuration class -->
+  <?php
+  include('js/compose-configuration.js.php');
+  ?>
+
 	<!-- Fixed navbar -->
 	<?php
   include('system/packages/core/modules/navbar.php');
