@@ -19,7 +19,7 @@ class EditableConfiguration {
 	private $configuration_details = null;
 	private $is_configurable = false;
   private $error_state = null;
-  private $database_name = 'configuration';
+  private $database_name = '__configuration__';
 	private $configuration_key = 'content';
 
 

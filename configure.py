@@ -16,7 +16,7 @@ def main():
   # get metadata and configuration files
   public_html = join(dirname(realpath(__file__)), 'public_html')
   config_metadata = join(public_html, 'system', 'packages', package_name, 'configuration', 'metadata.json')
-  config_file = join(public_html, 'system', 'user-data', 'packages', package_name, 'databases', 'configuration', 'content.json')
+  config_file = join(public_html, 'system', 'user-data', 'databases', package_name, '__configuration__', 'content.json')
   # make sure the metadata file exists
   if not exists(config_metadata) or not isfile(config_metadata):
     print('The file `%s` does not exist, check and try again' % config_metadata)

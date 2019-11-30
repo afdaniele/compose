@@ -9,7 +9,7 @@ use \system\classes\jsonDB\JsonDB as JsonDB;
 class Database{
 
   // private static attributes
-  private static $dbs_location = "%spackages/%s/databases/";
+  private static $dbs_location = "%sdatabases/%s/";
 
   // private attributes
   private $package;
