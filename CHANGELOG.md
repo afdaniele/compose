@@ -1,3 +1,11 @@
+## 0.9.7 (November 30, 2019)
+  - updated Makefile
+
+## 0.9.6 (November 30, 2019)
+  - updated Jenkinsfile
+  - updated version in Dockerfile
+  - Merge pull request #20 from afdaniele/master
+
 ## 0.9.5 (November 30, 2019)
   - developer login now goes through the API
   - added JS Configuration class

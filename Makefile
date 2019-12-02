@@ -27,7 +27,6 @@ build:
 	COMMIT_ID=`git rev-parse HEAD`; \
 	docker build \
 		-t "${IMAGE}:${TAG}-${ARCH}" \
-		--cache-from "${IMAGE}:${TAG}-${ARCH}" \
 		-f "${DOCKERFILE}" \
 		--build-arg ARCH=${ARCH} \
 		--build-arg COMMIT_ID=${COMMIT_ID} \
@@ -47,9 +46,9 @@ push:
 
 pull:
 	set -e; \
-	docker pull "${IMAGE}:${TAG}-${ARCH}"; \
+	docker pull "${IMAGE}:${TAG}-${ARCH}" || :; \
 	if [ "${ARCH}" = "${DEFAULT_ARCH}" ]; then \
-    docker pull "${IMAGE}:${TAG}"; \
+    docker pull "${IMAGE}:${TAG}" || :; \
   fi
 
 clean:
@@ -57,3 +56,6 @@ clean:
 	if [ "${ARCH}" = "${DEFAULT_ARCH}" ]; then \
     docker rmi "${IMAGE}:${TAG}" || :; \
   fi
+
+bump:
+	./bump-version.sh
