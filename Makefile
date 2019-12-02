@@ -10,14 +10,27 @@ DOCKERFILE=Dockerfile
 devel-build:
 	${MAKE} build DOCKERFILE=Dockerfile.devel TAG=devel
 
+release-build:
+	${MAKE} build TAG=`git describe --tags --abbrev=0`
+
+release-push:
+	${MAKE} push TAG=`git describe --tags --abbrev=0`
+
+release-pull:
+	${MAKE} pull TAG=`git describe --tags --abbrev=0`
+
+release-clean:
+	${MAKE} clean TAG=`git describe --tags --abbrev=0`
+
 build:
 	set -e; \
+	COMMIT_ID=`git rev-parse HEAD`; \
 	docker build \
 		-t "${IMAGE}:${TAG}-${ARCH}" \
 		--cache-from "${IMAGE}:${TAG}-${ARCH}" \
 		-f "${DOCKERFILE}" \
 		--build-arg ARCH=${ARCH} \
-		--build-arg COMMIT_ID=`git rev-parse HEAD` \
+		--build-arg COMMIT_ID=${COMMIT_ID} \
 			./; \
 	if [ "${ARCH}" = "${DEFAULT_ARCH}" ]; then \
     docker tag \
