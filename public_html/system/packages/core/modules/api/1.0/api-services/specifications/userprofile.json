@@ -52,7 +52,6 @@
         "values" : {}
       }
     },
-  },
   "login_as_developer" : {
     "details" : "Authenticates a developer on the platform (must be enabled by an admin)",
     "access_level" : [
@@ -87,4 +86,5 @@
       "values" : {}
     }
   }
+}
 }
