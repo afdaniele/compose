@@ -317,6 +317,11 @@ class MissionControlMenu{
     $is_mission_loaded = !is_null($mission_name);
     ?>
     <style type="text/css">
+      /* adjust grid margin to leave space for the menu */
+      .mission-control-grid{
+        margin-left: 80px;
+      }
+
       .mission-control-side-menu{
         position: fixed;
         top: 90px;
