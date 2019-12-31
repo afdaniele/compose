@@ -1954,6 +1954,12 @@ class Core{
 		exit;
 	}//redirectTo
 
+
+  public static function getBrowserHostname(){
+    return strstr($_SERVER['HTTP_HOST'].':'.$_SERVER['SERVER_PORT'], ':', true);
+  }//getBrowserHostname
+
+
   public static function openAlert($type, $message){
     echo sprintf(
       "<script type=\"application/javascript\">
