@@ -16,7 +16,8 @@ function settings_packages_tab(){
             <tr style="font-weight:bold">
                 <td class="col-md-1">#</td>
                 <td class="col-md-2">ID</td>
-                <td class="col-md-3">Name</td>
+                <td class="col-md-2">Name</td>
+                <td class="col-md-1">Version</td>
                 <td class="col-md-1">Enabled</td>
                 <td class="col-md-2">Actions</td>
             </tr>
@@ -31,11 +32,12 @@ function settings_packages_tab(){
                 $pkg = $packages[$pkg_id];
                 ?>
                 <tr>
-                    <td class="col-md-1"><?php echo $i ?></td>
-                    <td class="col-md-2"><?php echo $pkg_id ?></td>
-                    <td class="col-md-3"><?php echo $pkg['name'] ?></td>
-                    <td class="col-md-1"><?php echo format($pkg['enabled'], 'boolean') ?></td>
-                    <td class="col-md-2">
+                    <td><?php echo $i ?></td>
+                    <td><?php echo $pkg_id ?></td>
+                    <td><?php echo $pkg['name'] ?></td>
+                    <td><?php echo ($pkg['codebase']['head_tag'] == 'ND')? 'devel' : $pkg['codebase']['head_tag'] ?></td>
+                    <td><?php echo format($pkg['enabled'], 'boolean') ?></td>
+                    <td>
                         <?php
                         if( $pkg_id !== 'core' ){
                             if( $pkg['enabled'] ){
