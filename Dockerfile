@@ -86,8 +86,9 @@ RUN a2dissite 000-default-ssl
 USER www-data
 
 # install \compose\
-RUN git clone -b "${COMPOSE_VERSION}" "${COMPOSE_URL}" "${COMPOSE_DIR}"
-RUN git -C "${COMPOSE_DIR}" fetch --tags
+RUN git clone -b stable "${COMPOSE_URL}" "${COMPOSE_DIR}" \
+  && git -C "${COMPOSE_DIR}" fetch --tags \
+  && git -C "${COMPOSE_DIR}" checkout "${COMPOSE_VERSION}"
 
 # switch back to root
 USER root

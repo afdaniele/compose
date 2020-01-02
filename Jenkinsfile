@@ -8,24 +8,24 @@ pipeline {
     }
     stage('Pull Image') {
       steps {
-        sh 'make release-pull ARCH=${ARCH}'
+        sh 'make smart-pull ARCH=${ARCH}'
       }
     }
     stage('Build Image') {
       steps {
-        sh 'make release-build ARCH=${ARCH}'
+        sh 'make smart-build ARCH=${ARCH}'
       }
     }
     stage('Push Image') {
       steps {
         withDockerRegistry(credentialsId: 'DockerHub', url: 'https://index.docker.io/v1/') {
-          sh 'make release-push ARCH=${ARCH}'
+          sh 'make smart-push ARCH=${ARCH}'
         }
       }
     }
     stage('Clean up') {
       steps {
-        sh 'make release-clean ARCH=${ARCH}'
+        sh 'make smart-clean ARCH=${ARCH}'
 
         cleanWs()
       }
