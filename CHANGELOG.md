@@ -1,3 +1,11 @@
+## 0.9.8 (January 02, 2020)
+  - Merge branch 'stable' of github.com:afdaniele/compose into stable
+  - modified Makefile to build the right tag
+  - Merge pull request #23 from afdaniele/afdaniele-patch-1
+  - Update userprofile.json
+  - Merge pull request #22 from afdaniele/patch-2
+  - Merge pull request #21 from afdaniele/patch
+
 ## 0.9.7 (November 30, 2019)
   - updated Makefile
 
