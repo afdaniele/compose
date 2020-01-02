@@ -76,4 +76,4 @@ Run
 
 Run
 
-`docker run -d -p <PORT>:80 afdaniele/compose:<IMAGE_TAG>`
+`docker run -d -p <PORT>:80 afdaniele/compose:<IMAGE_TAG>` 
