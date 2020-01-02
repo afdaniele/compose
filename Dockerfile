@@ -1,6 +1,7 @@
 ARG ARCH=amd64
 ARG PHP_VERSION=7.0.31
 ARG OS_DISTRO=stretch
+ARG COMPOSE_VERSION=stable
 
 FROM ${ARCH}/php:${PHP_VERSION}-apache-${OS_DISTRO}
 
@@ -8,6 +9,7 @@ FROM ${ARCH}/php:${PHP_VERSION}-apache-${OS_DISTRO}
 ARG ARCH
 ARG PHP_VERSION
 ARG OS_DISTRO
+ARG COMPOSE_VERSION
 
 # configure environment: system & libraries
 ENV ARCH=${ARCH}
@@ -18,7 +20,7 @@ ENV OS_DISTRO=${OS_DISTRO}
 ENV APP_DIR "/var/www"
 ENV COMPOSE_DIR "${APP_DIR}/html"
 ENV COMPOSE_URL "https://github.com/afdaniele/compose.git"
-ENV COMPOSE_VERSION "stable"
+ENV COMPOSE_VERSION "${COMPOSE_VERSION}"
 ENV COMPOSE_PACKAGES_DIR "${COMPOSE_DIR}/public_html/system/packages"
 ENV COMPOSE_HTTP_PORT 80
 ENV COMPOSE_HTTPS_PORT 443
@@ -84,8 +86,9 @@ RUN a2dissite 000-default-ssl
 USER www-data
 
 # install \compose\
-RUN git clone -b "${COMPOSE_VERSION}" "${COMPOSE_URL}" "${COMPOSE_DIR}"
-RUN git -C "${COMPOSE_DIR}" fetch --tags
+RUN git clone -b stable "${COMPOSE_URL}" "${COMPOSE_DIR}" \
+  && git -C "${COMPOSE_DIR}" fetch --tags \
+  && git -C "${COMPOSE_DIR}" checkout "${COMPOSE_VERSION}"
 
 # switch back to root
 USER root

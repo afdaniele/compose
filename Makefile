@@ -11,17 +11,42 @@ DOCKERFILE=Dockerfile
 devel-build:
 	${MAKE} build DOCKERFILE=Dockerfile.devel TAG=devel
 
-release-build:
-	${MAKE} build TAG=`git describe --tags --abbrev=0` COMPOSE_VERSION=`git describe --tags --abbrev=0`
+smart-build:
+	@HEAD_HAS_TAG=`git describe --exact-match --tags HEAD 2> /dev/null || :`; \
+	if [ -n "$${HEAD_HAS_TAG}" ]; then \
+		${MAKE} build \
+			TAG=`git describe --tags --abbrev=0` \
+			COMPOSE_VERSION=`git describe --tags --abbrev=0`; \
+	else \
+		${MAKE} build; \
+	fi
 
-release-push:
-	${MAKE} push TAG=`git describe --tags --abbrev=0`
+smart-push:
+	@HEAD_HAS_TAG=`git describe --exact-match --tags HEAD 2> /dev/null || :`; \
+	if [ -n "$${HEAD_HAS_TAG}" ]; then \
+		${MAKE} push \
+			TAG=`git describe --tags --abbrev=0`; \
+	else \
+		${MAKE} push; \
+	fi
 
-release-pull:
-	${MAKE} pull TAG=`git describe --tags --abbrev=0`
+smart-pull:
+	@HEAD_HAS_TAG=`git describe --exact-match --tags HEAD 2> /dev/null || :`; \
+	if [ -n "$${HEAD_HAS_TAG}" ]; then \
+		${MAKE} pull \
+			TAG=`git describe --tags --abbrev=0`; \
+	else \
+		${MAKE} pull; \
+	fi
 
-release-clean:
-	${MAKE} clean TAG=`git describe --tags --abbrev=0`
+smart-clean:
+	@HEAD_HAS_TAG=`git describe --exact-match --tags HEAD 2> /dev/null || :`; \
+	if [ -n "$${HEAD_HAS_TAG}" ]; then \
+		${MAKE} clean \
+			TAG=`git describe --tags --abbrev=0`; \
+	else \
+		${MAKE} clean; \
+	fi
 
 build:
 	set -e; \
