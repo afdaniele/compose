@@ -8,7 +8,6 @@ pipeline {
     }
     stage('Pull Image') {
       steps {
-        echo 'Pulling... ' + env.GIT_BRANCH
         sh 'make pull ARCH=${ARCH}'
       }
     }
