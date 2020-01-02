@@ -15,6 +15,7 @@ IMAGE_SHA=$(shell docker inspect --format="{{index .Id}}" "${IMAGE}:${BRANCH_NAM
 
 
 build:
+	env
 	docker build \
 		-t "${IMAGE}:${BRANCH_NAME}-${ARCH}" \
 		-t "${IMAGE}:${TAG}-${ARCH}" \
