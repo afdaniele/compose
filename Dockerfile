@@ -84,7 +84,6 @@ RUN a2dissite 000-default-ssl
 USER www-data
 
 # install \compose\
-ARG COMMIT_ID=ND
 RUN git clone -b "${COMPOSE_VERSION}" "${COMPOSE_URL}" "${COMPOSE_DIR}"
 RUN git -C "${COMPOSE_DIR}" fetch --tags
 

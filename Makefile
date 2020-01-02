@@ -5,13 +5,14 @@ DEFAULT_ARCH=amd64
 ARCH=${DEFAULT_ARCH}
 IMAGE=afdaniele/compose
 TAG=latest
+COMPOSE_VERSION=stable
 DOCKERFILE=Dockerfile
 
 devel-build:
 	${MAKE} build DOCKERFILE=Dockerfile.devel TAG=devel
 
 release-build:
-	${MAKE} build TAG=`git describe --tags --abbrev=0`
+	${MAKE} build TAG=`git describe --tags --abbrev=0` COMPOSE_VERSION=`git describe --tags --abbrev=0`
 
 release-push:
 	${MAKE} push TAG=`git describe --tags --abbrev=0`
@@ -24,12 +25,11 @@ release-clean:
 
 build:
 	set -e; \
-	COMMIT_ID=`git rev-parse HEAD`; \
 	docker build \
 		-t "${IMAGE}:${TAG}-${ARCH}" \
 		-f "${DOCKERFILE}" \
 		--build-arg ARCH=${ARCH} \
-		--build-arg COMMIT_ID=${COMMIT_ID} \
+		--build-arg COMPOSE_VERSION=${COMPOSE_VERSION} \
 			./; \
 	if [ "${ARCH}" = "${DEFAULT_ARCH}" ]; then \
     docker tag \
