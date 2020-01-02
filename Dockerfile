@@ -61,6 +61,9 @@ COPY assets/usr/local/etc/php/conf.d/apcu.ini /usr/local/etc/php/conf.d/
 # configure PHP errors logging
 COPY assets/usr/local/etc/php/conf.d/log_errors.ini /usr/local/etc/php/conf.d/
 
+# copy retry script
+COPY assets/usr/local/bin/retry /usr/local/bin/retry
+
 # remove pre-installed app
 RUN rm -rf "${COMPOSE_DIR}"
 RUN mkdir -p "${COMPOSE_DIR}"
@@ -86,7 +89,12 @@ RUN a2dissite 000-default-ssl
 USER www-data
 
 # install \compose\
-RUN git clone -b stable "${COMPOSE_URL}" "${COMPOSE_DIR}" \
+RUN retry \
+  --min 20 \
+  --max 60 \
+  --tries 3 \
+  -- \
+    git clone -b stable "${COMPOSE_URL}" "${COMPOSE_DIR}" \
   && git -C "${COMPOSE_DIR}" fetch --tags \
   && git -C "${COMPOSE_DIR}" checkout "${COMPOSE_VERSION}"
 
