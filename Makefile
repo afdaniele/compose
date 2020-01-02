@@ -4,83 +4,38 @@
 DEFAULT_ARCH=amd64
 ARCH=${DEFAULT_ARCH}
 IMAGE=afdaniele/compose
-TAG=latest
-COMPOSE_VERSION=stable
 DOCKERFILE=Dockerfile
 
-devel-build:
-	${MAKE} build DOCKERFILE=Dockerfile.devel TAG=devel
+HEAD_TAG=$(shell git describe --exact-match --tags HEAD 2> /dev/null || :)
+LATEST_TAG=$(shell git tag | tail -1)
+BRANCH_NAME=$(shell [ "${HEAD_TAG}" = "" ] && git rev-parse --abbrev-ref HEAD || echo "${HEAD_TAG}")
+TAG=$(shell [ "${HEAD_TAG}" = "${LATEST_TAG}" ] && echo "latest" || echo "${BRANCH_NAME}")
+EXTRA_TAG=$(shell [ "${ARCH}" = "${DEFAULT_ARCH}" ] && echo "-t ${IMAGE}:${TAG}" || echo "")
+IMAGE_SHA=$(shell docker inspect --format="{{index .Id}}" "${IMAGE}:${BRANCH_NAME}-${ARCH}" 2> /dev/null || :)
 
-smart-build:
-	@HEAD_HAS_TAG=`git describe --exact-match --tags HEAD 2> /dev/null || :`; \
-	if [ -n "$${HEAD_HAS_TAG}" ]; then \
-		${MAKE} build \
-			TAG=`git describe --tags --abbrev=0` \
-			COMPOSE_VERSION=`git describe --tags --abbrev=0`; \
-	else \
-		${MAKE} build; \
-	fi
-
-smart-push:
-	@HEAD_HAS_TAG=`git describe --exact-match --tags HEAD 2> /dev/null || :`; \
-	if [ -n "$${HEAD_HAS_TAG}" ]; then \
-		${MAKE} push \
-			TAG=`git describe --tags --abbrev=0`; \
-	else \
-		${MAKE} push; \
-	fi
-
-smart-pull:
-	@HEAD_HAS_TAG=`git describe --exact-match --tags HEAD 2> /dev/null || :`; \
-	if [ -n "$${HEAD_HAS_TAG}" ]; then \
-		${MAKE} pull \
-			TAG=`git describe --tags --abbrev=0`; \
-	else \
-		${MAKE} pull; \
-	fi
-
-smart-clean:
-	@HEAD_HAS_TAG=`git describe --exact-match --tags HEAD 2> /dev/null || :`; \
-	if [ -n "$${HEAD_HAS_TAG}" ]; then \
-		${MAKE} clean \
-			TAG=`git describe --tags --abbrev=0`; \
-	else \
-		${MAKE} clean; \
-	fi
 
 build:
-	set -e; \
 	docker build \
+		-t "${IMAGE}:${BRANCH_NAME}-${ARCH}" \
 		-t "${IMAGE}:${TAG}-${ARCH}" \
+		${EXTRA_TAG} \
 		-f "${DOCKERFILE}" \
 		--build-arg ARCH=${ARCH} \
-		--build-arg COMPOSE_VERSION=${COMPOSE_VERSION} \
-			./; \
-	if [ "${ARCH}" = "${DEFAULT_ARCH}" ]; then \
-    docker tag \
-			"${IMAGE}:${TAG}-${ARCH}" \
-			"${IMAGE}:${TAG}"; \
-  fi
+		--build-arg COMPOSE_VERSION=${BRANCH_NAME} \
+		./
 
 push:
-	set -e; \
-	docker push "${IMAGE}:${TAG}-${ARCH}"; \
-	if [ "${ARCH}" = "${DEFAULT_ARCH}" ]; then \
+	docker push "${IMAGE}:${BRANCH_NAME}-${ARCH}"
+	docker push "${IMAGE}:${TAG}-${ARCH}"
+	@if [ "${ARCH}" = "${DEFAULT_ARCH}" ]; then \
     docker push "${IMAGE}:${TAG}"; \
   fi
 
 pull:
-	set -e; \
-	docker pull "${IMAGE}:${TAG}-${ARCH}" || :; \
-	if [ "${ARCH}" = "${DEFAULT_ARCH}" ]; then \
-    docker pull "${IMAGE}:${TAG}" || :; \
-  fi
+	docker pull "${IMAGE}:${BRANCH_NAME}-${ARCH}" || :
 
 clean:
-	docker rmi "${IMAGE}:${TAG}-${ARCH}" || :; \
-	if [ "${ARCH}" = "${DEFAULT_ARCH}" ]; then \
-    docker rmi "${IMAGE}:${TAG}" || :; \
-  fi
+	docker rmi -f "${IMAGE_SHA}" || :
 
 bump:
 	./bump-version.sh
