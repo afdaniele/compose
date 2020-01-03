@@ -1,0 +1,14 @@
+# system utilities (used by user)
+nano
+wget
+python3
+
+# system utilities (used by compose)
+git
+net-tools
+
+# python libraries
+python3-requests
+python3-toposort
+python3-pip
+python3-setuptools
