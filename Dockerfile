@@ -9,7 +9,6 @@ FROM ${ARCH}/php:${PHP_VERSION}-apache-${OS_DISTRO}
 ARG ARCH
 ARG PHP_VERSION
 ARG OS_DISTRO
-ARG COMPOSE_VERSION
 
 # configure environment: system & libraries
 ENV ARCH=${ARCH}
@@ -20,7 +19,6 @@ ENV OS_DISTRO=${OS_DISTRO}
 ENV APP_DIR "/var/www"
 ENV COMPOSE_DIR "${APP_DIR}/html"
 ENV COMPOSE_URL "https://github.com/afdaniele/compose.git"
-ENV COMPOSE_VERSION "${COMPOSE_VERSION}"
 ENV COMPOSE_PACKAGES_DIR "${COMPOSE_DIR}/public_html/system/packages"
 ENV COMPOSE_HTTP_PORT 80
 ENV COMPOSE_HTTPS_PORT 443
@@ -32,24 +30,11 @@ ENV QEMU_EXECVE 1
 # copy QEMU
 COPY ./assets/qemu/${ARCH}/ /usr/bin/
 
-# install dependencies, then clean the apt cache
+# install apt dependencies
+COPY ./dependencies-apt.txt /tmp/dependencies-apt.txt
 RUN apt-get update \
   && apt-get install -y --no-install-recommends \
-    # system utilities (used by user)
-    nano \
-    wget \
-    python3 \
-    # system utilities (used by compose)
-    git \
-    net-tools \
-    # python libraries
-    python3-requests \
-    python3-toposort \
-    python3-pip \
-    python3-setuptools \
-    # php libraries
-    # <empty> \
-  # clean the apt cache
+    $(awk -F: '/^[^#]/ { print $1 }' /tmp/dependencies-apt.txt | uniq) \
   && rm -rf /var/lib/apt/lists/*
 
 # install python dependencies
@@ -101,6 +86,7 @@ RUN rretry \
     git clone -b stable "${COMPOSE_URL}" "${COMPOSE_DIR}"
 
 # fetch tags and checkout the wanted version
+ARG COMPOSE_VERSION
 RUN git -C "${COMPOSE_DIR}" fetch --tags
 RUN git -C "${COMPOSE_DIR}" checkout "${COMPOSE_VERSION}"
 

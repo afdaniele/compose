@@ -5,6 +5,7 @@
 !assets
 !assets.devel
 !public_html
+!dependencies-apt.txt
 !configure.py
 !VERSION
 !.git
