@@ -1,11 +1,7 @@
 ARG ARCH=amd64
-ARG COMPOSE_VERSION=latest
+ARG BASE_VERSION=stable
 
-FROM afdaniele/compose:${COMPOSE_VERSION}-${ARCH}
-
-# recover arguments
-ARG ARCH
-ARG COMPOSE_VERSION
+FROM afdaniele/compose:${BASE_VERSION}-${ARCH}
 
 # install xDebug
 RUN pecl install xdebug
