@@ -42,3 +42,30 @@ clean:
 
 bump:
 	./bump-version.sh
+
+_build_all:
+	set -e; \
+	TAGS=`git tag | sed -z "s/\n/,/g"`; \
+	TAGS=$${TAGS::-1}; \
+	brun \
+	  -f tag:list:$${TAGS} \
+	  -f arch:list:amd64,arm32v7 \
+	  -- \
+	    make \
+	      build \
+	      push \
+	        VERSION={tag} \
+	        ARCH={arch}
+
+_clean_all:
+	set -e; \
+	TAGS=`git tag | sed -z "s/\n/,/g"`; \
+	TAGS=$${TAGS::-1}; \
+	brun \
+	  -f tag:list:$${TAGS} \
+	  -f arch:list:amd64,arm32v7 \
+	  -- \
+	    make \
+	      clean \
+	        VERSION={tag} \
+	        ARCH={arch}
