@@ -46,10 +46,15 @@ RUN apt-get update \
     python3-requests \
     python3-toposort \
     python3-pip \
+    python3-setuptools \
     # php libraries
     # <empty> \
   # clean the apt cache
   && rm -rf /var/lib/apt/lists/*
+
+# install python dependencies
+RUN pip3 install \
+  run-and-retry
 
 # install apcu
 RUN pecl channel-update pecl.php.net \
@@ -60,9 +65,6 @@ COPY assets/usr/local/etc/php/conf.d/apcu.ini /usr/local/etc/php/conf.d/
 
 # configure PHP errors logging
 COPY assets/usr/local/etc/php/conf.d/log_errors.ini /usr/local/etc/php/conf.d/
-
-# copy retry script
-COPY assets/usr/local/bin/retry /usr/local/bin/retry
 
 # remove pre-installed app
 RUN rm -rf "${COMPOSE_DIR}"
@@ -89,14 +91,18 @@ RUN a2dissite 000-default-ssl
 USER www-data
 
 # install \compose\
-RUN retry \
+RUN rretry \
   --min 20 \
   --max 60 \
   --tries 3 \
+  --on-retry "rm -rf ${COMPOSE_DIR}" \
+  --verbose \
   -- \
-    git clone -b stable "${COMPOSE_URL}" "${COMPOSE_DIR}" \
-  && git -C "${COMPOSE_DIR}" fetch --tags \
-  && git -C "${COMPOSE_DIR}" checkout "${COMPOSE_VERSION}"
+    git clone -b stable "${COMPOSE_URL}" "${COMPOSE_DIR}"
+
+# fetch tags and checkout the wanted version
+RUN git -C "${COMPOSE_DIR}" fetch --tags
+RUN git -C "${COMPOSE_DIR}" checkout "${COMPOSE_VERSION}"
 
 # switch back to root
 USER root
