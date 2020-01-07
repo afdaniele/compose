@@ -423,6 +423,59 @@ function serializeForm( formID, excludeDisabled ){
     return ( (str.length > 0)? str.slice(1) : str );
 }//serializeForm
 
+function serializeFormToJSON(formID, excludeDisabled, blacklist_keys){
+  if (excludeDisabled == undefined) excludeDisabled = false;
+  if (blacklist_keys == undefined) blacklist_keys = [];
+  //
+  let res = {};
+  //
+  $(formID).find('input').each(
+    function(){
+      let key = $(this).attr('name');
+      if (blacklist_keys.indexOf(key) != -1)
+        return;
+      if( !excludeDisabled || !$(this).prop("disabled") ){
+        switch( $(this).attr('type') ){
+          case 'checkbox':
+            res[key] = (this.checked)? 1 : 0;
+            break;
+          default:
+            res[key] = encodeURIComponent($(this).val());
+            break;
+        }
+      }
+    }
+  )
+  //
+  $(formID).find('select').each(
+    function(){
+      let key = $(this).attr('name');
+      if (blacklist_keys.indexOf(key) != -1)
+        return;
+      if( !excludeDisabled || !$(this).prop("disabled") ){
+        if( $(this).find(':selected').attr('value') != undefined && $(this).find(':selected').attr('value') != '' ){
+          res[key] = $(this).find(':selected').attr('value');
+        }else{
+          res[key] = $(this).find(':selected').text();
+        }
+      }
+    }
+  )
+  //
+  $(formID).find('textarea').each(
+    function(){
+      let key = $(this).attr('name');
+      if (blacklist_keys.indexOf(key) != -1)
+        return;
+      if( !excludeDisabled || !$(this).prop("disabled") ){
+        res[key] = encodeURIComponent($(this).val());
+      }
+    }
+  )
+  //
+  return res;
+}//serializeFormToJSON
+
 function money( num ){
     return parseFloat(Math.round(num * 100) / 100).toFixed(2);
 }//money

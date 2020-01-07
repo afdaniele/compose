@@ -8,22 +8,13 @@ use \system\classes\BlockRenderer;
 class MissionControl{
 
   private $grid_id;
-  private $grid_width;
-  private $resolution;
-  private $block_gutter;
   private $block_size;
-  private $block_border_thickness;
   private $sizes_available;
   private $blocks;
 
-  function __construct($grid_id, $grid_width, $resolution, $block_gutter, $block_border_thickness, $sizes_available, $blocks=[]){
+  function __construct($grid_id, $block_size, $sizes_available, $blocks=[]){
     $this->grid_id = $grid_id;
-    $this->grid_width = $grid_width;
-    $this->resolution = $resolution;
-    $this->block_gutter = $block_gutter;
     $this->block_size = $block_size;
-    $this->block_border_thickness = $block_border_thickness;
-    $this->block_size = ( $grid_width - ($resolution-1)*$block_gutter ) / $resolution;
     $this->sizes_available = $sizes_available;
     $this->blocks = $blocks;
   }//__construct
@@ -32,8 +23,11 @@ class MissionControl{
     return $this->grid_id;
   }//get_ID
 
-  function create(){
+  function create($opts=[]){
     $header_h = 40;
+    if (isset($opts['show_header']) && !boolval($opts['show_header'])) {
+      $header_h = 0;
+    }
     // load all block renderers registered
     Core::loadPackagesModules('renderers/blocks');
     // get all block renderers registered
@@ -66,7 +60,7 @@ class MissionControl{
           $block['subtitle'],
           $block['shape'],
           $block_args,
-          $block['options']
+          $opts
         );
         array_push($blocks_ids, $rand_id);
         ?>
@@ -81,7 +75,7 @@ class MissionControl{
         var grid = $('#<?php echo $this->grid_id ?>').packery({
           itemSelector: '.mission-control-item',
           columnWidth: <?php echo $this->block_size ?>,
-          gutter: <?php echo $this->block_gutter ?>
+          gutter: <?php echo $opts['block_gutter'] ?>
         });
 
         // make all grid-items draggable
@@ -161,15 +155,19 @@ class MissionControl{
       .mission-control-item {
         float: left;
         background: #fff;
-        border: <?php echo $this->block_border_thickness ?>px solid hsla(0, 0%, 80%, 0.5);
+        border: <?php echo $opts['block_border_thickness'] ?>px solid hsla(0, 0%, 80%, 0.5);
       }
 
       <?php
-      for ($i = 1; $i < $this->resolution+1; $i++) {
-        for ($j = 1; $j < $this->resolution+1; $j++) {
-          $h = $i*$this->block_size+($i-1)*$this->block_gutter;
-          $w = $j*$this->block_size+($j-1)*$this->block_gutter;
-          $header_w = $w - 2*40 - 2*$this->block_border_thickness;
+      for ($i = 1; $i < $opts['resolution']+1; $i++) {
+        for ($j = 1; $j < $opts['resolution']+1; $j++) {
+          // $h = $i*$this->block_size+($i-1)*$opts['block_gutter'];
+          // $w = $j*$this->block_size+($j-1)*$opts['block_gutter'];
+
+          $h = $i * $this->block_size - $opts['block_gutter'];
+          $w = $j * $this->block_size - $opts['block_gutter'];
+
+          $header_w = $w - 2*$header_h - 2*$opts['block_border_thickness'];
           echo sprintf("
             .mission-control-item-r%d-c%d{
               min-height: %dpx;
@@ -206,7 +204,7 @@ class MissionControl{
             $header_w,
             $i, $j,
             $w,
-            $h-$header_h  //TODO: we may want to consider the case in which the header is hidden
+            $h-$header_h
           );
         }
       }
@@ -620,6 +618,195 @@ class MissionControlMenu{
   }//add_new_block_modal
 
 }//MissionControlMenu
+
+
+
+class MissionControlConfiguration{
+
+  static protected $OPTIONS = [
+    "show_header" => [
+      "name" => "Show blocks' headers",
+      "type" => "boolean",
+      "default" => True
+    ],
+    "show_icon" => [
+      "name" => "Show blocks' icons",
+      "type" => "boolean",
+      "default" => True
+    ],
+    "show_menu" => [
+      "name" => "Show blocks' menus",
+      "type" => "boolean",
+      "default" => True
+    ],
+    "show_size_selector" => [
+      "name" => "Allow block resize",
+      "type" => "boolean",
+      "default" => True
+    ],
+    "show_properties" => [
+      "name" => "Allow blocks configuration",
+      "type" => "boolean",
+      "default" => True
+    ],
+    "show_dispose" => [
+      "name" => "Allow blocks deletion",
+      "type" => "boolean",
+      "default" => True
+    ],
+    "resolution" => [
+      "name" => "Horizontal resolution of the grid",
+      "type" => "number",
+      "default" => 10
+    ],
+    "block_gutter" => [
+      "name" => "Space (in px) between blocks",
+      "type" => "number",
+      "default" => 10
+    ],
+    "block_border_thickness" => [
+      "name" => "Thickness (in px) of the block borders",
+      "type" => "number",
+      "default" => 1
+    ],
+  ];
+
+  function __construct($grid_id, $package_name, $mission_db_name, $mission_name=NULL){
+    if (is_null($mission_name)) {
+      return;
+    }
+    $opts = self::get_options($package_name, $mission_db_name, $mission_name);
+    // render modal
+    self::render_modal($grid_id, $mission_name, $opts);
+    self::render_button($grid_id);
+  }//__construct
+
+  public static function get_options($package_name, $mission_db_name, $mission_name){
+    $db = new Database($package_name, $mission_db_name.'_opts');
+    // load mission options
+    $opts = self::get_default_options();
+    // load opts
+    if ($db->key_exists($mission_name)) {
+      $res = $db->read($mission_name);
+      if (!$res['success']) {
+        Core::throwError($res['data']);
+      }else{
+        $opts = array_merge($opts, $res['data']);
+      }
+    }
+    return $opts;
+  }//get_default_options
+
+  private static function get_default_options(){
+    $defaults = [];
+    foreach (self::$OPTIONS as $key => $opt) {
+      $defaults[$key] = $opt['default'];
+    }
+    return $defaults;
+  }//get_default_options
+
+  public static function render_modal($grid_id, $mission_name, $opts){
+    ?>
+    <div class="modal fade mission-control-block-properties-modal" id="mission_<?php echo $grid_id ?>_options_modal" tabindex="-1" role="dialog" aria-hidden="true">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal">
+              <span aria-hidden="true">&times;</span>
+              <span class="sr-only">Close</span>
+            </button>
+            <h4 class="modal-title text-center">
+              Mission Properties
+            </h4>
+          </div>
+
+          <div class="modal-body text-left">
+            <?php
+            // create layout for form
+            $layout = [];
+            // append custom arguments to the layout
+            foreach (static::$OPTIONS as $key => $opt) {
+              $layout_key = $key;
+              $layout_desc = [
+                'type' => $opt['type'],
+                'editable' => True,
+                'value' => $opts[$key],
+                'name' => $opt['name']
+              ];
+              if ($opt['type'] == 'enum') {
+                $layout_desc['placeholder_id'] = $opt['enum_values'];
+                $layout_desc['placeholder'] = array_map(ucfirst, $opt['enum_values']);
+              }
+              // add item to the layout
+              $layout[$layout_key] = $layout_desc;
+            }
+            $formID = sprintf('mission-%s-form', $grid_id);
+            $formClass = 'mission-properties-form';
+            $method = 'post';
+            // generate form
+            generateFormByLayout($layout, $formID, $formClass, $method, $action=null, $values=$opts);
+            ?>
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-success" id="save-button">Save</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script type="text/javascript">
+      $('#mission_<?php echo $grid_id ?>_options_modal #save-button').on('click', function(){
+        let mission_name = '<?php echo $mission_name ?>';
+        // get options from form object
+        let form = '#mission-<?php echo $grid_id ?>-form';
+        // turn list of pairs into object
+        let options = serializeFormToJSON(form, excludeDisabled=false, blacklist_keys=['token']);
+        let options_json = JSON.stringify(options);
+        // close modal
+        $('#mission_<?php echo $grid_id ?>_options_modal').modal('hide');
+        // save mission control
+        $(window).trigger('MISSION_CONTROL_OPTIONS_SAVE', [mission_name, options_json]);
+      });
+    </script>
+    <?php
+  }//render_modal
+
+  public static function render_button($grid_id, $class='default'){
+    ?>
+    <button
+      type="button"
+      class="btn btn-<?php echo $class ?>"
+      data-toggle="modal"
+      data-target="#mission_<?php echo $grid_id ?>_options_modal"
+      >
+      <i class="fa fa-cog" aria-hidden="true"></i>&nbsp;
+      Settings
+    </button>
+    <?php
+  }//render_button
+
+}//MissionControlConfiguration
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 ?>
