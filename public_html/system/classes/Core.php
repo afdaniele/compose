@@ -1827,6 +1827,12 @@ class Core{
 	 *
 	 */
 	public static function getGitRepositoryInfo($git_repo_path){
+    // check if this object is cached
+		$cache_key = sprintf("path_%s_codebase_info", md5($git_repo_path));
+		if (self::$cache->has($cache_key)) {
+      return self::$cache->get($cache_key);
+    }
+    // info not present in cache, get it from git
     $codebase_info = [
 			'git_owner' => 'ND',
 			'git_repo' => 'ND',
@@ -1897,6 +1903,9 @@ class Core{
 			$latest_cb_tag = trim($latest_tag[0]);
 			$codebase_info['latest_tag'] = (strlen($latest_cb_tag) <= 0)? 'ND' : $latest_cb_tag;
 		}
+    // cache object
+		self::$cache->set($cache_key, $codebase_info, CacheTime::HOURS_24);
+    // ---
     return $codebase_info;
   }//getGitRepositoryInfo
 
@@ -2365,7 +2374,7 @@ class Core{
 			// check whether the package is enabled
 			$pkg['enabled'] = self::isPackageEnabled($pkg_id);
       // get package codebase version
-      $pkg['codebase'] = self::getPackageCodebaseInfo($pkg_id);
+      $pkg['codebase'] = self::getGitRepositoryInfo($pkg_root);
 			// load modules
 			self::_load_package_modules_list($pkg_root, $pkg);
 			// create public data symlink (if it does not exist)
