@@ -2299,7 +2299,9 @@ class Core{
 				$page['package'] = $pkg_id;
 				$page['id'] = $page_id;
 				$page['path'] = $page_path;
-				$page['enabled'] = $packages[$pkg_id]['enabled'] && self::isPageEnabled($pkg_id, $page_id);
+				$page['enabled'] = $packages[$pkg_id]['enabled']
+          && (!array_key_exists('disabled', $page) || !boolval($page['disabled']))
+          && self::isPageEnabled($pkg_id, $page_id);
 				// list
 				array_push($pages['list'], $page);
 				// by-id

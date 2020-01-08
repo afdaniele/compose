@@ -153,7 +153,11 @@ $assets_index_url = sanitize_url(
     'bitbucket.org': 'https://bitbucket.org/{0}/{1}/src/{2}'
   }
 
-  var installed_packages = JSON.parse('<?php echo json_encode($installed_packages) ?>');
+  <?php
+  // this fixes nested quotes
+  $json_str = str_replace("\u0022", "\\\\\"", json_encode($installed_packages, JSON_HEX_QUOT));
+  ?>
+  var installed_packages = JSON.parse('<?php echo $json_str ?>');
 
   var installed_packages_ids = Object.keys(installed_packages);
 
