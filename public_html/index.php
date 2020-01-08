@@ -31,12 +31,12 @@
 	use system\classes\Configuration;
 	use system\utils\URLrewrite;
 
-	// set the $BASE and $BASE_URL variables (Experimental)
-  $is_https = boolval(isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off');
-  $protocol = $is_https? 'https' : 'http';
-	$hostname = $_SERVER['HTTP_HOST'];
-	Configuration::$HOSTNAME = explode(':', $hostname)[0];
-	Configuration::$BASE_URL = sprintf('%s://%s/', $protocol, $hostname);
+  // compute how far the root is from this page
+  $depth = count(explode('/', trim(strtolower($_GET['__arg__']), '/')));
+  $to_root = implode('/', array_fill(0, $depth, '..')).'/';
+
+  // set the $BASE and $BASE_URL variables (Experimental)
+  Configuration::$BASE_URL = $to_root;
 	Configuration::$BASE = Configuration::$BASE_URL;
 
 	// parse arguments
