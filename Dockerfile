@@ -75,6 +75,14 @@ RUN a2dissite 000-default-ssl
 # switch to simple user
 USER www-data
 
+# fetch args
+ARG COMPOSE_VERSION
+
+# copy SHA of the current commit. This has two effects:
+# - stores the SHA of the commit from which the image was built
+# - correct the issue with docker cache due to git clone command below
+COPY .git/refs/heads/${COMPOSE_VERSION} /compose.builder.version.sha
+
 # install \compose\
 RUN rretry \
   --min 20 \
@@ -86,7 +94,6 @@ RUN rretry \
     git clone -b stable "${COMPOSE_URL}" "${COMPOSE_DIR}"
 
 # fetch tags and checkout the wanted version
-ARG COMPOSE_VERSION
 RUN git -C "${COMPOSE_DIR}" fetch --tags
 RUN git -C "${COMPOSE_DIR}" checkout "${COMPOSE_VERSION}"
 
