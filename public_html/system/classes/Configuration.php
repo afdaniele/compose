@@ -21,7 +21,6 @@ class Configuration {
 	public static $DEBUG = false;
 
 	public static $BASE_URL;
-	public static $HOSTNAME;
 	public static $BASE;
 	public static $PAGE;
 	public static $ACTION;
