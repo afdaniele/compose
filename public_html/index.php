@@ -31,16 +31,19 @@
 	use system\classes\Configuration;
 	use system\utils\URLrewrite;
 
-  // compute how far the root is from this page
-  $depth = count(explode('/', trim(strtolower($_GET['__arg__']), '/')));
-  $to_root = implode('/', array_fill(0, $depth, '..')).'/';
+  // compute how far this page is from the root
+  $__arg__ = strtolower($_GET['__arg__']);
+  $depth = substr_count($__arg__, '/');
+  $to_root = implode('/', array_fill(0, $depth, '..'));
+  $to_root .= strlen($to_root)? '/' : '';
+  echoArray($to_root);
 
   // set the $BASE and $BASE_URL variables (Experimental)
   Configuration::$BASE_URL = $to_root;
 	Configuration::$BASE = Configuration::$BASE_URL;
 
 	// parse arguments
-	$args = explode('/', strtolower($_GET['__arg__']));
+	$args = explode('/', $__arg__);
 	$requested_page = $args[0];
 	$requested_action = (count($args) > 1 && $args[1] !== '') ? $args[1] : $_GET['action'];
 	$requested_action = ($requested_action !== '')? $requested_action : NULL;
