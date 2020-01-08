@@ -27,6 +27,10 @@ class EditableConfiguration {
 	public function __construct( $package_name ){
 		$this->package_name = $package_name;
 		$configuration_details_file = sprintf("%s/../packages/%s/configuration/metadata.json", __DIR__, $package_name);
+    if (!file_exists($configuration_details_file)) {
+			$configuration_details_file = sprintf("%s%s/configuration/metadata.json", $GLOBALS['__USERDATA__PACKAGES__DIR__'], $package_name);
+		}
+    // ---
 		if( !file_exists($jsondb_config_file) && !file_exists($configuration_details_file) ){
 			$this->is_configurable = false;
 			return;
