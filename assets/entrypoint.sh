@@ -7,19 +7,31 @@ ssldir_apache="/var/www/ssl-apache"
 umask 0002
 
 # check volume
-mountpoint -q ${COMPOSE_DIR}
+mountpoint -q ${COMPOSE_USERDATA_DIR}
 if [ $? -ne 0 ]; then
-  echo "WARNING: The path '${COMPOSE_DIR}' is not a VOLUME. All the changes will be deleted with the container."
+  echo "WARNING: The path '${COMPOSE_USERDATA_DIR}' is not a VOLUME. All the changes will be deleted with the container."
 fi
-COMPOSE_DIR=$(realpath -s ${COMPOSE_DIR})
+COMPOSE_USERDATA_DIR=$(realpath -s ${COMPOSE_USERDATA_DIR})
 
 # from this point on, if something goes wrong, exit
 set -e
 
-# change the ownership of the code
-echo "Giving ownership of the code to the user 'www-data'..."
-chown www-data:www-data -R ${COMPOSE_DIR}
-echo "Done!"
+# get GID of the compose dir
+GID=$(stat -c %g ${COMPOSE_USERDATA_DIR})
+GNAME='compose'
+# check if we have a group with that ID already
+if [ ! $(getent group ${GID}) ]; then
+  echo "Creating a group 'compose' with GID:${GID} for the user www-data"
+  # create group
+  groupadd --gid ${GID} ${GNAME}
+else
+  GNAME=$(id --name -g ${GID})
+  echo "A group with GID:${GID} (i.e., ${GNAME}) already exists. Reusing it."
+fi
+
+# add user www-data to group
+echo "Adding user www-data to the group ${GNAME} (GID:${GID})."
+usermod -aG ${GNAME} www-data
 
 # check if SSL is enabled and the keys are provided
 if [ "${SSL}" == "1" ]; then
