@@ -19,7 +19,7 @@ ENV OS_DISTRO=${OS_DISTRO}
 ENV APP_DIR "/var/www"
 ENV COMPOSE_DIR "${APP_DIR}/html"
 ENV COMPOSE_URL "https://github.com/afdaniele/compose.git"
-ENV COMPOSE_PACKAGES_DIR "${COMPOSE_DIR}/public_html/system/packages"
+ENV COMPOSE_USERDATA_DIR "${COMPOSE_DIR}/public_html/system/user-data"
 ENV COMPOSE_HTTP_PORT 80
 ENV COMPOSE_HTTPS_PORT 443
 ENV SSL_DIR "${APP_DIR}/ssl"

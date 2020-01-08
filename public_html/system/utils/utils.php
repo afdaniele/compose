@@ -210,4 +210,16 @@ function is_JSON($string) {
   json_decode($string);
   return (json_last_error() == JSON_ERROR_NONE);
 }//is_JSON
+
+function join_path() {
+    $args = func_get_args();
+    $paths = array();
+    foreach ($args as $arg) {
+        $paths = array_merge($paths, (array)$arg);
+    }
+    $paths = array_map(create_function('$p', 'return trim($p, "/");'), $paths);
+    $paths = array_filter($paths);
+    return ($args[0][0] == '/' ? '/' : '').join('/', $paths);
+}//join_path
+
 ?>
