@@ -18,14 +18,20 @@ set -e
 
 # get GID of the compose dir
 GID=$(stat -c %g ${COMPOSE_USERDATA_DIR})
-GNAME=$(stat -c %G ${COMPOSE_USERDATA_DIR})
+GNAME='compose'
 # check if we have a group with that ID already
-if [ ! $(getent group ${GNAME}) ]; then
+if [ ! $(getent group ${GID}) ]; then
+  echo "Creating a group 'compose' with GID:${GID} for the user www-data"
   # create group
-  groupadd --gid ${GID} compose
-  # add user www-data to group
-  usermod -aG compose www-data
+  groupadd --gid ${GID} ${GNAME}
+else
+  GNAME=$(id --name -g ${GID})
+  echo "A group with GID:${GID} (i.e., ${GNAME}) already exists. Reusing it."
 fi
+
+# add user www-data to group
+echo "Adding user www-data to the group ${GNAME} (GID:${GID})."
+usermod -aG ${GNAME} www-data
 
 # check if SSL is enabled and the keys are provided
 if [ "${SSL}" == "1" ]; then
