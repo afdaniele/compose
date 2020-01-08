@@ -34,7 +34,7 @@ if (!Core::isUserLoggedIn() || Core::getLoginSystem() == '__GOOGLE_SIGNIN__') {
       });
       <?php
     }else{
-      echo "window.location.href = '<?php echo Configuration::$BASE ?>';";
+      printf("window.location.href = '%s';", Configuration::$BASE);
     }
     ?>
   });

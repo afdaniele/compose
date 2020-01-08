@@ -28,7 +28,7 @@ $is_logged_in = Core::isUserLoggedIn();
 				'<?php echo $_SESSION['TOKEN'] ?>',
 				id_token,
         function(){
-          $(window).trigger('COMPOSE_LOGGED_IN', ['google']);
+          $(window).trigger('COMPOSE_LOGGED_IN');
         }
 			);
     });
