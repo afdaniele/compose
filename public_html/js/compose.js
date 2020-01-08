@@ -198,13 +198,13 @@ function userLogInWithGoogle(baseurl, apiversion, token, id_token, successFcn){
 
 function developerLogIn(){
     showPleaseWait();
-    let baseurl = Configuration.get('core', 'BASE_URL');
+    let base = Configuration.get('core', 'BASE');
     let apiversion = Configuration.get('core', 'WEBAPI_VERSION');
     let token = Configuration.get('core', 'TOKEN');
     // compile URI
     var uri = "web-api/"+apiversion+"/userprofile/login_as_developer/json?token="+token;
     // compile URL
-    var url = baseurl + encodeURI( uri );
+    var url = base + encodeURI( uri );
     // call the API
     callAPI(url, false, true);
 }

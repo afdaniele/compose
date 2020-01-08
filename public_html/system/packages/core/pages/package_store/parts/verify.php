@@ -139,7 +139,7 @@ select.form-control{
   }
   ?>
 
-  <a class="btn btn-success" role="button" style="float:right" href="<?php echo Configuration::$BASE_URL ?>">
+  <a class="btn btn-success" role="button" style="float:right" href="<?php echo Configuration::$BASE ?>">
     <i class="fa fa-check" aria-hidden="true"></i>
     &nbsp;
     Done!

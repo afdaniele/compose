@@ -356,14 +356,14 @@ class Core{
     $qs_dict = array_merge(($include_qs)? $_GET : [], $qs_array);
     $qs = toQueryString(array_keys($qs_dict), $qs_dict, true);
     $resource = self::getCurrentResource();
-    return sprintf('%s%s%s', Configuration::$BASE_URL, $resource, $qs);
+    return sprintf('%s%s%s', Configuration::$BASE, $resource, $qs);
   }//getCurrentResourceURL
 
 
   public static function getURL($page=null, $action=null, $arg1=null, $arg2=null, $qs=[], $anchor=null){
     return sprintf(
       '%s%s%s%s%s%s%s',
-      Configuration::$BASE_URL,
+      Configuration::$BASE,
       is_null($page)? '' : $page,
       is_null($action)? '' : '/'.$action,
       is_null($arg1)? '' : '/'.$arg1,
@@ -380,7 +380,7 @@ class Core{
     }
     return sprintf(
       '%sweb-api/%s/%s/%s/%s?%s%s&',
-      Configuration::$BASE_URL,
+      Configuration::$BASE,
       Configuration::$WEBAPI_VERSION,
       $service,
       $action,
@@ -1401,7 +1401,7 @@ class Core{
 	public static function getImageURL($image_file_with_extension, $package_name="core") {
 		if ($package_name == "core") {
 			// TODO: return placeholder if the image does not exist (only for core case, image.php does the same)
-			return sprintf("%simages/%s", Configuration::$BASE_URL, $image_file_with_extension);
+			return sprintf("%simages/%s", Configuration::$BASE, $image_file_with_extension);
 		}else{
 			return sprintf("%simage.php?package=%s&image=%s", Configuration::$BASE, $package_name, $image_file_with_extension);
 		}
@@ -1422,7 +1422,7 @@ class Core{
 	 */
 	public static function getJSscriptURL($js_file_with_extension, $package_name="core"){
 		if ($package_name == "core") {
-			return sprintf("%sjs/%s", Configuration::$BASE_URL, $js_file_with_extension);
+			return sprintf("%sjs/%s", Configuration::$BASE, $js_file_with_extension);
 		}else{
 			return sprintf("%sjs.php?package=%s&script=%s", Configuration::$BASE, $package_name, $js_file_with_extension);
 		}
@@ -1443,7 +1443,7 @@ class Core{
 	 */
 	public static function getCSSstylesheetURL($css_file_with_extension, $package_name="core") {
 		if ($package_name == "core") {
-			return sprintf("%scss/%s", Configuration::$BASE_URL, $css_file_with_extension);
+			return sprintf("%scss/%s", Configuration::$BASE, $css_file_with_extension);
 		}else{
 			return sprintf("%scss.php?package=%s&stylesheet=%s", Configuration::$BASE, $package_name, $css_file_with_extension);
 		}

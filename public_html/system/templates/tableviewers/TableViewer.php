@@ -529,7 +529,7 @@ class TableViewer {
 												}
 											}
 											if( $url_data ){
-												echo ' data-url="'.Configuration::$BASE_URL.'web-api/'.Configuration::$WEBAPI_VERSION.'/'.$action['function']['API_resource'].'/'.$action['function']['API_action'].'/json?token='.$_SESSION['TOKEN'].'&'.toQueryString( $action['function']['arguments'], $record ).'&'.toQueryString( array_keys($action['function']['arguments_override']), $action['function']['arguments_override'] ).'" ';
+												echo ' data-url="'.Configuration::$BASE.'web-api/'.Configuration::$WEBAPI_VERSION.'/'.$action['function']['API_resource'].'/'.$action['function']['API_action'].'/json?token='.$_SESSION['TOKEN'].'&'.toQueryString( $action['function']['arguments'], $record ).'&'.toQueryString( array_keys($action['function']['arguments_override']), $action['function']['arguments_override'] ).'" ';
 											}
 											if( $attach_record ){
 												echo ' data-record=\''. json_encode($record_raw, JSON_HEX_APOS) .'\' ';

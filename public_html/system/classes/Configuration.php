@@ -20,7 +20,6 @@ class Configuration {
 	public static $GMT;
 	public static $DEBUG = false;
 
-	public static $BASE_URL;
 	public static $BASE;
 	public static $PAGE;
 	public static $ACTION;

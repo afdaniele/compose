@@ -32,7 +32,7 @@ use \system\classes\RESTfulAPI;
 
 .settings_api_list .indent-box{
     width: 40px;
-    background: url("<?php echo \system\classes\Configuration::$BASE_URL ?>images/tree-view-link.png");
+    background: url("<?php echo \system\classes\Configuration::$BASE ?>images/tree-view-link.png");
     background-repeat: no-repeat;
 }
 
@@ -307,7 +307,7 @@ function settings_api_tab(){
             var api_version = $(this).data('version');
             var api_service = $(this).data('service');
             //
-            var url = "<?php echo \system\classes\Configuration::$BASE_URL ?>web-api/<?php echo \system\classes\Configuration::$WEBAPI_VERSION ?>/api/service_disable/json?version="+api_version+"&service="+api_service+"&token=<?php echo $_SESSION["TOKEN"] ?>";
+            var url = "<?php echo \system\classes\Configuration::$BASE ?>web-api/<?php echo \system\classes\Configuration::$WEBAPI_VERSION ?>/api/service_disable/json?version="+api_version+"&service="+api_service+"&token=<?php echo $_SESSION["TOKEN"] ?>";
             //
             callAPI( url, true, true );
         });
@@ -316,7 +316,7 @@ function settings_api_tab(){
             var api_version = $(this).data('version');
             var api_service = $(this).data('service');
             //
-            var url = "<?php echo \system\classes\Configuration::$BASE_URL ?>web-api/<?php echo \system\classes\Configuration::$WEBAPI_VERSION ?>/api/service_enable/json?version="+api_version+"&service="+api_service+"&token=<?php echo $_SESSION["TOKEN"] ?>";
+            var url = "<?php echo \system\classes\Configuration::$BASE ?>web-api/<?php echo \system\classes\Configuration::$WEBAPI_VERSION ?>/api/service_enable/json?version="+api_version+"&service="+api_service+"&token=<?php echo $_SESSION["TOKEN"] ?>";
             //
             callAPI( url, true, true );
         });
@@ -326,7 +326,7 @@ function settings_api_tab(){
             var api_service = $(this).data('service');
             var api_action = $(this).data('action');
     		//
-    		var url = "<?php echo \system\classes\Configuration::$BASE_URL ?>web-api/<?php echo \system\classes\Configuration::$WEBAPI_VERSION ?>/api/action_disable/json?version="+api_version+"&service="+api_service+"&action="+api_action+"&token=<?php echo $_SESSION["TOKEN"] ?>";
+    		var url = "<?php echo \system\classes\Configuration::$BASE ?>web-api/<?php echo \system\classes\Configuration::$WEBAPI_VERSION ?>/api/action_disable/json?version="+api_version+"&service="+api_service+"&action="+api_action+"&token=<?php echo $_SESSION["TOKEN"] ?>";
     		//
     		callAPI( url, true, true );
     	});
@@ -336,7 +336,7 @@ function settings_api_tab(){
             var api_service = $(this).data('service');
             var api_action = $(this).data('action');
     		//
-    		var url = "<?php echo \system\classes\Configuration::$BASE_URL ?>web-api/<?php echo \system\classes\Configuration::$WEBAPI_VERSION ?>/api/action_enable/json?version="+api_version+"&service="+api_service+"&action="+api_action+"&token=<?php echo $_SESSION["TOKEN"] ?>";
+    		var url = "<?php echo \system\classes\Configuration::$BASE ?>web-api/<?php echo \system\classes\Configuration::$WEBAPI_VERSION ?>/api/action_enable/json?version="+api_version+"&service="+api_service+"&action="+api_action+"&token=<?php echo $_SESSION["TOKEN"] ?>";
     		//
     		callAPI( url, true, true );
     	});

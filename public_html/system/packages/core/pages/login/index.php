@@ -35,7 +35,7 @@ use \system\classes\Core;
             ?>
             <div id="g-signin" class="text-left" style="margin-left:100px;"></div>
             <!--  -->
-            <img id="signin-loader" src="<?php echo Configuration::$BASE_URL ?>images/loading_blue.gif" style="display:none; width:32px; height:32px; margin-top:10px">
+            <img id="signin-loader" src="<?php echo Configuration::$BASE ?>images/loading_blue.gif" style="display:none; width:32px; height:32px; margin-top:10px">
             <?php
             // get list of login plugins files
             $login_addon_files_per_pkg = Core::getPackagesModules('login', null);
@@ -68,6 +68,6 @@ use \system\classes\Core;
 
 <script type="text/javascript">
   $(window).on('COMPOSE_LOGGED_IN', function(){
-    window.open("<?php echo Configuration::$BASE_URL.base64_decode($_GET['q']) ?>", "_top");
+    window.open("<?php echo Configuration::$BASE.base64_decode($_GET['q']) ?>", "_top");
   });
 </script>

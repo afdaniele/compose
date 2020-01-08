@@ -171,7 +171,7 @@ function settings_custom_package_tab( $package_settings, $settings_tab_id ){
     	$('#<?php echo $package_name ?>-settings-save-button').on('click', function(){
     		qs = serializeForm( '#<?php echo $package_name ?>-settings-form' );
     		//
-    		url = "<?php echo \system\classes\Configuration::$BASE_URL ?>web-api/<?php echo \system\classes\Configuration::$WEBAPI_VERSION ?>/configuration/set/json?"+qs+"&token=<?php echo $_SESSION["TOKEN"] ?>";
+    		url = "<?php echo \system\classes\Configuration::$BASE ?>web-api/<?php echo \system\classes\Configuration::$WEBAPI_VERSION ?>/configuration/set/json?"+qs+"&token=<?php echo $_SESSION["TOKEN"] ?>";
             unsaved_mark_id = "#<?php echo $settings_tab_id ?>_unsaved_changes_mark";
             succ_fcn = function(r){
                 $(unsaved_mark_id).css('display', 'none');

@@ -142,7 +142,7 @@ function format( $val, $type ){
 			return ( (booleanval($val))? '<span class="glyphicon glyphicon-eye-open" aria-hidden="true" style="color:#626262; margin-top:5px" data-toggle="tooltip" data-placement="bottom" title="Read"></span>' : '<span class="glyphicon glyphicon-fire" aria-hidden="true" style="color:#ff9818; margin-top:5px" data-toggle="tooltip" data-placement="bottom" title="Unread"></span>' );
 			break;
 		case 'placeholder':
-			return '<div id="_format_placeholder_'.$val.'"><img src="'.\system\classes\Configuration::$BASE_URL.'images/loading_blue.gif" style="width:22px; height:22px;"></div>';
+			return '<div id="_format_placeholder_'.$val.'"><img src="'.\system\classes\Configuration::$BASE.'images/loading_blue.gif" style="width:22px; height:22px;"></div>';
 			break;
 		case 'avatar_image_small':
 			return sprintf('<img src="%s" class="formatted-avatar formatted-avatar-small">', $val);

@@ -62,7 +62,7 @@ class Formatter{
   		case self::PERCENTAGE:
   			return $val.' %';
   		case self::PLACEHOLDER:
-  			return '<div id="_format_placeholder_'.$val.'"><img src="'.\system\classes\Configuration::$BASE_URL.'images/loading_blue.gif" style="width:22px; height:22px;"></div>';
+  			return '<div id="_format_placeholder_'.$val.'"><img src="'.\system\classes\Configuration::$BASE.'images/loading_blue.gif" style="width:22px; height:22px;"></div>';
       case self::AVATAR_IMAGE:
   			return sprintf('<img src="%s" class="formatted-avatar">', $val);
       case self::AVATAR_IMAGE_SMALL:

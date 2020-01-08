@@ -86,7 +86,7 @@ $step_keys = [
     qs = serializeForm( '#step-form' );
     //
     url = "{0}web-api/{1}/configuration/set/json?{2}&token={3}".format(
-      "<?php echo Configuration::$BASE_URL ?>",
+      "<?php echo Configuration::$BASE ?>",
       "<?php echo Configuration::$WEBAPI_VERSION ?>",
       qs,
       "<?php echo $_SESSION["TOKEN"] ?>"

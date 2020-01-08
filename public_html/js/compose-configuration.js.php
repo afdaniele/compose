@@ -13,7 +13,6 @@ use \system\classes\Configuration;
         printf('"/core/%s": "%s",', 'GMT', Configuration::$GMT);
         printf('"/core/%s": "%s",', 'DEBUG', Configuration::$DEBUG);
 
-        printf('"/core/%s": "%s",', 'BASE_URL', Configuration::$BASE_URL);
         printf('"/core/%s": "%s",', 'BASE', Configuration::$BASE);
         printf('"/core/%s": "%s",', 'PAGE', Configuration::$PAGE);
         printf('"/core/%s": "%s",', 'ACTION', Configuration::$ACTION);

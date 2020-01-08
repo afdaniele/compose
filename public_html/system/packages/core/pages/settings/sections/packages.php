@@ -72,7 +72,7 @@ function settings_packages_tab(){
     	$('.package-disable-button').on('click', function(){
     		var pkg_id = $(this).data('package');
     		//
-    		var url = "<?php echo \system\classes\Configuration::$BASE_URL ?>web-api/<?php echo \system\classes\Configuration::$WEBAPI_VERSION ?>/package/disable/json?id="+pkg_id+"&token=<?php echo $_SESSION["TOKEN"] ?>";
+    		var url = "<?php echo \system\classes\Configuration::$BASE ?>web-api/<?php echo \system\classes\Configuration::$WEBAPI_VERSION ?>/package/disable/json?id="+pkg_id+"&token=<?php echo $_SESSION["TOKEN"] ?>";
     		//
     		callAPI( url, true, true );
     	});
@@ -80,7 +80,7 @@ function settings_packages_tab(){
     	$('.package-enable-button').on('click', function(){
     		var pkg_id = $(this).data('package');
     		//
-    		var url = "<?php echo \system\classes\Configuration::$BASE_URL ?>web-api/<?php echo \system\classes\Configuration::$WEBAPI_VERSION ?>/package/enable/json?id="+pkg_id+"&token=<?php echo $_SESSION["TOKEN"] ?>";
+    		var url = "<?php echo \system\classes\Configuration::$BASE ?>web-api/<?php echo \system\classes\Configuration::$WEBAPI_VERSION ?>/package/enable/json?id="+pkg_id+"&token=<?php echo $_SESSION["TOKEN"] ?>";
     		//
     		callAPI( url, true, true );
     	});

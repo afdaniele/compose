@@ -21,7 +21,7 @@ use \system\classes\Core;
                         data-toggle="tooltip dialog" data-target="#record-editor-modal-insert-form"
                         data-url="<?php echo sprintf(
                             '%sweb-api/%s/api/app_create/json?',
-                            Configuration::$BASE_URL,
+                            Configuration::$BASE,
                             Configuration::$WEBAPI_VERSION) ?>"
                         >
                         <span class="fa fa-plus" aria-hidden="true"></span>

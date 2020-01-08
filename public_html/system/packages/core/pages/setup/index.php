@@ -83,7 +83,7 @@ select.form-control{
     <tr>
       <td style="width:100%">
         <h1 class="text-center">
-          <img src="<?php echo Configuration::$BASE_URL ?>images/compose-black-logo.svg">
+          <img src="<?php echo Configuration::$BASE ?>images/compose-black-logo.svg">
           <br/>
           Welcome!
         </h1>

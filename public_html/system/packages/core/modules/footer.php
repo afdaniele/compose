@@ -83,7 +83,7 @@ function footer_user_menu(){
         $picture_url = $user['picture'];
         if (preg_match('#^https?://#i', $picture_url) !== 1) {
           $picture_url = sanitize_url(sprintf(
-            "%s%s", Configuration::$BASE_URL, $picture_url
+            "%s%s", Configuration::$BASE, $picture_url
           ));
         }
         ?>
@@ -138,7 +138,7 @@ function footer_user_menu(){
         <!-- Logout button -->
         <li role="presentation" style="margin-bottom:20px">
           <a role="menuitem" tabindex="-1" href="#"
-          onclick="userLogOut('<?php echo Configuration::$BASE ?>', '<?php echo Configuration::$BASE_URL ?>', '<?php echo Configuration::$WEBAPI_VERSION ?>', '<?php echo $_SESSION['TOKEN'] ?>');"
+          onclick="userLogOut('<?php echo Configuration::$BASE ?>', '<?php echo Configuration::$BASE ?>', '<?php echo Configuration::$WEBAPI_VERSION ?>', '<?php echo $_SESSION['TOKEN'] ?>');"
           style="color:#ffc864" onMouseOver="this.style.color='#000'" onMouseOut="this.style.color='#ffc864'">
           <span class="glyphicon glyphicon-log-out" aria-hidden="true"></span> &nbsp;Log out
         </a>
@@ -213,7 +213,7 @@ function footer_credits( $float) {
 
   <script type="text/javascript">
     $('#emergency-clear-cache').on('click', function(){
-			let url = "<?php echo Configuration::$BASE_URL ?>script.php?script=clearcache";
+			let url = "<?php echo Configuration::$BASE ?>script.php?script=clearcache";
       successDialog = true;
 			reload = true;
       callType = 'GET';

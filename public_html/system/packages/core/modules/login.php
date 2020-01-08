@@ -9,7 +9,7 @@ include('google_signin.php');
 
   function logOutButtonClick(){
     userLogOut(
-      '<?php echo Configuration::$BASE_URL ?>',
+      '<?php echo Configuration::$BASE ?>',
       '<?php echo Configuration::$WEBAPI_VERSION ?>',
       '<?php echo $_SESSION['TOKEN'] ?>',
       function(){ /* successFcn: on success function */

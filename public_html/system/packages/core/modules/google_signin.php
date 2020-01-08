@@ -23,7 +23,7 @@ $is_logged_in = Core::isUserLoggedIn();
 			var id_token = googleUser.getAuthResponse().id_token;
 			// Sign-in in the back-end server by verifying the id_token with Google
 			userLogInWithGoogle(
-				'<?php echo Configuration::$BASE_URL ?>',
+				'<?php echo Configuration::$BASE ?>',
 				'<?php echo Configuration::$WEBAPI_VERSION ?>',
 				'<?php echo $_SESSION['TOKEN'] ?>',
 				id_token,

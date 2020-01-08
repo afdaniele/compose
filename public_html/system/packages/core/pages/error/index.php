@@ -32,7 +32,7 @@ if( !isset($_SESSION['_ERROR_PAGE_MESSAGE']) ){
 <br/>
 
 <div class="col-md-6 text-right">
-	<img src="<?php echo \system\classes\Configuration::$BASE_URL ?>images/error.jpg">
+	<img src="<?php echo \system\classes\Configuration::$BASE ?>images/error.jpg">
 </div>
 
 <div class="col-md-6">

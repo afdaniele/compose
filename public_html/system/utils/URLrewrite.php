@@ -44,7 +44,7 @@ class URLrewrite{
                     $matched = true;
                 }
 
-                $redirect_url = sprintf("%s%s", Configuration::$BASE_URL, $rewritten_uri);
+                $redirect_url = sprintf("%s%s", Configuration::$BASE, $rewritten_uri);
 
                 // redirect
                 if (ob_get_length()) ob_clean();

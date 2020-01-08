@@ -38,9 +38,8 @@
   $to_root .= strlen($to_root)? '/' : '';
   echoArray($to_root);
 
-  // set the $BASE and $BASE_URL variables (Experimental)
-  Configuration::$BASE_URL = $to_root;
-	Configuration::$BASE = Configuration::$BASE_URL;
+  // set the $BASE (Experimental)
+  Configuration::$BASE = $to_root;
 
 	// parse arguments
 	$args = explode('/', $__arg__);
@@ -126,40 +125,40 @@
 	<meta name="description" content="">
 	<meta name="author" content="">
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-	<link rel="icon" href="<?php echo Configuration::$BASE_URL ?>images/favicon.ico">
+	<link rel="icon" href="<?php echo Configuration::$BASE ?>images/favicon.ico">
 
 	<title><?php echo Core::getSiteName().' - '.Core::getPageDetails(Configuration::$PAGE, 'name') ?></title>
 
 	<!-- Bootstrap v3.3.1 by getbootstrap.com -->
-	<link href="<?php echo Configuration::$BASE_URL ?>css/bootstrap.min.css" rel="stylesheet" type="text/css" >
-	<link href="<?php echo Configuration::$BASE_URL ?>css/bootstrap-toggle.min.css" rel="stylesheet" type="text/css" >
-	<link href="<?php echo Configuration::$BASE_URL ?>css/bootstrap-theme.min.css" rel="stylesheet" type="text/css" >
-	<link href="<?php echo Configuration::$BASE_URL ?>css/bootstrap-callout.css" rel="stylesheet" type="text/css" >
+	<link href="<?php echo Configuration::$BASE ?>css/bootstrap.min.css" rel="stylesheet" type="text/css" >
+	<link href="<?php echo Configuration::$BASE ?>css/bootstrap-toggle.min.css" rel="stylesheet" type="text/css" >
+	<link href="<?php echo Configuration::$BASE ?>css/bootstrap-theme.min.css" rel="stylesheet" type="text/css" >
+	<link href="<?php echo Configuration::$BASE ?>css/bootstrap-callout.css" rel="stylesheet" type="text/css" >
 
 	<!-- FontAwesome v4.7 by fontawesome.io -->
-	<link rel="stylesheet" href="<?php echo Configuration::$BASE_URL ?>css/font-awesome/css/font-awesome.min.css">
+	<link rel="stylesheet" href="<?php echo Configuration::$BASE ?>css/font-awesome/css/font-awesome.min.css">
 
 	<!-- Utility CSS -->
-	<link href="<?php echo Configuration::$BASE_URL ?>css/sticky-footer-navbar.css" rel="stylesheet" media="all">
+	<link href="<?php echo Configuration::$BASE ?>css/sticky-footer-navbar.css" rel="stylesheet" media="all">
 
 	<!-- Custom CSS -->
-	<link href="<?php echo Configuration::$BASE_URL ?>css/compose.css" rel="stylesheet" media="all">
+	<link href="<?php echo Configuration::$BASE ?>css/compose.css" rel="stylesheet" media="all">
 
 
 	<!-- JQuery v1.11.1 by Google -->
-	<script src="<?php echo Configuration::$BASE_URL ?>js/jquery.1.11.1.min.js"></script>
+	<script src="<?php echo Configuration::$BASE ?>js/jquery.1.11.1.min.js"></script>
 
 	<!-- ChartJS v2.7.0 by chartjs.org  -->
-	<script src="<?php echo Configuration::$BASE_URL ?>js/Chart.min.js"></script>
+	<script src="<?php echo Configuration::$BASE ?>js/Chart.min.js"></script>
 
 	<!-- Custom JS -->
-	<script src="<?php echo Configuration::$BASE_URL ?>js/compose.js"></script>
+	<script src="<?php echo Configuration::$BASE ?>js/compose.js"></script>
 
 	<!-- Utility JS -->
-	<script src="<?php echo Configuration::$BASE_URL ?>js/md5.js"></script>
-	<script src="<?php echo Configuration::$BASE_URL ?>js/hmac-sha256.js"></script>
-	<script src="<?php echo Configuration::$BASE_URL ?>js/enc-base64-min.js"></script>
-	<script src="<?php echo Configuration::$BASE_URL ?>js/string.format.js"></script>
+	<script src="<?php echo Configuration::$BASE ?>js/md5.js"></script>
+	<script src="<?php echo Configuration::$BASE ?>js/hmac-sha256.js"></script>
+	<script src="<?php echo Configuration::$BASE ?>js/enc-base64-min.js"></script>
+	<script src="<?php echo Configuration::$BASE ?>js/string.format.js"></script>
 
 	<!-- Google API Library -->
   <script src="https://apis.google.com/js/platform.js" async defer></script>
@@ -269,11 +268,11 @@
 	<!-- Bootstrap core JavaScript
 	================================================== -->
 	<!-- Placed at the end of the document so the pages load faster -->
-	<script src="<?php echo Configuration::$BASE_URL ?>js/bootstrap.min.js"></script>
-	<script src="<?php echo Configuration::$BASE_URL ?>js/bootstrap-toggle.min.js"></script>
+	<script src="<?php echo Configuration::$BASE ?>js/bootstrap.min.js"></script>
+	<script src="<?php echo Configuration::$BASE ?>js/bootstrap-toggle.min.js"></script>
 
 	<!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
-	<script src="<?php echo Configuration::$BASE_URL ?>js/ie10-viewport-bug-workaround.js"></script>
+	<script src="<?php echo Configuration::$BASE ?>js/ie10-viewport-bug-workaround.js"></script>
 
 	<script type="text/javascript">
 		// configure button groups
