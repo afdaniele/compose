@@ -1944,14 +1944,20 @@ class Core{
         base64_encode($uri)
       );
     }
-    echo sprintf(
-      '<script type="text/javascript">window.open("%s%s%s", "_top");</script>',
+    $dry_run = isset($_GET['__NR'])? '//' : '';
+    printf(
+      '<script type="text/javascript" data-tag="__compose__redirect__">
+      %swindow.open("%s%s%s", "_top");
+      </script>',
+      $dry_run,
       (substr($resource, 0, 4) == 'http')? '' : Configuration::$BASE,
       $resource,
       $qs
     );
-		die();
-		exit;
+    if (!$dry_run) {
+      die();
+      exit;
+    }
 	}//redirectTo
 
 
