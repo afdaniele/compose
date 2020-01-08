@@ -2,7 +2,9 @@
 use \system\classes\Core;
 use \system\classes\Configuration;
 
-include('google_signin.php');
+if (!Core::isUserLoggedIn() || Core::getLoginSystem() == '__GOOGLE_SIGNIN__') {
+  include('google_signin.php');
+}
 ?>
 
 <script type="text/javascript">
