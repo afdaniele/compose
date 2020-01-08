@@ -15,6 +15,7 @@ TAG=$(shell [ "${HEAD_TAG}" = "${LATEST_TAG}" ] && echo "latest" || echo "${VERS
 EXTRA_TAG=$(shell [ "${ARCH}" = "${DEFAULT_ARCH}" ] && echo "-t ${IMAGE}:${TAG}" || echo "")
 IMAGE_SHA=$(shell docker inspect --format="{{index .Id}}" "${IMAGE}:${VERSION}-${ARCH}" 2> /dev/null || :)
 DOCKERFILE=$(shell [ "${VERSION}" = "devel" ] && echo "Dockerfile.devel" || echo "Dockerfile")
+COMPOSE_VERSION=${VERSION}
 
 
 build:
@@ -24,7 +25,7 @@ build:
 		${EXTRA_TAG} \
 		-f "${DOCKERFILE}" \
 		--build-arg ARCH=${ARCH} \
-		--build-arg COMPOSE_VERSION=${VERSION} \
+		--build-arg COMPOSE_VERSION=${COMPOSE_VERSION} \
 		./
 
 push:
