@@ -1401,9 +1401,9 @@ class Core{
 	public static function getImageURL($image_file_with_extension, $package_name="core") {
 		if ($package_name == "core") {
 			// TODO: return placeholder if the image does not exist (only for core case, image.php does the same)
-			return sprintf("%s/images/%s", Configuration::$BASE_URL, $image_file_with_extension);
+			return sprintf("%simages/%s", Configuration::$BASE_URL, $image_file_with_extension);
 		}else{
-			return sprintf("%s/image.php?package=%s&image=%s", Configuration::$BASE, $package_name, $image_file_with_extension);
+			return sprintf("%simage.php?package=%s&image=%s", Configuration::$BASE, $package_name, $image_file_with_extension);
 		}
 	}//getImageURL
 
@@ -1422,9 +1422,9 @@ class Core{
 	 */
 	public static function getJSscriptURL($js_file_with_extension, $package_name="core"){
 		if ($package_name == "core") {
-			return sprintf("%s/js/%s", Configuration::$BASE_URL, $js_file_with_extension);
+			return sprintf("%sjs/%s", Configuration::$BASE_URL, $js_file_with_extension);
 		}else{
-			return sprintf("%s/js.php?package=%s&script=%s", Configuration::$BASE, $package_name, $js_file_with_extension);
+			return sprintf("%sjs.php?package=%s&script=%s", Configuration::$BASE, $package_name, $js_file_with_extension);
 		}
 	}//getJSscriptURL
 
@@ -1443,9 +1443,9 @@ class Core{
 	 */
 	public static function getCSSstylesheetURL($css_file_with_extension, $package_name="core") {
 		if ($package_name == "core") {
-			return sprintf("%s/css/%s", Configuration::$BASE_URL, $css_file_with_extension);
+			return sprintf("%scss/%s", Configuration::$BASE_URL, $css_file_with_extension);
 		}else{
-			return sprintf("%s/css.php?package=%s&stylesheet=%s", Configuration::$BASE, $package_name, $css_file_with_extension);
+			return sprintf("%scss.php?package=%s&stylesheet=%s", Configuration::$BASE, $package_name, $css_file_with_extension);
 		}
 	}//getCSSstylesheetURL
 

@@ -83,7 +83,7 @@ function footer_user_menu(){
         $picture_url = $user['picture'];
         if (preg_match('#^https?://#i', $picture_url) !== 1) {
           $picture_url = sanitize_url(sprintf(
-            "%s/%s", Configuration::$BASE_URL, $picture_url
+            "%s%s", Configuration::$BASE_URL, $picture_url
           ));
         }
         ?>
