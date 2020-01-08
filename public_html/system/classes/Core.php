@@ -260,9 +260,9 @@ class Core{
 			}
 			//
 			// load list of available packages
-			self::$packages = self::_load_available_packages($safe_mode);
+			self::$packages = self::_discover_packages($safe_mode);
 			// load list of available pages
-			self::$pages = self::_load_available_pages($safe_mode);
+			self::$pages = self::_discover_pages($safe_mode);
 			// load package-specific settings
 			self::$settings = self::_load_packages_settings($safe_mode);
 			//
@@ -1055,13 +1055,14 @@ class Core{
 	 * 		an associative array of the form
 	 *	<pre><code class="php">[
 	 *		"package_id" => [
-	 *			"id" : string, 					// ID of the package (identical to package_id)
+   *			"id" : string, 					// ID of the package (identical to package_id)
+	 *			"root" : string, 			  // Path to the root of the package
 	 *			"name" : string,				// name of the package
-     *			"description" : string,			// brief description of the package
-     *			"dependencies" : [
+   *			"description" : string,			// brief description of the package
+   *			"dependencies" : [
  	 *				"system-packages" : [],		// list of system packages required by the package
 	 *				"packages" : []				// list of \\compose\\ packages required by the package
-     *			],
+   *			],
 	 *			"url_rewrite" : [
 	 *				"rule_id" : [
 	 *					"pattern" : string,		// regex of the rule for the URI to be compared against
@@ -1088,8 +1089,7 @@ class Core{
 	 * 		whether the package exists.
 	 */
 	public static function packageExists($package){
-		$package_meta = sprintf('%s%s/metadata.json', $GLOBALS['__PACKAGES__DIR__'], $package);
-		return file_exists($package_meta);
+    return array_key_exists($package, self::$packages);
 	}//packageExists
 
 
@@ -1264,7 +1264,7 @@ class Core{
    *    where keys are attribute names and values their value.
    */
   public static function getPackageDetails($package_name, $attribute=null) {
-		$pkgs = self::getPackagesList('by-id');
+		$pkgs = self::getPackagesList();
 		$pkg_details = $pkgs[$package_name];
 		if (is_null($attribute)) {
 			return $pkg_details;
@@ -1450,11 +1450,16 @@ class Core{
 	}//getCSSstylesheetURL
 
 
-	public static function registerCSSstylesheet($css_file_with_extension, $package_name) {
+	public static function registerCSSstylesheet($css_file_with_extension, $package_id) {
+    if (!self::packageExists($package_id)) {
+      return ['success' => False, 'data' => null];
+    }
+    $pkg_root = self::getPackageDetails($package_id, 'root');
 		array_push(
 			self::$registered_css_stylesheets,
-			sprintf('%s%s/css/%s', $GLOBALS['__PACKAGES__DIR__'], $package_name, $css_file_with_extension)
+      join_path($pkg_root, 'css', $css_file_with_extension)
 		);
+    return ['success' => True, 'data' => null];
 	}//registerCSSstylesheet
 
 
@@ -1548,15 +1553,19 @@ class Core{
 
 	/** Returns whether the page specified is installed on the platform as part of the package specified.
 	 *
-	 *	@param string $package
-	 *		the name of the package the page to check belongs to.
+	 *	@param string $package_id
+	 *		ID of the package the page to check belongs to.
 	 *	@param string $page
 	 *		the name of the page to check.
 	 *	@retval boolean
 	 * 		whether the page exists.
 	 */
-	public static function pageExists($package, $page) {
-		$page_meta = sprintf('%s%s/pages/%s/metadata.json', $GLOBALS['__PACKAGES__DIR__'], $package, $page);
+	public static function pageExists($package_id, $page) {
+    if (!self::packageExists($package_id)) {
+      return false;
+    }
+    $pkg_root = self::getPackageDetails($package_id, 'root');
+		$page_meta = join_path($pkg_root, 'pages', $package_id, 'metadata.json');
 		return file_exists($page_meta);
 	}//pageExists
 
@@ -1708,8 +1717,8 @@ class Core{
 	/** Returns the hash identifying the version of a package's codebase.
 	 * 	This corresponds to the commit ID on git.
    *
-	 *	@param string $package_name
-	 *		name of the package for which to retrieve the git hash.
+	 *	@param string $package_id
+	 *		ID of the package for which to retrieve the git hash.
  	 *
 	 *	@param boolean $long_hash
 	 *		whether to return the short hash (first 7 digits) or the long (full) commit hash.
@@ -1718,14 +1727,14 @@ class Core{
 	 *	@retval string
 	 *		alphanumeric hash of the commit currently fetched on the server
 	 */
-	public static function getPackageCodebaseHash($package_name, $long_hash=false){
+	public static function getPackageCodebaseHash($package_id, $long_hash=false){
     // check if this object is cached
-		$cache_key = sprintf("pkg_%s_codebase_hash_%s", $package_name, $long_hash? 'long' : 'short');
+		$cache_key = sprintf("pkg_%s_codebase_hash_%s", $package_id, $long_hash? 'long' : 'short');
 		if(self::$cache->has($cache_key))
       return self::$cache->get($cache_key);
 		// hash not present in cache, get it from git
-    $package_dir = sprintf('%s%s', $GLOBALS['__PACKAGES__DIR__'], $package_name);
-    $hash = self::getGitRepositoryHash($package_dir, $long_hash);
+    $pkg_root = self::getPackageDetails($package_id, 'root');
+    $hash = self::getGitRepositoryHash($pkg_root, $long_hash);
     // cache hash
 		self::$cache->set($cache_key, $hash, CacheTime::HOURS_24);
 		//
@@ -1775,22 +1784,22 @@ class Core{
 
   /** Returns information about a package's codebase.
    *
-   *	@param string $package_name
-   *		name of the package for which to retrieve the codebase info.
+   *	@param string $package_id
+   *		ID of the package for which to retrieve the codebase info.
 	 *
 	 *	@retval array
 	 *		See Core::getGitRepositoryInfo().
 	 *
 	 */
-	public static function getPackageCodebaseInfo($package_name){
+	public static function getPackageCodebaseInfo($package_id){
 		// check if this object is cached
-		$cache_key = sprintf("pkg_%s_codebase_info", $package_name);
+		$cache_key = sprintf("pkg_%s_codebase_info", $package_id);
 		if (self::$cache->has($cache_key)) {
       return self::$cache->get($cache_key);
     }
 		// hash not present in cache, get it from git
-    $package_dir = sprintf('%s%s', $GLOBALS['__PACKAGES__DIR__'], $package_name);
-    $codebase_info = self::getGitRepositoryInfo($package_dir);
+    $pkg_root = self::getPackageDetails($package_id, 'root');
+    $codebase_info = self::getGitRepositoryInfo($pkg_root);
 		// cache object
 		self::$cache->set($cache_key, $codebase_info, CacheTime::HOURS_24);
 		//
@@ -1818,6 +1827,12 @@ class Core{
 	 *
 	 */
 	public static function getGitRepositoryInfo($git_repo_path){
+    // check if this object is cached
+		$cache_key = sprintf("path_%s_codebase_info", md5($git_repo_path));
+		if (self::$cache->has($cache_key)) {
+      return self::$cache->get($cache_key);
+    }
+    // info not present in cache, get it from git
     $codebase_info = [
 			'git_owner' => 'ND',
 			'git_repo' => 'ND',
@@ -1888,6 +1903,9 @@ class Core{
 			$latest_cb_tag = trim($latest_tag[0]);
 			$codebase_info['latest_tag'] = (strlen($latest_cb_tag) <= 0)? 'ND' : $latest_cb_tag;
 		}
+    // cache object
+		self::$cache->set($cache_key, $codebase_info, CacheTime::HOURS_24);
+    // ---
     return $codebase_info;
   }//getGitRepositoryInfo
 
@@ -2251,10 +2269,7 @@ class Core{
 	}//_load_packages_settings
 
 
-	/*	Loads and returns the list of pages available in every package installed on the platform.
-	*TODO: add return description
-	*/
-	private static function _load_available_pages($core_only=false) {
+  private static function _discover_pages($core_only=false) {
 		// check if this object is cached
 		$cache_key_pages = sprintf("available_pages%s", $core_only? '_core_only' : '');
 		$cache_key_user_types = sprintf("user_types%s", $core_only? '_core_only' : '');
@@ -2276,8 +2291,10 @@ class Core{
 		];
 		//
 		foreach($packages_ids as $pkg_id) {
-			if ($core_only && $pkg_id != 'core' ) continue;
-			$pages_descriptors = sprintf("%s%s/pages/*/metadata.json", $GLOBALS['__PACKAGES__DIR__'], $pkg_id);
+			if ($core_only && $pkg_id != 'core')
+        continue;
+      $pkg_root = $packages[$pkg_id]['root'];
+			$pages_descriptors = join_path($pkg_root, 'pages', '*', 'metadata.json');
 			$jsons = glob($pages_descriptors);
 			$pages['by-package'][$pkg_id] = [];
 			//
@@ -2288,7 +2305,9 @@ class Core{
 				$page['package'] = $pkg_id;
 				$page['id'] = $page_id;
 				$page['path'] = $page_path;
-				$page['enabled'] = $packages[$pkg_id]['enabled'] && self::isPageEnabled($pkg_id, $page_id);
+				$page['enabled'] = $packages[$pkg_id]['enabled']
+          && (!array_key_exists('disabled', $page) || !boolval($page['disabled']))
+          && self::isPageEnabled($pkg_id, $page_id);
 				// list
 				array_push($pages['list'], $page);
 				// by-id
@@ -2326,30 +2345,31 @@ class Core{
 		self::$cache->set($cache_key_user_types, self::$registered_user_roles, CacheTime::HOURS_24);
 		//
 		return $pages;
-	}//_load_available_pages
+	}//_discover_pages
 
 
-	private static function _load_available_packages($core_only=false) {
-		// check if this object is cached
-		$cache_key = sprintf("available_packages%s", $core_only? '_core_only' : '');
-		if (self::$cache->has($cache_key ) ) return self::$cache->get($cache_key);
-		//
-		$pkgs_descriptors = $GLOBALS['__PACKAGES__DIR__']."*/metadata.json";
+  private static function _load_available_packages_in_dir($dir, $core_only=false) {
+    // check if this object is cached
+    $dir_unique_id = md5($dir);
+    $cache_key = sprintf("available_packages_%s%s", $dir_unique_id, $core_only? '_core_only' : '');
+		if (self::$cache->has($cache_key))
+      return self::$cache->get($cache_key);
+    // discover packages
+		$pkgs_descriptors = $dir."*/metadata.json";
 		$jsons = glob($pkgs_descriptors);
-		// check if this object is cached
-		$cache_key = sprintf("available_packages%s", $core_only? '_core_only' : '');
-		if (self::$cache->has($cache_key ) ) return self::$cache->get($cache_key);
 		// iterate over the packages
 		$pkgs = [];
 		foreach ($jsons as $json) {
-			$pkg_id = Utils::regex_extract_group($json, "/.*packages\/(.+)\/metadata.json/", 1);
-			if ($core_only && $pkg_id != 'core' ) continue;
-			$pkg_path = Utils::regex_extract_group($json, "/(.+)\/metadata.json/", 1);
+			$pkg_id = Utils::regex_extract_group($json, "/.*\/([^\/]+)\/metadata.json/", 1);
+			if ($core_only && $pkg_id != 'core')
+        continue;
+			$pkg_root = Utils::regex_extract_group($json, "/(.+)\/metadata.json/", 1);
 			$pkg = json_decode(file_get_contents($json), true);
-			$pkg['id'] = $pkg_id;
+      $pkg['id'] = $pkg_id;
+			$pkg['root'] = $pkg_root;
 			if (!key_exists('core', $pkg)) {
 				$pkg['core'] = null;
-				$pkg_core_file = sprintf("%s/%s.php", $pkg_path, ucfirst($pkg_id));
+				$pkg_core_file = sprintf("%s/%s.php", $pkg_root, ucfirst($pkg_id));
 				if (file_exists($pkg_core_file)) {
 					$pkg['core'] = [
 						'namespace' => $pkg_id,
@@ -2358,18 +2378,18 @@ class Core{
 					];
 				}
 			}
-			$pkg['core']['file'] = sprintf("%s/%s", $pkg_path, $pkg['core']['file']);
+			$pkg['core']['file'] = sprintf("%s/%s", $pkg_root, $pkg['core']['file']);
 			// check whether the package is enabled
 			$pkg['enabled'] = self::isPackageEnabled($pkg_id);
       // get package codebase version
-      $pkg['codebase'] = self::getPackageCodebaseInfo($pkg_id);
+      $pkg['codebase'] = self::getGitRepositoryInfo($pkg_root);
 			// load modules
-			self::_load_package_modules_list($pkg_id, $pkg);
+			self::_load_package_modules_list($pkg_root, $pkg);
 			// create public data symlink (if it does not exist)
 			$sym_link = sprintf("%s%s", $GLOBALS['__DATA__DIR__'], $pkg_id);
 			$sym_link_exists = file_exists($sym_link);
 			if (!$sym_link_exists) {
-				$public_data_dir = sprintf("%s%s/data/public", $GLOBALS['__PACKAGES__DIR__'], $pkg_id);
+				$public_data_dir = sprintf("%s/data/public", $pkg_root);
 				$pubdata_exists = file_exists($public_data_dir);
 				if ($pubdata_exists) {
 					$symlink_success = symlink($public_data_dir, $sym_link);
@@ -2382,21 +2402,33 @@ class Core{
 		self::$cache->set($cache_key, $pkgs, CacheTime::HOURS_24);
 		//
 		return $pkgs;
-	}//_load_available_packages
+	}//_load_available_packages_in_dir
 
 
-	private static function _load_package_modules_list(&$pkg_id, &$package_descriptor) {
+	private static function _discover_packages($core_only=false) {
+		// discover embedded packages
+		$embed_pkgs = self::_load_available_packages_in_dir($GLOBALS['__EMBEDDED__PACKAGES__DIR__'], $core_only);
+    // discover user packages
+    $user_pkgs = self::_load_available_packages_in_dir($GLOBALS['__USERDATA__PACKAGES__DIR__'], $core_only);
+    // merge packages
+    $pkgs = array_merge($embed_pkgs, $user_pkgs);
+    return $pkgs;
+	}//_discover_packages
+
+
+	private static function _load_package_modules_list(&$pkg_root, &$package_descriptor) {
 		$package_descriptor['modules'] = [];
     $modules_entrypoint = [
 			'renderers/blocks' => '*.php',
       'background/global' => '*.php',
       'background/local' => '*.php',
       'login' => 'index.php',
-      'setup' => 'index.php'
+      'setup' => 'index.php',
+      'profile' => 'index.php'
 		];
 		// load modules
     foreach ($modules_entrypoint as $key => $entrypoint) {
-  		$modules_path = sprintf("%s%s/modules/%s/%s", $GLOBALS['__PACKAGES__DIR__'], $pkg_id, $key, $entrypoint);
+  		$modules_path = join_path($pkg_root, 'modules', $key, $entrypoint);
   		$modules = glob($modules_path);
       if (count($modules)) {
         $package_descriptor['modules'][$key] = $modules;
