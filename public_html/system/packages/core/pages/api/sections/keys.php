@@ -20,7 +20,7 @@ use \system\classes\Core;
                     <button type="button" class="btn btn-warning" id="api-page-new-key-button" style="float:right"
                         data-toggle="tooltip dialog" data-target="#record-editor-modal-insert-form"
                         data-url="<?php echo sprintf(
-                            '%s/web-api/%s/api/app_create/json?',
+                            '%sweb-api/%s/api/app_create/json?',
                             Configuration::$BASE_URL,
                             Configuration::$WEBAPI_VERSION) ?>"
                         >
