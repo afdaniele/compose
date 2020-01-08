@@ -543,7 +543,9 @@ class RESTfulAPI{
 			$action_status_db = new Database('core', $db_name_act);
 			// iterate over the packages
 			foreach( $packages_ids as $pkg_id ){
-				$api_services_descriptors = sprintf("%s/modules/api/%s/api-services/specifications/*.json", $packages[$pkg_id]['root'], $api_version);
+				$api_services_descriptors = join_path(
+          $packages[$pkg_id]['root'], 'modules', 'api', $api_version, 'api-services', 'specifications', '*.json'
+        );
         $jsons = glob( $api_services_descriptors );
 				// iterate over the API services
 				foreach ($jsons as $json) {

@@ -2363,22 +2363,21 @@ class Core{
 			$pkg_id = Utils::regex_extract_group($json, "/.*\/([^\/]+)\/metadata.json/", 1);
 			if ($core_only && $pkg_id != 'core')
         continue;
-			$pkg_root = Utils::regex_extract_group($json, "/(.+)\/metadata.json/", 1);
+			$pkg_root = Utils::regex_extract_group($json, "/(.+)\/metadata.json/", 1).'/';
 			$pkg = json_decode(file_get_contents($json), true);
       $pkg['id'] = $pkg_id;
 			$pkg['root'] = $pkg_root;
 			if (!key_exists('core', $pkg)) {
 				$pkg['core'] = null;
-				$pkg_core_file = sprintf("%s/%s.php", $pkg_root, ucfirst($pkg_id));
+				$pkg_core_file = join_path($pkg_root, ucfirst($pkg_id).".php");
 				if (file_exists($pkg_core_file)) {
 					$pkg['core'] = [
 						'namespace' => $pkg_id,
-						'file' => sprintf("%s.php", ucfirst($pkg_id) ),
+						'file' => $pkg_core_file,
 						'class' => ucfirst($pkg_id)
 					];
 				}
 			}
-			$pkg['core']['file'] = sprintf("%s/%s", $pkg_root, $pkg['core']['file']);
 			// check whether the package is enabled
 			$pkg['enabled'] = self::isPackageEnabled($pkg_id);
       // get package codebase version
@@ -2386,10 +2385,10 @@ class Core{
 			// load modules
 			self::_load_package_modules_list($pkg_root, $pkg);
 			// create public data symlink (if it does not exist)
-			$sym_link = sprintf("%s%s", $GLOBALS['__DATA__DIR__'], $pkg_id);
+			$sym_link = join_path($GLOBALS['__DATA__DIR__'], $pkg_id);
 			$sym_link_exists = file_exists($sym_link);
 			if (!$sym_link_exists) {
-				$public_data_dir = sprintf("%s/data/public", $pkg_root);
+				$public_data_dir = join_path($pkg_root, "data", "public");
 				$pubdata_exists = file_exists($public_data_dir);
 				if ($pubdata_exists) {
 					$symlink_success = symlink($public_data_dir, $sym_link);
