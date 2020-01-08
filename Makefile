@@ -14,9 +14,12 @@ VERSION=$(shell [ "${HEAD_NAME}" = "HEAD" ] && echo "${JENKINS_BRANCH}" || echo 
 TAG=$(shell [ "${HEAD_TAG}" = "${LATEST_TAG}" ] && echo "latest" || echo "${VERSION}")
 EXTRA_TAG=$(shell [ "${ARCH}" = "${DEFAULT_ARCH}" ] && echo "-t ${IMAGE}:${TAG}" || echo "")
 IMAGE_SHA=$(shell docker inspect --format="{{index .Id}}" "${IMAGE}:${VERSION}-${ARCH}" 2> /dev/null || :)
-DOCKERFILE=$(shell [ "${VERSION}" = "devel" ] && echo "Dockerfile.devel" || echo "Dockerfile")
+DOCKERFILE=Dockerfile
 COMPOSE_VERSION=${VERSION}
 
+
+devel-build:
+	$(MAKE) build DOCKERFILE=Dockerfile.devel
 
 build:
 	docker build \
