@@ -40,7 +40,7 @@
 	Configuration::$BASE = Configuration::$BASE_URL;
 
 	// parse arguments
-	$args = explode('/', strtolower($_GET['arg']));
+	$args = explode('/', strtolower($_GET['__arg__']));
 	$requested_page = $args[0];
 	$requested_action = (count($args) > 1 && $args[1]!=='') ? $args[1] : $_GET['action'];
 	$requested_action = ($requested_action !== '')? $requested_action : NULL;
