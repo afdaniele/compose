@@ -2369,15 +2369,17 @@ class Core{
 			$pkg['root'] = $pkg_root;
 			if (!key_exists('core', $pkg)) {
 				$pkg['core'] = null;
-				$pkg_core_file = join_path($pkg_root, ucfirst($pkg_id).".php");
-				if (file_exists($pkg_core_file)) {
+        $pkg_core_file_name = ucfirst($pkg_id);
+				$pkg_core_file_path = join_path($pkg_root, $pkg_core_file_name.".php");
+				if (file_exists($pkg_core_file_path)) {
 					$pkg['core'] = [
 						'namespace' => $pkg_id,
-						'file' => $pkg_core_file,
-						'class' => ucfirst($pkg_id)
+						'file' => $pkg_core_file_name.".php",
+						'class' => $pkg_core_file_name
 					];
 				}
 			}
+      $pkg['core']['file'] = join_path($pkg_root, $pkg['core']['file']);
 			// check whether the package is enabled
 			$pkg['enabled'] = self::isPackageEnabled($pkg_id);
       // get package codebase version
