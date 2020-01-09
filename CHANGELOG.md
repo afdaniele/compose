@@ -1,3 +1,16 @@
+## 0.9.9 (January 09, 2020)
+  - removed devel stuff
+  - added _build_all and _clean_all to Makefile
+  - APT packages moved to dependencies-apt.txt
+  - added rretry
+  - Merge branch 'patch-smart-build' into stable
+  - added fix for Jenkins pull
+  - improved makefile
+  - added retry
+  - minor
+  - implemented smart-build
+  - modified Dockerfile to accept COMPOSE_VERSION
+
 ## 0.9.8 (January 02, 2020)
   - Merge branch 'stable' of github.com:afdaniele/compose into stable
   - modified Makefile to build the right tag
