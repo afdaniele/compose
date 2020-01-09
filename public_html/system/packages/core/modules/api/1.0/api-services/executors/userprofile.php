@@ -49,8 +49,13 @@ function execute(&$service, &$actionName, &$arguments){
 			}
 			$user = $res['data'];
 			// update info
+      // 1. active
 			if(array_key_exists('active', $arguments)){
 				$user->set('active', boolval($arguments['active']));
+			}
+      // 2. role
+			if(array_key_exists('role', $arguments)){
+				$user->set('role', $arguments['role']);
 			}
 			// commit
 			$res = $user->commit();

@@ -59,13 +59,18 @@ $table = array(
 			'translation' => 'Name',
 			'editable' => false
 		),
-		'role' => array(
+		'shown_role' => array(
 			'type' => 'text',
 			'show' => true,
 			'width' => 'md-2',
 			'align' => 'center',
 			'translation' => 'Role',
 			'editable' => false
+		),
+		'role' => array(
+			'type' => 'text',
+			'show' => false,
+			'editable' => true
 		),
 		'active' => array(
 			'type' => 'boolean',
@@ -76,31 +81,30 @@ $table = array(
 			'editable' => true
 		)
 	),
-	'actions' => array(
+	'actions' => [
 		'_width' => 'md-3',
-		'edit' => array(
+		'edit' => [
 			'type' => 'default',
 			'glyphicon' => 'pencil',
 			'tooltip' => 'Edit user account',
 			'text' => 'Edit',
-			'function' => array(
-                'type' => '_toggle_modal',
-				'class' => 'record-editor-modal',
-                'static_data' => ['modal-mode' => 'edit'],
-                'API_resource' => 'userprofile',
-                'API_action' => 'edit',
+			'function' => [
+        'type' => '_toggle_modal',
+        'class' => 'record-editor-modal',
+        'static_data' => ['modal-mode' => 'edit'],
+        'API_resource' => 'userprofile',
+        'API_action' => 'edit',
 				'arguments' => [
-                    'userid'
-                ]
-			)
-		)
-	),
+          'userid'
+        ]
+			]
+		]
+	],
 	'features' => array(
 		'_counter_column',
-		'_actions_column'
+		(Core::getUserLogged('role') == 'administrator')? '_actions_column' : ''
 	)
 );
-
 ?>
 
 
@@ -137,7 +141,8 @@ $table = array(
 			'userid' => $user_id,
 			'avatar' => $user_info['picture'],
 			'name' => $user_info['name'],
-			'role' => ucfirst($user_info['role']),
+      'shown_role' => ucfirst($user_info['role']),
+      'role' => $user_info['role'],
 			'active' => $user_info['active']
 		];
 		array_push( $tmp, $user_record );
@@ -175,6 +180,8 @@ $table = array(
 	// <== Here is the Magic Call!
 	TableViewer::generateTableViewer( \system\classes\Configuration::$PAGE, $res, $features, $table );
 
+  $roles = array_values(array_diff(Core::getPackageRegisteredUserRoles(), ['guest']));
+
 	$user_edit_form = [
 		'name' => [
 			'name' => 'Name',
@@ -185,9 +192,16 @@ $table = array(
 			'name' => 'Enabled',
 			'type' => 'boolean',
 			'editable' => true
+		],
+		'role' => [
+			'name' => 'Role',
+			'type' => 'enum',
+      'placeholder' => array_map(ucfirst, $roles),
+      'placeholder_id' => $roles,
+			'editable' => true
 		]
 	];
-	generateRecordEditorModal( $user_edit_form, $formID='the-form', $method='POST' );
+	generateRecordEditorModal($user_edit_form, $formID='the-form', $method='POST');
 	?>
 
 </div>

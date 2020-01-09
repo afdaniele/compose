@@ -45,6 +45,15 @@
             "type" : "boolean",
             "length" : null,
             "details" : "Whether the user is enabled or not"
+          },
+          "role" : {
+            "type" : "enum",
+            "values" : [
+              "user",
+              "supervisor",
+              "administrator"
+            ],
+            "details" : "User's role"
           }
         }
       },
