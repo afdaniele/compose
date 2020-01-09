@@ -4,6 +4,7 @@
 # @Last modified by:   afdaniele
 
 use \system\classes\Core;
+use \system\classes\Configuration;
 
 // load libraries
 require_once join_path(Core::getPackageDetails('core', 'root'), 'modules', 'modals', 'record_editor_modal.php');
@@ -178,7 +179,7 @@ $table = array(
 	);
 
 	// <== Here is the Magic Call!
-	TableViewer::generateTableViewer( \system\classes\Configuration::$PAGE, $res, $features, $table );
+	TableViewer::generateTableViewer(Configuration::$PAGE, $res, $features, $table);
 
   $roles = array_values(array_diff(Core::getPackageRegisteredUserRoles(), ['guest']));
 

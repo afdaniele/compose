@@ -126,7 +126,7 @@ function generateFormByLayout( &$layout, $formID=null, $formClass=null, $method=
 					$options_ids = (isset($field['placeholder_id']) && count($field['placeholder'])==count($field['placeholder_id']))? $field['placeholder_id'] : $field['placeholder'];
 					for ($i = 0; $i < count($field['placeholder']); $i++) {
 						$value = $field['placeholder'][$i];
-						$id = $field['placeholder_id'][$i];
+						$id = $options_ids[$i];
 						$selected = ( (isset($field['value']) && $values[$key] == $id)? 'selected' : '' );
 						//
 						echo sprintf('<option value="%s" %s>%s</option>', $id, $selected, $value);
