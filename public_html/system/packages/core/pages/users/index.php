@@ -3,8 +3,14 @@
 # @Email:  afdaniele@ttic.edu
 # @Last modified by:   afdaniele
 
-require_once $GLOBALS['__PACKAGES__DIR__'].'/core/modules/modals/record_editor_modal.php';
+use \system\classes\Core;
+
+// load libraries
+require_once join_path(Core::getPackageDetails('core', 'root'), 'modules', 'modals', 'record_editor_modal.php');
 require_once $GLOBALS['__SYSTEM__DIR__'].'templates/tableviewers/TableViewer.php';
+
+use \system\templates\tableviewers\TableViewer;
+
 
 // Define Constants
 
@@ -114,16 +120,16 @@ $table = array(
 	<?php
 
 	// parse the arguments
-	\system\templates\tableviewers\TableViewer::parseFeatures( $features, $_GET );
+	TableViewer::parseFeatures( $features, $_GET );
 
-	$users = \system\classes\Core::getUsersList();
+	$users = Core::getUsersList();
 
 	$tmp = [];
 	for( $i = 0; $i < sizeof( $users ); $i++ ){
 		$user_id = $users[$i];
-		$res = \system\classes\Core::getUserInfo( $user_id );
+		$res = Core::getUserInfo( $user_id );
 		if( !$res['success'] ){
-			\system\classes\Core::throwError( $res['data'] );
+			Core::throwError( $res['data'] );
 		}
 		$user_info = $res['data'];
 		//
@@ -167,7 +173,7 @@ $table = array(
 	);
 
 	// <== Here is the Magic Call!
-	\system\templates\tableviewers\TableViewer::generateTableViewer( \system\classes\Configuration::$PAGE, $res, $features, $table );
+	TableViewer::generateTableViewer( \system\classes\Configuration::$PAGE, $res, $features, $table );
 
 	$user_edit_form = [
 		'name' => [
