@@ -48,7 +48,7 @@ class URLrewrite{
 
                 // redirect
                 if (ob_get_length()) ob_clean();
-                header( "HTTP/1.1 301 Moved Permanently" );
+                header("HTTP/1.1 301 Moved Permanently");
                 header(
                     sprintf("Location: %s", $redirect_url),
                     true,

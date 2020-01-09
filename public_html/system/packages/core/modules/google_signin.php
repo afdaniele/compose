@@ -41,7 +41,7 @@ $is_logged_in = Core::isUserLoggedIn();
       msg += "<br/>Make sure the hostname <strong>{1}</strong> is whitelisted on";
       msg += " <a href=\"https://console.developers.google.com/\">https://console.developers.google.com/</a>"
       msg += " for your project's client ID."
-      msg = msg.format(JSON.stringify(error), "<?php echo $_SERVER['HTTP_HOST'] ?>");
+      msg = msg.format(JSON.stringify(error), "<?php echo Core::getBrowserHostname() ?>");
       openAlert('danger', msg);
     }//onGoogleLoginError
     <?php
