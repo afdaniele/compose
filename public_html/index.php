@@ -281,29 +281,6 @@
 		});
 	</script>
 
-
-  <!-- TODO: remove this -->
-  <script type="text/javascript">
-    $(document).ready(function(){
-      let check_server_name = function(){
-        let server_name = "<?php echo $_SERVER['SERVER_NAME'] ?>";
-        let html = document.body.parentElement.innerHTML;
-        let count = (html.match(new RegExp(server_name, "g")) || []).length;
-        if (count < 1) {
-          openAlert('danger', 'String "SERVER_NAME" should be found at least once'.format(server_name));
-          return;
-        }
-        if (count > 2) {
-          openAlert('danger', 'String "SERVER_NAME" found {0} times in the HTML'.format(count));
-        }
-      };
-      let i = setInterval(check_server_name, 2000);
-      check_server_name();
-      setTimeout(function(){clearInterval(i);}, 20000);
-    });
-  </script>
-  <!-- TODO: remove this -->
-
 </body>
 </html>
 
