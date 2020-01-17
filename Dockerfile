@@ -81,7 +81,7 @@ ARG COMPOSE_VERSION
 # copy SHA of the current commit. This has two effects:
 # - stores the SHA of the commit from which the image was built
 # - correct the issue with docker cache due to git clone command below
-COPY .git/refs/heads/${COMPOSE_VERSION} /compose.builder.version.sha
+COPY .git/refs/remotes/origin/${COMPOSE_VERSION} /compose.builder.version.sha
 
 # install \compose\
 RUN rretry \
