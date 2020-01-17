@@ -5,7 +5,8 @@ import subprocess
 from enum import Enum
 from glob import glob
 from collections import defaultdict
-from os.path import join, abspath, dirname, isdir, isfile, basename, exists
+from os import mkdir
+from os.path import join, abspath, dirname, isdir, isfile, basename
 from toposort import toposort_flatten
 import shutil
 
@@ -137,7 +138,10 @@ class PackageManager(object):
       dirname(abspath(__file__)),
       '..', '..', '..', '..'
     ))
-    self._packages_dir = join(self._compose_dir, 'system', 'packages')
+    self._packages_dir = join(self._compose_dir, 'system', 'user-data', 'packages')
+    # try to create the directory if it does not exist
+    if not isdir(self._packages_dir):
+      mkdir(self._packages_dir, mode=0o664)
     # check if the directory system/packages exists
     if not isdir(self._packages_dir):
       error(
