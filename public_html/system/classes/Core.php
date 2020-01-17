@@ -485,18 +485,23 @@ class Core{
 	 *		`TRUE` if the call succeded, `FALSE` otherwise
 	 */
 	public static function startSession(){
+	    $temporary_session = $_SESSION;
 		session_start();
 		if (!isset($_SESSION['TOKEN'])) {
 			// generate a session token
 			$token = self::generateRandomString(16);
 			$_SESSION['TOKEN'] = $token;
 		}
-    // init configuration
-    $res = Configuration::init();
-    if (!$res['success']) {
-      return $res;
-    }
-    Configuration::$TOKEN = $_SESSION['TOKEN'];
+		// copy temporary session
+		foreach($temporary_session as $key => &$value){
+		    $_SESSION[$key] = $value;
+		}
+        // init configuration
+        $res = Configuration::init();
+        if (!$res['success']) {
+          return $res;
+        }
+        Configuration::$TOKEN = $_SESSION['TOKEN'];
 		//
 		return ['success' => true, 'data' => null];
 	}//startSession
@@ -644,28 +649,28 @@ class Core{
 		// check if the app exists
 		$res = RESTfulAPI::getApplication($app_id);
 		if (!$res['success']) {
-      return $res;
-    }
+            return $res;
+        }
 		// get the app
 		$app = $res['data'];
 		// check if the app_secret matches
 		if (!boolval($app_secret == $app['secret'])) {
 			return ['success' => false, 'data' => 'The application secret key provided is not correct'];
-    }
+        }
 		// check if the app is enabled
 		if (!boolval($app['enabled'])) {
 			return ['success' => false, 'data' => sprintf('The application `%s` is not enabled, thus it cannot be used', $app['id'])];
-    }
+        }
 		// get owner of the app
 		$username = $app['user'];
 		if (!self::userExists($username)) {
 			return ['success' => false, 'data' => sprintf('The application `%s` is not enabled, thus it cannot be used', $app['id'])];
-    }
+        }
 		// load user info
 		$res = self::openUserInfo($username);
 		if (!$res['success']) {
-      return $res;
-    }
+            return $res;
+        }
 		$user_info = $res['data']->asArray();
 		$user_info['pkg_role'] = [];
 		// this data will be deleted if the PHP session was not initialized before this call
@@ -739,7 +744,7 @@ class Core{
 	 *		whether a user is currently logged in;
 	 */
 	public static function isUserLoggedIn(){
-    return isset($_SESSION['USER_LOGGED'])? $_SESSION['USER_LOGGED'] : false;
+        return isset($_SESSION['USER_LOGGED'])? $_SESSION['USER_LOGGED'] : false;
 	}//isUserLoggedIn
 
 
