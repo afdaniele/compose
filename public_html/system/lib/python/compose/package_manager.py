@@ -141,7 +141,7 @@ class PackageManager(object):
     self._packages_dir = join(self._compose_dir, 'system', 'user-data', 'packages')
     # try to create the directory if it does not exist
     if not isdir(self._packages_dir):
-      mkdir(self._packages_dir, mode=0o664)
+      mkdir(self._packages_dir, mode=0o775)
     # check if the directory system/packages exists
     if not isdir(self._packages_dir):
       error(
