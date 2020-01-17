@@ -161,10 +161,14 @@ function centerModal() {
 
 
 function showPleaseWait() {
-    $('#pleaseWaitModal').modal('show');
+    try{
+        $('#pleaseWaitModal').modal('show');
+    }catch (e) {}
 };
 function hidePleaseWait() {
-    $('#pleaseWaitModal').modal('hide');
+    try{
+        $('#pleaseWaitModal').modal('hide');
+    }catch (e) {}
 };
 
 
@@ -304,7 +308,9 @@ function callAPI( url, successDialog, reload, funct, silentMode, suppressErrors,
                     showSuccessDialog( 2000, ( (reload)? function(){ window.location.reload(true); } : function(){} ) );
                 }else{
                     if( reload ){
-                        window.location.reload(true);
+                        $(document).on('ready', function(){
+                            window.location.reload(true);
+                        });
                     }
                 }
             }else{

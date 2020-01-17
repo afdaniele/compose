@@ -52,7 +52,7 @@ $is_logged_in = Core::isUserLoggedIn();
     // initialize Google Sign-in library
     gapi.auth2.init();
     <?php
-    if (Configuration::$PAGE == 'login') {
+    if (in_array(Configuration::$PAGE, ['login', 'setup'])) {
       ?>
       // render Sign-in button
       if ($("#g-signin").length) {
