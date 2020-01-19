@@ -5,7 +5,7 @@ import subprocess
 from enum import Enum
 from glob import glob
 from collections import defaultdict
-from os import mkdir
+from os import mkdir, environ
 from os.path import join, abspath, dirname, isdir, isfile, basename
 from toposort import toposort_flatten
 import shutil
@@ -138,7 +138,8 @@ class PackageManager(object):
       dirname(abspath(__file__)),
       '..', '..', '..', '..'
     ))
-    self._packages_dir = join(self._compose_dir, 'system', 'user-data', 'packages')
+    userdata_dir = environ.get('COMPOSE_USERDATA_DIR', join(self._compose_dir, 'system', 'user-data'))
+    self._packages_dir = join(userdata_dir, 'packages')
     # try to create the directory if it does not exist
     if not isdir(self._packages_dir):
       mkdir(self._packages_dir, mode=0o775)

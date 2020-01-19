@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import os
 import sys
 import json
 from pprint import pformat
@@ -13,10 +14,18 @@ def main():
   package_name = 'core'
   if not arguments[0].startswith('--'):
     package_name = arguments[0]
-  # get metadata and configuration files
+  # get public_html path
   public_html = join(dirname(realpath(__file__)), 'public_html')
-  config_metadata = join(public_html, 'system', 'packages', package_name, 'configuration', 'metadata.json')
-  config_file = join(public_html, 'system', 'user-data', 'databases', package_name, '__configuration__', 'content.json')
+  # get user-data dir
+  userdata_dir = os.environ.get('COMPOSE_USERDATA_DIR', join(public_html, 'system', 'user-data'))
+  packages_dir = join(public_html, 'system', 'packages')
+  # get metadata and configuration files
+  if os.path.isdir(join(userdata_dir, package_name)):
+    package_dir = join(userdata_dir, package_name)
+  else:
+    package_dir = join(packages_dir, package_name)
+  config_metadata = join(package_dir, 'configuration', 'metadata.json')
+  config_file = join(userdata_dir, 'databases', package_name, '__configuration__', 'content.json')
   # make sure the metadata file exists
   if not exists(config_metadata) or not isfile(config_metadata):
     print('The file `%s` does not exist, check and try again' % config_metadata)
