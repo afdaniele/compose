@@ -110,7 +110,7 @@ HEALTHCHECK \
   --interval=30s \
   --timeout=8s \
   CMD \
-    curl --fail 'http://localhost/script.php?script=healthcheck' \
+    curl --fail 'http://localhost/script.php?script=healthcheck' > /dev/null 2>&1 \
     || \
     exit 1
 
