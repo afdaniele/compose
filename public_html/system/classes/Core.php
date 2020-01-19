@@ -6,6 +6,7 @@
 namespace system\classes;
 
 require_once __DIR__.'/../environment.php';
+require_once __DIR__.'/../utils/utils.php';
 
 // booleanval function
 require_once __DIR__.'/libs/booleanval.php';
