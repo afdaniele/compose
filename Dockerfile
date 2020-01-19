@@ -19,7 +19,7 @@ ENV OS_DISTRO=${OS_DISTRO}
 ENV APP_DIR "/var/www"
 ENV COMPOSE_DIR "${APP_DIR}/html"
 ENV COMPOSE_URL "https://github.com/afdaniele/compose.git"
-ENV COMPOSE_USERDATA_DIR "${COMPOSE_DIR}/public_html/system/user-data"
+ENV COMPOSE_USERDATA_DIR "/user-data"
 ENV COMPOSE_HTTP_PORT 80
 ENV COMPOSE_HTTPS_PORT 443
 ENV SSL_DIR "${APP_DIR}/ssl"
@@ -54,6 +54,7 @@ COPY assets/usr/local/etc/php/conf.d/log_errors.ini /usr/local/etc/php/conf.d/
 # remove pre-installed app
 RUN rm -rf "${COMPOSE_DIR}"
 RUN mkdir -p "${COMPOSE_DIR}"
+RUN mkdir -p "${COMPOSE_USERDATA_DIR}"
 RUN chown www-data:www-data "${COMPOSE_DIR}"
 
 # enable mod rewrite
