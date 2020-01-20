@@ -129,6 +129,11 @@
 
 	<title><?php echo Core::getSiteName().' - '.Core::getPageDetails(Configuration::$PAGE, 'name') ?></title>
 
+    <script type="text/javascript">
+    window.COMPOSE_BASE = "<?php echo Configuration::$BASE ?>";
+    window.COMPOSE_TOKEN = "<?php echo Configuration::$TOKEN ?>";
+    </script>
+
 	<!-- Bootstrap v3.3.1 by getbootstrap.com -->
 	<link href="<?php echo Configuration::$BASE ?>css/bootstrap.min.css" rel="stylesheet" type="text/css" >
 	<link href="<?php echo Configuration::$BASE ?>css/bootstrap-toggle.min.css" rel="stylesheet" type="text/css" >
