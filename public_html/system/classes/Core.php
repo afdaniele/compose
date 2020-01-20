@@ -1095,7 +1095,7 @@ class Core{
 	 * 		whether the package exists.
 	 */
 	public static function packageExists($package){
-    return array_key_exists($package, self::$packages);
+        return array_key_exists($package, self::$packages);
 	}//packageExists
 
 
@@ -2207,6 +2207,9 @@ class Core{
 	 */
 	function _dep_solve_dependencies_graph($item, array $items, array $resolved, array $unresolved) {
 	    array_push($unresolved, $item);
+	    if (!array_key_exists($item, $items)) {
+	        return [$resolved, $unresolved];
+	    }
 	    foreach ($items[$item] as $dep) {
 	        if (!in_array($dep, $resolved)) {
 	            if (!in_array($dep, $unresolved)) {
