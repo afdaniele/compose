@@ -17,6 +17,8 @@ window.chartColors = {
     grey: 'rgb(201, 203, 207)'
 };
 
+window.COMPOSE_API_VERSION = '1.0';
+
 function range (start, end, step) {
     var range = [];
     var typeofStart = typeof start;
@@ -266,6 +268,53 @@ function popup(data){
 
     return true;
 }
+
+/*
+@param service: Name of the service
+@param action: Name of the action within the service
+@param args: An object containing the following data:
+
+    {
+        'method': either 'GET' or 'POST'
+        'arguments': {
+            'key1': 'value1',
+            'key2': 'value2',
+            ...
+        },
+        'data': {
+            JS object to be sent as body of the request
+        },
+        'on_success': a callable object,
+        'on_error': a callable object,
+        'block': boolean, whether to show the loading modal until completed
+        'quiet': boolean, indicates whether to suppress errors and warnings,
+        'reload': boolean, reload the page on success
+    }
+
+
+*/
+function smartAPI(service, action, args) {
+    // form URL
+    let url = '{base}/web-api/{version}/{service}/{action}/json?token={token}&{arguments}'.format({
+        'base': window.COMPOSE_BASE,
+        'version': window.COMPOSE_API_VERSION,
+        'service': service,
+        'action': action,
+        'token': window.COMPOSE_TOKEN,
+        'arguments': $.param(args['arguments'] || {})
+    });
+    // call API
+    callAPI(
+        url,
+        args['block'] || {},
+        args['reload'] || false,
+        args['on_success'] || function(){},
+        args['block'] || false,
+        args['quiet'] || false,
+        args['on_error'] || function(){},
+        args['method'] || 'GET'
+    );
+}//smartAPI
 
 function callAPI( url, successDialog, reload, funct, silentMode, suppressErrors, errorFcn, transportType ){
     if( successDialog == undefined ) successDialog = false;
