@@ -287,6 +287,7 @@ function popup(data){
         'on_success': a callable object,
         'on_error': a callable object,
         'block': boolean, whether to show the loading modal until completed
+        'confirm': boolean, whether to show the confirmation dialog on success
         'quiet': boolean, indicates whether to suppress errors and warnings,
         'reload': boolean, reload the page on success
     }
@@ -306,10 +307,10 @@ function smartAPI(service, action, args) {
     // call API
     callAPI(
         url,
-        args['block'] || {},
+        args['confirm'] || false,
         args['reload'] || false,
         args['on_success'] || function(){},
-        args['block'] || false,
+        !args['block'] || false,
         args['quiet'] || false,
         args['on_error'] || function(){},
         args['method'] || 'GET'
