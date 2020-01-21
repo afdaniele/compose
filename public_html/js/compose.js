@@ -693,3 +693,21 @@ function clearUpdatesCache(){
   localStorage.removeItem('github_compose_compare_etag');
   localStorage.removeItem('github_compose_needs_update');
 }//clearUpdatesCache
+
+
+function tableToObject(table_id){
+    var cols = [];
+    var result = [];
+    $('{0}>tbody>tr>th'.format(table_id)).each(function(){
+        cols.push($(this).text().toLowerCase());
+    });
+    $('{0}>tbody>tr'.format(table_id)).each(function(id){
+        var row = {};
+        if ($(this).find('td').length == 0) return;
+        $(this).find('td').each(function(index){
+            row[cols[index]] = $(this).text();
+        });
+        result.push(row);
+    });
+    return result;
+}//tableToObject
