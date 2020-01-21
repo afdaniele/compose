@@ -143,6 +143,9 @@
 	<!-- FontAwesome v4.7 by fontawesome.io -->
 	<link rel="stylesheet" href="<?php echo Configuration::$BASE ?>css/font-awesome/css/font-awesome.min.css">
 
+	<!-- Bootstrap Select v1.13.9 by developer.snapappointments.com/bootstrap-select/ -->
+	<link rel="stylesheet" href="<?php echo Configuration::$BASE ?>css/bootstrap-select.min.css">
+
 	<!-- Utility CSS -->
 	<link href="<?php echo Configuration::$BASE ?>css/sticky-footer-navbar.css" rel="stylesheet" media="all">
 
@@ -155,6 +158,12 @@
 
 	<!-- ChartJS v2.7.0 by chartjs.org  -->
 	<script src="<?php echo Configuration::$BASE ?>js/Chart.min.js"></script>
+
+	<!-- Bootstrap Select v1.13.9 by developer.snapappointments.com/bootstrap-select/ -->
+	<script src="<?php echo Configuration::$BASE ?>js/bootstrap-select.min.js"></script>
+	<script type="text/javascript">
+    $.fn.selectpicker.Constructor.BootstrapVersion = '3';
+    </script>
 
 	<!-- Custom JS -->
 	<script src="<?php echo Configuration::$BASE ?>js/compose.js"></script>
