@@ -276,6 +276,7 @@ function sendResponse( $code, $status, $message, $format, $data, $reFormatData=t
 	header('Cache-Control: no-cache, no-store, must-revalidate');
 	header('Pragma: no-cache');
 	header('Expires: 0');
+	header('Access-Control-Allow-Origin: *');
 	header('Content-Type: '.$content_type[$format].'; charset=UTF-8');
 	header("Content-Length: " . strlen($data) );
 	//
