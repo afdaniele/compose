@@ -295,14 +295,20 @@ function popup(data){
 
 */
 function smartAPI(service, action, args) {
+    let base = args['host'] || window.COMPOSE_BASE;
+    let version = args['version'] || window.COMPOSE_API_VERSION;
+    let auth = {'auth': 'token={0}'.format(window.COMPOSE_TOKEN)};
+    if (args['auth'] !== undefined && args['auth']['app_id'] !== undefined && args['auth']['app_secret'] !== undefined){
+        auth = {'auth': 'app_id={0}&app_secret={1}'.format(args['auth']['app_id'], args['auth']['app_secret'])};
+    }
     // form URL
-    let url = '{base}/web-api/{version}/{service}/{action}/json?token={token}&{arguments}'.format({
-        'base': window.COMPOSE_BASE,
-        'version': window.COMPOSE_API_VERSION,
+    let url = '{base}/web-api/{version}/{service}/{action}/json?{auth}&{arguments}'.format({
+        'base': base,
+        'version': version,
         'service': service,
         'action': action,
-        'token': window.COMPOSE_TOKEN,
-        'arguments': $.param(args['arguments'] || {})
+        'arguments': $.param(args['arguments'] || {}),
+        ...auth
     });
     // call API
     callAPI(
@@ -381,7 +387,7 @@ function callAPI( url, successDialog, reload, funct, silentMode, suppressErrors,
             // open an alert
             hidePleaseWait();
             if( !suppressErrors ){
-                openAlert( 'danger', 'An error occurred while trying to communicate with the server. Details: `{0}`'.format(errorThrown) );
+                openAlert('danger', 'An error occurred while trying to communicate with the server. Details: '+errorThrown);
             }
         }
     });
