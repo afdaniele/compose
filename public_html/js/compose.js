@@ -166,12 +166,13 @@ function showPleaseWait() {
     try{
         $('#pleaseWaitModal').modal('show');
     }catch (e) {}
-};
+}
+
 function hidePleaseWait() {
     try{
         $('#pleaseWaitModal').modal('hide');
     }catch (e) {}
-};
+}
 
 
 function userLogInWithGoogle(baseurl, apiversion, token, id_token, successFcn){
@@ -289,13 +290,21 @@ function popup(data){
         'block': boolean, whether to show the loading modal until completed
         'confirm': boolean, whether to show the confirmation dialog on success
         'quiet': boolean, indicates whether to suppress errors and warnings,
-        'reload': boolean, reload the page on success
+        'reload': boolean, reload the page on success,
+        'host': hostname of the \compose\ instance to call the API on
+        'version': version of the \compose\ API to call
+        'auth': {
+            'token': \compose\ token (optional)
+            'app_id': App IP for API call authentication (optional)
+            'app_secret': App Secret Key for API call authentication (optional)
+        }
     }
-
-
 */
 function smartAPI(service, action, args) {
-    let base = args['host'] || window.COMPOSE_BASE;
+    let base = window.COMPOSE_BASE;
+    if (args['host']) {
+        base = (args['host'].startsWith('http'))? args['host'] : 'http://'+args['host'];
+    }
     let version = args['version'] || window.COMPOSE_API_VERSION;
     let auth = {'auth': 'token={0}'.format(window.COMPOSE_TOKEN)};
     if (args['auth'] !== undefined && args['auth']['app_id'] !== undefined && args['auth']['app_secret'] !== undefined){
@@ -717,3 +726,14 @@ function tableToObject(table_id){
     });
     return result;
 }//tableToObject
+
+function toHumanReadableSize(fileSizeInBytes) {
+    var i = -1;
+    var byteUnits = [' kB', ' MB', ' GB', ' TB', 'PB', 'EB', 'ZB', 'YB'];
+    do {
+        fileSizeInBytes = fileSizeInBytes / 1024;
+        i++;
+    } while (fileSizeInBytes > 1024);
+
+    return Math.max(fileSizeInBytes, 0.1).toFixed(1) + byteUnits[i];
+}//toHumanReadableSize
