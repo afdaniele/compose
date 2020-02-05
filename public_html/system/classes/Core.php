@@ -59,6 +59,7 @@ class Core{
 	private static $debug = false;
 	private static $settings = null;
 	private static $debugger_data = [];
+	private static $volatile_session = false;
 	private static $registered_css_stylesheets = [];
 	private static $default_page_per_role = [
 		'administrator' => 'profile',
@@ -338,6 +339,16 @@ class Core{
   }//healthCheck
 
 
+	public static function setVolatileSession($val){
+		self::$volatile_session = $val;
+	}//healthCheck
+
+
+	public static function isVolatileSession(){
+		return self::$volatile_session;
+	}//healthCheck
+
+
   public static function getCurrentResource(){
     $resource_parts = [
       Configuration::$PAGE,
@@ -486,16 +497,12 @@ class Core{
 	 *		`TRUE` if the call succeded, `FALSE` otherwise
 	 */
 	public static function startSession(){
-	    $temporary_session = $_SESSION;
-		session_start();
+	    if (!self::isVolatileSession())
+			session_start();
 		if (!isset($_SESSION['TOKEN'])) {
 			// generate a session token
 			$token = self::generateRandomString(16);
 			$_SESSION['TOKEN'] = $token;
-		}
-		// copy temporary session
-		foreach($temporary_session as $key => &$value){
-		    $_SESSION[$key] = $value;
 		}
         // init configuration
         $res = Configuration::init();
@@ -514,7 +521,9 @@ class Core{
 	 *		`TRUE` if the call succeded, `FALSE` otherwise
 	 */
 	public static function closeSession(){
-		return session_write_close();
+	    if (!self::isVolatileSession())
+			return session_write_close();
+	    return true;
 	}//closeSession
 
 

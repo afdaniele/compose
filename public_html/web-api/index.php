@@ -89,6 +89,7 @@ $auth_mode = AUTH_MODE::API_APP;
 if( isset($_GET['token']) ){
 	$auth_mode = AUTH_MODE::BROWSER_COOKIES;
 }
+Core::setVolatileSession($auth_mode == AUTH_MODE::API_APP);
 
 
 // 5. parse optional global arguments [token, app_id, app_secret]
