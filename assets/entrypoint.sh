@@ -25,7 +25,9 @@ if [ ! $(getent group ${GID}) ]; then
   # create group
   groupadd --gid ${GID} ${GNAME}
 else
-  GNAME=$(id --name -g ${GID})
+  GROUP_STR=$(getent group ${GID})
+  readarray -d : -t strarr <<< "$GROUP_STR"
+  GNAME="${strarr[0]}"
   echo "A group with GID:${GID} (i.e., ${GNAME}) already exists. Reusing it."
 fi
 
