@@ -1177,12 +1177,6 @@ class Core {
      *        whether the package is enabled.
      */
     public static function isPackageEnabled($package) {
-        if (!self::packageExists($package)) {
-            return [
-                'success' => FALSE,
-                'data'    => sprintf('The package "%s" does not exist', $package)
-            ];
-        }
         // open package status database
         $packages_db = new Database('core', 'disabled_packages');
         // disabled if the key exists
