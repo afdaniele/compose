@@ -8,13 +8,12 @@ use \system\classes\BlockRenderer;
 class MissionControl{
 
   private $grid_id;
-  private $block_size;
+  private $default_canvas_size = 970;
   private $sizes_available;
   private $blocks;
 
-  function __construct($grid_id, $block_size, $sizes_available, $blocks=[]){
+  function __construct($grid_id, $sizes_available, $blocks=[]){
     $this->grid_id = $grid_id;
-    $this->block_size = $block_size;
     $this->sizes_available = $sizes_available;
     $this->blocks = $blocks;
   }//__construct
@@ -28,6 +27,9 @@ class MissionControl{
     if (isset($opts['show_header']) && !boolval($opts['show_header'])) {
       $header_h = 0;
     }
+    $scale_factor = min(max($opts['scale_factor'], 0.2), 2.0);
+    $block_size = $scale_factor * ($this->default_canvas_size -
+        ($opts['resolution'] - 1) * $opts['block_gutter']) / $opts['resolution'];
     // load all block renderers registered
     Core::loadPackagesModules('renderers/blocks');
     // get all block renderers registered
@@ -74,7 +76,7 @@ class MissionControl{
         // create grid
         var grid = $('#<?php echo $this->grid_id ?>').packery({
           itemSelector: '.mission-control-item',
-          columnWidth: <?php echo $this->block_size ?>,
+          columnWidth: <?php echo $block_size ?>,
           gutter: <?php echo $opts['block_gutter'] ?>
         });
 
@@ -140,6 +142,22 @@ class MissionControl{
 
 
     <style type="text/css">
+
+      <?php
+      if ($opts['wide_mode']) {?>
+        /* enlarge page container */
+        body > #page_container{
+            min-width: 100%;
+        }
+
+        /* adjust grid margin to leave space for the menu */
+        .mission-control-grid{
+            margin: 0 80px;
+        }
+        <?php
+      }
+      ?>
+
       #<?php echo $this->grid_id ?> {
         background: inherit;
         max-width: 100%;
@@ -161,13 +179,11 @@ class MissionControl{
       <?php
       for ($i = 1; $i < $opts['resolution']+1; $i++) {
         for ($j = 1; $j < $opts['resolution']+1; $j++) {
-          // $h = $i*$this->block_size+($i-1)*$opts['block_gutter'];
-          // $w = $j*$this->block_size+($j-1)*$opts['block_gutter'];
-
-          $h = $i * $this->block_size - $opts['block_gutter'];
-          $w = $j * $this->block_size - $opts['block_gutter'];
+           $h = $i * $block_size + ($i - 1) * $opts['block_gutter'];
+           $w = $j * $block_size + ($j - 1) * $opts['block_gutter'];
 
           $header_w = $w - 2*$header_h - 2*$opts['block_border_thickness'];
+
           echo sprintf("
             .mission-control-item-r%d-c%d{
               min-height: %dpx;
@@ -315,10 +331,6 @@ class MissionControlMenu{
     $is_mission_loaded = !is_null($mission_name);
     ?>
     <style type="text/css">
-      /* adjust grid margin to leave space for the menu */
-      .mission-control-grid{
-        margin-left: 80px;
-      }
 
       .mission-control-side-menu{
         position: fixed;
@@ -654,6 +666,11 @@ class MissionControlConfiguration{
       "type" => "boolean",
       "default" => True
     ],
+    "wide_mode" => [
+      "name" => "Wide mode",
+      "type" => "boolean",
+      "default" => False
+    ],
     "resolution" => [
       "name" => "Horizontal resolution of the grid",
       "type" => "number",
@@ -669,6 +686,11 @@ class MissionControlConfiguration{
       "type" => "number",
       "default" => 1
     ],
+    "scale_factor" => [
+      "name" => "Scale factor [0.2 - 2.0]",
+      "type" => "float",
+      "default" => 1.0
+    ]
   ];
 
   function __construct($grid_id, $package_name, $mission_db_name, $mission_name=NULL){
