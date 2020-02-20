@@ -2,9 +2,7 @@
 
 namespace system\classes;
 
-use \system\classes\Utils;
-use \system\classes\Core;
-use \system\classes\jsonDB\JsonDB as JsonDB;
+use \system\classes\jsonDB\JsonDB;
 
 class Database{
 
