@@ -36,7 +36,6 @@
     $depth = substr_count($__arg__, '/');
     $to_root = implode('/', array_fill(0, $depth, '..'));
     $to_root .= strlen($to_root) ? '/' : '';
-    echoArray($to_root);
 
     // set the $BASE (Experimental)
     Configuration::$BASE = $to_root;
