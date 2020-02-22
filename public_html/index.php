@@ -161,6 +161,7 @@
 
 	<!-- ChartJS v2.7.0 by chartjs.org  -->
 	<script src="<?php echo Configuration::$BASE ?>js/Chart.min.js"></script>
+	<script src="<?php echo Configuration::$BASE ?>js/Chart.plugins.js"></script>
 
 	<!-- Bootstrap Select v1.13.9 by developer.snapappointments.com/bootstrap-select/ -->
 	<script src="<?php echo Configuration::$BASE ?>js/bootstrap-select.min.js"></script>
