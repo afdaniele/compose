@@ -26,98 +26,101 @@
 	// load the error handler module
 	require_once 'system/packages/core/modules/error_handler.php';
 
-	// simplify namespaces
-	use system\classes\Core;
-	use system\classes\Configuration;
-	use system\utils\URLrewrite;
+    // simplify namespaces
+    use system\classes\Core;
+    use system\classes\Configuration;
+    use system\utils\URLrewrite;
 
-  // compute how far this page is from the root
-  $__arg__ = strtolower($_GET['__arg__']);
-  $depth = substr_count($__arg__, '/');
-  $to_root = implode('/', array_fill(0, $depth, '..'));
-  $to_root .= strlen($to_root)? '/' : '';
-  echoArray($to_root);
+    // compute how far this page is from the root
+    $__arg__ = strtolower($_GET['__arg__']);
+    $depth = substr_count($__arg__, '/');
+    $to_root = implode('/', array_fill(0, $depth, '..'));
+    $to_root .= strlen($to_root) ? '/' : '';
+    echoArray($to_root);
 
-  // set the $BASE (Experimental)
-  Configuration::$BASE = $to_root;
+    // set the $BASE (Experimental)
+    Configuration::$BASE = $to_root;
 
 	// parse arguments
-	$args = explode('/', $__arg__);
-	$requested_page = $args[0];
-	$requested_action = (count($args) > 1 && $args[1] !== '') ? $args[1] : $_GET['action'];
-	$requested_action = ($requested_action !== '')? $requested_action : NULL;
+    $args = explode('/', $__arg__);
+    $requested_page = $args[0];
+    $requested_action = (count($args) > 1 && $args[1] !== '') ? $args[1] : $_GET['action'];
+    $requested_action = ($requested_action !== '') ? $requested_action : NULL;
 
-  // set configuration
-  Configuration::$PAGE = $requested_page;
-	Configuration::$ACTION = $requested_action;
-	Configuration::$ARG1 = (count($args) > 2 && $args[2] !== '') ? $args[2] : NULL;
-	Configuration::$ARG2 = (count($args) > 3 && $args[3] !== '') ? $args[3] : NULL;
+    // set configuration
+    Configuration::$PAGE = $requested_page;
+    Configuration::$ACTION = $requested_action;
+    Configuration::$ARG1 = (count($args) > 2 && $args[2] !== '') ? $args[2] : NULL;
+    Configuration::$ARG2 = (count($args) > 3 && $args[3] !== '') ? $args[3] : NULL;
 
-	// create a Session
-	Core::startSession();
+    // create a Session
+    Core::startSession();
 
-	// init Core
-	$safe_mode = in_array($requested_page, ['error', 'maintenance']);
-	$res = Core::init($safe_mode);
-	if (!$res['success'])
-    Core::throwError($res['data']);
+    // init Core
+    $safe_mode = in_array($requested_page, ['error', 'maintenance']);
+    $res = Core::init($safe_mode);
+    if (!$res['success'])
+        Core::throwError($res['data']);
 
-	// get info about the current user
-	$main_user_role = Core::getUserRole();
-	$user_roles = Core::getUserRolesList();
+    // get info about the current user
+    $main_user_role = Core::getUserRole();
+    $user_roles = Core::getUserRolesList();
 
-  // redirect user to the setup page (if necessary)
-  if (!Core::isComposeConfigured() && !in_array($requested_page, ['error', 'setup', 'maintenance'])){
-    Core::redirectTo('setup');
-  }
+    // redirect user to the setup page (if necessary)
+    if (!Core::isComposeConfigured() && !in_array($requested_page, [
+            'error', 'setup', 'maintenance'
+        ])) {
+        Core::redirectTo('setup');
+    }
 
-	// redirect user to maintenance mode (if necessary)
-	if ($main_user_role != 'administrator' &&
-    	Core::getSetting('maintenance_mode', 'core') &&
-    	!in_array($requested_page, ['login', 'setup', 'error', 'maintenance']))
-    Core::redirectTo('maintenance');
+    // redirect user to maintenance mode (if necessary)
+    if ($main_user_role != 'administrator' &&
+        Core::getSetting('maintenance_mode', 'core') &&
+        !in_array($requested_page, ['login', 'setup', 'error', 'maintenance']))
+        Core::redirectTo('maintenance');
 
-	// get the list of pages the current user has access to
-	$pages_list = Core::getFilteredPagesList('list', true, $user_roles);
-	$available_pages = array_map(function($p){return $p['id'];}, $pages_list);
+    // get the list of pages the current user has access to
+    $pages_list = Core::getFilteredPagesList('list', TRUE, $user_roles);
+    $available_pages = array_map(function ($p) { return $p['id']; }, $pages_list);
 
-	// get factory default page
-	$factory_default_page = Core::getFactoryDefaultPagePerRole($main_user_role);
-	if (strcmp($factory_default_page, "NO_DEFAULT_PAGE") == 0) {
-		if ($main_user_role == 'guest') {
-			$factory_default_page = 'login';
-		}else{
-			$factory_default_page = 'profile';
-		}
-	}
+    // get factory default page
+    $factory_default_page = Core::getFactoryDefaultPagePerRole($main_user_role);
+    if (strcmp($factory_default_page, "NO_DEFAULT_PAGE") == 0) {
+        if ($main_user_role == 'guest') {
+            $factory_default_page = 'login';
+        } else {
+            $factory_default_page = 'profile';
+        }
+    }
 
-	// get default page
-	$default_page = Core::getDefaultPagePerRole($main_user_role, 'core');
-	foreach(array_keys(Core::getPackagesList()) as $pkg_id) {
-		if ($pkg_id == 'core') continue;
-		$pkg_user_role = Core::getUserRole($pkg_id);
-		if (!is_null($pkg_user_role)) {
-			$default_page_per_pkg = Core::getDefaultPagePerRole($pkg_user_role, $pkg_id);
-			if ($default_page_per_pkg != 'NO_DEFAULT_PAGE') {
-				$default_page = $default_page_per_pkg;
-				break;
-			}
-		}
-	}
-	if (!in_array($default_page, $available_pages)){
-		$default_page = $factory_default_page;
-  }
+    // get default page
+    $default_page = Core::getDefaultPagePerRole($main_user_role, 'core');
+    foreach (array_keys(Core::getPackagesList()) as $pkg_id) {
+        if ($pkg_id == 'core')
+            continue;
+        $pkg_user_role = Core::getUserRole($pkg_id);
+        if (!is_null($pkg_user_role)) {
+            $default_page_per_pkg = Core::getDefaultPagePerRole($pkg_user_role, $pkg_id);
+            if ($default_page_per_pkg != 'NO_DEFAULT_PAGE') {
+                $default_page = $default_page_per_pkg;
+                break;
+            }
+        }
+    }
+    if (!in_array($default_page, $available_pages)) {
+        $default_page = $factory_default_page;
+    }
 
-	// redirect to default page if the page is invalid
-	if ($requested_page == '' || !in_array($requested_page, $available_pages)) {
-		// invalid page
-		$redirect_page = $default_page;
-		Core::redirectTo($redirect_page, $redirect_page == 'login');
-	}
+    // redirect to default page if the page is invalid
+    if ($requested_page == '' || !in_array($requested_page, $available_pages)) {
+        // invalid page
+        $redirect_page = $default_page;
+        Core::redirectTo($redirect_page, $redirect_page == 'login');
+    }
 
-	// execute URL rewrite
-	URLrewrite::match();
-	?>
+    // execute URL rewrite
+    URLrewrite::match();
+    ?>
 
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -175,7 +178,7 @@
 	<script src="<?php echo Configuration::$BASE ?>js/string.format.js"></script>
 
 	<!-- Google API Library -->
-  <script src="https://apis.google.com/js/platform.js" async defer></script>
+    <script src="https://apis.google.com/js/platform.js" async defer></script>
 	<?php
 	if (Core::getSetting('login_enabled', 'core')) {
 		?>
