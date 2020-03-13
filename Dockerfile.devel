@@ -3,8 +3,8 @@ ARG BASE_VERSION=stable
 
 FROM afdaniele/compose:${BASE_VERSION}-${ARCH}
 
-# install xDebug
-RUN pecl install xdebug
+# install xDebug (v2.9.0 is the last version supporting PHP 7.0.x)
+RUN pecl install xdebug-2.9.0
 COPY assets.devel/usr/local/etc/php/conf.d/xdebug.ini /usr/local/etc/php/conf.d/
 RUN echo "zend_extension=`find /usr/local/lib/php | grep xdebug.so`;" >> /usr/local/etc/php/conf.d/xdebug.ini
 
