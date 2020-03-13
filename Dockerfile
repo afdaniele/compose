@@ -52,10 +52,10 @@ COPY assets/usr/local/etc/php/conf.d/apcu.ini /usr/local/etc/php/conf.d/
 COPY assets/usr/local/etc/php/conf.d/log_errors.ini /usr/local/etc/php/conf.d/
 
 # remove pre-installed app
-RUN rm -rf "${COMPOSE_DIR}"
+RUN rm -rf "${APP_DIR}"
 RUN mkdir -p "${COMPOSE_DIR}"
 RUN mkdir -p "${COMPOSE_USERDATA_DIR}"
-RUN chown www-data:www-data "${COMPOSE_DIR}"
+RUN chown -R www-data:www-data "${APP_DIR}"
 
 # enable mod rewrite
 RUN a2enmod rewrite
