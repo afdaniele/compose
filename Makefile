@@ -4,6 +4,7 @@
 DEFAULT_ARCH=amd64
 ARCH=${DEFAULT_ARCH}
 IMAGE=afdaniele/compose
+BASE_VERSION=stable
 
 JENKINS_BRANCH=$(lastword $(subst /, ,${GIT_BRANCH}))
 
@@ -19,7 +20,10 @@ COMPOSE_VERSION=${VERSION}
 
 
 devel-build:
-	$(MAKE) build DOCKERFILE=Dockerfile.devel
+	$(MAKE) build
+	$(MAKE) build \
+		DOCKERFILE=Dockerfile.devel \
+		BASE_VERSION=devel
 
 build:
 	docker build \
@@ -29,6 +33,7 @@ build:
 		-f "${DOCKERFILE}" \
 		--build-arg ARCH=${ARCH} \
 		--build-arg COMPOSE_VERSION=${COMPOSE_VERSION} \
+		--build-arg BASE_VERSION=${BASE_VERSION} \
 		./
 
 push:
