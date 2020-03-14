@@ -58,7 +58,7 @@
 				if( result.code == 200 ){
 					if(showPleaseWaitModal){hidePleaseWait()};
 					showSuccessDialog( 2000, function(){
-						window.location.reload(true);
+						window.location.reload();
 					} );
 				}else{
 					// error, open an alert

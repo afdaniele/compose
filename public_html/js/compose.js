@@ -197,7 +197,7 @@ function hidePleaseWait() {
 
 function userLogInWithGoogle(baseurl, apiversion, token, id_token, successFcn) {
     if (successFcn == undefined) successFcn = function () {
-        window.location.reload(true);
+        window.location.reload();
     };
     showPleaseWait();
     // compile URI
@@ -408,14 +408,12 @@ function callAPI(url, successDialog, reload, funct, silentMode, suppressErrors, 
                 //
                 if (successDialog) {
                     showSuccessDialog(2000, ((reload) ? function () {
-                        window.location.reload(true);
+                        window.location.reload();
                     } : function () {
                     }));
                 } else {
                     if (reload) {
-                        $(document).on('ready', function () {
-                            window.location.reload(true);
-                        });
+                        window.location.reload();
                     }
                 }
             } else {
@@ -472,12 +470,12 @@ function callExternalAPI(url, callType, resultDataType, successDialog, reload, f
             //
             if (successDialog) {
                 showSuccessDialog(2000, ((reload) ? function () {
-                    window.location.reload(true);
+                    window.location.reload();
                 } : function () {
                 }));
             } else {
                 if (reload) {
-                    window.location.reload(true);
+                    window.location.reload();
                 }
             }
         },

@@ -2013,9 +2013,16 @@ class Core {
             $qs = sprintf('?q=%s', base64_encode($uri));
         }
         $dry_run = isset($_GET['__NR']) ? '//' : '';
-        printf('<script type="text/javascript" data-tag="__compose__redirect__">
-      %swindow.open("%s%s%s", "_top");
-      </script>', $dry_run, (substr($resource, 0, 4) == 'http') ? '' : Configuration::$BASE, $resource, $qs);
+        $resource = strlen(trim($resource)) == 0? './' : $resource;
+        printf('
+            <script type="text/javascript" data-tag="__compose__redirect__">
+                %swindow.open("%s%s%s", "_top");
+            </script>',
+            $dry_run,
+            (substr($resource, 0, 4) == 'http') ? '' : Configuration::$BASE,
+            $resource,
+            $qs
+        );
         if (!$dry_run) {
             die();
             exit;
