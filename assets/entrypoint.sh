@@ -54,9 +54,26 @@ if [ "${SSL}" == "1" ]; then
   echo "Done!"
 fi
 
+
+# define termination function (triggered on docker stop)
+compose_terminate() {
+  # send SIGINT signal to monitored process
+  kill -INT `pgrep -P $$` 2> /dev/null
+}
+
+# register termination function against the signals SIGINT, SIGTERM, and SIGKILL
+trap compose_terminate SIGINT
+trap compose_terminate SIGTERM
+trap compose_terminate SIGKILL
+
 # launch daemon process (inherited from the image arm32v7/php)
 echo "Launching Apache..."
-apache2-foreground
-echo "Launching PHP..."
-docker-php-entrypoint
+apache2-foreground &
+
+# wait for the process to die or be killed
+set +e
+wait &> /dev/null
+set -e
+
+# done
 echo "Bye bye!"
