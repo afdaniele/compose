@@ -1110,7 +1110,7 @@ class Core {
      *
      * @retval string: ID of the login system used to authenticate the current user;
      */
-    public static function getLoginSystem($login_system) {
+    public static function getLoginSystem() {
         return $_SESSION['LOGIN_SYSTEM'];
     }//getLoginSystem
 
