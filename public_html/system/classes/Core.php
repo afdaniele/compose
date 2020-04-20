@@ -2442,7 +2442,7 @@ class Core {
                 $public_data_dir = join_path($pkg_root, "data", "public");
                 $pubdata_exists = file_exists($public_data_dir);
                 if ($pubdata_exists) {
-                    $symlink_success = symlink($public_data_dir, $sym_link);
+                    symlink($public_data_dir, $sym_link);
                 }
             }
             // by-id
