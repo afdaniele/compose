@@ -2426,7 +2426,9 @@ class Core {
                     ];
                 }
             }
-            $pkg['core']['file'] = join_path($pkg_root, $pkg['core']['file']);
+            if (!is_null($pkg['core'])) {
+                $pkg['core']['file'] = join_path($pkg_root, $pkg['core']['file']);
+            }
             // check whether the package is enabled
             $pkg['enabled'] = self::isPackageEnabled($pkg_id);
             // get package codebase version
