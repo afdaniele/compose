@@ -2,16 +2,36 @@
 use \system\classes\Configuration;
 use \system\classes\Core;
 
-function _api_page_reference_section( &$api_setup, &$version, &$sget, &$aget ){
-    $api_enabled = $api_setup[$version]['enabled'];
-    $service_enabled = $api_setup[$version]['services'][$sget]['enabled'];
-    $action_enabled = $api_setup[$version]['services'][$sget]['actions'][$aget]['enabled'];
-    $services = $api_setup[$version]['services'];
-    $service = ( ($sget !== null)? $api_setup[$version]['services'][$sget] : array() );
-    $action = $service['actions'][$aget];
-    $action['parameters']['mandatory'] = array_merge( $api_setup[$version]['global']['parameters']['embedded'], $action['parameters']['mandatory'] );
-    $action['parameters']['optional'] = array_merge( $api_setup[$version]['global']['parameters']['optional'], $action['parameters']['optional'] );
+$AUTH_PARAM_TO_AUTH_MODE = [
+    'app_id' => 'app',
+    'app_secret' => 'app',
+    'token' => 'web'
+];
 
+function _api_page_reference_section( &$api_setup, &$version, &$sget, &$aget ){
+    global $AUTH_PARAM_TO_AUTH_MODE;
+    // ---
+    $api_enabled = $api_setup[$version]['enabled'];
+    $services = $api_setup[$version]['services'];
+    $service_enabled = $services[$sget]['enabled'];
+    $action_enabled = $services[$sget]['actions'][$aget]['enabled'];
+    $service = ( ($sget !== null)? $services[$sget] : array() );
+    $action = $service['actions'][$aget];
+    $action['parameters']['authentication'] = [];
+    $action['parameters']['mandatory'] = array_merge( $api_setup[$version]['global']['parameters']['embedded'], $action['parameters']['mandatory'] );
+    
+    // some global optional parameters will show as optional, others as authentication
+    foreach ($api_setup[$version]['global']['parameters']['optional'] as $param => $param_desc) {
+        if (array_key_exists($param, $AUTH_PARAM_TO_AUTH_MODE)) {
+            $auth_mode = $AUTH_PARAM_TO_AUTH_MODE[$param];
+            if (in_array($auth_mode, $action['authentication'])) {
+                $action['parameters']['authentication'][$param] = $param_desc;
+            }
+        } else {
+            $action['parameters']['optional'][$param] = $param_desc;
+        }
+    }
+    
     include_once __DIR__.'/../parts/common_style.php';
     ?>
 
@@ -122,6 +142,9 @@ function _api_page_reference_section( &$api_setup, &$version, &$sget, &$aget ){
                         </li>
                         <li>
                             <a href="#request">How to execute it</a>
+                        </li>
+                        <li>
+                            <a href="#authentication_params">Authentication parameters</a>
                         </li>
                         <li>
                             <a href="#mandatory">Mandatory parameters</a>
@@ -281,6 +304,40 @@ function _api_page_reference_section( &$api_setup, &$version, &$sget, &$aget ){
                             <?php echo Configuration::$BASE.'web-api/'.$version.'/'.$sget.'/'.$aget.'/<span class="emph param">format</span>?' ?><span class="emph param">parameters</span>
                         </p>
                     </div>
+                </div>
+            </div>
+
+
+            <div class="api-service-subsection">
+                <a class="anchor" id="authentication_params"></a>
+                <h3>
+                    Authentication parameters
+                </h3>
+                <div>
+                    <?php
+                    $authentication = &$action['parameters']['authentication'];
+                    $num_authentication = count($authentication);
+                    if($num_authentication == 0){
+                        ?>
+                        <p>
+                            The <span class="mono emph"><?php echo $aget ?></span> action does not define authentication parameters.
+                        </p>
+                        <?php
+                    }else{
+                        ?>
+                        The <span class="mono emph"><?php echo $aget ?></span> action accepts <span class="param"><?php echo $num_authentication ?></span> authentication parameter<?php echo (($num_authentication > 1)? 's' : '') ?>.
+                        Please, note that different authentication methods require different authentication parameters.
+
+                        <div>
+                            <?php
+                            createParametersTable($authentication);
+                            ?>
+                        </div>
+
+                        <?php
+                    }
+                    ?>
+
                 </div>
             </div>
 
@@ -522,21 +579,17 @@ function createParametersTable( $parameters, $pre='', $post='', $i=0 ){
                     <span style="color:grey">
                         Type: <span class="emph"><?php echo $param_spec['type'] ?></span>
                         <?php
-                        if( isset($param_spec['length']) && $param_spec['length'] !== null ){
+                        if (isset($param_spec['length']) && $param_spec['length'] !== null) {
                             ?>
                             &nbsp; - &nbsp; Length: <span class="emph"><?php echo $param_spec['length'] ?></span>
                             <?php
                         }
-                        ?>
-                        <?php
-                        if( $param_spec['type'] == 'enum' ){
+                        if (in_array($param_spec['type'], ['enum', 'array']) && isset($param_spec['values'])) {
                             ?>
                             &nbsp; - &nbsp; Values: (<span class="emph"><?php echo '`'.implode('`, `', $param_spec['values']).'`' ?>)</span>
                             <?php
                         }
-                        ?>
-                        <?php
-                        if( isset($param_spec['domain']) && $param_spec['domain'] !== null ){
+                        if (isset($param_spec['domain']) && $param_spec['domain'] !== null) {
                             ?>
                             &nbsp; - &nbsp; Domain: [<span class="emph"><?php echo $param_spec['domain'][0].', '.$param_spec['domain'][1] ?>]</span>
                             <?php
@@ -557,7 +610,6 @@ function createParametersTable( $parameters, $pre='', $post='', $i=0 ){
         if( $param_spec['type'] == 'array' ){
             $is_finite = ($parameters[sizeof($parameters)-1] !== '...');
             $newdata = ( ($is_finite)? $param_spec['_data'] : $param_spec['_data'][0]['_data'] );
-            $selector = ( ($is_finite)? $j : '&bull;' );
             //
             $sel = $current_sel.'[';
             createParametersTable( $newdata, $sel, ']', $j );
