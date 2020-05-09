@@ -80,11 +80,10 @@ class Core {
         ]
     ];
 
-
     private static $RESERVED_PAGES = [
-        'setup', 'api', 'data', 'debug', 'error', 'login',
-        'maintenance', 'packages', 'profile', 'settings', 'users',
-        'docs'
+        'api', 'data', 'error', 'login',
+        'maintenance', 'package_store', 'profile', 'settings',
+        'setup', 'users'
     ];
 
     private static $USER_ACCOUNT_TEMPLATE = [
@@ -102,7 +101,7 @@ class Core {
         ]
     ];
 
-    private static $PAGE_METADATA_TEMPLATE = [
+    public static $PAGE_METADATA_TEMPLATE = [
         "name"         => ["string", "Name of the page"],
         "package"      => [
             "string",
@@ -159,7 +158,7 @@ class Core {
         ]
     ];
 
-    private static $PACKAGE_METADATA_TEMPLATE = [
+    public static $PACKAGE_METADATA_TEMPLATE = [
         "name"         => [
             "string",
             "Name of the package"
@@ -208,7 +207,7 @@ class Core {
         ]
     ];
 
-    private static $PACKAGE_SETTINGS_METADATA_TEMPLATE = [
+    public static $PACKAGE_SETTINGS_METADATA_TEMPLATE = [
         "configuration_content" => [
             "__type"        => "associative_array",
             "__details"     => "Associative array containing (parameter_key, parameter_details) pairs for the package",
@@ -245,14 +244,14 @@ class Core {
         "username" => '_compose_developer',
         "name"     => 'Developer', "email" => NULL,
         "picture"  => 'images/developer.jpg',
-        "role"     => "administrator", "active" => TRUE,
+        "role"     => "administrator",
+        "active" => TRUE,
         "pkg_role" => []
     ];
 
 
     //Disable the constructor
-    private function __construct() {
-    }
+    private function __construct() {}
 
 
 
