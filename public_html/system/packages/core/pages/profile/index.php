@@ -40,7 +40,6 @@ use \system\classes\Configuration;
       array_push($fieldValue, $role);
     }
   }
-
   ?>
 
   <h4>Personal Information</h4>
