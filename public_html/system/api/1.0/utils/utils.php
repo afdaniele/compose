@@ -7,6 +7,21 @@
 use system\classes\enum\StringType;
 
 
+function _bad_request($msg) {
+	return ['code' => 400, 'status' => 'Bad Request', 'message' => $msg];
+}//_bad_request
+
+
+function _illegal_arg(&$name, &$type, &$value, $ns='') {
+	$given_type = (is_assoc($value))? "object" : gettype($value);
+	$msg = sprintf(
+		"The value of the parameter '%s%s' is not valid. Expected type '%s', got '%s' instead",
+		$ns, $name, $type, $given_type
+	);
+	return _bad_request($msg);
+}//_illegal_arg
+
+
 function prepareArguments(&$arguments, &$details) {
 	foreach ($arguments as $key => &$value) {
 		if (array_key_exists($key, $details)) {
