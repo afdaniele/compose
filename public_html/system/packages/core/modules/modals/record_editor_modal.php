@@ -24,7 +24,7 @@ function generateRecordEditorModal( &$layout, $formID=null, $method=null, $actio
 
 				<div class="modal-body" id="custom-body">
 					<?php
-					generateFormByLayout( $layout, $formID, $method, $action, $values );
+					generateFormByLayout($layout, $formID, null, $method, $action, $values);
 					?>
 				</div>
 
