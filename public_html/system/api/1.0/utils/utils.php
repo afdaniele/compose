@@ -26,69 +26,137 @@ function prepareArguments(&$arguments, &$details) {
 	foreach ($arguments as $key => &$value) {
 		if (array_key_exists($key, $details)) {
 			$type = $details[$key]['type'];
-			// fix array type with only one element
-			if($type == 'array' && !is_array($value)){
-				$arguments[$key] = [$value];
+			// base case: primitive value argument
+			prepareArgument($type, $value);
+			// handle objects recursively
+			if ($type == 'object'){
+				prepareArguments($value, $details[$key]['_data']);
+			}
+			// handle arrays recursively
+			if ($type == 'array') {
+				$sample = $details[$key]['_data'][0];
+				foreach ($value as &$v) {
+					prepareArgument($sample['type'], $v);
+				}
 			}
 		}
 	}
-}
+}//prepareArguments
 
 
-function checkArgument(&$name, &$array, &$details, &$res, $mandatory=true){
-	if(!isset($array[$name])){
+function prepareArgument(&$type, &$value) {
+	// fix array type with zero or one element
+	if ($type == 'array' && !is_array($value)) {
+		$value = (strlen($value) > 0) ? [$value] : [];
+	}
+	// fix associative array with zero elements
+	if ($type == 'object' && !is_array($value)) {
+		$value = [];
+	}
+	// convert null strings to null value
+	if ($value == 'null'){
+		$value = null;
+	}
+	// convert boolean values
+	if ($type == 'boolean' && is_string($value)){
+		$value = booleanval($value);
+	}
+}//prepareArgument
+
+
+function checkArgument(&$name, &$array, &$details, &$res, $mandatory=true, $ns=''){
+	if (!array_key_exists($name, $array)){
 		if($mandatory){
-			$param_desc = sprintf("'%s'", $name);
-			$res = array('code' => 400, 'status' => 'Bad Request', 'message' => "The parameter ".$param_desc." is mandatory");
+			$res = _bad_request(sprintf("The parameter '%s%s' is mandatory", $ns, $name));
 			return false;
 		}else{
 			return true;
 		}
 	}
-	if(!$mandatory && $array[$name] == ''){
+	if (!$mandatory && $array[$name] == ''){
 		//exclude it
 		unset($array[$name]);
 		return true;
 	}
-	// get argument type and length
+	// get argument type and value
 	$type = $details['type'];
+	$value = &$array[$name];
+	// check nullable parameters
+	if (isset($details['nullable']) && $details['nullable'] && is_null($value)) {
+		return true;
+	}
+	// check boolean values
+	if ($type == 'boolean' && is_bool($value)){
+		return true;
+	}
+	// check argument length
 	$length = ((isset($details['length']) && $details['length'] !== null)? $details['length'] : false);
-	//
-	if(!($length === false) && strlen($array[$name]) !== $length){
-		$param_desc = sprintf("'%s'", $name);
-		$res = array('code' => 400, 'status' => 'Bad Request', 'message' => "The value of the ".$param_desc." parameter is not valid");
+	if(!($length === false) && strlen($value) !== $length){
+		$res = _bad_request(sprintf(
+			"The value of parameter '%s%s' must be exactly %s, got %s instead.",
+			$ns, $name, $length, strlen($value)
+		));
 		return false;
 	}
 	//
 	if($type == 'enum'){
 		$enum = $details['values'];
-		if(!in_array($array[$name], $enum)){
-			$param_desc = sprintf("'%s'", $name);
-			$res = array('code' => 400, 'status' => 'Bad Request', 'message' => "Illegal value for the ".$param_desc." parameter. Allowed values are ['".implode('\', \'', $enum)."']");
+		if(!in_array($value, $enum)){
+			$res = _bad_request(sprintf(
+				"Illegal value for parameter '%s%s'. Allowed values are %s",
+				$ns, $name, sprintf("['%s']", implode("', '", $enum))
+			));
 			return false;
+		}
+	}elseif($type == 'object'){
+		// check type of array, we are expecting an associative array (aka object)
+		if (!is_assoc($value) && count($value) > 0) {
+			$res = _illegal_arg($name, $type, $value, $ns);
+			return false;
+		}
+		// check object content recursively
+		$sample = $details['_data'];
+		foreach ($sample as $cont_key => &$cont_val){
+			$nns = "{$ns}{$name}.";
+			if (checkArgument($cont_key, $value, $cont_val, $res, true, $nns) === false){
+				return false;
+			}
 		}
 	}elseif($type == 'array' && isset($details['values'])){
 		$allowed_values = $details['values'];
-		foreach ($array[$name] as $value){
-			if(!in_array($value, $allowed_values)){
-				$param_desc = sprintf("'%s'", $name);
-				$res = array('code' => 400, 'status' => 'Bad Request', 'message' => "Illegal value for the ".$param_desc." parameter. Allowed values are ['".implode('\', \'', $allowed_values)."']");
+		foreach ($value as $v){
+			if(!in_array($v, $allowed_values)){
+				$res = _bad_request(sprintf(
+					"Illegal value for parameter '%s%s'. Allowed values are %s",
+					$ns, $name, sprintf("['%s']", implode("', '", $allowed_values))
+				));
+				return false;
+			}
+		}
+	}elseif($type == 'array'){
+		// check list content recursively
+		$sample = $details['_data'][0];
+		$obj_array = array_values($value);
+		foreach (array_keys($obj_array) as $k){
+			$nns = "{$ns}{$name}.";
+			if (checkArgument($k, $obj_array, $sample, $res, true, $nns) === false){
 				return false;
 			}
 		}
 	}else{
-		if(!StringType::isValid($array[$name], StringType::getRegexByTypeName($type))){
-			$param_desc = sprintf("'%s'", $name);
-			$res = array('code' => 400, 'status' => 'Bad Request', 'message' => "The value of the ".$param_desc." parameter is not valid");
+		if(!StringType::isValid($value, StringType::getRegexByTypeName($type))){
+			$res = _bad_request(sprintf("Illegal value for parameter '%s%s'.", $ns, $name));
 			return false;
 		}
 	}
 	//
 	if(isset($details['domain']) && is_array($details['domain']) && sizeof($details['domain']) == 2){
 		$domain = $details['domain'];
-		if($array[$name] < floatval($domain[0]) || $array[$name] > floatval($domain[1])){
-			$param_desc = sprintf("'%s'", $name);
-			$res = array('code' => 400, 'status' => 'Bad Request', 'message' => "Illegal value for the ".$param_desc." parameter. Allowed values are [{$domain[0]},{$domain[1]}]");
+		if($value < floatval($domain[0]) || $value > floatval($domain[1])){
+			$res = _bad_request(sprintf(
+				"Illegal value for parameter '%s%s'. Allowed values are [%s,%s]",
+				$ns, $name, $domain[0], $domain[1]
+			));
 			return false;
 		}
 	}
