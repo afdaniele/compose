@@ -8,11 +8,17 @@
 //ini_set('display_errors', 1); //DEBUG only
 
 ini_set('display_errors', 0);
+$DEBUG = false;
 
 class AUTH_MODE{
 	const BROWSER_COOKIES = 0;
 	const API_APP = 1;
 }//AUTH_MODE
+
+$GLOBALS['__API_DEBUG__'] = [];
+function API_DEBUG($key, $value) {
+	$GLOBALS['__API_DEBUG__'][$key] = $value;
+}
 
 // load constants
 require_once __DIR__.'/../system/environment.php';
@@ -253,6 +259,7 @@ sendResponse( $result['code'], $result['status'], $result['message'], $format, $
 
 
 function sendResponse( $code, $status, $message, $format, $data, $reFormatData=true ){
+	global $DEBUG;
 	//usleep( 10 /* sec */ * 1000 /* ms */ * 1000 /* us */ ); //DEBUG only
 	$content_type = array('plain' => 'text/plain', 'plaintext' => 'text/plain', 'json' => 'application/json', 'xml' => 'text/xml', 'html' => 'text/html');
 	//
@@ -262,6 +269,7 @@ function sendResponse( $code, $status, $message, $format, $data, $reFormatData=t
 		$container['status'] = $status;
 		if( $message !== null ) $container['message'] = $message;
 		if( $data !== null ) $container['data'] = $data;
+		if ($DEBUG) $container['debug'] = $GLOBALS['__API_DEBUG__'];
 		//
 		require_once $GLOBALS['__SYSTEM__DIR__'].'/api/formatter/'.$format.'_formatter.php';
 		$data = formatData( $container );
