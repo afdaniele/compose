@@ -45,10 +45,7 @@ Configuration::init();
 $webapi_settings = RESTfulAPI::getSettings();
 
 // merge $_GET and $_POST into $_GET with $_GET having the priority
-foreach( $_POST as $key => $value ){
-	if( !isset($_GET[$key]) )
-		$_GET[$key] = urldecode( $value );
-}
+$_GET = array_merge($_POST, $_GET);
 
 // 0. verify the web-api current status
 if( !$webapi_settings["webapi-enabled"] ){
@@ -231,10 +228,10 @@ if( !$authorized ){
 }
 
 
-// 11. decode the arguments
+// 11. decode the string arguments
 $arguments = array();
-foreach( $_GET as $key => $value ){
-	$arguments[$key] = urldecode( $value );
+foreach ($_GET as $key => $value) {
+	$arguments[$key] = is_string($value)? urldecode($value) : $value;
 }
 
 // <= LOAD INTERPRETER

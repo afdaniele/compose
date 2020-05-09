@@ -4,8 +4,7 @@
 # @Last modified by:   afdaniele
 
 
-
-require_once __DIR__.'/../../../classes/enum/StringType.php';
+use system\classes\enum\StringType;
 
 
 function checkArgument(&$name, &$array, &$details, &$res, $mandatory=true){
@@ -40,8 +39,18 @@ function checkArgument(&$name, &$array, &$details, &$res, $mandatory=true){
 			$res = array('code' => 400, 'status' => 'Bad Request', 'message' => "Illegal value for the ".$param_desc." parameter. Allowed values are ['".implode('\', \'', $enum)."']");
 			return false;
 		}
+	}elseif($type == 'array' && isset($details['values'])){
+		$allowed_values = $details['values'];
+		$given_values = is_array($array[$name])? $array[$name] : [$array[$name]];
+		foreach ($given_values as $value){
+			if(!in_array($value, $allowed_values)){
+				$param_desc = sprintf("'%s'", $name);
+				$res = array('code' => 400, 'status' => 'Bad Request', 'message' => "Illegal value for the ".$param_desc." parameter. Allowed values are ['".implode('\', \'', $allowed_values)."']");
+				return false;
+			}
+		}
 	}else{
-		if(!\system\classes\enum\StringType::isValid($array[$name], \system\classes\enum\StringType::getRegexByTypeName($type))){
+		if(!StringType::isValid($array[$name], StringType::getRegexByTypeName($type))){
 			$param_desc = sprintf("'%s'", $name);
 			$res = array('code' => 400, 'status' => 'Bad Request', 'message' => "The value of the ".$param_desc." parameter is not valid");
 			return false;
