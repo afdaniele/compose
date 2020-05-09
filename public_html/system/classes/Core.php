@@ -1344,6 +1344,29 @@ class Core {
     }//getPackageDetails
 
 
+    /** Returns the root directory of the given package. If the package is not installed
+     *  it returns the directory where the package would be placed if installed.
+     *
+     * @param string $package_name
+     *        the ID of the package to get the root for.
+     *
+     * @return string
+     * @retval string
+     *        Package's root directory.
+     *
+     *    If the package is not installed the directory where the package would be placed
+     *  if installed is returned.
+     */
+    public static function getPackageRootDir($package_name) {
+
+        if (self::packageExists($package_name)) {
+            return self::getPackageDetails($package_name, 'root');
+        }else {
+            return join_path($GLOBALS['__USERDATA__PACKAGES__DIR__'], $package_name);
+        }
+    }//getPackageRootDir
+
+
     /** Returns the settings for a given package as an associative array.
      *
      * @param string $package_name
