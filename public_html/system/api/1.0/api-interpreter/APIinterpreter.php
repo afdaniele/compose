@@ -31,6 +31,9 @@ class APIinterpreter {
 		$data = array();
 		$error = null;
 		if( is_array($action['parameters']['mandatory']) ){
+    		// prepare arguments
+            prepareArguments($arguments, $action['parameters']['mandatory']);
+            // check arguments
 			foreach( $action['parameters']['mandatory'] as $name => $details ){
 				if( !( checkArgument( $name, $arguments, $details, $error ) === true ) ){
 					$data[$name] = $error['message'];
@@ -45,6 +48,9 @@ class APIinterpreter {
 		// check for optional arguments
 		$error = null;
 		if( is_array($action['parameters']['optional']) ){
+    		// prepare arguments
+            prepareArguments($arguments, $action['parameters']['optional']);
+            // check arguments
 			foreach( $action['parameters']['optional'] as $name => $details ){
 				if( !( checkArgument( $name, $arguments, $details, $error, false ) === true ) ){
 					$data[$name] = $error['message'];
@@ -88,8 +94,9 @@ class APIinterpreter {
 		$data = formatData( $result );
 		$result['data'] = $data;
 		$result['formatted'] = true;
-		if( !isset($result['message']) )
+		if (!isset($result['message'])) {
 			$result['message'] = '';
+		}
 
 
 		// ==================================================================================================================

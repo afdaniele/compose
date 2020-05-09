@@ -7,6 +7,19 @@
 use system\classes\enum\StringType;
 
 
+function prepareArguments(&$arguments, &$details) {
+	foreach ($arguments as $key => &$value) {
+		if (array_key_exists($key, $details)) {
+			$type = $details[$key]['type'];
+			// fix array type with only one element
+			if($type == 'array' && !is_array($value)){
+				$arguments[$key] = [$value];
+			}
+		}
+	}
+}
+
+
 function checkArgument(&$name, &$array, &$details, &$res, $mandatory=true){
 	if(!isset($array[$name])){
 		if($mandatory){
@@ -22,7 +35,7 @@ function checkArgument(&$name, &$array, &$details, &$res, $mandatory=true){
 		unset($array[$name]);
 		return true;
 	}
-	//
+	// get argument type and length
 	$type = $details['type'];
 	$length = ((isset($details['length']) && $details['length'] !== null)? $details['length'] : false);
 	//
@@ -41,8 +54,7 @@ function checkArgument(&$name, &$array, &$details, &$res, $mandatory=true){
 		}
 	}elseif($type == 'array' && isset($details['values'])){
 		$allowed_values = $details['values'];
-		$given_values = is_array($array[$name])? $array[$name] : [$array[$name]];
-		foreach ($given_values as $value){
+		foreach ($array[$name] as $value){
 			if(!in_array($value, $allowed_values)){
 				$param_desc = sprintf("'%s'", $name);
 				$res = array('code' => 400, 'status' => 'Bad Request', 'message' => "Illegal value for the ".$param_desc." parameter. Allowed values are ['".implode('\', \'', $allowed_values)."']");
