@@ -510,7 +510,7 @@ function serializeForm(formID, excludeDisabled) {
                 }
             }
         }
-    )
+    );
     //
     $(formID).find('select').each(
         function () {
@@ -522,7 +522,7 @@ function serializeForm(formID, excludeDisabled) {
                 }
             }
         }
-    )
+    );
     //
     $(formID).find('textarea').each(
         function () {
@@ -530,7 +530,7 @@ function serializeForm(formID, excludeDisabled) {
                 str += '&' + $(this).attr('name') + '=' + encodeURIComponent($(this).val());
             }
         }
-    )
+    );
     //
     return ((str.length > 0) ? str.slice(1) : str);
 }//serializeForm
@@ -557,7 +557,7 @@ function serializeFormToJSON(formID, excludeDisabled, blacklist_keys) {
                 }
             }
         }
-    )
+    );
     //
     $(formID).find('select').each(
         function () {
@@ -572,7 +572,7 @@ function serializeFormToJSON(formID, excludeDisabled, blacklist_keys) {
                 }
             }
         }
-    )
+    );
     //
     $(formID).find('textarea').each(
         function () {
@@ -583,7 +583,7 @@ function serializeFormToJSON(formID, excludeDisabled, blacklist_keys) {
                 res[key] = encodeURIComponent($(this).val());
             }
         }
-    )
+    );
     //
     return res;
 }//serializeFormToJSON
