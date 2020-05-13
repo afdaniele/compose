@@ -8,8 +8,6 @@ namespace system\classes;
 
 require_once __DIR__ . '/Database.php';
 
-use system\classes\Database;
-
 
 class EditableConfiguration {
 
@@ -124,10 +122,9 @@ class EditableConfiguration {
     }//is_writable
 
 
-    public function is_configurable($package_name) {
+    public function is_configurable() {
         return $this->is_configurable;
     }//is_configurable
-
 
 }//EditableConfiguration
 
