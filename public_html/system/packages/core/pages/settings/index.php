@@ -4,8 +4,8 @@
 # @Last modified by:   afdaniele
 
 use \system\classes\Core;
-use \system\classes\Configuration;
 use \system\classes\Cache;
+use system\classes\EditableConfiguration;
 
 // update
 if (isset($_GET['base_update']) && boolval($_GET['base_update'])) {
@@ -146,18 +146,24 @@ if (isset($_GET['base_update']) && boolval($_GET['base_update'])) {
 		];
 	}
 
-	$i = 10;
-	foreach( Core::getPackagesList() as $pkg_id => $pkg ){
-		if( $pkg_id == 'core' ) continue;
-		$pkg_setts = Core::getPackageSettings( $pkg_id );
-		if( $pkg_setts['success'] && !$pkg_setts['data']->is_configurable() ) continue;
-		$settings_tabs[$i] = [
-			'id' => 'package_'.$pkg_id,
+	$i = 21;
+	foreach (Core::getPackagesList() as $pkg_id => $pkg) {
+        if ($pkg_id == 'core') continue;
+        $pkg_setts = Core::getPackageSettings($pkg_id);
+        // skip package if it is not configurable
+        if (!$pkg_setts['data'] instanceof EditableConfiguration ||
+            !$pkg_setts['data']->is_configurable()){
+            continue;
+        }
+        // render package-specific tab
+        $settings_tabs[$i] = [
+            'id' => 'package_'.$pkg_id,
 			'title' => 'Package: <b>'.$pkg['name'].'</b>',
 			'icon' => 'fa fa-cube',
 			'content' => settings_custom_package_tab,
 			'content_args' => [$pkg_id, $pkg_setts]
 		];
+        // ---
 		$i += 1;
 	}
 	?>
