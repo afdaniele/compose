@@ -43,7 +43,7 @@ define('ERROR', 2);
 /** Core module of the platform <b>\\compose\\</b>.
  */
 class Core {
-
+    
     private static $initialized = FALSE;
     private static $cache = NULL;
     private static $packages = NULL;
@@ -56,46 +56,46 @@ class Core {
     private static $registered_css_stylesheets = [];
     private static $default_page_per_role = [
         'administrator' => 'profile',
-        'supervisor'    => 'profile', 'user' => 'profile',
-        'guest'         => 'login'
+        'supervisor' => 'profile', 'user' => 'profile',
+        'guest' => 'login'
     ];
     private static $registered_user_roles = [
         'core' => [
-            'guest'         => [
-                'default_page'         => 'login',
+            'guest' => [
+                'default_page' => 'login',
                 'factory_default_page' => 'login'
             ],
-            'user'          => [
-                'default_page'         => 'profile',
+            'user' => [
+                'default_page' => 'profile',
                 'factory_default_page' => 'profile'
             ],
-            'supervisor'    => [
-                'default_page'         => 'profile',
+            'supervisor' => [
+                'default_page' => 'profile',
                 'factory_default_page' => 'profile'
             ],
             'administrator' => [
-                'default_page'         => 'profile',
+                'default_page' => 'profile',
                 'factory_default_page' => 'profile'
             ]
         ]
     ];
-
+    
     private static $RESERVED_PAGES = [
         'api', 'data', 'error', 'login',
         'maintenance', 'package_store', 'profile', 'settings',
         'setup', 'users'
     ];
-
+    
     private static $USER_ACCOUNT_TEMPLATE = [
         "username" => ["string", "Google (numeric) user ID"],
-        "name"     => ["string", "Full name of the user"],
-        "email"    => ["string", "Email address"],
-        "picture"  => [
+        "name" => ["string", "Full name of the user"],
+        "email" => ["string", "Email address"],
+        "picture" => [
             "string",
             "Link to google account picture (provided by Google Sign-In)"
         ],
-        "role"     => ["string", "Access level of the user"],
-        "active"   => [
+        "role" => ["string", "Access level of the user"],
+        "active" => [
             "boolean",
             "Whether the user is allowed to login and use the platform"
         ]
@@ -206,24 +206,24 @@ class Core {
             ]
         ]
     ];
-
+    
     public static $PACKAGE_SETTINGS_METADATA_TEMPLATE = [
         "configuration_content" => [
-            "__type"        => "associative_array",
-            "__details"     => "Associative array containing (parameter_key, parameter_details) pairs for the package",
+            "__type" => "associative_array",
+            "__details" => "Associative array containing (parameter_key, parameter_details) pairs for the package",
             "__sample_item" => [
-                "__type"         => "associative_array",
-                "__details"      => "Associative array containing (parameter_detail, parameter_value) pairs for the setting parameter",
-                "__sample_key"   => [
+                "__type" => "associative_array",
+                "__details" => "Associative array containing (parameter_detail, parameter_value) pairs for the setting parameter",
+                "__sample_key" => [
                     "string",
                     "Parameter key"
                 ],
                 "__sample_value" => [
-                    "title"   => [
+                    "title" => [
                         "string",
                         "Name of the setting parameter"
                     ],
-                    "type"    => [
+                    "type" => [
                         "string",
                         "Type of the parameter (e.g., string, boolean, integer)"
                     ],
@@ -239,27 +239,28 @@ class Core {
             ]
         ]
     ];
-
+    
     private static $DEVELOPER_USER_INFO = [
         "username" => '_compose_developer',
-        "name"     => 'Developer', "email" => NULL,
-        "picture"  => 'images/developer.jpg',
-        "role"     => "administrator",
+        "name" => 'Developer', "email" => NULL,
+        "picture" => 'images/developer.jpg',
+        "role" => "administrator",
         "active" => TRUE,
         "pkg_role" => []
     ];
-
-
+    
+    
     //Disable the constructor
-    private function __construct() {}
-
-
-
-
+    private function __construct() {
+    }
+    
+    
+    
+    
     // =======================================================================================================
     // Initilization and session management functions
-
-
+    
+    
     /** Initializes the Core module.
      *    It is the first function to call when using the Core module.
      *
@@ -353,12 +354,12 @@ class Core {
                             if (!is_array($res))
                                 return [
                                     'success' => FALSE,
-                                    'data'    => sprintf('An error occurred while initializing the package `%s`. Command `%s`', $pkg['id'], $php_init_command)
+                                    'data' => sprintf('An error occurred while initializing the package `%s`. Command `%s`', $pkg['id'], $php_init_command)
                                 ];
                             if (!$res['success'])
                                 return [
                                     'success' => FALSE,
-                                    'data'    => sprintf('An error occurred while initializing the package `%s`. Command `%s`. The module reports: "%s"', $pkg['id'], $php_init_command, $res['data'])
+                                    'data' => sprintf('An error occurred while initializing the package `%s`. Command `%s`. The module reports: "%s"', $pkg['id'], $php_init_command, $res['data'])
                                 ];
                         } catch (\Error $e) {
                             return ['success' => FALSE, 'data' => $e->getMessage()];
@@ -372,33 +373,33 @@ class Core {
             return ['success' => TRUE, 'data' => "Core already initialized!"];
         }
     }//init
-
-
+    
+    
     public static function isComposeConfigured() {
         // TODO: Cache this data
-
+        
         // open first_setup DB
         $first_setup_db = new Database('core', 'first_setup');
         // return whether the configuration flag exists
         return $first_setup_db->key_exists('configured');
     }//isComposeConfigured
-
-
+    
+    
     public static function healthCheck() {
         return ['success' => TRUE, 'data' => NULL];
     }//healthCheck
-
-
+    
+    
     public static function setVolatileSession($val) {
         self::$volatile_session = $val;
     }//healthCheck
-
-
+    
+    
     public static function isVolatileSession() {
         return self::$volatile_session;
     }//healthCheck
-
-
+    
+    
     public static function getCurrentResource() {
         $resource_parts = [
             Configuration::$PAGE, Configuration::$ACTION, Configuration::$ARG1,
@@ -409,29 +410,29 @@ class Core {
         });
         return implode('/', $resource_parts);
     }//getCurrentResource
-
-
+    
+    
     public static function getCurrentResourceURL($qs_array = [], $include_qs = FALSE) {
         $qs_dict = array_merge(($include_qs) ? $_GET : [], $qs_array);
         $qs = toQueryString(array_keys($qs_dict), $qs_dict, TRUE);
         $resource = self::getCurrentResource();
         return sprintf('%s%s%s', Configuration::$BASE, $resource, $qs);
     }//getCurrentResourceURL
-
-
+    
+    
     public static function getURL($page = NULL, $action = NULL, $arg1 = NULL, $arg2 = NULL, $qs = [], $anchor = NULL) {
         return sprintf('%s%s%s%s%s%s%s', Configuration::$BASE, is_null($page) ? '' : $page, is_null($action) ? '' : '/' . $action, is_null($arg1) ? '' : '/' . $arg1, is_null($arg2) ? '' : '/' . $arg2, (count($qs) > 0) ? toQueryString(array_keys($qs), $qs, TRUE) : '', (is_null($anchor) || strlen($anchor) <= 0) ? '' : sprintf('#%s', $anchor));
     }//getURL
-
-
+    
+    
     public static function getAPIurl($service, $action, $qs = [], $format = 'json', $token = NULL) {
         if (is_null($token)) {
             $token = $_SESSION['TOKEN'];
         }
         return sprintf('%sweb-api/%s/%s/%s/%s?%s%s&', Configuration::$BASE, Configuration::$WEBAPI_VERSION, $service, $action, $format, sprintf('token=%s&', $token), (count($qs) > 0) ? toQueryString(array_keys($qs), $qs, FALSE, TRUE) : '');
     }//getAPIurl
-
-
+    
+    
     public static function getPackagesModules($module_family = NULL, $pkg_id = NULL, $include_disabled = FALSE) {
         $modules = [];
         foreach (self::$packages as $pkg) {
@@ -464,8 +465,8 @@ class Core {
         }
         return $out;
     }//getPackagesModules
-
-
+    
+    
     public static function loadPackagesModules($module_family = NULL, $pkg_id = NULL) {
         foreach (self::$packages as $pkg) {
             if (!$pkg['enabled'] || (!is_null($pkg_id) && $pkg_id != $pkg['id'])) {
@@ -489,8 +490,8 @@ class Core {
             }
         }
     }//loadPackagesModules
-
-
+    
+    
     public static function getClasses($parent_class = NULL) {
         $classes = [];
         foreach (get_declared_classes() as $class) {
@@ -500,8 +501,8 @@ class Core {
         }
         return $classes;
     }//getClasses
-
-
+    
+    
     /** Terminates the Core module.
      *    It is responsible for committing unsaved changes to the disk or closing open connections
      *    (e.g., mySQL) before leaving.
@@ -518,8 +519,8 @@ class Core {
     public static function close() {
         return ['success' => TRUE, 'data' => NULL];
     }//close
-
-
+    
+    
     /** Creates a new PHP Session and assigns a new randomly generated 16-digits authorization token to it.
      *
      * @retval boolean
@@ -542,8 +543,8 @@ class Core {
         //
         return ['success' => TRUE, 'data' => NULL];
     }//startSession
-
-
+    
+    
     /** Writes and closes the current PHP Session.
      *
      * @retval boolean
@@ -554,11 +555,11 @@ class Core {
             return session_write_close();
         return TRUE;
     }//closeSession
-
-
+    
+    
     // =======================================================================================================
     // Users management functions
-
+    
     /** Logs in a user using the Google Sign-In OAuth 2.0 authentication procedure.
      *
      * @param string $id_token
@@ -587,8 +588,8 @@ class Core {
             // create user descriptor
             $user_info = [
                 "username" => $userid, "name" => $payload['name'],
-                "email"    => $payload['email'], "picture" => $payload['picture'],
-                "role"     => "user", "active" => TRUE, "pkg_role" => []
+                "email" => $payload['email'], "picture" => $payload['picture'],
+                "role" => "user", "active" => TRUE, "pkg_role" => []
             ];
             // look for a pre-existing user profile
             $user_exists = self::userExists($userid);
@@ -609,7 +610,7 @@ class Core {
             if (!boolval($user_info['active'])) {
                 return [
                     'success' => FALSE,
-                    'data'    => 'The user profile you are trying to login with is not active. Please, contact the administrator'
+                    'data' => 'The user profile you are trying to login with is not active. Please, contact the administrator'
                 ];
             }
             // set login system
@@ -625,8 +626,8 @@ class Core {
             return ['success' => FALSE, 'data' => "Invalid ID Token"];
         }
     }//logInUserWithGoogle
-
-
+    
+    
     /** Logs in as developer.
      *
      * @retval array
@@ -645,7 +646,7 @@ class Core {
         if (!self::getSetting('developer_mode')) {
             return [
                 'success' => FALSE,
-                'data'    => 'You can login as Developer only when the Developer Mode is active'
+                'data' => 'You can login as Developer only when the Developer Mode is active'
             ];
         }
         // create user descriptor
@@ -659,8 +660,8 @@ class Core {
         Core::regenerateSessionID();
         return ['success' => TRUE, 'data' => $user_info];
     }//logInAsDeveloper
-
-
+    
+    
     /** Authorizes a user using an API Application.
      *
      * @param string $app_id
@@ -692,14 +693,14 @@ class Core {
         if (!boolval($app_secret == $app['secret'])) {
             return [
                 'success' => FALSE,
-                'data'    => 'The application secret key provided is not correct'
+                'data' => 'The application secret key provided is not correct'
             ];
         }
         // check if the app is enabled
         if (!boolval($app['enabled'])) {
             return [
                 'success' => FALSE,
-                'data'    => sprintf('The application `%s` is not enabled, thus it cannot be used', $app['id'])
+                'data' => sprintf('The application `%s` is not enabled, thus it cannot be used', $app['id'])
             ];
         }
         // get owner of the app
@@ -707,7 +708,7 @@ class Core {
         if (!self::userExists($username)) {
             return [
                 'success' => FALSE,
-                'data'    => sprintf('The application `%s` is not enabled, thus it cannot be used', $app['id'])
+                'data' => sprintf('The application `%s` is not enabled, thus it cannot be used', $app['id'])
             ];
         }
         // load user info
@@ -723,14 +724,14 @@ class Core {
         // return app
         return ['success' => TRUE, 'data' => ['user' => $user_info, 'app' => $app]];
     }//authorizeUserWithAPIapp
-
-
+    
+    
     /** Creates a new user account.
      *
      * @param string $user_id
      *        string containing the (numeric) user id provided by Google Sign-In;
      *
-     * @param array  $user_info
+     * @param array $user_info
      *        array containing information about the new user. This array
      *        has to contain at least all the keys defined in $USER_ACCOUNT_TEMPLATE;
      *
@@ -748,7 +749,7 @@ class Core {
         if ($user_exists) {
             return [
                 'success' => FALSE,
-                'data'    => sprintf('The user `%s` already exists', $user_id)
+                'data' => sprintf('The user `%s` already exists', $user_id)
             ];
         }
         // validate user info
@@ -757,7 +758,7 @@ class Core {
             if (!isset($user_info[$field])) {
                 return [
                     'success' => FALSE,
-                    'data'    => sprintf('The field "%s" is required for a new user account', $field)
+                    'data' => sprintf('The field "%s" is required for a new user account', $field)
                 ];
             }
         }
@@ -780,8 +781,8 @@ class Core {
         $res = $users_db->write($user_id, $user_info);
         return $res;
     }//createNewUserAccount
-
-
+    
+    
     /** Returns whether a user is currently logged in.
      *
      * @retval boolean
@@ -790,8 +791,8 @@ class Core {
     public static function isUserLoggedIn() {
         return isset($_SESSION['USER_LOGGED']) ? $_SESSION['USER_LOGGED'] : FALSE;
     }//isUserLoggedIn
-
-
+    
+    
     /** Returns the list of users registered on the platform.
      *    A user is automatically registered when s/he logs in with google.
      *
@@ -804,8 +805,8 @@ class Core {
         // get list of users
         return $users_db->list_keys();
     }//getUsersList
-
-
+    
+    
     /** Logs out the user from the platform.
      *    If the user is not logged in yet, the call will return an error status.
      *
@@ -827,8 +828,8 @@ class Core {
         //
         return ['success' => TRUE, 'data' => NULL];
     }//logOutUser
-
-
+    
+    
     /** Checks whether a user account exists.
      *
      * @param string $user_id
@@ -843,8 +844,8 @@ class Core {
         // return whether the user exists
         return $users_db->key_exists($user_id);
     }//userExists
-
-
+    
+    
     /** Opens the user account record for the user specified in write-mode.
      *    This function returns an instance of the class \\system\\classes\\jsonDB\\JsonDB
      *    containing the information about the user specified.
@@ -886,21 +887,21 @@ class Core {
             if (!isset($static_user_info[$field])) {
                 return [
                     'success' => FALSE,
-                    'data'    => 'The descriptor file for the user "' . $user_id . '" is corrupted! Contact the administrator'
+                    'data' => 'The descriptor file for the user "' . $user_id . '" is corrupted! Contact the administrator'
                 ];
             }
         }
         if (strcmp($static_user_info['username'], $user_id) != 0) {
             return [
                 'success' => FALSE,
-                'data'    => 'The descriptor file for the user "' . $user_id . '" is corrupted! Contact the administrator'
+                'data' => 'The descriptor file for the user "' . $user_id . '" is corrupted! Contact the administrator'
             ];
         }
         //
         return ['success' => TRUE, 'data' => $user_info];
     }//openUserInfo
-
-
+    
+    
     /** Returns the user account record for the user specified.
      *    Unlike openUserInfo(), this function returns a read-only copy of the user account.
      *
@@ -927,8 +928,8 @@ class Core {
         //
         return ['success' => TRUE, 'data' => $res['data']->asArray()];
     }//getUserInfo
-
-
+    
+    
     /** Returns the user account record of the user currently logged in.
      *
      * @param string $field
@@ -948,8 +949,8 @@ class Core {
         $user_record = $_SESSION['USER_RECORD'];
         return ($field == NULL) ? $user_record : $user_record[$field];
     }//getUserLogged
-
-
+    
+    
     /** Returns the role of the user that is currently using the platform.
      *
      * @param string $package
@@ -977,8 +978,8 @@ class Core {
         // no role for this package
         return NULL;
     }//getUserRole
-
-
+    
+    
     /** Sets the package-specific role of the user that is currently using the platform.
      *    NOTE: this function does not update the user account of the current user permanently.
      *    This change will be lost once the session is closed.
@@ -1003,8 +1004,8 @@ class Core {
             $_SESSION['USER_RECORD']['pkg_role'][$package] = $user_role;
         }
     }//setUserRole
-
-
+    
+    
     /** Returns the list of all the roles of the current user on the platform. It includes the user role
      *    defined by <b>\\compose\\</b> plus all the user roles introduced by third-party packages
      *    and associated to the current user. The main user role (defined by <b>\\compose\\</b>)
@@ -1042,8 +1043,8 @@ class Core {
         }
         return [];
     }//getPackageRegisteredUserRoles
-
-
+    
+    
     /** Returns the list of all user roles known to the platform. It includes all the user roles defined
      *    by <b>\\compose\\</b> plus all the user roles introduced by third-party packages.
      *
@@ -1061,8 +1062,8 @@ class Core {
         }
         return array_unique($roles);
     }//getAllRegisteredUserRoles
-
-
+    
+    
     /** Adds a new user role to the list of roles known to the platform.
      *
      * @param string $package
@@ -1082,7 +1083,7 @@ class Core {
         // add the user role if not present
         if (!array_key_exists($user_role, self::$registered_user_roles[$package])) {
             self::$registered_user_roles[$package][$user_role] = [
-                'default_page'         => 'NO_DEFAULT_PAGE',
+                'default_page' => 'NO_DEFAULT_PAGE',
                 'factory_default_page' => 'NO_DEFAULT_PAGE'
             ];
         }
@@ -1091,8 +1092,8 @@ class Core {
             self::$registered_user_roles[$package][$user_role]['default_page'] = $default_page;
         }
     }//registerNewUserRole
-
-
+    
+    
     /** Sets the login system used to login the current user.
      *
      * @param string $login_system
@@ -1103,8 +1104,8 @@ class Core {
     public static function setLoginSystem($login_system) {
         $_SESSION['LOGIN_SYSTEM'] = $login_system;
     }//setLoginSystem
-
-
+    
+    
     /** Returns the login system used to login the current user (null if the user is not logged in).
      *
      * @retval string: ID of the login system used to authenticate the current user;
@@ -1112,11 +1113,11 @@ class Core {
     public static function getLoginSystem() {
         return $_SESSION['LOGIN_SYSTEM'];
     }//getLoginSystem
-
-
+    
+    
     // =======================================================================================================
     // Packages management functions
-
+    
     /** Returns the list of packages installed on the platform.
      *
      * @retval array
@@ -1150,8 +1151,8 @@ class Core {
     public static function getPackagesList() {
         return self::$packages;
     }//getPackagesList
-
-
+    
+    
     /** Returns whether the package specified is installed on the platform.
      *
      * @param string $package
@@ -1163,8 +1164,8 @@ class Core {
     public static function packageExists($package) {
         return array_key_exists($package, self::$packages);
     }//packageExists
-
-
+    
+    
     /** Returns whether the specified package is enabled.
      *
      *    If the package in not installed, `FALSE` will be returned.
@@ -1181,23 +1182,23 @@ class Core {
         // disabled if the key exists
         return !$packages_db->key_exists($package);
     }//isPackageEnabled
-
-
+    
+    
     public static function installPackage($package) {
         return self::packageManagerBatch([$package], [], []);
     }//installPackage
-
-
+    
+    
     public static function updatePackage($package) {
         return self::packageManagerBatch([], [$package], []);
     }//updatePackage
-
-
+    
+    
     public static function removePackage($package) {
         return self::packageManagerBatch([], [], [$package]);
     }//removePackage
-
-
+    
+    
     public static function packageManagerBatch($to_install, $to_update, $to_remove) {
         $to_remove = array_diff($to_remove, ['core']);
         $package_manager_py = sprintf('%s/lib/python/compose/package_manager.py', $GLOBALS['__SYSTEM__DIR__']);
@@ -1223,8 +1224,8 @@ class Core {
         $err_data = array_map(htmlspecialchars, explode('\n', $err_data['message']));
         return ['success' => FALSE, 'data' => $err_data];
     }//packageManagerBatch
-
-
+    
+    
     /** Enables a package installed on the platform.
      *
      *    If the package specified is not installed, the function reports a failure state.
@@ -1245,7 +1246,7 @@ class Core {
         if (!self::packageExists($package)) {
             return [
                 'success' => FALSE,
-                'data'    => sprintf('The package "%s" does not exist', $package)
+                'data' => sprintf('The package "%s" does not exist', $package)
             ];
         }
         // open package status database
@@ -1256,8 +1257,8 @@ class Core {
         }
         return ['success' => TRUE, 'data' => NULL];
     }//enablePackage
-
-
+    
+    
     /** Disables a package installed on the platform.
      *
      *    If the package specified is not installed, the function reports a failure state.
@@ -1281,7 +1282,7 @@ class Core {
         if (!self::packageExists($package)) {
             return [
                 'success' => FALSE,
-                'data'    => sprintf('The package "%s" does not exist', $package)
+                'data' => sprintf('The package "%s" does not exist', $package)
             ];
         }
         // open package status database
@@ -1289,8 +1290,8 @@ class Core {
         // create key if it does not exist
         return $packages_db->write($package, []);
     }//disablePackage
-
-
+    
+    
     /** Returns the settings for a given package as an instance of \system\classes\EditableConfiguration.
      *
      * @param string $package_name
@@ -1313,8 +1314,8 @@ class Core {
         }
         return NULL;
     }//getPackageSettings
-
-
+    
+    
     /** Returns information for a given package as an associative array;
      *
      * @param string $package_name
@@ -1342,8 +1343,8 @@ class Core {
             return NULL;
         }
     }//getPackageDetails
-
-
+    
+    
     /** Returns the root directory of the given package. If the package is not installed
      *  it returns the directory where the package would be placed if installed.
      *
@@ -1361,12 +1362,12 @@ class Core {
 
         if (self::packageExists($package_name)) {
             return self::getPackageDetails($package_name, 'root');
-        }else {
+        } else {
             return join_path($GLOBALS['__USERDATA__PACKAGES__DIR__'], $package_name);
         }
     }//getPackageRootDir
-
-
+    
+    
     /** Returns the settings for a given package as an associative array.
      *
      * @param string $package_name
@@ -1393,8 +1394,8 @@ class Core {
         }
         return NULL;
     }//getPackageSettingsAsArray
-
-
+    
+    
     /** Returns the value of the given setting key for the given package.
      *
      * @param string $key
@@ -1425,8 +1426,8 @@ class Core {
         }
         return $default_value;
     }//getSetting
-
-
+    
+    
     /** Sets the value for the given setting key of the given package.
      *
      * @param string $package_name
@@ -1469,12 +1470,12 @@ class Core {
         }
         return ['success' => FALSE, 'data' => sprintf('Package "%s" not found', $package_name)];
     }//setSetting
-
-
+    
+    
     // =======================================================================================================
     // Package-specific resources functions
-
-
+    
+    
     /** Returns the URL to a package-specific image.
      *    The image file must in the directory `/images` of the package.
      *
@@ -1495,8 +1496,8 @@ class Core {
             return sprintf("%simage.php?package=%s&image=%s", Configuration::$BASE, $package_name, $image_file_with_extension);
         }
     }//getImageURL
-
-
+    
+    
     /** Returns the URL to a package-specific Java-Script file.
      *    The JS file must in the directory `/js` of the package.
      *
@@ -1517,8 +1518,8 @@ class Core {
             return sprintf("%sjs.php?package=%s&script=%s", Configuration::$BASE, $package_name, $js_file_with_extension);
         }
     }//getJSscriptURL
-
-
+    
+    
     /** Returns the URL to a package-specific CSS file.
      *    The CSS file must in the directory `/css` of the package.
      *
@@ -1538,8 +1539,8 @@ class Core {
             return sprintf("%scss.php?package=%s&stylesheet=%s", Configuration::$BASE, $package_name, $css_file_with_extension);
         }
     }//getCSSstylesheetURL
-
-
+    
+    
     public static function registerCSSstylesheet($css_file_with_extension, $package_id) {
         if (!self::packageExists($package_id)) {
             return ['success' => FALSE, 'data' => NULL];
@@ -1548,16 +1549,16 @@ class Core {
         array_push(self::$registered_css_stylesheets, join_path($pkg_root, 'css', $css_file_with_extension));
         return ['success' => TRUE, 'data' => NULL];
     }//registerCSSstylesheet
-
-
+    
+    
     public static function getRegisteredCSSstylesheets() {
         return self::$registered_css_stylesheets;
     }//getRegisteredCSSstylesheets
-
-
+    
+    
     // =======================================================================================================
     // Pages management functions
-
+    
     public static function getPagesList($order = NULL) {
         if (is_null($order) || !isset(self::$pages[$order])) {
             return self::$pages;
@@ -1565,7 +1566,7 @@ class Core {
             return self::$pages[$order];
         }
     }//getPagesList
-
+    
     public static function getFilteredPagesList($order = 'list', $enabledOnly = FALSE, $accessibleBy = NULL) {
         $pages = [];
         $pages_collection = self::getPagesList($order);
@@ -1612,8 +1613,8 @@ class Core {
         }
         return $pages;
     }//getFilteredPagesList
-
-
+    
+    
     /** Returns information for a given page as an associative array;
      *
      * @param string $page_id
@@ -1641,8 +1642,8 @@ class Core {
             return NULL;
         }
     }//getPageDetails
-
-
+    
+    
     /** Returns whether the page specified is installed on the platform as part of the package specified.
      *
      * @param string $package_id
@@ -1661,8 +1662,8 @@ class Core {
         $page_meta = join_path($pkg_root, 'pages', $package_id, 'metadata.json');
         return file_exists($page_meta);
     }//pageExists
-
-
+    
+    
     /** Returns whether the specified page is enabled.
      *
      *    If the package in not installed, `FALSE` will be returned.
@@ -1679,7 +1680,7 @@ class Core {
         if (!self::pageExists($package, $page)) {
             return [
                 'success' => FALSE,
-                'data'    => sprintf('The page "%s/%s" does not exist', $package, $page)
+                'data' => sprintf('The page "%s/%s" does not exist', $package, $page)
             ];
         }
         // open page status database
@@ -1688,8 +1689,8 @@ class Core {
         $page_db_key = $package . '__' . $page;
         return !$pages_db->key_exists($page_db_key);
     }//isPageEnabled
-
-
+    
+    
     /** Enables a page installed on the platform as part of the given package.
      *
      *    If the package specified is not installed, the function reports a failure state.
@@ -1712,7 +1713,7 @@ class Core {
         if (!self::pageExists($package, $page)) {
             return [
                 'success' => FALSE,
-                'data'    => sprintf('The page "%s/%s" does not exist', $package, $page)
+                'data' => sprintf('The page "%s/%s" does not exist', $package, $page)
             ];
         }
         // open page status database
@@ -1724,8 +1725,8 @@ class Core {
         }
         return ['success' => TRUE, 'data' => NULL];
     }//enablePage
-
-
+    
+    
     /** Disables a page installed on the platform as part of the given package.
      *
      *    If the package specified is not installed, the function reports a failure state.
@@ -1751,7 +1752,7 @@ class Core {
         if (!self::pageExists($package, $page)) {
             return [
                 'success' => FALSE,
-                'data'    => sprintf('The page "%s/%s" does not exist', $package, $page)
+                'data' => sprintf('The page "%s/%s" does not exist', $package, $page)
             ];
         }
         // open page status database
@@ -1760,8 +1761,8 @@ class Core {
         $page_db_key = $package . '__' . $page;
         return $pages_db->write($page_db_key, []);
     }//disablePage
-
-
+    
+    
     public static function getFactoryDefaultPagePerRole($user_role) {
         $no_default = 'NO_DEFAULT_PAGE';
         if (!array_key_exists($user_role, self::$registered_user_roles['core']))
@@ -1769,8 +1770,8 @@ class Core {
         // return default page
         return self::$registered_user_roles['core'][$user_role]['factory_default_page'];
     }//getFactoryDefaultPagePerRole
-
-
+    
+    
     public static function getDefaultPagePerRole($user_role, $package = 'core') {
         $no_default = 'NO_DEFAULT_PAGE';
         if (!array_key_exists($package, self::$registered_user_roles))
@@ -1780,31 +1781,31 @@ class Core {
         // return default page
         return self::$registered_user_roles[$package][$user_role]['default_page'];
     }//getDefaultPagePerRole
-
-
+    
+    
     // =======================================================================================================
     // Utility functions
-
+    
     public static function getStatistics() {
         $statistics = [];
         //
-
+        
         // TODO: Configuration::$CACHE_ENABLED is no longer available
         // Configuration::$CACHE_ENABLED = (self::$cache !== null && self::$cache instanceof phpFastCache);
         // // cache stats
         // $statistics['STATS_TOTAL_SELECT_REQS'] = ((Configuration::$CACHE_ENABLED && self::$cache->isExisting('STATS_TOTAL_SELECT_REQS'))? self::$cache->get('STATS_TOTAL_SELECT_REQS' ) : 1);
         // $statistics['STATS_CACHED_SELECT_REQS'] = ((Configuration::$CACHE_ENABLED && self::$cache->isExisting('STATS_CACHED_SELECT_REQS'))? self::$cache->get('STATS_CACHED_SELECT_REQS' ) : 1);
-
+        
         //
         return $statistics;
     }//getStatistics
-
-
+    
+    
     public static function getSiteName() {
         return self::getSetting('website_name', 'core');
     }//getSiteName
-
-
+    
+    
     /** Returns the hash identifying the version of the <b>\\compose\\</b> codebase.
      *    This corresponds to the commit ID on git.
      *
@@ -1818,12 +1819,12 @@ class Core {
     public static function getCodebaseHash($long_hash = FALSE) {
         return self::getPackageCodebaseHash('core', $long_hash);
     }//getCodebaseHash
-
-
+    
+    
     /** Returns the hash identifying the version of a package's codebase.
      *    This corresponds to the commit ID on git.
      *
-     * @param string  $package_id
+     * @param string $package_id
      *        ID of the package for which to retrieve the git hash.
      *
      * @param boolean $long_hash
@@ -1846,12 +1847,12 @@ class Core {
         //
         return $hash;
     }//getPackageCodebaseHash
-
-
+    
+    
     /** Returns the hash identifying the version of a repository.
      *    This corresponds to the commit ID on git.
      *
-     * @param string  $git_repo_path
+     * @param string $git_repo_path
      *        absolute path to the git repository for which to retrieve the info.
      *
      * @param boolean $long_hash
@@ -1870,8 +1871,8 @@ class Core {
         }
         return $hash;
     }//getGitRepositoryHash
-
-
+    
+    
     /** Returns information about the current <b>\\compose\\</b> codebase.
      *
      * @retval array
@@ -1881,8 +1882,8 @@ class Core {
     public static function getCodebaseInfo() {
         return self::getPackageCodebaseInfo('core');
     }//getCodebaseInfo
-
-
+    
+    
     /** Returns information about a package's codebase.
      *
      * @param string $package_id
@@ -1906,8 +1907,8 @@ class Core {
         //
         return $codebase_info;
     }//getCodebaseInfo
-
-
+    
+    
     /** Returns information about a git repository (e.g., git user, git repository, remote URL, etc.)
      *
      * @param string $git_repo_path
@@ -1939,11 +1940,11 @@ class Core {
         }
         // info not present in cache, get it from git
         $codebase_info = [
-            'git_owner'      => 'ND', 'git_repo' => 'ND', 'git_host' => 'ND',
+            'git_owner' => 'ND', 'git_repo' => 'ND', 'git_host' => 'ND',
             'git_remote_url' => 'ND',
-            'head_hash'      => self::getGitRepositoryHash($git_repo_path),
+            'head_hash' => self::getGitRepositoryHash($git_repo_path),
             'head_full_hash' => self::getGitRepositoryHash($git_repo_path, TRUE),
-            'head_tag'       => 'ND', 'latest_tag' => 'ND'
+            'head_tag' => 'ND', 'latest_tag' => 'ND'
         ];
         exec(sprintf('git -C "%s" config --get remote.origin.url', $git_repo_path), $info, $exit_code);
         if ($exit_code != 0) {
@@ -1989,8 +1990,8 @@ class Core {
         // ---
         return $codebase_info;
     }//getGitRepositoryInfo
-
-
+    
+    
     /** Returns the debugger data
      *
      * @retval array
@@ -2007,8 +2008,8 @@ class Core {
     public static function getDebugInfo() {
         return self::$debugger_data;
     }//getDebugInfo
-
-
+    
+    
     public static function updateBase($version = NULL) {
         if (is_null($version)) {
             $version = 'master';
@@ -2026,8 +2027,8 @@ class Core {
         }
         return ['success' => TRUE, 'data' => NULL];
     }//updateBase
-
-
+    
+    
     public static function redirectTo($resource, $append_qs = FALSE) {
         $qs = '';
         $uri = ltrim(trim($_SERVER['REQUEST_URI']), '/');
@@ -2035,7 +2036,7 @@ class Core {
             $qs = sprintf('?q=%s', base64_encode($uri));
         }
         $dry_run = isset($_GET['__NR']) ? '//' : '';
-        $resource = strlen(trim($resource)) == 0? './' : $resource;
+        $resource = strlen(trim($resource)) == 0 ? './' : $resource;
         printf('
             <script type="text/javascript" data-tag="__compose__redirect__">
                 %swindow.open("%s%s%s", "_top");
@@ -2050,13 +2051,13 @@ class Core {
             exit;
         }
     }//redirectTo
-
-
+    
+    
     public static function getBrowserHostname() {
         return strstr($_SERVER['HTTP_HOST'] . ':' . $_SERVER['SERVER_PORT'], ':', TRUE);
     }//getBrowserHostname
-
-
+    
+    
     public static function openAlert($type, $message) {
         echo sprintf("<script type=\"application/javascript\">
       	$(document).ready(function() {
@@ -2064,7 +2065,7 @@ class Core {
       	});
       </script>", $type, addslashes($message));
     }//openAlert
-
+    
     public static function requestAlert($type, $message) {
         if (!in_array($type, ['INFO', 'ERROR', 'WARNING'])) {
             self::throwErrorF('Unknown alert type "%s". Allowed values are ["%s"]', $type, implode('", "', [
@@ -2076,26 +2077,26 @@ class Core {
         $alert_key = sprintf('_ALERT_%s', $type);
         $_SESSION[$alert_key] = $message;
     }//requestAlert
-
+    
     public static function throwError($errorMsg) {
         $_SESSION['_ERROR_PAGE_MESSAGE'] = $errorMsg;
         //
         self::redirectTo('error');
     }//throwError
-
-
+    
+    
     public static function throwErrorF(...$args) {
         $_SESSION['_ERROR_PAGE_MESSAGE'] = call_user_func_array('sprintf', $args);
         //
         self::redirectTo('error');
     }//throwErrorF
-
-
+    
+    
     public static function throwException($exceptionMsg) {
         self::throwError($exceptionMsg);
     }//throwException
-
-
+    
+    
     // public static function sendEMail($to, $subject, $template, $replace, $replyTo=null){
     // 	// prepare the message body
     // 	$res = EmailTemplates::fill($template, $replace);
@@ -2136,24 +2137,24 @@ class Core {
     // 		return array('success' => true, 'data' => null);
     // 	}
     // }//sendEMail
-
-
+    
+    
     public static function getErrorRecordsList() {
         // open errors DB
         $errors_db = new Database('core', 'errors');
         // get list of keys
         return $errors_db->list_keys();
     }//getErrorRecordsList
-
-
+    
+    
     public static function getErrorRecord($error_id) {
         // open errors DB
         $errors_db = new Database('core', 'errors');
         // get item
         return $errors_db->read($error_id);
     }//getErrorRecord
-
-
+    
+    
     public static function collectErrorInfo($error_msg) {
         // open errors DB
         $errors_db = new Database('core', 'errors');
@@ -2165,22 +2166,22 @@ class Core {
         // create error record
         $error_id = strtotime("now");
         $error = [
-            'id'      => $error_id, 'datetime' => gmdate("Y-m-d H:i:s", $error_id),
+            'id' => $error_id, 'datetime' => gmdate("Y-m-d H:i:s", $error_id),
             'message' => $error_msg, 'user' => $user
         ];
         // push error to DB
         $errors_db->write($error_id, $error);
     }//collectErrorInfo
-
-
+    
+    
     public static function deleteErrorRecord($error_id) {
         // open errors DB
         $errors_db = new Database('core', 'errors');
         // remove item
         return $errors_db->delete($error_id);
     }//deleteErrorRecord
-
-
+    
+    
     public static function collectDebugInfo($package, $test_id, $test_value, $test_type) {
         if (!Configuration::$DEBUG)
             return;
@@ -2189,7 +2190,7 @@ class Core {
         // add debug test tuple
         self::$debugger_data[$package][$test_id] = [$test_value, $test_type];
     }//collectDebugInfo
-
+    
     // TODO: DO NOT USE: moving to Utils, use Utils::generateRandomString() instead
     public static function generateRandomString($length) {
         $chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
@@ -2201,38 +2202,38 @@ class Core {
         }
         return $result;
     }//generateRandomString
-
-
+    
+    
     public static function verbose($verbose_flag = TRUE) {
         self::$verbose = $verbose_flag;
     }//verbose
-
-
+    
+    
     public static function debug($debug_flag = TRUE) {
         self::$debug = $debug_flag;
     }//debug
-
-
+    
+    
     public static function log($type, $message, ...$args) {
         if (self::$debug) {
             echo vsprintf($message, $args);
             echo '<br>';
         }
     }//log
-
-
+    
+    
     public static function regenerateSessionID($delete_old_session = FALSE) {
         session_regenerate_id($delete_old_session);
     }//regenerateSessionID
-
-
+    
+    
     // =================================================================================================================
     // =================================================================================================================
     //
     //
     // Private functions
-
-
+    
+    
     private static function _set_umask($umask) {
         /*
         The umask defines what privileges can be assigned to newly created files and directories.
@@ -2256,15 +2257,15 @@ class Core {
         */
         umask(octdec($umask));
     }//_set_umask
-
-
+    
+    
     /**
      * Recursive dependency resolution
      *
-     * @param string $item       Item to resolve dependencies for
-     * @param array  $items      List of all items with dependencies
-     * @param array  $resolved   List of resolved items
-     * @param array  $unresolved List of unresolved items
+     * @param string $item Item to resolve dependencies for
+     * @param array $items List of all items with dependencies
+     * @param array $resolved List of resolved items
+     * @param array $unresolved List of unresolved items
      *
      * @return array
      */
@@ -2294,8 +2295,8 @@ class Core {
         //
         return [$resolved, $unresolved];
     }//_dep_solve_dependencies_graph
-
-
+    
+    
     private static function _solve_dependencies_graph($graph) {
         $resolved = [];
         $unresolved = [];
@@ -2310,8 +2311,8 @@ class Core {
         //
         return ['success' => TRUE, 'data' => $resolved];
     }//_solve_dependencies_graph
-
-
+    
+    
     private static function _load_packages_settings($core_only = FALSE) {
         // check if this object is cached
         $cache_key = sprintf("packages_settings%s", $core_only ? '_core_only' : '');
@@ -2338,8 +2339,8 @@ class Core {
         //
         return $settings;
     }//_load_packages_settings
-
-
+    
+    
     private static function _discover_pages($core_only = FALSE) {
         // check if this object is cached
         $cache_key_pages = sprintf("available_pages%s", $core_only ? '_core_only' : '');
@@ -2353,7 +2354,7 @@ class Core {
         $packages_ids = array_keys($packages);
         // iterate over the packages
         $pages = [
-            'list'         => [], 'by-id' => [], 'by-package' => [], 'by-usertype' => [],
+            'list' => [], 'by-id' => [], 'by-package' => [], 'by-usertype' => [],
             'by-menuorder' => [], 'by-responsive-priority' => []
         ];
         //
@@ -2416,8 +2417,8 @@ class Core {
         //
         return $pages;
     }//_discover_pages
-
-
+    
+    
     private static function _load_available_packages_in_dir($dir, $core_only = FALSE) {
         // check if this object is cached
         $dir_unique_id = md5($dir);
@@ -2444,7 +2445,7 @@ class Core {
                 if (file_exists($pkg_core_file_path)) {
                     $pkg['core'] = [
                         'namespace' => $pkg_id, 'file' => $pkg_core_file_name . ".php",
-                        'class'     => $pkg_core_file_name
+                        'class' => $pkg_core_file_name
                     ];
                 }
             }
@@ -2475,8 +2476,8 @@ class Core {
         //
         return $pkgs;
     }//_load_available_packages_in_dir
-
-
+    
+    
     private static function _discover_packages($core_only = FALSE) {
         // discover embedded packages
         $embed_pkgs = self::_load_available_packages_in_dir($GLOBALS['__EMBEDDED__PACKAGES__DIR__'], $core_only);
@@ -2486,14 +2487,14 @@ class Core {
         $pkgs = array_merge($embed_pkgs, $user_pkgs);
         return $pkgs;
     }//_discover_packages
-
-
+    
+    
     private static function _load_package_modules_list(&$pkg_root, &$package_descriptor) {
         $package_descriptor['modules'] = [];
         $modules_entrypoint = [
             'renderers/blocks' => '*.php', 'background/global' => '*.php',
             'background/local' => '*.php', 'login' => 'index.php',
-            'setup'            => 'index.php', 'profile' => 'index.php'
+            'setup' => 'index.php', 'profile' => 'index.php'
         ];
         // load modules
         foreach ($modules_entrypoint as $key => $entrypoint) {
@@ -2504,7 +2505,7 @@ class Core {
             }
         }
     }//_load_package_modules_list
-
+    
 }//Core
 
 ?>
