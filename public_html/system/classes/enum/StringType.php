@@ -21,7 +21,7 @@ class StringType {
 	const PASSWORD = "/^[a-zA-Z0-9_.-]+$/";
 	const TEXT = "/^[\\w\\D\\s_.,-:\(\)]*$/";
 	const EMAIL = "/^[a-zA-Z0-9_.-]+@[a-zA-Z0-9-]+.[a-zA-Z0-9-.]+$/";
-	const KEY = "/^[a-zA-Z_]+$/";
+	const KEY = "/^[A-Za-z0-9_]+$/";
 	const VERSION = "/^v?\\d+(\\.\\d+)?(\\.\\d+)?$/";
 
 

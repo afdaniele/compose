@@ -25,7 +25,7 @@ class Utils{
 
   public static function string_to_valid_filename( $string ){
     //remove non alpha numeric characters
-    $string = preg_replace("/[^A-Za-z0-9 _]/", '', $string);
+    $string = preg_replace("/[^A-Za-z0-9_]/", '', $string);
     //lowercase
     $string = strtolower($string);
     //replace more than one space to underscore
