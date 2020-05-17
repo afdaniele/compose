@@ -1024,8 +1024,214 @@ class Core {
         }
         return $roles;
     }//getUserRolesList
-
-
+    
+    
+    /**
+     *  Creates a new user group.
+     *
+     * @param $name string          name of the group to create
+     * @param $description string   description of the group to create
+     * @return array                a status array of the form
+     *    <pre><code class="php">[
+     *        "success" => boolean,    // whether the call succeded
+     *        "data" => mixed          // error message or null
+     *    ]</code></pre>
+     *        where, the `success` field indicates whether the call succeded.
+     *        The `data` field contains an error string when `success` is `FALSE`,
+     *        otherwise it will contain null.
+     */
+    public static function createUserGroup($name, $description) {
+        $db = new Database('core', 'groups');
+        $group_key = Utils::string_to_valid_filename($name);
+        // check if the group already exists
+        if ($db->key_exists($group_key)) {
+            return ['success' => false, 'data' => sprintf("A group with key '%s' already exists.", $group_key)];
+        }
+        // create group
+        return $db->write($group_key, [
+            'name' => $name,
+            'description' => $description,
+            'created-by' => self::getUserLogged('username'),
+            'creation-time' => time()
+        ]);
+    }//createUserGroup
+    
+    
+    /**
+     *  Checks if a user group exists.
+     *
+     * @param $group string         key of the group to check
+     * @return boolean              whether the group exists
+     */
+    public static function groupExists($group) {
+        $db = new Database('core', 'groups');
+        return $db->key_exists($group);
+    }//groupExists
+    
+    
+    /**
+     *  Returns the list of user groups.
+     *
+     * @return array      List of group keys, one for each existing group
+     */
+    public static function getGroupsList() {
+        $db = new Database('core', 'groups');
+        return $db->list_keys();
+    }//getGroupsList
+    
+    
+    /**
+     *  Returns the list of members of a group.
+     *
+     * @param $group string     Key of the group to list members for
+     * @return array            A status array of the form
+     *    <pre><code class="php">[
+     *        "success" => boolean,    // whether the call succeded
+     *        "data" => mixed          // error message or null
+     *    ]</code></pre>
+     *        where, the `success` field indicates whether the call succeded.
+     *        The `data` field contains an error string when `success` is `FALSE`,
+     *        otherwise it will contain a list of usernames, members of the group.
+     */
+    public static function getGroupMembers($group) {
+        // check if the group exists
+        if (!self::groupExists($group)) {
+            return ['success' => false, 'data' => sprintf("The group with key '%s' does not exists.", $group)];
+        }
+        // open user groupings database with limited scope
+        $scope = sprintf("/^%s__(.*)$/", $group);
+        $db = new Database('core', 'user_grouping', $scope);
+        // read keys
+        $keys = $db->list_keys();
+        return [
+            'success' => true,
+            'data' => array_map(function ($k) use ($scope) {
+                return Utils::regex_extract_group($k, $scope, 1);
+            }, $keys)];
+    }//getGroupMembers
+    
+    
+    /**
+     *  Returns the list of groups a user belongs to.
+     *
+     * @param $username string     Username of the user to list the groups for
+     * @return array               List of group keys the user belongs to
+     */
+    public static function getUserGroups($username) {
+        // check if the user exists
+        if (!self::userExists($username)) {
+            return ['success' => false, 'data' => sprintf("The user with key '%s' does not exists.", $username)];
+        }
+        // open user groupings database with limited scope
+        $scope = sprintf("/^(.+)__%s$/", $username);
+        $db = new Database('core', 'user_grouping', $scope);
+        // read keys
+        $keys = $db->list_keys();
+        return [
+            'success' => true,
+            'data' => array_map(function ($k) use ($scope) {
+                return Utils::regex_extract_group($k, $scope, 1);
+            }, $keys)
+        ];
+    }//getUserGroups
+    
+    
+    /**
+     *  Deletes a user group.
+     *
+     * @param $group string           key of the group to delete
+     * @return array                a status array of the form
+     *    <pre><code class="php">[
+     *        "success" => boolean,    // whether the call succeded
+     *        "data" => mixed        // error message or null
+     *    ]</code></pre>
+     *        where, the `success` field indicates whether the call succeded.
+     *        The `data` field contains an error string when `success` is `FALSE`,
+     *        otherwise it will contain null.
+     */
+    public static function deleteUserGroup($group) {
+        // check if the group exists
+        if (!self::groupExists($group)) {
+            return ['success' => false, 'data' => sprintf("The group with key '%s' does not exists.", $group)];
+        }
+        // delete all user groupings associated to this group
+        $scope = sprintf("/^%s__(.*)$/", $group);
+        $db = new Database('core', 'user_grouping', $scope);
+        foreach ($db->list_keys() as $key) {
+            $res = $db->delete($key);
+            if (!$res['success']) {
+                return $res;
+            }
+        }
+        // open groups database
+        $db = new Database('core', 'groups');
+        // delete group
+        return $db->delete($group);
+    }//deleteUserGroup
+    
+    
+    /**
+     *  Adds an existing user to an existing group.
+     *
+     * @param $username string      username of the user to add to the group
+     * @param $group string         key of the group to add the user to
+     * @return array                a status array of the form
+     *    <pre><code class="php">[
+     *        "success" => boolean,    // whether the call succeded
+     *        "data" => mixed        // error message or null
+     *    ]</code></pre>
+     *        where, the `success` field indicates whether the call succeded.
+     *        The `data` field contains an error string when `success` is `FALSE`,
+     *        otherwise it will contain null.
+     */
+    public static function addUserToGroup($username, $group) {
+        // check if the user exists
+        if (!self::userExists($username)) {
+            return ['success' => false, 'data' => sprintf("The user with key '%s' does not exists.", $username)];
+        }
+        // check if the group exists
+        if (!self::groupExists($group)) {
+            return ['success' => false, 'data' => sprintf("The group with key '%s' does not exists.", $group)];
+        }
+        // open user grouping database
+        $db = new Database('core', 'user_grouping');
+        $key = sprintf('%s__%s', $group, $username);
+        // add grouping entry
+        return $db->write($key, []);
+    }//addUserToGroup
+    
+    
+    /**
+     *  Removes an existing user from an existing group.
+     *
+     * @param $username string      username of the user to remove from the group
+     * @param $group string         key of the group to remove the user from
+     * @return array                a status array of the form
+     *    <pre><code class="php">[
+     *        "success" => boolean,    // whether the call succeded
+     *        "data" => mixed        // error message or null
+     *    ]</code></pre>
+     *        where, the `success` field indicates whether the call succeded.
+     *        The `data` field contains an error string when `success` is `FALSE`,
+     *        otherwise it will contain null.
+     */
+    public static function removeUserFromGroup($username, $group) {
+        // check if the user exists
+        if (!self::userExists($username)) {
+            return ['success' => false, 'data' => sprintf("The user with key '%s' does not exists.", $username)];
+        }
+        // check if the group exists
+        if (!self::groupExists($group)) {
+            return ['success' => false, 'data' => sprintf("The group with key '%s' does not exists.", $group)];
+        }
+        // open user grouping database
+        $db = new Database('core', 'user_grouping');
+        $key = sprintf('%s__%s', $group, $username);
+        // remove grouping entry
+        return $db->delete($key);
+    }//removeUserFromGroup
+    
+    
     /** Returns the list of user roles registered by a given package.
      *
      * @param string $package

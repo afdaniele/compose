@@ -1,96 +1,130 @@
 {
-  "details" : "Provides the tools for authenticating a user on the platform",
-  "actions" : {
-    "login_with_google" : {
-      "details" : "Authenticates a user on the platform using the Google Sign-In OAuth2 authentication system",
-      "access_level" : [
-        "guest"
-      ],
-      "authentication" : [
-        "web"
-      ],
-      "parameters" : {
-        "mandatory" : {
-          "id_token" : {
-            "type" : "text",
-            "length" : null,
-            "details" : "ID Token provided by Google Sign-In"
-          }
-        },
-        "optional" : {}
-      },
-      "return" : {
-        "values" : {}
-      }
-    },
-    "edit" : {
-      "details" : "Updates a user's profile",
-      "access_level" : [
-        "administrator"
-      ],
-      "authentication" : [
-        "web",
-        "app"
-      ],
-      "parameters" : {
-        "mandatory" : {
-          "userid" : {
-            "type" : "text",
-            "length" : null,
-            "details" : "User ID"
-          }
-        },
-        "optional" : {
-          "active" : {
-            "type" : "boolean",
-            "length" : null,
-            "details" : "Whether the user is enabled"
-          },
-          "role" : {
-            "type" : "enum",
-            "values" : [
-              "user",
-              "supervisor",
-              "administrator"
+    "details": "Provides the tools for managing users on the platform",
+    "actions": {
+        "login_with_google": {
+            "details": "Authenticates a user on the platform using the Google Sign-In OAuth2 authentication system",
+            "access_level": [
+                "guest"
             ],
-            "details" : "User's role"
-          }
+            "authentication": [
+                "web"
+            ],
+            "parameters": {
+                "mandatory": {
+                    "id_token": {
+                        "type": "text",
+                        "length": null,
+                        "details": "ID Token provided by Google Sign-In"
+                    }
+                },
+                "optional": {}
+            },
+            "return": {
+                "values": {}
+            }
+        },
+        "login_as_developer": {
+            "details": "Authenticates a developer on the platform (must be enabled by an admin)",
+            "access_level": [
+                "guest"
+            ],
+            "authentication": [
+                "web"
+            ],
+            "parameters": {
+                "mandatory": {},
+                "optional": {}
+            },
+            "return": {
+                "values": {}
+            }
+        },
+        "edit": {
+            "details": "Updates a user's profile",
+            "access_level": [
+                "administrator"
+            ],
+            "authentication": [
+                "web",
+                "app"
+            ],
+            "parameters": {
+                "mandatory": {
+                    "userid": {
+                        "type": "text",
+                        "length": null,
+                        "details": "User ID"
+                    }
+                },
+                "optional": {
+                    "active": {
+                        "type": "boolean",
+                        "length": null,
+                        "details": "Whether the user is enabled"
+                    },
+                    "role": {
+                        "type": "enum",
+                        "values": [
+                            "user",
+                            "supervisor",
+                            "administrator"
+                        ],
+                        "details": "User's role"
+                    }
+                }
+            },
+            "return": {
+                "values": {}
+            }
+        },
+        "groups": {
+            "details": "Returns the list of groups the user is part of",
+            "access_level": [
+                "user",
+                "supervisor",
+                "administrator"
+            ],
+            "authentication": [
+                "web"
+            ],
+            "parameters": {
+                "mandatory": {},
+                "optional": {
+                    "user": {
+                        "type": "key",
+                        "details": "Username of the user to fetch the list of groups for"
+                    }
+                }
+            },
+            "return": {
+                "values": {
+                    "groups": {
+                        "type": "array",
+                        "details": "List of groups the user is member of",
+                        "_data": [
+                            {
+                                "type": "key",
+                                "details": "A group key"
+                            }
+                        ]
+                    }
+                }
+            }
+        },
+        "logout": {
+            "details": "Closes the current session and logs out the user from the platform",
+            "access_level": [
+                "administrator",
+                "supervisor",
+                "user"
+            ],
+            "authentication": [
+                "web"
+            ],
+            "parameters": {
+                "mandatory": {},
+                "optional": {}
+            }
         }
-      },
-      "return" : {
-        "values" : {}
-      }
-    },
-    "login_as_developer" : {
-      "details" : "Authenticates a developer on the platform (must be enabled by an admin)",
-      "access_level" : [
-        "guest"
-      ],
-      "authentication" : [
-        "web"
-      ],
-      "parameters" : {
-        "mandatory" : {},
-        "optional" : {}
-      },
-      "return" : {
-        "values" : {}
-      }
-    },
-    "logout" : {
-      "details" : "Closes the current session and logs out the user from the platform",
-      "access_level" : [
-        "administrator",
-        "supervisor",
-        "user"
-      ],
-      "authentication" : [
-        "web"
-      ],
-      "parameters" : {
-        "mandatory" : {},
-        "optional" : {}
-      }
     }
-  }
 }
