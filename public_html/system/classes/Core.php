@@ -1359,7 +1359,6 @@ class Core {
      *  if installed is returned.
      */
     public static function getPackageRootDir($package_name) {
-
         if (self::packageExists($package_name)) {
             return self::getPackageDetails($package_name, 'root');
         } else {
