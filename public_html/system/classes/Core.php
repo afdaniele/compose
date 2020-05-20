@@ -421,7 +421,18 @@ class Core {
     
     
     public static function getURL($page = NULL, $action = NULL, $arg1 = NULL, $arg2 = NULL, $qs = [], $anchor = NULL) {
-        return sprintf('%s%s%s%s%s%s%s', Configuration::$BASE, is_null($page) ? '' : $page, is_null($action) ? '' : '/' . $action, is_null($arg1) ? '' : '/' . $arg1, is_null($arg2) ? '' : '/' . $arg2, (count($qs) > 0) ? toQueryString(array_keys($qs), $qs, TRUE) : '', (is_null($anchor) || strlen($anchor) <= 0) ? '' : sprintf('#%s', $anchor));
+        return sprintf(
+            '%s%s%s%s%s%s%s',
+            Configuration::$BASE,
+            is_null($page) ? '' : $page,
+            is_null($action) ? '' : '/' . $action,
+            is_null($arg1) ? '' : '/' . $arg1,
+            is_null($arg2) ? '' : '/' . $arg2,
+            (is_string($qs)) ?
+                ('?' . $qs) :
+                ((count($qs) > 0) ? toQueryString(array_keys($qs), $qs, TRUE) : ''),
+            (is_null($anchor) || strlen($anchor) <= 0) ? '' : sprintf('#%s', $anchor)
+        );
     }//getURL
     
     
