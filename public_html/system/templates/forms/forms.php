@@ -80,7 +80,7 @@ function generateFormByLayout(&$layout, $formID = null, $formClass = null, $meth
         );
     }
     // =>
-    foreach ($layout as $key => $field) {
+    foreach ($layout as $key => &$field) {
         ?>
         <div class="form-group"
              style="margin: 10px 0; <?php echo $field['hidden'] ? 'display:none' : '' ?>">
