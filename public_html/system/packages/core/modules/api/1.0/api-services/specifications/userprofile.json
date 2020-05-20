@@ -50,10 +50,10 @@
             ],
             "parameters": {
                 "mandatory": {
-                    "userid": {
-                        "type": "text",
+                    "user": {
+                        "type": "key",
                         "length": null,
-                        "details": "User ID"
+                        "details": "User ID of the user profile to update"
                     }
                 },
                 "optional": {

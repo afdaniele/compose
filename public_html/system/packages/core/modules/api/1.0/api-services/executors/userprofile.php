@@ -43,7 +43,7 @@ function execute(&$service, &$actionName, &$arguments) {
         //
         case 'edit':
             // open user profile
-            $res = Core::openUserInfo($arguments['userid']);
+            $res = Core::openUserInfo($arguments['user']);
             if (!$res['success']) {
                 return response400BadRequest($res['data']);
             }
