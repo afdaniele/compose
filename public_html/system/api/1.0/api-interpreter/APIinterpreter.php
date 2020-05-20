@@ -7,13 +7,6 @@
 
 namespace system\api\apiinterpreter;
 
-//init configuration
-require_once $GLOBALS['__SYSTEM__DIR__'].'/classes/Configuration.php';
-use system\classes\Configuration;
-
-require_once $GLOBALS['__SYSTEM__DIR__'].'/classes/Core.php';
-use system\classes\Core;
-
 require_once __DIR__.'/../utils/utils.php';
 
 
@@ -24,7 +17,7 @@ class APIinterpreter {
 	public static function interpret( &$service, &$actionName, &$arguments, &$format ){
 		$serviceName = $service['id'];
 		$executorPath = $service['executor'];
-
+		
 		// 1. verify data completeness and correctness
 		$action = $service['actions'][$actionName];
 		// check for mandatory arguments
@@ -88,12 +81,9 @@ class APIinterpreter {
 			formatResult( $result['data'], $action['return']['values'] );
 		}
 
-
-		// 6. format the response
-		require_once __DIR__.'/../../formatter/'.$format.'_formatter.php';
-		$data = formatData( $result );
+		
+        // 6. compile result
 		$result['data'] = $data;
-		$result['formatted'] = true;
 		if (!isset($result['message'])) {
 			$result['message'] = '';
 		}
