@@ -6,7 +6,7 @@ $type = null;
 $prefix = '_ALERT_';
 //
 if( isset($_SESSION[$prefix.'ERROR']) ){
-	$message = '<strong>Errore!</strong> '.$_SESSION[$prefix.'ERROR'];
+	$message = '<strong>Error!</strong> '.$_SESSION[$prefix.'ERROR'];
 	$type = 'danger';
 	//
 	unset( $_SESSION[$prefix.'ERROR'] );
