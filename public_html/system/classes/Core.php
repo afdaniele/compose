@@ -1081,6 +1081,35 @@ class Core {
     
     
     /**
+     *  Returns information about a group.
+     *
+     * @param $group string     Key of the group to list members for
+     * @return array            A status array of the form
+     *    <pre><code class="php">[
+     *        "success" => boolean,    // whether the call succeded
+     *        "data" => mixed          // error message or null
+     *    ]</code></pre>
+     *        where, the `success` field indicates whether the call succeded.
+     *        The `data` field contains an error string when `success` is `FALSE`,
+     *        otherwise it will contain a list of usernames, members of the group.
+     */
+    public static function getGroupInfo($group) {
+        // check if the group exists
+        if (!self::groupExists($group)) {
+            return ['success' => false, 'data' => sprintf("The group with key '%s' does not exists.", $group)];
+        }
+        // open groups database
+        $db = new Database('core', 'groups');
+        // read group info
+        $res = $db->read($group);
+        if (!$res['success']) {
+            return $res;
+        }
+        return ['success' => true, 'data' => $res['data']];
+    }//getGroupInfo
+    
+    
+    /**
      *  Returns the list of members of a group.
      *
      * @param $group string     Key of the group to list members for
