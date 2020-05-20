@@ -121,7 +121,7 @@ function generateFormByLayout(&$layout, $formID = null, $formClass = null, $meth
                     //
                     switch ($object) {
                         case 'input':
-                            sprintf(
+                            printf(
                                 '<input type="%s" class="form-control" id="" name="%s" placeholder="%s" value="%s" %s %s>',
                                 $type, $key, $field['placeholder'], $values[$key], $field['html'], $disabled
                             );
