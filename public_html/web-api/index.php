@@ -15,6 +15,14 @@ class AUTH_MODE {
     const API_APP = 1;
 }//AUTH_MODE
 
+const CONTENT_TYPE = [
+    'plain' => 'text/plain',
+    'plaintext' => 'text/plain',
+    'json' => 'application/json',
+    'xml' => 'text/xml',
+    'html' => 'text/html'
+];
+
 $GLOBALS['__API_DEBUG__'] = [];
 function API_DEBUG($key, $value) {
     $GLOBALS['__API_DEBUG__'][$key] = $value;
@@ -261,14 +269,14 @@ sendResponse($result['code'], $result['status'], $result['message'], $format, $r
 
 function sendResponse($code, $status, $message, $format, $data) {
     global $DEBUG;
-    //usleep( 10 /* sec */ * 1000 /* ms */ * 1000 /* us */ ); //DEBUG only
-    $content_type = array('plain' => 'text/plain', 'plaintext' => 'text/plain', 'json' => 'application/json', 'xml' => 'text/xml', 'html' => 'text/html');
     // prepare data
-    $container = array();
-    $container['code'] = $code;
-    $container['status'] = $status;
-    if ($message !== null) $container['message'] = $message;
-    if ($data !== null) $container['data'] = $data;
+    $container = [
+        'code' => $code,
+        'status' => $status,
+        'message' => $message ?? null,
+        'data' => $data ?? null
+    ];
+    // debug
     if ($DEBUG) $container['debug'] = $GLOBALS['__API_DEBUG__'];
     // import formatter
     require_once $GLOBALS['__SYSTEM__DIR__'] . '/api/formatter/' . $format . '_formatter.php';
@@ -283,7 +291,7 @@ function sendResponse($code, $status, $message, $format, $data) {
     header('Pragma: no-cache');
     header('Expires: 0');
     header('Access-Control-Allow-Origin: *');
-    header('Content-Type: ' . $content_type[$format] . '; charset=UTF-8');
+    header('Content-Type: ' . CONTENT_TYPE[$format] . '; charset=UTF-8');
     header("Content-Length: " . strlen($data));
     //
     echo $data;
