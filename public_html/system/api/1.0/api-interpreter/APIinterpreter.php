@@ -21,7 +21,7 @@ class APIinterpreter {
 		// 1. verify data completeness and correctness
 		$action = $service['actions'][$actionName];
 		// check for mandatory arguments
-		$data = array();
+		$errors = [];
 		$error = null;
 		if( is_array($action['parameters']['mandatory']) ){
     		// prepare arguments
@@ -29,13 +29,13 @@ class APIinterpreter {
             // check arguments
 			foreach( $action['parameters']['mandatory'] as $name => $details ){
 				if( !( checkArgument( $name, $arguments, $details, $error ) === true ) ){
-					$data[$name] = $error['message'];
+					$errors[$name] = $error['message'];
 				}
 			}
 		}
 		if( $error !== null ){
 			$error['message'] = 'An error occurred while processing the data in your request. Please check and try again!';
-			$error['data']['errors'] = $data;
+			$error['data']['errors'] = $errors;
 			return $error;
 		}
 		// check for optional arguments
@@ -46,13 +46,13 @@ class APIinterpreter {
             // check arguments
 			foreach( $action['parameters']['optional'] as $name => $details ){
 				if( !( checkArgument( $name, $arguments, $details, $error, false ) === true ) ){
-					$data[$name] = $error['message'];
+					$errors[$name] = $error['message'];
 				}
 			}
 		}
 		if( $error !== null ){
 			$error['message'] = 'An error occurred while processing the data in your request. Please check and try again!';
-			$error['data']['errors'] = $data;
+			$error['data']['errors'] = $errors;
 			return $error;
 		}
 
@@ -70,10 +70,12 @@ class APIinterpreter {
 		unset( $arguments['__action__'] );
 		unset( $arguments['__format__'] );
 		unset( $arguments['token'] );
+		unset( $arguments['app_id'] );
+		unset( $arguments['app_secret'] );
 
 
 		// 4. execute the action
-		$result = execute( $service, $actionName, $arguments, $format );
+		$result = execute($service, $actionName, $arguments, $format);
 
 
 		// 5. format the result content
@@ -83,7 +85,6 @@ class APIinterpreter {
 
 		
         // 6. compile result
-		$result['data'] = $data;
 		if (!isset($result['message'])) {
 			$result['message'] = '';
 		}
