@@ -746,6 +746,7 @@ class Core {
      *        array containing information about the new user. This array
      *        has to contain at least all the keys defined in $USER_ACCOUNT_TEMPLATE;
      *
+     * @return array
      * @retval array
      *        a status array of the form
      *    <pre><code class="php">[
@@ -788,6 +789,8 @@ class Core {
                 self::requestAlert('INFO', 'Administrator account created! The Developer Mode was disabled automatically.');
             }
         }
+        // add metadata
+        $user_info['creation-time'] = time();
         // create a new user account on the server
         $res = $users_db->write($user_id, $user_info);
         return $res;
