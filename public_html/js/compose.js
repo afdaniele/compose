@@ -320,12 +320,12 @@ function popup(data) {
         },
         'on_success': a callable object,
         'on_error': a callable object,
-        'block': boolean, whether to show the loading modal until completed
-        'confirm': boolean, whether to show the confirmation dialog on success
-        'quiet': boolean, indicates whether to suppress errors and warnings,
-        'reload': boolean, reload the page on success,
-        'host': hostname of the \compose\ instance to call the API on
-        'version': version of the \compose\ API to call
+        'block': boolean, whether to show the loading modal until completed (default: false)
+        'confirm': boolean, whether to show the confirmation dialog on success (default: false)
+        'quiet': boolean, indicates whether to suppress errors and warnings (default: false)
+        'reload': boolean, reload the page on success (default: false)
+        'host': hostname of the \compose\ instance to call the API on (default: LOCAL)
+        'version': version of the \compose\ API to call (default: LOCAL)
         'auth': {
             'token': \compose\ token (optional)
             'app_id': App IP for API call authentication (optional)
@@ -363,28 +363,30 @@ function smartAPI(service, action, args) {
         args['quiet'] || false,
         args['on_error'] || function () {
         },
-        args['method'] || 'GET'
+        args['method'] || 'GET',
+        args['data'] || {}
     );
 }//smartAPI
 
-function callAPI(url, successDialog, reload, funct, silentMode, suppressErrors, errorFcn, transportType) {
-    if (successDialog == undefined) successDialog = false;
-    if (reload == undefined) reload = false;
-    if (funct == undefined) funct = function (res) { /* do nothing! */
-    };
-    if (silentMode == undefined) silentMode = false;
-    if (suppressErrors == undefined) suppressErrors = false;
-    if (errorFcn == undefined) errorFcn = function (res) { /* do nothing! */
-    };
-    if (transportType == undefined) transportType = 'GET';
+function callAPI(url, successDialog, reload, funct, silentMode, suppressErrors, errorFcn, transportType, bodyData) {
+    if (successDialog === undefined) successDialog = false;
+    if (reload === undefined) reload = false;
+    if (funct === undefined) funct = function (res) { /* do nothing! */ };
+    if (silentMode === undefined) silentMode = false;
+    if (suppressErrors === undefined) suppressErrors = false;
+    if (errorFcn === undefined) errorFcn = function (res) { /* do nothing! */ };
+    if (transportType === undefined) transportType = 'GET';
+    if (bodyData === undefined) bodyData = {};
     //
-    postData = "";
-    if (transportType == 'POST') {
-        dataIndex = url.indexOf('?');
-        if (dataIndex != -1) {
+    let postData = "";
+    if (transportType === 'POST' && bodyData === {}) {
+        let dataIndex = url.indexOf('?');
+        if (dataIndex !== -1) {
             postData = url.substr(dataIndex + 1);
             url = url.substr(0, dataIndex);
         }
+    } else {
+        postData = bodyData;
     }
     //
     url = encodeURI(url);
@@ -399,7 +401,7 @@ function callAPI(url, successDialog, reload, funct, silentMode, suppressErrors, 
         dataType: 'json',
         data: postData,
         success: function (result) {
-            if (result.code == 200) {
+            if (result.code === 200) {
                 // success
                 // call the callback function
                 funct(result);
@@ -418,6 +420,8 @@ function callAPI(url, successDialog, reload, funct, silentMode, suppressErrors, 
                 }
             } else {
                 // error
+                // close any modal
+                $(".modal").modal('hide');
                 // call the callback function
                 errorFcn(result);
                 //open an alert
@@ -429,6 +433,8 @@ function callAPI(url, successDialog, reload, funct, silentMode, suppressErrors, 
         },
         error: function (jqXHR, textStatus, errorThrown) {
             // error
+            // close any modal
+            $(".modal").modal('hide');
             // call the callback function
             errorFcn(errorThrown);
             // open an alert
@@ -442,13 +448,13 @@ function callAPI(url, successDialog, reload, funct, silentMode, suppressErrors, 
 
 
 function callExternalAPI(url, callType, resultDataType, successDialog, reload, funct, silentMode, suppressErrors, errorFcn, errorArgs, customHeaders) {
-    if (successDialog == undefined) successDialog = false;
-    if (reload == undefined) reload = false;
-    if (funct == undefined) funct = function (res) { /* do nothing! */ };
-    if (silentMode == undefined) silentMode = false;
-    if (suppressErrors == undefined) suppressErrors = false;
-    if (errorFcn == undefined) errorFcn = function (res) { /* do nothing! */ };
-    if (customHeaders == undefined) customHeaders = {};
+    if (successDialog === undefined) successDialog = false;
+    if (reload === undefined) reload = false;
+    if (funct === undefined) funct = function (res) { /* do nothing! */ };
+    if (silentMode === undefined) silentMode = false;
+    if (suppressErrors === undefined) suppressErrors = false;
+    if (errorFcn === undefined) errorFcn = function (res) { /* do nothing! */ };
+    if (customHeaders === undefined) customHeaders = {};
     //
     url = encodeURI(url);
     //
