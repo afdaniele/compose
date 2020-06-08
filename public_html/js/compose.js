@@ -719,12 +719,12 @@ function checkForUpdates(git_provider, git_owner, git_repo, git_local_head, allo
         var url_compare_commits = api_url.format(git_owner, git_repo, 'compare', args_str);
 
         function fmt_fcn1(result, status, xhr) {
-            if (xhr.status == 304) {
+            if (xhr.status === 304) {
                 // use cache values
-                var needs_update = localStorage.getItem('github_compose_needs_update') == 'true';
-                on_success_fcn(needs_update);
+                let needs_update = localStorage.getItem('github_compose_needs_update') === 'true';
+                return on_success_fcn(needs_update);
             } else {
-                var needs_update = result.status == 'ahead';
+                let needs_update = result.status === 'ahead';
                 localStorage.setItem('github_compose_compare_last_modified', xhr.getResponseHeader("Last-Modified"));
                 localStorage.setItem('github_compose_compare_etag', xhr.getResponseHeader("ETag"));
                 localStorage.setItem('github_compose_needs_update', needs_update);
@@ -737,7 +737,7 @@ function checkForUpdates(git_provider, git_owner, git_repo, git_local_head, allo
 
     // ---
     if (allow_unstable) {
-        compareHeads(git_local_head, 'master');
+        compareHeads(git_local_head, 'devel');
     } else {
         // get latest release
         let url_latest_release = api_url.format(git_owner, git_repo, 'releases', 'latest');
