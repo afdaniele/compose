@@ -170,6 +170,7 @@
 
 	<!-- Custom JS -->
 	<script src="<?php echo Configuration::$BASE ?>js/compose.js"></script>
+	<script src="<?php echo Configuration::$BASE ?>js/compose_form.js"></script>
 
 	<!-- Utility JS -->
 	<script src="<?php echo Configuration::$BASE ?>js/md5.js"></script>
