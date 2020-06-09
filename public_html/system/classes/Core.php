@@ -2260,7 +2260,7 @@ class Core {
     
     public static function updateBase($version = NULL) {
         if (is_null($version)) {
-            $version = 'master';
+            $version = 'devel';
         }
         // pull new code
         exec(sprintf('git -C "%s" pull origin master --tags 2>&1', $GLOBALS['__COMPOSE__DIR__']), $info, $exit_code);
