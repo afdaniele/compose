@@ -70,10 +70,6 @@ class APIinterpreter {
 		unset( $arguments['__action__'] );
 		unset( $arguments['__format__'] );
 		unset( $arguments['token'] );
-		
-		
-//		unset( $arguments['app_id'] );
-//		unset( $arguments['app_secret'] );
 
 
 		// 4. execute the action
