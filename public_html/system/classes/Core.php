@@ -2265,7 +2265,7 @@ class Core {
             $branch = 'devel';
         }
         // fetch everything new
-        exec(sprintf('git -C "%s" fetch origin --all 2>&1', $GLOBALS['__COMPOSE__DIR__']), $info, $exit_code);
+        exec(sprintf('git -C "%s" fetch origin 2>&1', $GLOBALS['__COMPOSE__DIR__']), $info, $exit_code);
         if ($exit_code != 0) {
             return ['success' => FALSE, 'data' => implode('<br/>', $info)];
         }
