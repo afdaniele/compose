@@ -1,7 +1,7 @@
 # \\compose\\  -  A lightweight web-based CMS
 
 **\\compose\\** is a CMS (Content Management System) platform written in PHP that
-provides functionalities for fast-developing web applications on Linux servers.
+provides functionalities for fast-developing web applications on Linux servers. 
 
 Born to be modular, **\\compose\\** is built around the concept of installable
 packages. The built-in Core package is responsible for managing the
@@ -33,7 +33,7 @@ functionalities for managing settings for both the `core` package and other
 additional packages.
 
 The [RESTful](https://restfulapi.net/) API module in **\\compose\\** offers an easy
-way for packages to export API end-points accessible via HTTP.
+way for packages to export API end-points accessible via HTTP. 
 
 
 ## Documentation
