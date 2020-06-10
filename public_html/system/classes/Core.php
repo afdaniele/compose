@@ -2259,14 +2259,28 @@ class Core {
     
     
     public static function updateBase($version = NULL) {
+        $branch = 'stable';
         if (is_null($version)) {
             $version = 'devel';
+            $branch = 'devel';
         }
-        // pull new code
-        exec(sprintf('git -C "%s" pull origin master --tags 2>&1', $GLOBALS['__COMPOSE__DIR__']), $info, $exit_code);
+        // fetch everything new
+        exec(sprintf('git -C "%s" fetch origin --all 2>&1', $GLOBALS['__COMPOSE__DIR__']), $info, $exit_code);
         if ($exit_code != 0) {
             return ['success' => FALSE, 'data' => implode('<br/>', $info)];
-        } else {
+        }
+        // checkout branch
+        exec(sprintf('git -C "%s" checkout %s 2>&1', $GLOBALS['__COMPOSE__DIR__'], $branch), $info, $exit_code);
+        if ($exit_code != 0) {
+            return ['success' => FALSE, 'data' => implode('<br/>', $info)];
+        }
+        // pull new code
+        exec(sprintf('git -C "%s" pull origin %s --tags 2>&1', $GLOBALS['__COMPOSE__DIR__'], $branch), $info, $exit_code);
+        if ($exit_code != 0) {
+            return ['success' => FALSE, 'data' => implode('<br/>', $info)];
+        }
+        // switch to tag (if not devel update)
+        if ($version !== 'devel') {
             // checkout given version
             exec(sprintf('git -C "%s" checkout %s 2>&1', $GLOBALS['__COMPOSE__DIR__'], $version), $info, $exit_code);
             if ($exit_code != 0) {
