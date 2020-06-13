@@ -696,11 +696,11 @@ $(document).on('ready', function () {
 function checkForUpdates(git_provider, git_owner, git_repo, git_local_head, allow_unstable, on_success_fcn, on_error_fcn, ignore_cache) {
     // 0: git_owner, 1: git_repo, 2: action, 3: arguments
     var api_url = '';
-    if (git_provider == 'github.com') {
+    if (git_provider === 'github.com') {
         api_url = 'https://api.github.com/repos/{0}/{1}/{2}/{3}';
     }
     var headers = {};
-    if (ignore_cache == undefined || !ignore_cache) {
+    if (ignore_cache === undefined || !ignore_cache) {
         headers = {
             'release': {
                 'If-Modified-Since': localStorage.getItem('github_compose_release_last_modified'),
@@ -715,8 +715,8 @@ function checkForUpdates(git_provider, git_owner, git_repo, git_local_head, allo
 
     // function that compares two heads
     function compareHeads(local_head, remote_head) {
-        var args_str = '{0}...{1}'.format(local_head, remote_head);
-        var url_compare_commits = api_url.format(git_owner, git_repo, 'compare', args_str);
+        let args_str = '{0}...{1}'.format(local_head, remote_head);
+        let url_compare_commits = api_url.format(git_owner, git_repo, 'compare', args_str);
 
         function fmt_fcn1(result, status, xhr) {
             if (xhr.status === 304) {
