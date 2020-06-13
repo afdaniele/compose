@@ -56,6 +56,7 @@ RUN rm -rf "${APP_DIR}"
 RUN mkdir -p "${COMPOSE_DIR}"
 RUN mkdir -p "${COMPOSE_USERDATA_DIR}"
 RUN chown -R www-data:www-data "${APP_DIR}"
+RUN chown -R www-data:www-data "${COMPOSE_USERDATA_DIR}"
 
 # enable mod rewrite
 RUN a2enmod rewrite
