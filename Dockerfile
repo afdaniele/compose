@@ -20,8 +20,8 @@ ENV APP_DIR "/var/www"
 ENV COMPOSE_DIR "${APP_DIR}/html"
 ENV COMPOSE_URL "https://github.com/afdaniele/compose.git"
 ENV COMPOSE_USERDATA_DIR "/user-data"
-ENV COMPOSE_HTTP_PORT 80
-ENV COMPOSE_HTTPS_PORT 443
+ENV HTTP_PORT 80
+ENV HTTPS_PORT 443
 ENV SSL_DIR "${APP_DIR}/ssl"
 ENV SSL_CERTFILE "${SSL_DIR}/certfile.pem"
 ENV SSL_KEYFILE "${SSL_DIR}/privkey.pem"
@@ -110,10 +110,10 @@ HEALTHCHECK \
   --interval=30s \
   --timeout=8s \
   CMD \
-    curl --fail 'http://localhost/script.php?script=healthcheck' > /dev/null 2>&1 \
+    curl --fail "http://localhost:${HTTP_PORT}/script.php?script=healthcheck" > /dev/null 2>&1 \
     || \
     exit 1
 
 # configure HTTP/HTTPS port
-EXPOSE ${COMPOSE_HTTP_PORT}/tcp
-EXPOSE ${COMPOSE_HTTPS_PORT}/tcp
+EXPOSE ${HTTP_PORT}/tcp
+EXPOSE ${HTTPS_PORT}/tcp
