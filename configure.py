@@ -66,6 +66,8 @@ def main():
     print('Configuration update received:\n%s\n' % pformat(config_update))
   # update config
   config.update(config_update)
+  # create directory structure
+  os.makedirs(dirname(config_file), exist_ok=True)
   # dump config
   if DEBUG:
     print('Final configuration:\n%s' % pformat(config))
