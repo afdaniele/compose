@@ -177,6 +177,7 @@
 	<script src="<?php echo Configuration::$BASE ?>js/hmac-sha256.js"></script>
 	<script src="<?php echo Configuration::$BASE ?>js/enc-base64-min.js"></script>
 	<script src="<?php echo Configuration::$BASE ?>js/string.format.js"></script>
+	<script src="<?php echo Configuration::$BASE ?>js/string.capitalize.js"></script>
 
 	<!-- Google API Library -->
     <script src="https://apis.google.com/js/platform.js" async defer></script>
