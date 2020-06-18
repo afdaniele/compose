@@ -39,15 +39,15 @@ usermod -aG ${GNAME} www-data
 # check if a custom HTTP_PORT was given
 if [ "${HTTP_PORT}" != "${DEFAULT_HTTP_PORT}" ]; then
   echo "Configuring \\compose\\ to be served on custom HTTP port ${HTTP_PORT}."
-  sed -i "s/*:${DEFAULT_HTTP_PORT}/*:${HTTP_PORT}/" /etc/apache2/sites-available/000-default.conf
-  sed -i "s/Listen ${DEFAULT_HTTP_PORT}/Listen ${HTTP_PORT}/" /etc/apache2/ports.conf
+  sed -i "s/*:${DEFAULT_HTTP_PORT}>/*:${HTTP_PORT}>/" /etc/apache2/sites-available/000-default.conf
+  sed -i "s/Listen ${DEFAULT_HTTP_PORT}$/Listen ${HTTP_PORT}/" /etc/apache2/ports.conf
 fi
 
 # check if a custom HTTPS_PORT was given
 if [ "${HTTPS_PORT}" != "${DEFAULT_HTTPS_PORT}" ]; then
   echo "Configuring \\compose\\ to be served on custom HTTPS port ${HTTPS_PORT}."
-  sed -i "s/*:${DEFAULT_HTTPS_PORT}/*:${HTTPS_PORT}/" /etc/apache2/sites-available/000-default-ssl.conf
-  sed -i "s/Listen ${DEFAULT_HTTPS_PORT}/Listen ${HTTPS_PORT}/" /etc/apache2/ports.conf
+  sed -i "s/*:${DEFAULT_HTTPS_PORT}>/*:${HTTPS_PORT}>/" /etc/apache2/sites-available/000-default-ssl.conf
+  sed -i "s/Listen ${DEFAULT_HTTPS_PORT}$/Listen ${HTTPS_PORT}/" /etc/apache2/ports.conf
 fi
 
 # check if SSL is enabled and the keys are provided
