@@ -21,6 +21,12 @@ window.compose = {};
 
 window.COMPOSE_API_VERSION = '1.0';
 
+function humanFileSize(size) {
+    if (size <= 0) return '0 B';
+    let i = Math.floor( Math.log(size) / Math.log(1024) );
+    return ( size / Math.pow(1024, i) ).toFixed(2) * 1 + ' ' + ['B', 'kB', 'MB', 'GB', 'TB'][i];
+};
+
 function range(start, end, step) {
     var range = [];
     var typeofStart = typeof start;
