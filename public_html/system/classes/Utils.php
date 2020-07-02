@@ -24,14 +24,14 @@ class Utils{
   }//regex_extract_group
 
   public static function string_to_valid_filename( $string ){
-    //remove non alpha numeric characters
-    $string = preg_replace("/[^A-Za-z0-9_]/", '', $string);
     //lowercase
     $string = strtolower($string);
     //replace more than one space to underscore
     $string = preg_replace('/([\s])\1+/', '_', $string );
     //convert any single space to underscrore
     $string = str_replace(" ","_",$string);
+    //remove non alpha numeric characters
+    $string = preg_replace("/[^A-Za-z0-9_]/", '', $string);
     // return sanitized string
     return $string;
   }//string_to_valid_filename
