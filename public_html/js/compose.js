@@ -17,6 +17,8 @@ window.chartColors = {
     grey: 'rgb(201, 203, 207)'
 };
 
+window.compose = {};
+
 window.COMPOSE_API_VERSION = '1.0';
 
 function range(start, end, step) {
