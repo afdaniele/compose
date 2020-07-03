@@ -10,6 +10,7 @@
 !VERSION
 !.git/refs/heads/
 !.git/refs/tags/
+!.git/refs/remotes/origin/
 
 # exclude packages (but core)
 public_html/system/packages
