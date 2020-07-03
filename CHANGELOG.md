@@ -1,3 +1,6 @@
+## 1.0.0-rc3 (July 02, 2020)
+  - fixed bug in git ref
+
 ## 1.0.0-rc2 (July 02, 2020)
   - fixed GIT_REF in Dockerfile
 
