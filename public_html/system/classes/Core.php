@@ -1907,7 +1907,7 @@ class Core {
             return FALSE;
         }
         $pkg_root = self::getPackageDetails($package_id, 'root');
-        $page_meta = join_path($pkg_root, 'pages', $package_id, 'metadata.json');
+        $page_meta = join_path($pkg_root, 'pages', $page, 'metadata.json');
         return file_exists($page_meta);
     }//pageExists
     
