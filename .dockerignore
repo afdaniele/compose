@@ -8,7 +8,8 @@
 !dependencies-apt.txt
 !configure.py
 !VERSION
-!.git
+!.git/refs/heads/
+!.git/refs/tags/
 
 # exclude packages (but core)
 public_html/system/packages

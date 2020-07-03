@@ -87,8 +87,8 @@ COPY .git/refs/${GIT_REF}/${COMPOSE_VERSION} /compose.builder.version.sha
 
 # install \compose\
 RUN rretry \
-  --min 20 \
-  --max 60 \
+  --min 40 \
+  --max 120 \
   --tries 3 \
   --on-retry "rm -rf ${COMPOSE_DIR}" \
   --verbose \
