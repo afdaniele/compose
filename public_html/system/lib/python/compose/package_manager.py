@@ -47,6 +47,7 @@ def exec_cmd(command, retry_cleanup_command=None):
     log('   > Trial %d/%d (timeout %d secs)...' % (i, num_trials, timeout))
     # get remote url from repo
     try:
+      log('   > $ %s' % str(command))
       pipe = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
       pipe.wait(timeout=timeout)
       output_str, error_str = pipe.communicate()
