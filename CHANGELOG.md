@@ -1,3 +1,6 @@
+## 1.0.0-rc5 (July 03, 2020)
+  - now installing compose-cms python library for easy configuration
+
 ## 1.0.0-rc4 (July 03, 2020)
   - dropped configure.py
   - fixed bug in Core::pageExists
