@@ -1,3 +1,9 @@
+## 1.0.0-rc4 (July 03, 2020)
+  - dropped configure.py
+  - fixed bug in Core::pageExists
+  - fixed bug in git_ref
+  - now printing raw commands in package manager
+
 ## 1.0.0-rc3 (July 02, 2020)
   - fixed bug in git ref
 
