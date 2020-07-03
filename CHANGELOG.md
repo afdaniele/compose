@@ -1,3 +1,6 @@
+## 1.0.0-rc2 (July 02, 2020)
+  - fixed GIT_REF in Dockerfile
+
 ## 1.0.0-rc (July 02, 2020)
   - BREAKING: modified function `string_to_valid_filename`
   - added humanFileSize to JS
