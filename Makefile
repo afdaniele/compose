@@ -10,6 +10,7 @@ JENKINS_BRANCH=$(lastword $(subst /, ,${GIT_BRANCH}))
 
 HEAD_TAG=$(shell git describe --exact-match --tags HEAD 2> /dev/null || :)
 LATEST_TAG=$(shell git tag | tail -1)
+GIT_REF=$(shell [ "${HEAD_TAG}" = "" ] && echo "heads" || echo "tags")
 HEAD_NAME=$(shell [ "${HEAD_TAG}" = "" ] && git rev-parse --abbrev-ref HEAD || echo "${HEAD_TAG}")
 VERSION=$(shell [ "${HEAD_NAME}" = "HEAD" ] && echo "${JENKINS_BRANCH}" || echo "${HEAD_NAME}")
 TAG=$(shell [ "${HEAD_TAG}" = "${LATEST_TAG}" ] && echo "latest" || echo "${VERSION}")
@@ -33,6 +34,7 @@ build:
 		-f "${DOCKERFILE}" \
 		--build-arg ARCH=${ARCH} \
 		--build-arg COMPOSE_VERSION=${COMPOSE_VERSION} \
+		--build-arg GIT_REF=${GIT_REF} \
 		--build-arg BASE_VERSION=${BASE_VERSION} \
 		./
 

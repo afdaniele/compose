@@ -2,6 +2,7 @@ ARG ARCH=amd64
 ARG PHP_VERSION=7.0.31
 ARG OS_DISTRO=stretch
 ARG COMPOSE_VERSION=stable
+ARG GIT_REF=heads
 
 FROM ${ARCH}/php:${PHP_VERSION}-apache-${OS_DISTRO}
 
@@ -9,6 +10,8 @@ FROM ${ARCH}/php:${PHP_VERSION}-apache-${OS_DISTRO}
 ARG ARCH
 ARG PHP_VERSION
 ARG OS_DISTRO
+ARG GIT_REF
+ARG COMPOSE_VERSION
 
 # configure environment: system & libraries
 ENV ARCH=${ARCH}
@@ -77,13 +80,10 @@ RUN a2dissite 000-default-ssl
 # switch to simple user
 USER www-data
 
-# fetch args
-ARG COMPOSE_VERSION
-
 # copy SHA of the current commit. This has two effects:
 # - stores the SHA of the commit from which the image was built
 # - correct the issue with docker cache due to git clone command below
-COPY .git/refs/remotes/origin/${COMPOSE_VERSION} /compose.builder.version.sha
+COPY .git/refs/${GIT_REF}/${COMPOSE_VERSION} /compose.builder.version.sha
 
 # install \compose\
 RUN rretry \
