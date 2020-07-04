@@ -1,3 +1,7 @@
+## 1.0.0-rc6 (July 04, 2020)
+  - added support for remote docker endpoint in Makefile
+  - added String.prototype.[l|r]split; fixed bug;
+
 ## 1.0.0-rc5 (July 03, 2020)
   - now installing compose-cms python library for easy configuration
 
