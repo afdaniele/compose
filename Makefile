@@ -5,6 +5,7 @@ DEFAULT_ARCH=amd64
 ARCH=${DEFAULT_ARCH}
 IMAGE=afdaniele/compose
 BASE_VERSION=stable
+H=unix:///var/run/docker.sock
 
 JENKINS_BRANCH=$(lastword $(subst /, ,${GIT_BRANCH}))
 
@@ -15,7 +16,7 @@ HEAD_NAME=$(shell [ "${HEAD_TAG}" = "" ] && git rev-parse --abbrev-ref HEAD || e
 VERSION=$(shell [ "${HEAD_NAME}" = "HEAD" ] && echo "${JENKINS_BRANCH}" || echo "${HEAD_NAME}")
 TAG=$(shell [ "${HEAD_TAG}" = "${LATEST_TAG}" ] && echo "latest" || echo "${VERSION}")
 EXTRA_TAG=$(shell [ "${ARCH}" = "${DEFAULT_ARCH}" ] && echo "-t ${IMAGE}:${TAG}" || echo "")
-IMAGE_SHA=$(shell docker inspect --format="{{index .Id}}" "${IMAGE}:${VERSION}-${ARCH}" 2> /dev/null || :)
+IMAGE_SHA=$(shell docker -H=${H} inspect --format="{{index .Id}}" "${IMAGE}:${VERSION}-${ARCH}" 2> /dev/null || :)
 DOCKERFILE=Dockerfile
 COMPOSE_VERSION=${VERSION}
 
@@ -27,7 +28,7 @@ devel-build:
 		BASE_VERSION=devel
 
 build:
-	docker build \
+	docker -H=${H} build \
 		-t "${IMAGE}:${VERSION}-${ARCH}" \
 		-t "${IMAGE}:${TAG}-${ARCH}" \
 		${EXTRA_TAG} \
@@ -39,17 +40,17 @@ build:
 		./
 
 push:
-	docker push "${IMAGE}:${VERSION}-${ARCH}"
-	docker push "${IMAGE}:${TAG}-${ARCH}"
+	docker -H=${H} push "${IMAGE}:${VERSION}-${ARCH}"
+	docker -H=${H} push "${IMAGE}:${TAG}-${ARCH}"
 	@if [ "${ARCH}" = "${DEFAULT_ARCH}" ]; then \
-    docker push "${IMAGE}:${TAG}"; \
+    docker -H=${H} push "${IMAGE}:${TAG}"; \
   fi
 
 pull:
-	docker pull "${IMAGE}:${VERSION}-${ARCH}" || :
+	docker -H=${H} pull "${IMAGE}:${VERSION}-${ARCH}" || :
 
 clean:
-	docker rmi -f "${IMAGE_SHA}" || :
+	docker -H=${H} rmi -f "${IMAGE_SHA}" || :
 
 bump:
 	./bump-version.sh
