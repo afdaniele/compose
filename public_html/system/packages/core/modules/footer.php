@@ -23,7 +23,7 @@ use \system\classes\Configuration;
 
 #footer_developer_credit > p{
   font-size: 8pt;
-  width: 190px;
+  margin-right: 20px;
   text-align: left;
   margin-bottom: 0;
   line-height: 11pt;

@@ -352,7 +352,7 @@ function smartAPI(service, action, args) {
         auth = {'auth': 'app_id={0}&app_secret={1}'.format(args['auth']['app_id'], args['auth']['app_secret'])};
     }
     // form URL
-    let url = '{base}/web-api/{version}/{service}/{action}/json?{auth}&{arguments}'.format({
+    let url = '{base}web-api/{version}/{service}/{action}/json?{auth}&{arguments}'.format({
         'base': base,
         'version': version,
         'service': service,
@@ -360,6 +360,8 @@ function smartAPI(service, action, args) {
         'arguments': $.param(args['arguments'] || {}),
         ...auth
     });
+    // sanitize url
+    url = url.strip('/');
     // call API
     callAPI(
         url,
@@ -397,6 +399,8 @@ function callAPI(url, successDialog, reload, funct, silentMode, suppressErrors, 
         postData = bodyData;
     }
     //
+    // sanitize url
+    url = url.strip('/');
     url = encodeURI(url);
     //
     if (!silentMode) {
@@ -618,20 +622,20 @@ function hmsToSeconds(str) {
 }//hmsToSeconds
 
 function redirectTo(page, action, arg1, arg2, query_array) {
-    var url = "{0}//{1}/".format(location.protocol, location.host);
+    let url = window.Configuration.get('core', 'BASE');
     // append PAGE
-    if (page != null && page != undefined)
-        url += (url.slice(-1) == '/' ? '' : '/') + page;
+    if (page != null)
+        url += page;
     // append ACTION
-    if (action != null && action != undefined)
+    if (action != null)
         url += '/' + action;
     // append arguments
-    if (arg1 != null && arg1 != undefined)
+    if (arg1 != null)
         url += '/' + arg1;
-    if (arg2 != null && arg2 != undefined)
+    if (arg2 != null)
         url += '/' + arg2;
     // create query string
-    if (query_array != null && query_array != undefined)
+    if (query_array != null)
         url += '?' + $.param(query_array);
     // move to new url
     window.location = url;
