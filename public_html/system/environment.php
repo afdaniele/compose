@@ -12,6 +12,8 @@ $GLOBALS['__DATA__DIR__'] = __DIR__.'/../data/';
 
 $GLOBALS['__EMBEDDED__PACKAGES__DIR__'] = __DIR__.'/packages/';
 
+$GLOBALS['__CORE__PACKAGE__DIR__'] = __DIR__.'/packages/core/';
+
 // user-data
 if (isset($_ENV['COMPOSE_USERDATA_DIR'])) {
   $GLOBALS['__USERDATA__DIR__'] = rtrim($_ENV['COMPOSE_USERDATA_DIR'], '/').'/';

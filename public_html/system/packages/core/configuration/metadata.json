@@ -80,6 +80,14 @@
             "default" : false,
             "details" : "Whether to allow updating to non-production ready versions"
         },
+        "theme" : {
+            "title" : "Theme",
+            "type" : "enum",
+            "default" : "core:default",
+            "details" : "The theme used by \\compose\\",
+            "enum_filler_fcn_name" : "_installed_themes",
+            "enum_filler_fcn_args" : []
+        },
         "guest_default_page" : {
             "title" : "Default page: Guest",
             "type" : "enum",

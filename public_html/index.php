@@ -126,6 +126,14 @@
     
     // execute URL rewrite
     URLrewrite::match();
+    
+    // get theme
+    $theme_id = Core::getSetting('theme');
+    $theme_parts = explode(':', $theme_id);
+    $theme_file = Core::getThemeFile($theme_parts[1], $theme_parts[0]);
+    if (is_null($theme_file)) {
+        $theme_file = Core::getThemeFile('default');
+    }
     ?>
 
     <meta charset="utf-8">
@@ -214,107 +222,81 @@
 
 <body <?php echo((Configuration::$PAGE == 'error') ? 'style="background-color:white"' : '') ?>>
 
-<!-- Load JS Configuration class -->
-<?php
-include('js/compose-configuration.js.php');
-?>
-
-<!-- Fixed navbar -->
-<?php
-include('system/packages/core/modules/navbar.php');
-
-// login system
-include('system/packages/core/modules/login.php');
-
-// developer mode watermark
-if (Core::getSetting('developer_mode')) {
-    include('system/packages/core/modules/devel_watermark.php');
-}
-
-// updates helper
-if (Core::getUserRole() == 'administrator' && Core::getSetting('check_updates')) {
-    include('system/packages/core/modules/updates_helper.php');
-}
-?>
-
-<!-- Begin page content -->
-<div id="page_container" class="container">
+    <!-- Load JS Configuration class -->
+    <?php
+    include('js/compose-configuration.js.php');
+    $CORE_PKG_DIR = $GLOBALS['__CORE__PACKAGE__DIR__'];
     
-    <?php include('system/packages/core/modules/alerts.php'); ?>
-
-    <br>
-
-    <!-- Main Container -->
-    <div id="page_canvas">
-        <?php
-        include(Core::getPageDetails(Configuration::$PAGE, 'path') . "/index.php");
-        ?>
-    </div>
-    <!-- Main Container End -->
-
-    <br>
-
-</div>
-
-<?php
-include('system/packages/core/modules/modals/loading_modal.php');
-include('system/packages/core/modules/modals/success_modal.php');
-include('system/packages/core/modules/modals/yes_no_modal.php');
-?>
-
-<!-- Debug section (Admin only) -->
-<?php
-include('system/packages/core/modules/debug.php');
-?>
-
-<!-- Fixed footer -->
-<?php
-include('system/packages/core/modules/footer.php');
-?>
-
-<!-- Global Background modules -->
-<?php
-// get list of background/global module files
-$global_background_scripts_per_pkg = Core::getPackagesModules('background/global');
-foreach ($global_background_scripts_per_pkg as $pkg_id => $global_background_scripts) {
-    foreach ($global_background_scripts as $global_background_script) {
-        include($global_background_script);
+    // Load login system
+    include(join_path($CORE_PKG_DIR, 'modules/login.php'));
+    
+    // Developer mode watermark
+    if (Core::getSetting('developer_mode')) {
+        include(join_path($CORE_PKG_DIR, 'modules/devel_watermark.php'));
     }
-}
-?>
+    
+    // Updates helper
+    if (Core::getUserRole() == 'administrator' && Core::getSetting('check_updates')) {
+        include(join_path($CORE_PKG_DIR, 'modules/updates_helper.php'));
+    }
+    ?>
+    
+    
+    <!-- Load theme -->
+    <?php
+    include($theme_file);
+    ?>
+    
+    
+    <?php
+    // Load modals
+    include(join_path($CORE_PKG_DIR, 'modules/modals/loading_modal.php'));
+    include(join_path($CORE_PKG_DIR, 'modules/modals/success_modal.php'));
+    include(join_path($CORE_PKG_DIR, 'modules/modals/yes_no_modal.php'));
+    
+    // Debug section (Admin only)
+    include(join_path($CORE_PKG_DIR, 'modules/debug.php'));
 
-<!-- Local Background modules -->
-<?php
-// get list of background/local module files
-$page_package = Core::getPageDetails(Configuration::$PAGE, 'package');
-$local_background_scripts = Core::getPackagesModules('background/local', $page_package);
-foreach ($local_background_scripts as $local_background_script) {
-    include($local_background_script);
-}
-?>
+    // Global Background modules: get list of background/global module files
+    $global_background_scripts_per_pkg = Core::getPackagesModules('background/global');
+    foreach ($global_background_scripts_per_pkg as $pkg_id => $global_background_scripts) {
+        foreach ($global_background_scripts as $global_background_script) {
+            include($global_background_script);
+        }
+    }
+    
+    // Local Background modules: get list of background/local module files
+    $page_package = Core::getPageDetails(Configuration::$PAGE, 'package');
+    $local_background_scripts = Core::getPackagesModules('background/local', $page_package);
+    foreach ($local_background_scripts as $local_background_script) {
+        include($local_background_script);
+    }
+    
+    // Package-specific CSS stylesheets
+    foreach (Core::getRegisteredCSSstylesheets() as $css_file) {
+        echo sprintf('<style type="text/css">%s</style>', file_get_contents($css_file));
+    }
+    ?>
+    
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script type="text/javascript"
+            src="<?php echo Configuration::$BASE ?>js/bootstrap.min.js"></script>
+    <script type="text/javascript"
+            src="<?php echo Configuration::$BASE ?>js/bootstrap-toggle.min.js"></script>
 
-<!-- Package-specific CSS stylesheets -->
-<?php
-foreach (Core::getRegisteredCSSstylesheets() as $css_file) {
-    echo sprintf('<style type="text/css">%s</style>', file_get_contents($css_file));
-}
-?>
+    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+    <script type="text/javascript"
+            src="<?php echo Configuration::$BASE ?>js/ie10-viewport-bug-workaround.js"
+    ></script>
 
-<!-- Bootstrap core JavaScript
-================================================== -->
-<!-- Placed at the end of the document so the pages load faster -->
-<script src="<?php echo Configuration::$BASE ?>js/bootstrap.min.js"></script>
-<script src="<?php echo Configuration::$BASE ?>js/bootstrap-toggle.min.js"></script>
-
-<!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
-<script src="<?php echo Configuration::$BASE ?>js/ie10-viewport-bug-workaround.js"></script>
-
-<script type="text/javascript">
-    // configure button groups
-    $(".btn-group > .btn").click(function () {
-        $(this).addClass("active").siblings().removeClass("active");
-    });
-</script>
+    <script type="text/javascript">
+        // configure button groups
+        $(".btn-group > .btn").click(function () {
+            $(this).addClass("active").siblings().removeClass("active");
+        });
+    </script>
 
 </body>
 </html>

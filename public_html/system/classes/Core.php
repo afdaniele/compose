@@ -2157,6 +2157,35 @@ class Core {
     }//getCodebaseInfo
     
     
+    /** Returns path to theme entrypoint.
+     *
+     * @param string $theme_name
+     *        Name of the theme.
+     *
+     * @param string $package_id
+     *        ID of the package the theme belongs to.
+     *
+     * @retval string
+     * @return string
+     *        Path to the theme entrypoint file or NULL if the theme does not exist.
+     *
+     */
+    public static function getThemeFile($theme_name, $package_id = 'core') {
+        // check if the package exists
+        if (!self::packageExists($package_id)) {
+            return null;
+        }
+        // check if the theme exists
+        $theme_file = join_path(
+            self::getPackageRootDir($package_id), 'modules', 'theme', $theme_name, 'index.php');
+        if (!file_exists($theme_file)) {
+            return null;
+        }
+        // everything looks ok
+        return $theme_file;
+    }//getThemeFile
+    
+    
     /** Returns information about a git repository (e.g., git user, git repository, remote URL, etc.)
      *
      * @param string $git_repo_path
@@ -2756,7 +2785,8 @@ class Core {
         $modules_entrypoint = [
             'renderers/blocks' => '*.php', 'background/global' => '*.php',
             'background/local' => '*.php', 'login' => 'index.php',
-            'setup' => 'index.php', 'profile' => 'index.php'
+            'setup' => 'index.php', 'profile' => 'index.php',
+            'theme' => '*/index.php'
         ];
         // load modules
         foreach ($modules_entrypoint as $key => $entrypoint) {
