@@ -70,9 +70,10 @@ footer #avatar{
 }
 
 .page-title{
-  padding: 10px 0;
-  border-bottom: 1px solid #ddd;
-  margin-bottom: 32px;
+    padding: 10px 0;
+    border-bottom: 1px solid #ddd;
+    margin-bottom: 32px;
+    margin-top: 0;
 }
 
 select.form-control{

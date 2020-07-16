@@ -346,6 +346,7 @@ function smartAPI(service, action, args) {
     if (args['host']) {
         base = (args['host'].startsWith('http')) ? args['host'] : 'http://' + args['host'];
     }
+    base = base.endsWith('/')? base : base + '/';
     let version = args['version'] || window.COMPOSE_API_VERSION;
     let auth = {'auth': 'token={0}'.format(window.COMPOSE_TOKEN)};
     if (args['auth'] !== undefined && args['auth']['app_id'] !== undefined && args['auth']['app_secret'] !== undefined) {
