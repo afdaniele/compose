@@ -11,7 +11,7 @@ function randomStr(len) {
 function human_key(key) {
     if (typeof key == 'string') {
         // remove underscores and external spaces
-        key = key.replace('_', ' ').trim();
+        key = key.replace(/_/g, ' ').trim();
         // apply ucfirst
         return key.charAt(0).toUpperCase() + key.slice(1);
     }
@@ -41,6 +41,8 @@ function getHTML5TypeByTypeName(name) {
             return 'password';
         case 'email':
             return 'email';
+        case 'color':
+            return 'color';
         default:
             return null;
     }
@@ -55,6 +57,7 @@ class ComposeFormFieldInput {
         this.type = type;
         this.placeholder = placeholder;
         this.disabled = disabled;
+        this.labelWidth = (this.type === 'color')? '90%' : '1%';
     }
 
     toHTML(value = '') {
@@ -95,6 +98,7 @@ class ComposeFormFieldSelect {
         this.values = values;
         this.labels = (labels === undefined) ? values : labels;
         this.disabled = disabled;
+        this.labelWidth = '100%';
     }
 
     toHTML(value = '') {
@@ -140,15 +144,13 @@ class ComposeFormFieldSwitch {
         this.ID = randomStr(32);
         this.key = key;
         this.disabled = disabled;
+        this.labelWidth = '100%';
     }
 
     toHTML(value = false) {
         return `
-        <input type="checkbox" data-toggle="toggle" data-onstyle="primary"
-            data-class="fast" data-size="small" style="margin-top:7px"
-            name="{key}" id="{ID}"
-            {attribute_html}
-        >
+        <input type="checkbox" data-toggle="toggle" data-onstyle="primary" data-offstyle="warning"
+            data-class="fast" data-size="normal" name="{key}" id="{ID}" {attribute_html}>
         `.format(
             {
                 "ID": this.ID,
@@ -159,7 +161,7 @@ class ComposeFormFieldSwitch {
     }
 
     serialize() {
-        return $('#{0}'.format(this.ID)).val();
+        return $('#{0}'.format(this.ID)).prop("checked");
     }
 
 }
@@ -187,6 +189,7 @@ class ComposeSchemaAtom {
             case "text":
             case "email":
             case "key":
+            case "color":
             case "version":
                 this.child = new ComposeFormFieldInput(
                     key,
@@ -219,8 +222,9 @@ class ComposeSchemaAtom {
     toHTML(value) {
         return `
         <br/>
-        <div class="input-group">
-            <span class="input-group-addon text-bold">{title}</span>
+        <div class="input-group" style="width: 100%">
+            <span class="input-group-addon text-bold" 
+                style="width: {label_width}; text-align: left">{title}</span>
             {child}
         </div>
         <span class="help-block text-left">{details}</span>
@@ -228,7 +232,8 @@ class ComposeSchemaAtom {
             {
                 "title": this.title,
                 "child": (this.child === null) ? 'EMPTY' : this.child.toHTML(value),
-                "details": this.details
+                "details": this.details,
+                "label_width": this.child.labelWidth
             }
         );
     }
@@ -268,7 +273,7 @@ class ComposeFormGroup {
         content = content.join('');
         // ---
         return (this.name === null) ? content : `
-            <div id="{id}" class="compose-form-group" style="margin-top: 40px">
+            <div id="{id}" class="compose-form-group">
                 <h4 style="margin-bottom: 0">{name}</h4>
                 <span class="help-block text-left">{details}</span>
                 <div style="margin-left: 20px; padding-left: 20px; border-left: 1px solid lightgrey; padding-bottom: 10px; margin-bottom: 30px">
@@ -359,8 +364,9 @@ class ComposeFormObject {
         // iterate over values
         $.each(this.data, function (k, s) {
             group.add(s);
-            // TODO: check if k in values
-            group_values.push(values[k]);
+            if (values !== null && values[k] !== undefined) {
+                group_values.push(values[k]);
+            }
         });
         // add button for templates extension
         group.add(new ComposeFormExtender(this.templates));
