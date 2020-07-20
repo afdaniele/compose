@@ -1,0 +1,92 @@
+{
+    "details": "Theme configuration",
+    "type": "object",
+    "_data": {
+        "dimensions": {
+            "details": "Components dimensions",
+            "type": "object",
+            "length": null,
+            "_data": {
+                "sidebar_full_width": {
+                    "details": "Width of the sidebar (full mode, in pixels)",
+                    "type": "numeric",
+                    "default": 280
+                },
+                "sidebar_small_width": {
+                    "details": "Width of the sidebar (compact mode, in pixels)",
+                    "type": "numeric",
+                    "default": 90
+                },
+                "topbar_height": {
+                    "details": "Height of the top bar (in pixels)",
+                    "type": "numeric",
+                    "default": 80
+                },
+                "page_padding": {
+                    "details": "Space between the page and the browser window (in pixels)",
+                    "type": "numeric",
+                    "default": 0
+                },
+                "page_radius": {
+                    "details": "Radius of the page corners (in pixels)",
+                    "type": "numeric",
+                    "default": 0
+                },
+                "footer_height": {
+                    "details": "Height of the footer bar (in pixels)",
+                    "type": "numeric",
+                    "default": 180
+                }
+            }
+        },
+        "colors": {
+            "details": "Theme colors",
+            "type": "object",
+            "length": null,
+            "_data": {
+                "primary": {
+                    "details": "Primary colors",
+                    "type": "object",
+                    "_data": {
+                        "background": {
+                            "details": "Primary background color",
+                            "type": "color",
+                            "default": "#2c5686",
+                            "length": null
+                        },
+                        "foreground": {
+                            "details": "Primary foreground color",
+                            "type": "color",
+                            "default": "#1e1e1e",
+                            "length": null
+                        }
+                    }
+                },
+                "secondary": {
+                    "details": "Secondary colors",
+                    "type": "object",
+                    "_data": {
+                        "background": {
+                            "details": "Secondary background color",
+                            "type": "color",
+                            "default": "#ffc611",
+                            "length": null
+                        },
+                        "foreground": {
+                            "details": "Secondary foreground color",
+                            "type": "color",
+                            "default": "#1e1e1e",
+                            "length": null
+                        }
+                    }
+                },
+                "tertiary": {
+                    "details": "Tertiary background color",
+                    "type": "color",
+                    "default": "#646464",
+                    "length": null
+                }
+            }
+        }
+    }
+}

@@ -46,10 +46,6 @@ if (isset($_GET['base_update']) && boolval($_GET['base_update'])) {
 		padding: 30px 40px;
 	}
 
-	select.form-control{
-		height: 26px !important;
-	}
-
 	.text-color-red{
 		color: #e63838;
 	}
@@ -59,15 +55,9 @@ if (isset($_GET['base_update']) && boolval($_GET['base_update'])) {
 
 <div style="width:100%; margin:auto">
 
-	<table style="width:100%; border-bottom:1px solid #ddd; margin-bottom:32px">
-
-		<tr>
-			<td style="width:100%">
-				<h2>Settings</h2>
-			</td>
-		</tr>
-
-	</table>
+	<h2 class="page-title">
+        Settings
+    </h2>
 
 
 	<?php
@@ -79,6 +69,9 @@ if (isset($_GET['base_update']) && boolval($_GET['base_update'])) {
 	include_once "sections/package_specific.php";
 	include_once "sections/codebase.php";
 	include_once "sections/user_roles.php";
+	
+	
+	include_once "sections/theme.php";
 
 
 	$settings_tabs = [
@@ -116,6 +109,13 @@ if (isset($_GET['base_update']) && boolval($_GET['base_update'])) {
 			'title' => 'User roles',
 			'icon' => 'fa fa-users',
 			'content' => settings_user_roles_tab,
+			'content_args' => null
+		],
+		10 => [
+			'id' => 'theme',
+			'title' => 'Theme',
+			'icon' => 'fa fa-paint-brush',
+			'content' => settings_theme_tab,
 			'content_args' => null
 		],
 

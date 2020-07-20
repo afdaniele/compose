@@ -27,6 +27,9 @@ require_once __DIR__ . '/yaml/Spyc.php';
 
 require_once __DIR__ . '/jsonDB/JsonDB.php';
 
+require_once __DIR__ . '/Color.php';
+require_once __DIR__ . '/Schema.php';
+
 // load Google API client
 require_once __DIR__ . '/google_api_php_client/vendor/autoload.php';
 
@@ -312,6 +315,26 @@ class Core {
             self::$pages = self::_discover_pages($safe_mode);
             // load package-specific settings
             self::$settings = self::_load_packages_settings($safe_mode);
+            //
+            // get current theme
+            $theme_parts = explode(':', self::getSetting('theme', 'core', 'core:default'));
+            $theme_pkg = $theme_parts[0];
+            $theme_name = $theme_parts[1];
+            // load theme configuration
+            try {
+                $res = self::getThemeConfiguration($theme_name, $theme_pkg);
+                if (!$res['success']) throw new \Exception($res['data']);
+                Configuration::$THEME_CONFIG = $res['data'];
+            } catch (\Exception $e) {
+                Core::requestAlert(
+                    'WARNING',
+                    sprintf("An error occurred while loading the theme [%s]%s. ",
+                        $theme_pkg, $theme_name) . "We reverted to the default theme." .
+                    sprintf("The error reads:<br/>%s", $e->getMessage())
+                );
+                self::setSetting('core', 'theme', 'core:default');
+                self::redirectTo('');
+            }
             //
             // safe mode (everything after this point should be optional)
             if ($safe_mode) {
@@ -2186,12 +2209,138 @@ class Core {
     }//getThemeFile
     
     
+    /** Returns theme configuration schema.
+     *
+     * @param string $theme_name
+     *        Name of the theme.
+     *
+     * @param string $package_id
+     *        ID of the package the theme belongs to.
+     *
+     * @retval array
+     * @return array
+     *        a status array of the form
+     *    <pre><code class="php">[
+     *        "success" => boolean,    // whether the call succeded
+     *        "data" => mixed          // error message or NULL
+     *    ]</code></pre>
+     *        where, the `success` field indicates whether the call succeded.
+     *        The `data` field contains an error string when `success` is `FALSE`,
+     *        an associative array containing the theme configuration schema otherwise.
+     *
+     */
+    public static function getThemeConfigurationSchema($theme_name, $package_id = 'core') {
+        // check if both the package and the theme exist
+        if (is_null(self::getThemeFile($theme_name, $package_id))) {
+            return [
+                'success' => false, 'data' =>
+                sprintf('Either package(%s) or theme(%s) not found', $package_id, $theme_name)
+            ];
+        }
+        // read theme default configuration
+        $theme_cfg_schema = [];
+        $theme_cfg_file = join_path(self::getPackageRootDir($package_id), 'modules',
+            'theme', $theme_name, 'configuration.json');
+        if (file_exists($theme_cfg_file)) {
+            $theme_cfg_schema = json_decode(file_get_contents($theme_cfg_file), true);
+        }
+        // ---
+        return ['success' => true, 'data' => ComposeSchema::from_schema($theme_cfg_schema)];
+    }//getThemeConfigurationSchema
+    
+    
+    /** Returns theme configuration.
+     *
+     * @param string $theme_name
+     *        Name of the theme.
+     *
+     * @param string $package_id
+     *        ID of the package the theme belongs to.
+     *
+     * @retval array
+     * @return array
+     *        a status array of the form
+     *    <pre><code class="php">[
+     *        "success" => boolean,    // whether the call succeded
+     *        "data" => mixed          // error message or NULL
+     *    ]</code></pre>
+     *        where, the `success` field indicates whether the call succeded.
+     *        The `data` field contains an error string when `success` is `FALSE`,
+     *        an associative array containing the theme configuration otherwise.
+     *
+     */
+    public static function getThemeConfiguration($theme_name, $package_id = 'core') {
+        // get configuration schema
+        $res = self::getThemeConfigurationSchema($theme_name, $package_id);
+        if (!$res['success']) return $res;
+        $cfg_schema = $res['data'];
+        // read theme default configuration
+        $default_res = ['success' => true, 'data' => $cfg_schema->defaults()];
+        // open the database
+        $db_name = 'theme_configuration';
+        if (!Database::database_exists('core', $db_name)) {
+            return $default_res;
+        }
+        $db = new Database('core', $db_name);
+        $entry_key = sprintf('%s__%s', $package_id, $theme_name);
+        if (!$db->key_exists($entry_key)) {
+            return $default_res;
+        }
+        $res = $db->read($entry_key);
+        if (!$res['success']) return $res;
+        // merge configs
+        return [
+            'success' => true,
+            'data' => Utils::arrayMergeAssocRecursive($default_res['data'], $res['data'], false)
+        ];
+    }//getThemeConfiguration
+    
+    
+    /** Sets theme configuration.
+     *
+     * @param string $theme_name
+     *        Name of the theme.
+     *
+     * @param array $configuration
+     *        Theme configuration to set.
+     *
+     * @param string $package_id
+     *        ID of the package the theme belongs to.
+     *
+     * @retval array
+     * @return array
+     *        a status array of the form
+     *    <pre><code class="php">[
+     *        "success" => boolean,    // whether the call succeded
+     *        "data" => mixed          // error message or NULL
+     *    ]</code></pre>
+     *        where, the `success` field indicates whether the call succeded.
+     *        The `data` field contains an error string when `success` is `FALSE`.
+     *
+     */
+    public static function setThemeConfiguration($theme_name, $configuration, $package_id = 'core') {
+        // read current configuration
+        $res = self::getThemeConfiguration($theme_name, $package_id);
+        if (!$res['success']) return $res;
+        $current_cfg = $res['data'];
+        // open the database
+        $db_name = 'theme_configuration';
+        $db = new Database('core', $db_name);
+        // merge current and given configuration
+        $cfg = Utils::arrayMergeAssocRecursive($current_cfg, $configuration, false);
+        // store configuration
+        $entry_key = sprintf('%s__%s', $package_id, $theme_name);
+        return $db->write($entry_key, $cfg);
+    }//setThemeConfiguration
+    
+    
     /** Returns information about a git repository (e.g., git user, git repository, remote URL, etc.)
      *
      * @param string $git_repo_path
      *        absolute path to the git repository for which to retrieve the info.
      *
      * @retval array
+     * @return array
      *        An array containing info about the repository with the following details:
      *    <pre><code class="php">[
      *        "git_owner" => string,               // username of the owner of the git repository

@@ -168,9 +168,8 @@
     <!-- Bootstrap Select v1.13.9 by developer.snapappointments.com/bootstrap-select/ -->
     <link rel="stylesheet" href="<?php echo Configuration::$BASE ?>css/bootstrap-select.min.css">
 
-    <!-- Utility CSS -->
-    <link href="<?php echo Configuration::$BASE ?>css/sticky-footer-navbar.css" rel="stylesheet"
-          media="all">
+    <!-- Compose Form CSS -->
+    <link href="<?php echo Configuration::$BASE ?>css/compose_form.css" rel="stylesheet" media="all">
 
     <!-- Custom CSS -->
     <link href="<?php echo Configuration::$BASE ?>css/compose.css" rel="stylesheet" media="all">

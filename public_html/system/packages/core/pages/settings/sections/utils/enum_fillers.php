@@ -1,7 +1,7 @@
 <?php
 use system\classes\Core;
 
-function _pages_avail_to_role( $args ){
+function _pages_avail_to_role ($args) {
     $user_role = $args[0];
     // get the list of pages the given user has (direct) access to
     $pagesList = Core::getFilteredPagesList(
@@ -46,7 +46,7 @@ function _installed_themes($args){
 }//_installed_themes
 
 
-function _timezone_enum( $args ){
+function _timezone_enum ($args) {
     $timezone_identifiers = DateTimeZone::listIdentifiers();
     return array_map(
         function($t){
@@ -61,7 +61,7 @@ function _timezone_enum( $args ){
 }//_timezone_enum
 
 
-function _static_enum( $args ){
+function _static_enum ($args) {
     return array_map(
         function($a){
             return [

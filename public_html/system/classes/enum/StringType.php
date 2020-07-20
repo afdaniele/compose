@@ -23,6 +23,7 @@ class StringType {
 	const EMAIL = "/^[a-zA-Z0-9_.-]+@[a-zA-Z0-9-]+.[a-zA-Z0-9-.]+$/";
 	const KEY = "/^[A-Za-z0-9_]+$/";
 	const VERSION = "/^v?\\d+(\\.\\d+)?(\\.\\d+)?$/";
+	const COLOR = "/^#([0-9a-f]{3}){1,2}$/";
 
 
 	// methods
@@ -82,6 +83,8 @@ class StringType {
 				return self::KEY;
 			case 'version':
 				return self::VERSION;
+			case 'color':
+				return self::COLOR;
 			default:
 				return null;
 		}
@@ -110,6 +113,8 @@ class StringType {
 				return 'password';
 			case 'email':
 				return 'email';
+            case 'color':
+                return 'color';
 			default:
 				return null;
 		}

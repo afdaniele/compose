@@ -1,26 +1,25 @@
 {
-    "details": "Provides the tools for managing the settings",
+    "details": "Provides the tools for configuring a theme",
     "actions": {
         "get": {
-            "details": "Returns the value of a given parameter",
+            "details": "Returns a theme's configuration",
             "access_level": [
                 "administrator"
             ],
             "authentication": [
-                "web",
-                "app"
+                "web"
             ],
             "parameters": {
                 "mandatory": {
                     "package": {
                         "type": "text",
                         "length": null,
-                        "details": "ID of the package the parameter to query belongs to"
+                        "details": "ID of the package the theme belongs to"
                     },
-                    "key": {
+                    "theme": {
                         "type": "text",
                         "length": null,
-                        "details": "Name of the parameter to query"
+                        "details": "Name of the theme to get the configuration for"
                     }
                 },
                 "optional": {}
@@ -30,37 +29,40 @@
                     "package": {
                         "type": "text",
                         "length": null,
-                        "details": "ID of the package the parameter queried belongs to"
+                        "details": "ID of the package the theme belongs to"
                     },
-                    "key": {
+                    "theme": {
                         "type": "text",
                         "length": null,
-                        "details": "Name of the parameter queried"
+                        "details": "Name of the theme queried"
                     },
-                    "value": {
-                        "type": "key-dependant",
-                        "length": null,
-                        "details": "Value of the parameter (Serialized if array)"
+                    "configuration" : {
+                        "type": "object",
+                        "details": "Theme configuration",
+                        "_data": {}
                     }
                 }
             }
         },
         "set": {
-            "details": "Sets the value of a given parameter",
+            "details": "Sets a theme's configuration",
             "access_level": [
-                "guest",
                 "administrator"
             ],
             "authentication": [
-                "web",
-                "app"
+                "web"
             ],
             "parameters": {
                 "mandatory": {
                     "package": {
                         "type": "text",
                         "length": null,
-                        "details": "ID of the package the parameter(s) to set belong to"
+                        "details": "ID of the package the theme belongs to"
+                    },
+                    "theme": {
+                        "type": "text",
+                        "length": null,
+                        "details": "Name of the theme to set the configuration for"
                     }
                 },
                 "optional": {

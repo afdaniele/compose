@@ -29,6 +29,8 @@ class Configuration {
     
     public static $IS_MOBILE = false;
     
+    public static $THEME_CONFIG = [];
+    
     public static $CACHE_SYSTEM;
     public static $WEBAPI_VERSION;
     public static $ASSETS_STORE_URL;

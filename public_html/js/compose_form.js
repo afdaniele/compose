@@ -65,7 +65,7 @@ class ComposeFormFieldInput {
         <input
             name="{key}"
             type="{type}"
-            class="form-control"
+            class="compose-smart-form-input form-control"
             placeholder="{placeholder}"
             value="{value}"
             id="{ID}"
@@ -98,7 +98,7 @@ class ComposeFormFieldSelect {
         this.values = values;
         this.labels = (labels === undefined) ? values : labels;
         this.disabled = disabled;
-        this.labelWidth = '100%';
+        this.labelWidth = '75%';
     }
 
     toHTML(value = '') {
@@ -107,7 +107,7 @@ class ComposeFormFieldSelect {
         <select
             name="{key}"
             type="select"
-            class="form-control"
+            class="compose-smart-form-input form-control"
             id="{ID}"
             {attribute_html}
         >
@@ -140,6 +140,8 @@ class ComposeFormFieldSelect {
 
 class ComposeFormFieldSwitch {
 
+    YES_VALUES = ['1', 'yes', 'yep', 'yup', 'si', true, 'true'];
+
     constructor(key, disabled = false) {
         this.ID = randomStr(32);
         this.key = key;
@@ -148,9 +150,19 @@ class ComposeFormFieldSwitch {
     }
 
     toHTML(value = false) {
+        value = this.YES_VALUES.includes(value);
         return `
-        <input type="checkbox" data-toggle="toggle" data-onstyle="primary" data-offstyle="warning"
-            data-class="fast" data-size="normal" name="{key}" id="{ID}" {attribute_html}>
+        <input 
+            class="compose-smart-form-input"
+            type="checkbox"
+            data-toggle="toggle"
+            data-onstyle="primary"
+            data-offstyle="warning"
+            data-class="fast"
+            data-size="normal"
+            name="{key}"
+            id="{ID}"
+            {attribute_html}>
         `.format(
             {
                 "ID": this.ID,
@@ -174,6 +186,7 @@ class ComposeSchemaAtom {
         this.key = key;
         this.type = schema.type;
         this.details = schema.details;
+        this.default = schema.default;
         this.values = schema.values;
         this.opts = (schema['__form__'] === undefined) ? {} : schema['__form__'];
         // use given title (if any), fall back to ucfirst key
@@ -221,16 +234,25 @@ class ComposeSchemaAtom {
 
     toHTML(value) {
         return `
-        <br/>
-        <div class="input-group" style="width: 100%">
-            <span class="input-group-addon text-bold" 
-                style="width: {label_width}; text-align: left">{title}</span>
-            {child}
+        <div class="compose-form-atom">
+            <div class="input-group">
+                <span class="input-group-addon text-bold" style="width: {label_width}">
+                    {title}
+                </span>
+                {child}
+                <span class="input-group-addon closure-block"></span>
+            </div>
+            <span class="help-block-details">
+                <i class="fa fa-info-circle" aria-hidden="true"></i>&nbsp; {details}
+            </span>
+            <span class="help-block-default">
+                default: <span class="help-block-default">{default}</span>
+            </span>
         </div>
-        <span class="help-block text-left">{details}</span>
         `.format(
             {
                 "title": this.title,
+                "default": (this.default === null || this.default === '')? "null" : this.default.toString(),
                 "child": (this.child === null) ? 'EMPTY' : this.child.toHTML(value),
                 "details": this.details,
                 "label_width": this.child.labelWidth
@@ -256,16 +278,16 @@ class ComposeFormGroup {
         this.name = name;
         this.details = details;
         this.ns = ns;
-        this.children = [];
+        this.children = {};
     }
 
-    add(child) {
-        this.children.push(child);
+    add(key, child) {
+        this.children[key] = child;
     }
 
     toHTML(values) {
         let content = [];
-        let group_value = this.ns != null ? values[this.ns] : values;
+        let group_value = (this.ns != null) ? values[this.ns] : values;
         $.each(this.children, function (k, c) {
             let v = (group_value[k] === undefined) ? (c instanceof ComposeSchemaAtom ? '' : {}) : group_value[k];
             content.push(c.toHTML(v));
@@ -274,9 +296,9 @@ class ComposeFormGroup {
         // ---
         return (this.name === null) ? content : `
             <div id="{id}" class="compose-form-group">
-                <h4 style="margin-bottom: 0">{name}</h4>
-                <span class="help-block text-left">{details}</span>
-                <div style="margin-left: 20px; padding-left: 20px; border-left: 1px solid lightgrey; padding-bottom: 10px; margin-bottom: 30px">
+                <h4>{name}</h4>
+                <h5>{details}</h5>
+                <div class="compose-form-group-content">
                     {content}
                 </div>
             </div>
@@ -307,7 +329,11 @@ class ComposeFormExtender {
             let encoded_schema = CryptoJS.enc.Base64.stringify(CryptoJS.enc.Utf8.parse(s));
             options.push(
                 `
-                <li><a href="#" class="compose-form-extender-button" data-schema="{schema}">{name}</a></li>
+                <li>
+                    <a href="#" class="compose-form-extender-button" data-schema="{schema}">
+                        {name}
+                    </a>
+                </li>
                 `.format({
                     schema: encoded_schema, name: human_key(k)
                 })
@@ -360,19 +386,15 @@ class ComposeFormObject {
     toHTML(values) {
         // collect children
         let group = new ComposeFormGroup(this.name, this.details);
-        let group_values = [];
         // iterate over values
         $.each(this.data, function (k, s) {
-            group.add(s);
-            if (values !== null && values[k] !== undefined) {
-                group_values.push(values[k]);
-            }
+            group.add(k, s);
         });
         // add button for templates extension
-        group.add(new ComposeFormExtender(this.templates));
-        group_values.push(null);
+        //TODO: fix the TODO
+        group.add('TODO', new ComposeFormExtender(this.templates));
         // ---
-        return group.toHTML(group_values);
+        return group.toHTML(values);
     }
 
     serialize() {
@@ -384,6 +406,9 @@ class ComposeFormObject {
     }
 
     static from_schema(name, schema, ns = '') {
+        let opts = (schema['__form__'] === undefined) ? {} : schema['__form__'];
+        name = (opts['title'] === undefined) ? name : opts['title'];
+        // ---
         let group = new ComposeFormObject(name, schema.details, schema._templates, ns);
         $.each(schema._data, function (k, s) {
             if (ComposeSchemaAtom.isAtomSchema(s)) {
@@ -428,18 +453,16 @@ class ComposeFormArray {
         let schemas = this.data;
         // collect children
         let group = new ComposeFormGroup(this.name, this.details);
-        let group_values = [];
         // iterate over values
-        $.each(values, function (k, v) {
+        $.each(values, function (k, _) {
             let s = schemas[k * broadcast_effect];
-            group.add(new ComposeSchemaAtom(k, s));
-            group_values.push(v);
+            group.add(k, new ComposeSchemaAtom(k, s));
         });
         // add button for templates extension
-        group.add(new ComposeFormExtender(this.templates));
-        group_values.push(null);
+        //TODO: fix the TODO
+        group.add('TODO', new ComposeFormExtender(this.templates));
         // ---
-        return group.toHTML(group_values);
+        return group.toHTML(values);
     }
 
     serialize() {

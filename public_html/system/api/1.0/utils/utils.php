@@ -74,7 +74,7 @@ function prepareArgument(&$type, &$value) {
 }//prepareArgument
 
 
-function checkArgument(&$name, &$array, &$details, &$res, $mandatory = true, $ns = '') {
+function checkArgument($name, &$array, &$details, &$res, $mandatory = true, $ns = '') {
     if (!array_key_exists($name, $array)) {
         if ($mandatory) {
             $res = _bad_request(sprintf("The parameter '%s%s' is mandatory", $ns, $name));
@@ -105,13 +105,16 @@ function checkArgument(&$name, &$array, &$details, &$res, $mandatory = true, $ns
     $length = ((isset($details['length']) && $details['length'] !== null) ? $details['length'] : false);
     if (!($length === false) && strlen($value) !== $length) {
         $res = _bad_request(sprintf(
-            "The value of parameter '%s%s' must be exactly %s, got %s instead.",
+            "The value of parameter '%s%s' must be exactly of length %s, got %s instead.",
             $ns, $name, $length, strlen($value)
         ));
         return false;
     }
     //
     if ($type == 'enum') {
+        // for some enums (those with no 'values' array) we don't validate values
+        if (!array_key_exists('values', $details)) return true;
+        // get allowed values
         $enum = $details['values'];
         if (!in_array($value, $enum)) {
             $res = _bad_request(sprintf(
@@ -130,7 +133,7 @@ function checkArgument(&$name, &$array, &$details, &$res, $mandatory = true, $ns
         $sample = $details['_data'];
         foreach ($sample as $cont_key => &$cont_val) {
             $nns = "{$ns}{$name}.";
-            if (checkArgument($cont_key, $value, $cont_val, $res, true, $nns) === false) {
+            if (checkArgument($cont_key, $value, $cont_val, $res, $mandatory, $nns) === false) {
                 return false;
             }
         }
@@ -151,13 +154,16 @@ function checkArgument(&$name, &$array, &$details, &$res, $mandatory = true, $ns
         $obj_array = array_values($value);
         foreach (array_keys($obj_array) as $k) {
             $nns = "{$ns}{$name}.";
-            if (checkArgument($k, $obj_array, $sample, $res, true, $nns) === false) {
+            if (checkArgument($k, $obj_array, $sample, $res, $mandatory, $nns) === false) {
                 return false;
             }
         }
     } else {
         if (!StringType::isValid($value, StringType::getRegexByTypeName($type))) {
-            $res = _bad_request(sprintf("Illegal value [%s] for parameter '%s%s'.", $value, $ns, $name));
+            $res = _bad_request(sprintf(
+                "Illegal value [%s] for parameter '%s%s' of type %s.",
+                $value, $ns, $name, $type
+            ));
             return false;
         }
     }

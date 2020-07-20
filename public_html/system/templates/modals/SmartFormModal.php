@@ -4,7 +4,7 @@
 
 require_once __DIR__ . '/../../utils/utils.php';
 
-class SmartForm {
+class SmartFormModal {
     
     public $formID;
     public $modalID;
@@ -44,8 +44,7 @@ class SmartForm {
                         <h4 class="modal-title"></h4>
                     </div>
 
-                    <div class="modal-body" id="modal-form-container"
-                         style="padding: 0 50px">
+                    <div class="modal-body" id="modal-form-container" style="padding: 0 50px">
                     </div>
 
                     <div class="modal-footer">
@@ -98,4 +97,4 @@ class SmartForm {
         <?php
     }
     
-}//SmartForm
+}//SmartFormModal

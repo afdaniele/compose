@@ -36,9 +36,7 @@ if( $type != null ){
 ?>
 
 
-<div style="display:none" id="page_alert_container">
-	<br>
-
+<div style="display:none; padding: 0 30px" id="page_alert_container">
 	<div class="alert alert-dismissible" role="alert" id="page_alert_object">
 		<button type="button" class="close" onclick="closeAlert();"><span aria-hidden="true">&times;</span><span class="sr-only">Chiudi</span></button>
 		<div id="page_alert_content">
