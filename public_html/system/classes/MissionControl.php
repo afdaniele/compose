@@ -147,7 +147,7 @@ class MissionControl {
             <?php
             if ($opts['wide_mode']) {?>
                 /* enlarge page container */
-                body > #page_container {
+                #page_container {
                     min-width: 100%;
                 }
 
