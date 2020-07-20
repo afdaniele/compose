@@ -648,7 +648,7 @@ $.fn.toAssociativeArray = function () {
     var formData = {};
     this.find('[name]').each(function () {
         formData[this.name] = this.value;
-    })
+    });
     return formData;
 };
 
@@ -808,3 +808,12 @@ function toHumanReadableSize(fileSizeInBytes) {
 
     return Math.max(fileSizeInBytes, 0.1).toFixed(1) + byteUnits[i];
 }//toHumanReadableSize
+
+function clearCache() {
+    let url = "{0}script.php?script=clearcache".format(Configuration.get('core', 'BASE'));
+    let successDialog = true;
+    let reload = true;
+    let callType = 'GET';
+    let resultDataType = 'text';
+    callExternalAPI(url, callType, resultDataType, successDialog, reload);
+}
