@@ -1,0 +1,125 @@
+{
+    "type": "object",
+    "details": "General \\compose\\ configuration",
+    "_data": {
+        "maintenance_mode": {
+            "type": "boolean",
+            "default": false,
+            "details": "Whether the platform is in maintenance mode"
+        },
+        "developer_mode": {
+            "type": "boolean",
+            "default": false,
+            "details": "Whether the platform is in developer mode"
+        },
+        "website_name": {
+            "type": "text",
+            "default": "\\compose\\",
+            "details": "Name of your website"
+        },
+        "navbar_title": {
+            "type": "text",
+            "default": "Welcome",
+            "details": "Text in the header of the navbar"
+        },
+        "navbar_subtitle": {
+            "type": "text",
+            "default": null,
+            "details": "Text in the header of the navbar (below the title)"
+        },
+        "timezone": {
+            "type": "enum",
+            "default": "America/Chicago",
+            "details": "The default timezone to use on the website",
+            "__form__": {
+                "enum_filler_fcn": "_timezone_enum",
+                "enum_filler_args": []
+            }
+        },
+        "logo_white": {
+            "type": "text",
+            "default": "~/images/compose-white-logo.svg",
+            "details": "App logo (for dark backgrounds). <code>~</code> autocompletes to <code>http(s)://HOSTNAME</code>."
+        },
+        "logo_black": {
+            "type": "text",
+            "default": "~/images/compose-black-logo.svg",
+            "details": "App logo (for light backgrounds). <code>~</code> autocompletes to <code>http(s)://HOSTNAME</code>."
+        },
+        "admin_contact_email_address": {
+            "type": "email",
+            "default": "administrator@example.com",
+            "details": "E-mail address of the administrator"
+        },
+        "login_enabled": {
+            "type": "boolean",
+            "default": true,
+            "details": "Enable user login functionality"
+        },
+        "google_client_id": {
+            "type": "text",
+            "default": "NULL",
+            "details": "Google Client ID. Get one from https://console.developers.google.com/apis/credentials"
+        },
+        "cache_enabled": {
+            "type": "boolean",
+            "default": false,
+            "details": "Cache status"
+        },
+        "check_updates": {
+            "type": "boolean",
+            "default": true,
+            "details": "Whether the system should constantly check for updates"
+        },
+        "allow_devel_updates": {
+            "type": "boolean",
+            "default": false,
+            "details": "Whether to allow updating to non-production ready versions"
+        },
+        "theme": {
+            "type": "enum",
+            "default": "core:default",
+            "details": "The theme used by \\compose\\",
+            "__form__": {
+                "enum_filler_fcn": "_installed_themes",
+                "enum_filler_args": []
+            }
+        },
+        "guest_default_page": {
+            "type": "enum",
+            "default": "login",
+            "details": "The page the guest will be redirected to when no page is specified",
+            "__form__": {
+                "enum_filler_fcn": "_pages_avail_to_role",
+                "enum_filler_args": ["guest"]
+            }
+        },
+        "user_default_page": {
+            "type": "enum",
+            "default": "profile",
+            "details": "The page the user will be redirected to when no page is specified",
+            "__form__": {
+                "enum_filler_fcn": "_pages_avail_to_role",
+                "enum_filler_args": ["user"]
+            }
+        },
+        "supervisor_default_page": {
+            "type": "enum",
+            "default": "profile",
+            "details": "The page the supervisor will be redirected to when no page is specified",
+            "__form__": {
+                "enum_filler_fcn": "_pages_avail_to_role",
+                "enum_filler_args": ["supervisor"]
+            }
+        },
+        "administrator_default_page": {
+            "type": "enum",
+            "default": "profile",
+            "details": "The page the administrator will be redirected to when no page is specified",
+            "__form__": {
+                "enum_filler_fcn": "_pages_avail_to_role",
+                "enum_filler_args": ["administrator"]
+            }
+        }
+    }
+}
