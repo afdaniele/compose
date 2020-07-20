@@ -21,11 +21,15 @@ DOCKERFILE=Dockerfile
 COMPOSE_VERSION=${VERSION}
 
 
-devel-build:
+debug-build:
 	$(MAKE) build
 	$(MAKE) build \
-		DOCKERFILE=Dockerfile.devel \
-		BASE_VERSION=devel
+		DOCKERFILE=Dockerfile.debug \
+		COMPOSE_VERSION=devel \
+		BASE_VERSION=devel \
+		VERSION=debug \
+		TAG=debug \
+		EXTRA_TAG=
 
 build:
 	docker -H=${H} build \

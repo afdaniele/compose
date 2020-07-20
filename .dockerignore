@@ -3,7 +3,7 @@
 
 # Allow files and directories
 !assets
-!assets.devel
+!assets.debug
 !public_html
 !dependencies-apt.txt
 !configure.py
