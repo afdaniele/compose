@@ -69,10 +69,7 @@ if( !$res['success'] )
 $core_pkg_setts = $res['data'];
 
 $client_id = Core::getSetting('google_client_id');
-$core_pkg_setts_meta = $core_pkg_setts->getMetadata();
-$default_client_id = $core_pkg_setts_meta['configuration_content']['google_client_id']['default'];
-
-$client_id = ($client_id != $default_client_id)? $client_id : null;
+$client_id = ($client_id != 'NULL')? $client_id : null;
 ?>
 
 <div style="margin: 10px 20px">
