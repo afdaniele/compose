@@ -295,6 +295,11 @@
         $(".btn-group > .btn").click(function () {
             $(this).addClass("active").siblings().removeClass("active");
         });
+        
+        $(document).ready(function () {
+            // set page title
+            $('.page-title').html("<?php echo Core::getPageDetails(Configuration::$PAGE, 'name') ?>");
+        });
     </script>
 
 </body>

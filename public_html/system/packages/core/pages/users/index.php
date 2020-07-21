@@ -48,7 +48,7 @@ $mains = [
     'groups' => ['position' => 'right', 'url' => Core::getURL('users', 'groups')]
 ];
 ?>
-<h2 class="page-title text-center" style="display: block">
+<h2 class="page-title-static text-center" style="display: block">
     <?php
     foreach ($mains as $mkey => $mdata) {
         $type = ($main == $mkey || is_null($mdata)) ? 'span' : 'a';

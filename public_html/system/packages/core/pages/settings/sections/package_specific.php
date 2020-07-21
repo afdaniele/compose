@@ -67,6 +67,7 @@ function settings_custom_package_tab( $args, $settings_tab_id ){
         }
     };
     $config_schema->walk($config_values, $w);
+    
     // create and render form from schema and values
     $form = new SmartForm($config_schema, $config_values);
     $form->render();
