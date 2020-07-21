@@ -252,7 +252,7 @@ class ComposeSchemaAtom {
         `.format(
             {
                 "title": this.title,
-                "default": (this.default === null || this.default === '')? "null" : this.default.toString(),
+                "default": (this.default === null || this.default === undefined || this.default === '')? "null" : this.default.toString(),
                 "child": (this.child === null) ? 'EMPTY' : this.child.toHTML(value),
                 "details": this.details,
                 "label_width": this.child.labelWidth
