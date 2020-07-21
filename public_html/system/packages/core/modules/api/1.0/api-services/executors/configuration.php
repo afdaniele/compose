@@ -41,13 +41,6 @@ function execute(&$service, &$actionName, &$arguments) {
             break;
         //
         case 'set':
-            
-            
-            
-            
-            
-            
-            
             $package_name = $arguments['package'];
             unset($arguments['package']);
             // open session to have access to login info
@@ -69,39 +62,21 @@ function execute(&$service, &$actionName, &$arguments) {
             $setts = $res['data'];
             // get configuration schema
             $setts_schema = $setts->getSchema();
-            
             // get new configuration
-//            $pkg_cfg = array_key_exists('configuration', $arguments)?
-//                $arguments['configuration'] : [];
-            
-            
             $pkg_cfg = &$arguments['configuration'];
-            
             // prepare arguments
             $w = function ($_, &$value, &$schema){
                 if (!is_null($schema) && $schema->has('.type')) {
-//                    $a = sprintf('[%s] %s', $schema->get('.type'), $value);
                     prepareArgument($schema->get('.type'), $value);
                 }
             };
             $setts_schema->walk($pkg_cfg, $w);
-            
-            
-//            $w1 = function (&$value, &$key) {
-//
-//            };
-//
-//            array_walk_recursive($pkg_cfg, $w1);
-            
-            
             // check arguments
             $out = null;
             $res = checkArgument('configuration', $arguments, $setts_schema->as_array(), $out, false);
             if ($res !== true) {
                 return response400BadRequest($out['message']);
             }
-            
-            
             // go through the arguments and try to store them in the configuration
             foreach ($pkg_cfg as $key => $value) {
                 $res = $setts->set($key, $value);
@@ -114,27 +89,6 @@ function execute(&$service, &$actionName, &$arguments) {
             if (!$res['success']) {
                 return response500InternalServerError($res['data']);
             }
-            
-            
-            
-            
-//            // go through the arguments and try to store them in the configuration
-//            foreach ($arguments as $key => $value) {
-//                $res = $setts->set($key, $value);
-//                if (!$res['success']) {
-//                    return response500InternalServerError($res['data']);
-//                }
-//            }
-//            // commit changes to disk
-//            $res = $setts->commit();
-//            if (!$res['success']) {
-//                return response500InternalServerError($res['data']);
-//            }
-            
-            
-            
-            
-            
             // clear both package-specific and core cache
             $pkg_cache = new CacheProxy($package_name);
             $pkg_cache->clear();
