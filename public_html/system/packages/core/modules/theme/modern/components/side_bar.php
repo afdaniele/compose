@@ -36,26 +36,6 @@ $login_enabled = Core::getSetting('login_enabled', 'core');
 ?>
 
 <style type="text/css">
-    ._ctheme_side_bar_btn {
-        width: 13px;
-        height: <?php echo Configuration::$THEME_CONFIG['dimensions']['topbar_height'] - 1 ?>px;
-        position: absolute;
-        top: 0;
-        right: -13px;
-        z-index: 99;
-        background-color: whitesmoke;
-    }
-    
-    ._ctheme_side_bar_btn a {
-        line-height: <?php echo Configuration::$THEME_CONFIG['dimensions']['topbar_height'] - 1 ?>px;
-        font-size: small;
-        text-decoration: none;
-    }
-    
-    ._ctheme_side_bar_btn a:hover {
-        text-decoration: none;
-    }
-    
     ._ctheme_page ._ctheme_side_bar {
         position: absolute;
         top: 0;
@@ -229,11 +209,6 @@ $login_enabled = Core::getSetting('login_enabled', 'core');
         line-height: 20px;
     }
 </style>
-
-
-<div class="_ctheme_side_bar_btn">
-    <a class="glyphicon glyphicon-chevron-left" href="#" onclick="_ctheme_side_bar_toggle()"></a>
-</div>
 
 <a class="_ctheme_logo_div" href="<?php echo Configuration::$BASE ?>">
     <table>

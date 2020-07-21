@@ -23,16 +23,37 @@ use system\classes\Configuration;
 
         box-shadow: inset -20px 20px 20px 0 <?php echo $_THEME_COLOR_1->get_hex() ?>, 20px 3px 20px 0 #989898;
 
-    <?php
-    echo _get_gradient_color($_THEME_COLOR_1->darken(0.3), $_THEME_COLOR_1, 22)
-    ?>
+        <?php
+        echo _get_gradient_color($_THEME_COLOR_1->darken(0.3), $_THEME_COLOR_1, 22)
+        ?>
     }
 
-    ._ctheme_page a {
+    ._ctheme_page ._ctheme_top_bar a {
         color: <?php echo Configuration::$THEME_CONFIG['colors']['primary']['foreground'] ?>;
     }
 
     ._ctheme_page a:hover {
+        text-decoration: none;
+    }
+    
+    ._ctheme_page ._ctheme_top_bar ._ctheme_side_bar_btn {
+        width: 13px;
+        height: <?php echo Configuration::$THEME_CONFIG['dimensions']['topbar_height'] - 1 ?>px;
+        position: absolute;
+        top: 0;
+        left: 1px;
+        z-index: 99;
+        background-color: whitesmoke;
+    }
+    
+    ._ctheme_page ._ctheme_top_bar ._ctheme_side_bar_btn a {
+        color: #565656;
+        line-height: <?php echo Configuration::$THEME_CONFIG['dimensions']['topbar_height'] - 1 ?>px;
+        font-size: small;
+        text-decoration: none;
+    }
+    
+    ._ctheme_page ._ctheme_top_bar ._ctheme_side_bar_btn a:hover {
         text-decoration: none;
     }
 
@@ -67,6 +88,10 @@ use system\classes\Configuration;
         border-radius: 0;
     }
 </style>
+
+<div class="_ctheme_side_bar_btn">
+    <a class="glyphicon glyphicon-chevron-left" href="#" onclick="_ctheme_side_bar_toggle()"></a>
+</div>
 
 <table style="width: 100%">
     <tr>
