@@ -67,6 +67,7 @@ footer #avatar{
     font-weight: bold;
 }
 
+.page-title-static,
 .page-title{
     padding: 10px 0;
     border-bottom: 1px solid #ddd;
