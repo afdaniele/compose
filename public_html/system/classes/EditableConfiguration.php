@@ -107,7 +107,7 @@ class EditableConfiguration {
         if (!Utils::pathExists($this->default_configuration, $path)) {
             return ['success' => false, 'data' => sprintf('Unknown parameter "%s" for the package "%s"', $key, $this->package_name)];
         }
-        $cfg_cursor = &Utils::cursorTo($this->configuration, $path);
+        $cfg_cursor = &Utils::cursorTo($this->configuration, $path, true);
         $cfg_cursor = $val;
         return ['success' => true, 'data' => null];
     }//set
