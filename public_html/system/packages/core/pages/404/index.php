@@ -4,7 +4,6 @@
 # @Last modified by:   afdaniele
 
 use \system\classes\Core;
-use \system\classes\Configuration;
 
 ?>
 
@@ -37,7 +36,7 @@ use \system\classes\Configuration;
 		<br/>
 		Please check your URL again and retry. We are sorry for the inconvenience.
 		<br><br>
-		<a href="<?php echo Configuration::$BASE ?>/" type="button" class="btn btn-info" role="button">
+		<a href="<?php echo Core::getURL('') ?>/" type="button" class="btn btn-info" role="button">
       Go back to the Main page
     </a>
 	</div>
