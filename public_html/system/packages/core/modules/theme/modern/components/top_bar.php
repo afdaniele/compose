@@ -77,13 +77,19 @@ use system\classes\Configuration;
             ?>
         </td>
         <td class="text-center _ctheme_top_bar_button_cell">
-            <span class="_ctheme_top_bar_button">
-                <a href="<?php echo Core::getURL('settings') ?>"
-                   data-toggle="tooltip" data-placement="bottom" title="Settings">
-                    <span class="glyphicon glyphicon-cog" aria-hidden="true"></span>
-                </a>
-                &nbsp;
-            </span>
+            <?php
+            if (Core::isUserLoggedIn()) {
+                ?>
+                <span class="_ctheme_top_bar_button">
+                    <a href="<?php echo Core::getURL('settings') ?>"
+                       data-toggle="tooltip" data-placement="bottom" title="Settings">
+                        <span class="glyphicon glyphicon-cog" aria-hidden="true"></span>
+                    </a>
+                    &nbsp;
+                </span>
+                <?php
+            }
+            ?>
         </td>
         <td class="text-center _ctheme_top_bar_button_cell">
             <?php
