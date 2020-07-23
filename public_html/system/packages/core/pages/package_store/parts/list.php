@@ -10,6 +10,9 @@ use \system\classes\Formatter;
 $installed_packages = Core::getPackagesList();
 ?>
 
+<!-- Semver (lite) v0.0.6 by https://github.com/worktile/semver-lite -->
+<script src="<?php echo Configuration::$BASE ?>js/semver.js"></script>
+
 <style type="text/css">
     #packages-table > thead > tr {
         font-weight: bold;
@@ -95,17 +98,21 @@ $installed_packages = Core::getPackagesList();
 <?php
 $assets_index_url = sanitize_url(
     sprintf(
-        '%s/%s/index',
+        '%s/%s/index.json',
         Configuration::$ASSETS_STORE_URL,
-        Configuration::$ASSETS_STORE_BRANCH
+        Configuration::$ASSETS_STORE_VERSION
     )
 );
+
+$codebase_info = Core::getCodebaseInfo();
+$compose_version =
+    ($codebase_info['latest_tag'] == 'ND')? null : explode('-', $codebase_info['latest_tag'])[0];
 ?>
 
 <div class="input-group" style="margin-top:28px">
     <span class="input-group-addon" id="packages-search-addon">Search package</span>
-    <input type="text" class="form-control" id="packages-search-field" style="height:42px"
-           aria-describedby="packages-search-addon">
+    <label for="packages-search-field"></label>
+    <input type="text" class="form-control" id="packages-search-field" style="height:42px" aria-describedby="packages-search-addon">
 </div>
 
 <table class="table table-striped table-bordered table-hover" id="packages-table"
@@ -134,6 +141,7 @@ $assets_index_url = sanitize_url(
     let packages_to_install = [];
     let packages_to_update = [];
     let packages_to_uninstall = [];
+    let packages_to_version = {};
 
     let providers = {
         'github.com': 'https://raw.githubusercontent.com/{0}/{1}/{2}',
@@ -188,7 +196,40 @@ $assets_index_url = sanitize_url(
 
     let package_version_line_template = `
     {0}: <span class="mono" style="color:{1}">{2}</span>
-  `;
+    `;
+
+    let source_action = `
+      <a class="btn btn-default" href="{0}" role="button" target="_blank">
+        <i class="fa fa-code" aria-hidden="true"></i>&nbsp;
+        Code
+      </a>`;
+    let install_action = `
+      <a role="button" class="btn btn-success main-button action-button {2}" onclick="mark_to_install('{0}', '{1}')" href="javascript:void(0);">
+        <i class="fa fa-download" aria-hidden="true"></i>&nbsp;
+        Install
+      </a>
+      <a role="button" class="btn btn-warning main-button undo-button" style="display:none" onclick="mark_to_uninstall('{0}', '{1}')" href="javascript:void(0);">
+        <i class="fa fa-times" aria-hidden="true"></i>&nbsp;
+        Cancel
+      </a>`;
+    let uninstall_action = `
+      <a role="button" class="btn btn-danger main-button action-button {2}" onclick="mark_to_uninstall('{0}', '{1}')" href="javascript:void(0);">
+        <i class="fa fa-trash" aria-hidden="true"></i>&nbsp;
+        Uninstall
+      </a>
+      <a role="button" class="btn btn-warning main-button undo-button" style="display:none" onclick="mark_to_install('{0}', '{1}')" href="javascript:void(0);">
+        <i class="fa fa-times" aria-hidden="true"></i>&nbsp;
+        Cancel
+      </a>`;
+    let update_action = `
+      <a role="button" class="btn btn-info update-button action-button {2}" onclick="mark_to_update('{0}', '{1}')" href="javascript:void(0);">
+        <i class="fa fa-cloud-download" aria-hidden="true"></i>&nbsp;
+        Update
+      </a>
+      <a role="button" class="btn btn-warning update-button undo-button" style="display:none" onclick="mark_to_install('{0}', '{1}')" href="javascript:void(0);">
+        <i class="fa fa-times" aria-hidden="true"></i>&nbsp;
+        Cancel
+      </a>`;
 
     function render_changes() {
         // show info about how many packages will be installed/removed
@@ -237,7 +278,7 @@ $assets_index_url = sanitize_url(
         });
     }//render_changes
 
-    function mark_to_install(package_name) {
+    function mark_to_install(package_name, package_version) {
         // if marked to update, remove it from the list
         let idx = packages_to_update.indexOf(package_name);
         if (idx >= 0) {
@@ -258,12 +299,14 @@ $assets_index_url = sanitize_url(
         idx = installed_packages_ids.indexOf(package_name);
         if (idx < 0) {
             packages_to_install.push(package_name);
+            // update version
+            packages_to_version[package_name] = package_version;
         }
         // render new status
         render_changes();
     }//mark_to_install
 
-    function mark_to_update(package_name) {
+    function mark_to_update(package_name, package_version) {
         // if already marked, do nothing
         let idx = packages_to_update.indexOf(package_name);
         if (idx >= 0)
@@ -274,6 +317,8 @@ $assets_index_url = sanitize_url(
             return;
         } else {
             packages_to_update.push(package_name);
+            // update version
+            packages_to_version[package_name] = package_version;
         }
         // if marked to uninstall, remove it from the list
         idx = packages_to_uninstall.indexOf(package_name);
@@ -284,7 +329,7 @@ $assets_index_url = sanitize_url(
         render_changes();
     }//mark_to_update
 
-    function mark_to_uninstall(package_name) {
+    function mark_to_uninstall(package_name, _) {
         // if already marked, do nothing
         let idx = packages_to_uninstall.indexOf(package_name);
         if (idx >= 0)
@@ -304,20 +349,20 @@ $assets_index_url = sanitize_url(
     }//mark_to_uninstall
 
     function apply_changes() {
-        let install = packages_to_install.join(',');
-        let update = packages_to_update.join(',');
+        let install = packages_to_install.map((x) => "{0}=={1}".format(x, packages_to_version[x])).join(',');
+        let update = packages_to_update.map((x) => "{0}=={1}".format(x, packages_to_version[x])).join(',');
         let uninstall = packages_to_uninstall.join(',');
         let qs = 'install={0}&update={1}&uninstall={2}'.format(install, update, uninstall);
         location.href = 'package_store/install?{0}'.format(qs);
     }//apply_changes
 
-    function add_package_to_list(num, pack) {
-        let is_installed = (installed_packages_ids.indexOf(pack.id) >= 0);
+    function add_package_to_list(num, id, pkg) {
+        let is_installed = (installed_packages_ids.indexOf(id) >= 0);
         let version_str_fmt = '{0}{1}{2}';
         let installed_version_str = '';
         let version_sep_str = '';
         let available_version_str = '';
-        let installed_version = (is_installed) ? installed_packages[pack.id].codebase.head_tag : null;
+        let installed_version = (is_installed) ? installed_packages[id].codebase.head_tag : null;
         if (is_installed) {
             // show installed version
             installed_version = (installed_version === 'ND') ? 'devel' : installed_version;
@@ -329,111 +374,116 @@ $assets_index_url = sanitize_url(
         }
         // ---
         // show available version (if any)
-        let latest_version = pack.git_branch;
-        let needs_update = is_installed && latest_version !== 'master' && latest_version !== installed_version;
-        if (!is_installed || needs_update) {
-            // show available version
-            var color = 'grey';
-            if (is_installed && installed_version !== 'devel' && latest_version !== installed_version) {
-                color = 'darkgreen';
+        let pkg_version = compute_latest_pkg_version(pkg);
+        let version_str = '';
+        let needs_update = is_installed && pkg_version !== installed_version;
+        if (pkg_version !== null) {
+            if (!is_installed || needs_update) {
+                // show available version
+                let color = 'grey';
+                if (is_installed && installed_version !== 'devel' && pkg_version !== installed_version) {
+                    color = 'darkgreen';
+                }
+                version_sep_str = (installed_version_str.length > 0) ? '&nbsp;  |  &nbsp;' : '';
+                available_version_str = package_version_line_template.format(
+                    'Available version',
+                    color,
+                    (pkg_version === 'master') ? 'devel' : pkg_version
+                );
             }
-            version_sep_str = (installed_version_str.length > 0) ? '&nbsp;  |  &nbsp;' : '';
-            available_version_str = package_version_line_template.format(
-                'Available version',
-                color,
-                (latest_version === 'master') ? 'devel' : latest_version
+            version_str = version_str_fmt.format(
+                installed_version_str,
+                version_sep_str,
+                available_version_str
             );
+        } else {
+            version_str = '<span style="color: darkred">No compatible versions found</span>';
         }
-        let version_str = version_str_fmt.format(
-            installed_version_str,
-            version_sep_str,
-            available_version_str
-        );
         // ---
         let col1 = package_template.format(
-            pack.name,
-            pack.id,
-            pack.git_owner,
-            pack.description,
+            pkg.name,
+            id,
+            pkg.git.owner,
+            pkg.description,
             version_str
         );
         // ---
         let installed = (is_installed) ?
             '<?php echo Formatter::format(1, Formatter::BOOLEAN) ?>' : '<?php echo Formatter::format(0, Formatter::BOOLEAN) ?>';
         // ---
-        let git_action_url = providers_source[pack.git_provider].format(pack.git_owner, pack.git_repository, pack.git_branch);
-        let source_action = `
-      <a class="btn btn-default" href="{0}" role="button" target="_blank">
-        <i class="fa fa-code" aria-hidden="true"></i>&nbsp;
-        Code
-      </a>`.format(git_action_url);
-        let git_repo_url = providers_repo[pack.git_provider].format(pack.git_owner, pack.git_repository);
-        let install_action = `
-      <a role="button" class="btn btn-success main-button action-button" onclick="mark_to_install('{0}')" href="javascript:void(0);">
-        <i class="fa fa-download" aria-hidden="true"></i>&nbsp;
-        Install
-      </a>
-      <a role="button" class="btn btn-warning main-button undo-button" style="display:none" onclick="mark_to_uninstall('{0}')" href="javascript:void(0);">
-        <i class="fa fa-times" aria-hidden="true"></i>&nbsp;
-        Cancel
-      </a>`;
-        let uninstall_action = `
-      <a role="button" class="btn btn-danger main-button action-button" onclick="mark_to_uninstall('{0}')" href="javascript:void(0);">
-        <i class="fa fa-trash" aria-hidden="true"></i>&nbsp;
-        Uninstall
-      </a>
-      <a role="button" class="btn btn-warning main-button undo-button" style="display:none" onclick="mark_to_install('{0}')" href="javascript:void(0);">
-        <i class="fa fa-times" aria-hidden="true"></i>&nbsp;
-        Cancel
-      </a>`;
-        let update_action = `
-      <a role="button" class="btn btn-info update-button action-button {1}" onclick="mark_to_update('{0}')" href="javascript:void(0);">
-        <i class="fa fa-cloud-download" aria-hidden="true"></i>&nbsp;
-        Update
-      </a>
-      <a role="button" class="btn btn-warning update-button undo-button" style="display:none" onclick="mark_to_install('{0}')" href="javascript:void(0);">
-        <i class="fa fa-times" aria-hidden="true"></i>&nbsp;
-        Cancel
-      </a>`;
-        let main_action = (is_installed) ? uninstall_action : install_action;
-        main_action = main_action.format(pack.id);
+        let git_action_url = providers_source[pkg.git.provider].format(pkg.git.owner, pkg.git.repository, pkg_version);
+        // create buttons
+        let source_btn = source_action.format(git_action_url);
+        let main_btn = ((is_installed) ? uninstall_action : install_action).format(
+            id, pkg_version,
+            (pkg_version !== null) ? '' : 'disabled disabled-button'
+        );
         let update_btn = update_action.format(
-            pack.id,
+            id, pkg_version,
             (is_installed && needs_update) ? '' : 'disabled disabled-button'
         );
-        let icon_url = pack.icon;
+        let icon_url = pkg.icon;
         if (!icon_url.startsWith('http')) {
             icon_url = '{0}/{1}'.format(
                 '<?php
                     echo sprintf(
                         '%s/%s',
                         Configuration::$ASSETS_STORE_URL,
-                        Configuration::$ASSETS_STORE_BRANCH
+                        Configuration::$ASSETS_STORE_VERSION
                     )
                     ?>',
                 icon_url
             );
         }
         // ---
-        $('#packages-table-body').html(
-            $('#packages-table-body').html() +
+        let table_body = $('#packages-table-body');
+        table_body.html(
+            table_body.html() +
             packages_table_body_row_template.format(
-                '<img class="package-icon" src="{0}"></img>'.format(icon_url),
+                '<img class="package-icon" src="{0}" alt=""/>'.format(icon_url),
                 col1,
                 installed,
-                "{0}{1}{2}".format(source_action, update_btn, main_action),
-                "{0},{1},{2}".format(pack.id, pack.name, pack.description),
-                "compose-package-{0}".format(pack.id)
+                "{0}{1}{2}".format(source_btn, update_btn, main_btn),
+                "{0},{1},{2}".format(id, pkg.name, pkg.description),
+                "compose-package-{0}".format(id)
             )
         )
     }
+    
+    function compute_latest_pkg_version (pkg) {
+        let compose_version = <?php echo
+            is_null($compose_version)? 'null' : sprintf('"%s"', $compose_version) ?>;
+        let latest = null;
+        for (const [version, info] of Object.entries(pkg.versions)) {
+            let compatibility = info['compatibility']['compose'];
+            // make sure this version is compatible with the current version of compose
+            if (compose_version !== null &&
+                (semverLite.lt(compose_version, compatibility['minimum']) ||
+                    semverLite.gt(compose_version, compatibility['maximum']))
+                ){
+                // not compatible
+                continue;
+            }
+            // first compatible version?
+            if (latest == null) {
+                latest = version;
+            }
+            // ---
+            if (semverLite.gt(version, latest)) {
+                latest = version;
+            }
+        }
+        return latest;
+    }
 
     function fetch_package_list_success_fcn(result) {
-        let doc = JSON.parse(result);
+        let index = JSON.parse(result);
         // add packages to the list
         ProgressBar.set(100);
-        for (let i = 0; i < doc.packages.length; i++) {
-            add_package_to_list(i + 1, doc.packages[i]);
+        let i = 1;
+        for (const [id, pkg] of Object.entries(index.packages)) {
+            add_package_to_list(i, id, pkg);
+            i += 1;
         }
         render_changes();
     }

@@ -11,14 +11,39 @@ if (!isset($_GET['install']) && !isset($_GET['update']) && !isset($_GET['uninsta
     Core::redirectTo('');
 }
 
-$to_install = explode(',', str_ireplace(' ', '', $_GET['install']));
-$to_update = explode(',', str_ireplace(' ', '', $_GET['update']));
-$to_uninstall = explode(',', str_ireplace(' ', '', $_GET['uninstall']));
+$version_map = [];
+$args = [];
+
+// parse arguments
+foreach (['install', 'update', 'uninstall'] as $arg) {
+    $args[$arg] = [];
+    $pkgs = explode(',', str_ireplace(' ', '', $_GET[$arg]));
+    foreach ($pkgs as $pkg) {
+        if (strlen(trim($pkg)) == 0)
+            continue;
+        $parts = explode('==', $pkg);
+        if (count($parts) != 2)
+            Core::throwError(sprintf(
+                'Format error. Package name "%s" must have the format "PACKAGE==VERSION"', $pkg
+            ));
+        array_push($args[$arg], $parts[0]);
+        $version_map[$parts[0]] = $parts[1];
+    }
+}
+
+$to_install = $args['install'];
+$to_update = $args['update'];
+$to_uninstall = $args['uninstall'];
+
+// get info about codebase
+$codebase_info = Core::getCodebaseInfo();
+$compose_version =
+    ($codebase_info['latest_tag'] == 'ND')? null : explode('-', $codebase_info['latest_tag'])[0];
 
 // read index
 $assets_url = Configuration::$ASSETS_STORE_URL;
-$assets_branch = Configuration::$ASSETS_STORE_BRANCH;
-$assets_index_url = sprintf('%s/%s/index', $assets_url, $assets_branch);
+$assets_branch = Configuration::$ASSETS_STORE_VERSION;
+$assets_index_url = join_path($assets_url, $assets_branch, 'index.json');
 $content = file_get_contents($assets_index_url);
 if (!$content) {
     $error = error_get_last();
@@ -29,24 +54,32 @@ if (!$content) {
         )
     );
 }
-$data = json_decode($content, true);
-$available_packages = [];
-foreach ($data['packages'] as $package) {
-    $available_packages[$package['id']] = $package;
+$index = json_decode($content, true);
+$available_packages = array_keys($index['packages']);
+
+// validate given versions
+foreach ($version_map as $pkg => $pkg_version) {
+    if (!array_key_exists($pkg, $index['packages'])) {
+        Core::throwError(sprintf('Package "%s" not found in the Assets Store index.', $pkg));
+    }
+    if (!array_key_exists($pkg_version, $index['packages'][$pkg]['versions'])) {
+        Core::throwError(sprintf('Version "%s" not found for package "%s".', $pkg_version, $pkg));
+    }
 }
 
 // get list of installed packages
 $installed_packages = Core::getPackagesList();
+$installed_packages_keys = array_keys($installed_packages);
 
 // remove packages that are not available
-$to_install = array_intersect($to_install, array_keys($available_packages));
-$to_update = array_intersect($to_update, array_keys($available_packages));
+$to_install = array_intersect($to_install, $available_packages);
+$to_update = array_intersect($to_update, $available_packages);
 $to_uninstall = array_diff(
-    array_intersect($to_uninstall, array_keys($installed_packages)),
+    array_intersect($to_uninstall, $installed_packages_keys),
     ['core']
 );
 
-// compute tree of dependencies (uninstall)
+// compute dependency tree (uninstall)
 $processed = [];
 $dependencies = $to_uninstall;
 $num_dependencies = count($dependencies);
@@ -66,66 +99,64 @@ while ($num_dependencies > 0) {
     $num_dependencies = count($dependencies) - $num_dependencies;
 }
 $to_uninstall_full = array_diff(
-    array_intersect($dependencies, array_keys($installed_packages)),
+    array_intersect($dependencies, $installed_packages_keys),
     ['core']
 );
 
-// compute tree of dependencies (install/update)
-$providers_source = [
-    'github.com' => 'https://raw.githubusercontent.com/%s/%s/%s',
-    'bitbucket.org' => 'https://bitbucket.org/%s/%s/raw/%s'
-];
+// function that returns the latest (yet compatible) version of a package
+function get_package_latest_version ($pkg) {
+    global $index;
+    global $available_packages;
+    global $compose_version;
+    // ---
+    $version = null;
+    $ver = function ($v){
+        return substr($v, 1);
+    };
+    // ---
+    if (!in_array($pkg, $available_packages))
+        return null;
+    // ---
+    foreach ($index['packages'][$pkg]['versions'] as $v => $vinfo) {
+        $compatibility = $vinfo['compatibility']['compose'];
+        if (version_compare($ver($compose_version), $ver($compatibility['minimum']), '>=') &&
+            version_compare($ver($compose_version), $ver($compatibility['maximum']), '<=')
+            ) {
+            if (is_null($version)) $version = $v;
+            if (version_compare($ver($v), $ver($version), '>')) $version = $v;
+        }
+    }
+    // ---
+    return $version;
+}
+
+// compute dependency tree (install/update)
 $processed = [];
 $dependencies = array_unique(array_merge($to_install, $to_update));
 $num_dependencies = count($dependencies);
 while ($num_dependencies > 0) {
     $num_dependencies = count($dependencies);
-    foreach (array_diff($dependencies, $processed) as $package_id) {
-        $package_info = $available_packages[$package_id];
-        if (!array_key_exists($package_info['git_provider'], $providers_source)) {
+    foreach (array_diff($dependencies, $processed) as $pkg) {
+        $pkg_version = array_key_exists($pkg, $version_map)?
+            $version_map[$pkg] : get_package_latest_version($pkg);
+        if (is_null($pkg_version)) {
             Core::throwError(
-                sprintf(
-                    'Provider "%s" for package "%s" not supported.',
-                    $package_info['git_provider'],
-                    $package_id
-                )
-            );
+                    sprintf('No compatible versions found for dependency package "%s".', $pkg));
         }
-        $package_metadata_url = sprintf(
-            $providers_source[$package_info['git_provider']] . '/metadata.json',
-            $package_info['git_owner'],
-            $package_info['git_repository'],
-            $package_info['git_branch']
-        );
-        $content = file_get_contents($package_metadata_url);
-        if (!$content) {
-            $error = error_get_last();
-            Core::throwError(
-                sprintf(
-                    'An error occurred while retrieving info about the package "%s". The error is (%s)',
-                    $package_id,
-                    $error
-                )
-            );
-        }
-        $package_metadata = json_decode($content, True);
-        $available_packages[$package_id]['metadata'] = $package_metadata;
-        $deps = $package_metadata['dependencies']['packages'];
-        if (is_null($deps)) {
-            $deps = [];
-        }
+        $version_map[$pkg] = $pkg_version;
+        $deps = $index['packages'][$pkg]['versions'][$pkg_version]['dependencies'];
         $dependencies = array_merge($dependencies, $deps);
-        array_push($processed, $package_id);
+        array_push($processed, $pkg);
     }
     $dependencies = array_unique($dependencies);
     $num_dependencies = count($dependencies) - $num_dependencies;
 }
 $to_install_full = array_intersect(
-    array_diff($dependencies, array_keys($installed_packages)),
-    array_keys($available_packages)
+    array_diff($dependencies, $installed_packages_keys),
+    $available_packages
 );
 $to_update_full = array_intersect(
-    $to_update, array_keys($installed_packages)
+    $to_update, $installed_packages_keys
 );
 
 // make sure that there is no conflict between install/uninstall operations
@@ -147,8 +178,14 @@ if (count($in_out_conflicts) + count($up_out_conflicts) > 0) {
     Core::openAlert('danger', implode('\n', $errors));
 } else {
     if (isset($_GET['confirm']) && $_GET['confirm'] == '1') {
+        // append version to packages
+        $fcn = function ($x) use ($version_map){return sprintf("%s==%s", $x, $version_map[$x]);};
+        $to_install_versioned = array_map($fcn, $to_install_full);
+        $to_update_versioned = array_map($fcn, $to_update_full);
         // perform install/uninstall operations in batch
-        $res = Core::packageManagerBatch($to_install_full, $to_update_full, $to_uninstall_full);
+        $res = Core::packageManagerBatch(
+            $to_install_versioned, $to_update_versioned, $to_uninstall_full
+        );
         if (!$res['success']) {
             $error_str = implode('<br/>&nbsp;', [
                 "Package Manager Errors:",
@@ -203,10 +240,6 @@ $actions = [
         'data_full' => $to_uninstall_full
     ]
 ];
-$packages_metadata = $installed_packages;
-foreach ($to_install_full as $package_id) {
-    $packages_metadata[$package_id] = $available_packages[$package_id]['metadata'];
-}
 
 foreach ($actions as $action) {
     $name = $action['name'];
@@ -232,8 +265,7 @@ foreach ($actions as $action) {
             <div class="panel-body">
                 <?php
                 foreach ($data as $package_id) {
-                    $package_metadata = $packages_metadata[$package_id];
-                    $package_name = $package_metadata['name'];
+                    $package_name = $index['packages'][$package_id]['name'];
                     echo sprintf('<h5>&bullet; %s (<span class="mono" style="color:grey">%s</span>)</h5>',
                         $package_name,
                         $package_id
@@ -245,8 +277,7 @@ foreach ($actions as $action) {
                     <div style="padding-left:20px">
                         <?php
                         foreach (array_diff($data_full, $data) as $package_id) {
-                            $package_metadata = $packages_metadata[$package_id];
-                            $package_name = $package_metadata['name'];
+                            $package_name = $index['packages'][$package_id]['name'];
                             echo sprintf('<h5>&bullet; %s (<span class="mono" style="color:grey">%s</span>)</h5>',
                                 $package_name,
                                 $package_id

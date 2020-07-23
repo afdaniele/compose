@@ -8,6 +8,7 @@ use \system\classes\Configuration;
 
 if (!in_array(Configuration::$ACTION, ['', 'install', 'verify'])) {
     Core::redirectTo('package_store');
+    return;
 }
 
 if (Configuration::$ACTION == '') {

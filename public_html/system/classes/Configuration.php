@@ -34,7 +34,7 @@ class Configuration {
     public static $CACHE_SYSTEM;
     public static $WEBAPI_VERSION;
     public static $ASSETS_STORE_URL;
-    public static $ASSETS_STORE_BRANCH;
+    public static $ASSETS_STORE_VERSION;
     
     
     //Init
@@ -70,7 +70,7 @@ class Configuration {
             self::$CACHE_SYSTEM = $CACHE_SYSTEM;
             self::$WEBAPI_VERSION = $WEBAPI_VERSION;
             self::$ASSETS_STORE_URL = $ASSETS_STORE_URL;
-            self::$ASSETS_STORE_BRANCH = $ASSETS_STORE_BRANCH;
+            self::$ASSETS_STORE_VERSION = $ASSETS_STORE_VERSION;
             //
             self::$initialized = true;
             //

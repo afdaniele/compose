@@ -1,5 +1,6 @@
 import sys
 import json
+import uuid
 import requests
 import subprocess
 from enum import Enum
@@ -9,6 +10,27 @@ from os import mkdir, environ
 from os.path import join, abspath, dirname, isdir, isfile, basename
 from toposort import toposort_flatten
 import shutil
+import semver
+
+
+def _version(ver):
+    return ver[1:]
+
+
+def version_lt(ver1, ver2):
+    return semver.compare(_version(ver1), _version(ver2)) == -1
+
+
+def version_gt(ver1, ver2):
+    return semver.compare(_version(ver1), _version(ver2)) == 1
+
+
+def version_lte(ver1, ver2):
+    return semver.compare(_version(ver1), _version(ver2)) <= 0
+
+
+def version_gte(ver1, ver2):
+    return semver.compare(_version(ver1), _version(ver2)) >= 0
 
 
 def exit_with_code(exit_code, message, data):
@@ -39,7 +61,8 @@ def error(task, step, package_name, error_msg, source_error_code, exit_code):
 
 
 def log(message):
-    print('# %s' % message)
+    for line in message.split('\n'):
+        print('# %s' % line)
     sys.stdout.flush()
 
 
@@ -126,6 +149,7 @@ class PackageManager(object):
         PACKAGE_NOT_FOUND = 12
         PACKAGE_ALREADY_INSTALLED = 13
         GIT_CLONE_ERROR = 14
+        NO_COMPATIBLE_VERSION_FOUND = 15
         POST_INSTALL = 19
         # update error codes: 20-29
         PRE_UPDATE = 20
@@ -142,6 +166,13 @@ class PackageManager(object):
             dirname(abspath(__file__)),
             '..', '..', '..', '..'
         ))
+        # get compose version
+        cmd = ['git', '-C', self._compose_dir, 'describe', '--abbrev=0', '--tags']
+        compose_version = subprocess.check_output(cmd).decode('utf-8')
+        self._compose_version = compose_version.strip('\n').split('-')[0]
+        if len(self._compose_version.strip()) == 0:
+            self._compose_version = None
+        # find user-data
         userdata_dir = environ.get('COMPOSE_USERDATA_DIR',
                                    join(self._compose_dir, 'system', 'user-data'))
         self._packages_dir = join(userdata_dir, 'packages')
@@ -176,12 +207,12 @@ class PackageManager(object):
         with open(config_file, 'rt') as fp:
             content = fp.readlines()
             # read ASSETS_STORE_URL from config file
-            line = [l for l in content if 'ASSETS_STORE_URL' in l][0].split('=')[1]
+            line = [line for line in content if 'ASSETS_STORE_URL' in line][0].split('=')[1]
             assets_store_url = line.replace("'", '').replace('"', '').replace(';', '').strip()
             self._assets_store_url = assets_store_url
             # ---
-            # read ASSETS_STORE_BRANCH from config file
-            line = [l for l in content if 'ASSETS_STORE_BRANCH' in l][0].split('=')[1]
+            # read ASSETS_STORE_VERSION from config file
+            line = [line for line in content if 'ASSETS_STORE_VERSION' in line][0].split('=')[1]
             assets_store_branch = line.replace("'", '').replace('"', '').replace(';', '').strip()
             self._assets_store_branch = assets_store_branch
         # retrieve index
@@ -192,19 +223,18 @@ class PackageManager(object):
         packages = [basename(d) for d in dirs if isfile(join(d, 'metadata.json'))]
         return packages
 
-    def get_package(self, package_name, version=None):
+    def get_package(self, package_name):
         package_path = join(self._packages_dir, package_name)
         if package_name in self.list_installed_packages():
             return Package(package_name, package_path)
         if package_name in self._index:
             package_info = self._index[package_name]
             package_git_url = 'https://%s/%s/%s' % (
-                package_info['git_provider'],
-                package_info['git_owner'],
-                package_info['git_repository']
+                package_info['git']['provider'],
+                package_info['git']['owner'],
+                package_info['git']['repository']
             )
-            package_version = version if (version is not None) else package_info['git_branch']
-            return Package(package_name, package_path, package_git_url, package_version)
+            return Package(package_name, package_path, package_git_url)
         # ---
         error(
             PackageManager.Task.INIT,
@@ -217,56 +247,93 @@ class PackageManager(object):
 
     def get_available_packages(self):
         num_trials = 3
-        packages = []
+        packages = {}
         for i in range(num_trials):
             timeout = 5 * (i + 1)
             log('Retrieving index of packages from registry (%d/%d)...' % (i + 1, num_trials))
-            index_url = '%s/%s/index' % (self._assets_store_url, self._assets_store_branch)
+            random = str(uuid.uuid4())[0:8]
+            index_url = '%s/%s/index.json?random=%s' % (
+                self._assets_store_url, self._assets_store_branch, random
+            )
             try:
                 response = requests.get(index_url, timeout=timeout)
             except requests.exceptions.Timeout:
                 continue
             # parse data
             data = json.loads(response.text)
-            packages = {
-                p['id']: p for p in data['packages']
-            }
+            packages = data['packages']
             log('Done!')
             break
         return packages
 
+    def get_package_latest_compatible_version(self, package):
+        version = None
+        for v, vinfo in self._index[package]['versions'].items():
+            compatibility = vinfo['compatibility']['compose']
+            # make sure this version is compatible with compose
+            if (self._compose_version is not None and
+                (version_lt(self._compose_version, compatibility['minimum']) or
+                 version_gt(self._compose_version, compatibility['maximum']))):
+                continue
+            # ---
+            if version is None:
+                version = v
+            if version_gt(v, version):
+                version = v
+        return version
+
     def solve_dependencies_graph(self, packages_to_install):
         dep_graph = {}
+        dep_graph_versions = {}
 
         # ---
-        def extend_dep_graph(package_name):
+        def extend_dep_graph(_pkg_name, _pkg_version):
             dep_sub_graph = {}
+            dep_sub_graph_versions = {}
             # make sure that the package is available
-            if package_name not in self._index:
+            if _pkg_name not in self._index:
                 error(
                     PackageManager.Task.DEPENDENCIES_SOLVER,
                     PackageManager.DependenciesSolverStep.GET_PACKAGE,
-                    package_name,
-                    'Package "%s" not found' % package_name,
+                    _pkg_name,
+                    'Package "%s" not found' % _pkg_name,
                     None,
                     PackageManager.Error.PACKAGE_NOT_FOUND
                 )
+            # get version
+            if _pkg_version is None:
+                _pkg_version = self.get_package_latest_compatible_version(_pkg_name)
+                if _pkg_version is None:
+                    error(
+                        PackageManager.Task.DEPENDENCIES_SOLVER,
+                        PackageManager.DependenciesSolverStep.GET_PACKAGE,
+                        _pkg_name,
+                        'No compatible versions for package "%s" were found' % _pkg_name,
+                        None,
+                        PackageManager.Error.NO_COMPATIBLE_VERSION_FOUND
+                    )
             # get deps
-            deps = self._index[package_name]['dependencies']
-            dep_sub_graph[package_name] = set(deps)
+            deps = self._index[_pkg_name]['versions'][_pkg_version]['dependencies']
+            dep_sub_graph[_pkg_name] = set(deps)
+            dep_sub_graph_versions[_pkg_name] = _pkg_version
             # extend deps
             for d in deps:
-                dep_sub_graph.update(extend_dep_graph(d))
-            return dep_sub_graph
+                p, v, *_ = d.split('==') + [None]
+                sg, sgv = extend_dep_graph(p, v)
+                dep_sub_graph.update(sg)
+                dep_sub_graph_versions.update(sgv)
+            return dep_sub_graph, dep_sub_graph_versions
 
         # ---
         # build graph
-        for package_name in packages_to_install:
-            dep_graph.update(extend_dep_graph(package_name))
+        for package_name, package_version in packages_to_install:
+            subg, subg_v = extend_dep_graph(package_name, package_version)
+            dep_graph.update(subg)
+            dep_graph_versions.update(subg_v)
         # get flatten list of packages to install
-        return toposort_flatten(dep_graph)
+        return toposort_flatten(dep_graph), dep_graph_versions
 
-    def install(self, package_name, version=None, dryrun=False):
+    def install(self, package_name, version, dryrun=False):
         # nothing to do if the package is already installed
         if package_name in self.list_installed_packages():
             return
@@ -281,8 +348,8 @@ class PackageManager(object):
                 PackageManager.Error.PACKAGE_NOT_FOUND
             )
         # create package
-        package = self.get_package(package_name, version)
-        package.install(dryrun=dryrun)
+        package = self.get_package(package_name)
+        package.install(version, dryrun=dryrun)
 
     def post_install(self, package_name, dryrun=False):
         package = self.get_package(package_name)
@@ -292,11 +359,8 @@ class PackageManager(object):
         package = self.get_package(package_name)
         package.pre_update(dryrun=dryrun)
 
-    def update(self, package_name, version=None, dryrun=False):
+    def update(self, package_name, version, dryrun=False):
         package = self.get_package(package_name)
-        if not version:
-            # assume latest
-            version = self._index[package_name]['git_branch']
         package.update(version, dryrun=dryrun)
 
     def post_update(self, package_name, dryrun=False):
@@ -314,11 +378,10 @@ class PackageManager(object):
 
 class Package(object):
 
-    def __init__(self, package_name, path, remote_url=None, remote_version=None):
+    def __init__(self, package_name, path, remote_url=None):
         self._name = str(package_name)
         self._path = abspath(path)
         self._metadata = defaultdict(lambda: None)
-        self._remote_version = remote_version
         # check if the package is installed
         self._is_installed = isdir(self._path)
         # set remote URL
@@ -331,7 +394,8 @@ class Package(object):
                     PackageManager.Task.INIT_PACKAGE,
                     PackageManager.InitPackageStep.INIT,
                     self._name,
-                    'Error retrieving the remote url from the package "%s":\n\tExit code: %s\n\t: %s' % (
+                    'Error retrieving the remote url from the package "%s":\n'
+                    '\tExit code: %s\n\t: %s' % (
                         self._name,
                         str(returncode),
                         error_str
@@ -384,7 +448,7 @@ class Package(object):
         pages = [basename(d) for d in dirs if isfile(join(d, 'metadata.json'))]
         return pages
 
-    def install(self, version=None, dryrun=False):
+    def install(self, version, dryrun=False):
         log(' > INSTALLING package "%s"...' % self.name)
         if self.is_installed:
             error(
@@ -399,8 +463,6 @@ class Package(object):
         if dryrun:
             log(' < INSTALLING: Done!')
             return
-        if not version:
-            version = self._remote_version
         # clone git repository
         cmds = [
             ['git', 'clone', self.remote_url, self.path],
@@ -445,7 +507,7 @@ class Package(object):
             dryrun=dryrun
         )
 
-    def update(self, version=None, dryrun=False):
+    def update(self, version, dryrun=False):
         log(' > UPDATING package "%s"...' % self.name)
         # make sure that the package is installed
         if not self.is_installed:
@@ -461,8 +523,6 @@ class Package(object):
         if dryrun:
             log(' < UPDATING: Done!')
             return
-        if not version:
-            version = self._remote_version
         # perform git fetch and checkout
         cmds = [
             ['git', '-C', self.path, 'fetch', '--tags'],
@@ -479,7 +539,8 @@ class Package(object):
                     PackageManager.Task.UPDATE,
                     PackageManager.UpdateStep.UPDATE,
                     self.name,
-                    'Error checking out version "%s" of the package "%s":\n\tExit code: %s\n\t: %s' % (
+                    'Error checking out version "%s" of the package "%s":\n'
+                    '\tExit code: %s\n\t: %s' % (
                         version,
                         self.name,
                         str(returncode),
@@ -574,80 +635,68 @@ if __name__ == '__main__':
         'uninstalled': []
     }
 
-
     def package_and_version(package_str):
-        # split package=version  =>  (package, version)
-        package_version = None
-        parts = package_str.split('=')
-        package_name = parts[0]
-        if len(parts) > 1:
-            package_version = parts[1]
-        return (package_name, package_version)
-
+        # split package==version  =>  (package, version)
+        parts = package_str.split('==') + [None]
+        return (parts[0], parts[1])
 
     # get input
     to_install = set(args.install or [])
     to_update = set(args.update or [])
     to_install = to_install.union(to_update)
 
-    force_version = defaultdict(lambda: None)
-    to_install_names = set()
-    for package_str in to_install:
-        package_name, package_version = package_and_version(package_str)
-        if package_version:
-            force_version[package_name] = package_version
-        to_install_names.add(package_name)
-    to_install = to_install_names
+    # break package==version into (package, version)
+    to_install = [package_and_version(p) for p in to_install]
 
     # solve dependency graph
-    to_install = pm.solve_dependencies_graph(to_install)
+    to_install, version_map = pm.solve_dependencies_graph(to_install)
 
     # perform uninstall
-    for package_name in args.uninstall or []:
-        log('Performing UNINSTALL on package "%s"...' % package_name)
-        pm.uninstall(package_name, dryrun=args.dry_run)
-        out_data['uninstalled'].append(package_name)
+    for _package_name in args.uninstall or []:
+        log('Performing UNINSTALL on package "%s"...' % _package_name)
+        pm.uninstall(_package_name, dryrun=args.dry_run)
+        out_data['uninstalled'].append(_package_name)
         log('Done!\n')
 
     # perform pre_update
-    for package_name in to_update:
-        if package_name in pm.list_installed_packages():
-            log('Performing PRE_UPDATE on package "%s"...' % package_name)
-            pm.pre_update(package_name, dryrun=args.dry_run)
+    for _package_name in to_update:
+        if _package_name in pm.list_installed_packages():
+            log('Performing PRE_UPDATE on package "%s"...' % _package_name)
+            pm.pre_update(_package_name, dryrun=args.dry_run)
             log('Done!\n')
 
     # perform update
     requires_post_update = []
-    for package_name in to_update:
-        if package_name in pm.list_installed_packages():
-            log('Performing UPDATE on package "%s"...' % package_name)
-            pm.update(package_name, dryrun=args.dry_run)
-            requires_post_update.append(package_name)
-            out_data['updated'].append(package_name)
+    for _package_name in to_update:
+        if _package_name in pm.list_installed_packages():
+            log('Performing UPDATE on package "%s"...' % _package_name)
+            pm.update(_package_name, dryrun=args.dry_run)
+            requires_post_update.append(_package_name)
+            out_data['updated'].append(_package_name)
             log('Done!\n')
 
     # perform install
     requires_post_install = []
-    for package_name in to_install:
-        if package_name not in pm.list_installed_packages():
-            package_version = force_version[package_name]
-            version_info = " (forced version %s)" % package_version if package_version else ""
-            log('Performing INSTALL on package "%s"%s...' % (package_name, version_info))
-            pm.install(package_name, version=package_version, dryrun=args.dry_run)
-            requires_post_install.append(package_name)
-            out_data['installed'].append(package_name)
+    for _package_name in to_install:
+        if _package_name not in pm.list_installed_packages():
+            _package_version = version_map[_package_name]
+            _version_info = " (version %s)" % _package_version
+            log('Performing INSTALL on package "%s"%s...' % (_package_name, _version_info))
+            pm.install(_package_name, _package_version, dryrun=args.dry_run)
+            requires_post_install.append(_package_name)
+            out_data['installed'].append(_package_name)
             log('Done!\n')
 
     # perform post_update
-    for package_name in requires_post_update:
-        log('Performing POST_UPDATE on package "%s"...' % package_name)
-        pm.post_update(package_name, dryrun=args.dry_run)
+    for _package_name in requires_post_update:
+        log('Performing POST_UPDATE on package "%s"...' % _package_name)
+        pm.post_update(_package_name, dryrun=args.dry_run)
         log('Done!\n')
 
     # perform post_install
-    for package_name in requires_post_install:
-        log('Performing POST_INSTALL on package "%s"...' % package_name)
-        pm.post_install(package_name, dryrun=args.dry_run)
+    for _package_name in requires_post_install:
+        log('Performing POST_INSTALL on package "%s"...' % _package_name)
+        pm.post_install(_package_name, dryrun=args.dry_run)
         log('Done!\n')
 
     # exit
