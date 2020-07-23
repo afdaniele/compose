@@ -1,0 +1,79 @@
+{
+    "details": "Provides the tools for configuring a theme",
+    "actions": {
+        "get": {
+            "details": "Returns a theme's configuration",
+            "access_level": [
+                "administrator"
+            ],
+            "authentication": [
+                "web"
+            ],
+            "parameters": {
+                "mandatory": {
+                    "package": {
+                        "type": "text",
+                        "length": null,
+                        "details": "ID of the package the theme belongs to"
+                    },
+                    "theme": {
+                        "type": "text",
+                        "length": null,
+                        "details": "Name of the theme to get the configuration for"
+                    }
+                },
+                "optional": {}
+            },
+            "return": {
+                "values": {
+                    "package": {
+                        "type": "text",
+                        "length": null,
+                        "details": "ID of the package the theme belongs to"
+                    },
+                    "theme": {
+                        "type": "text",
+                        "length": null,
+                        "details": "Name of the theme queried"
+                    },
+                    "configuration" : {
+                        "type": "object",
+                        "details": "Theme configuration",
+                        "_data": {}
+                    }
+                }
+            }
+        },
+        "set": {
+            "details": "Sets a theme's configuration",
+            "access_level": [
+                "administrator"
+            ],
+            "authentication": [
+                "web"
+            ],
+            "parameters": {
+                "mandatory": {
+                    "package": {
+                        "type": "text",
+                        "length": null,
+                        "details": "ID of the package the theme belongs to"
+                    },
+                    "theme": {
+                        "type": "text",
+                        "length": null,
+                        "details": "Name of the theme to set the configuration for"
+                    }
+                },
+                "optional": {
+                    "configuration": {
+                        "type": "object",
+                        "length": null,
+                        "details": "Theme configuration in object array format"
+                    }
+                }
+            },
+            "return": {}
+        }
+    }
+}

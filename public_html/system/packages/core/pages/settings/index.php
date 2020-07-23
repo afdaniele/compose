@@ -4,8 +4,8 @@
 # @Last modified by:   afdaniele
 
 use \system\classes\Core;
-use \system\classes\Configuration;
 use \system\classes\Cache;
+use system\classes\EditableConfiguration;
 
 // update
 if (isset($_GET['base_update']) && boolval($_GET['base_update'])) {
@@ -46,10 +46,6 @@ if (isset($_GET['base_update']) && boolval($_GET['base_update'])) {
 		padding: 30px 40px;
 	}
 
-	select.form-control{
-		height: 26px !important;
-	}
-
 	.text-color-red{
 		color: #e63838;
 	}
@@ -57,148 +53,150 @@ if (isset($_GET['base_update']) && boolval($_GET['base_update'])) {
 </style>
 
 
-<div style="width:100%; margin:auto">
+<h2 class="page-title"></h2>
 
-	<table style="width:100%; border-bottom:1px solid #ddd; margin-bottom:32px">
-
-		<tr>
-			<td style="width:100%">
-				<h2>Settings</h2>
-			</td>
-		</tr>
-
-	</table>
-
-
-	<?php
-
-	include_once "sections/packages.php";
-	include_once "sections/pages.php";
-	include_once "sections/api.php";
-	include_once "sections/cache.php";
-	include_once "sections/package_specific.php";
-	include_once "sections/codebase.php";
-	include_once "sections/user_roles.php";
+<?php
+include_once "sections/packages.php";
+include_once "sections/pages.php";
+include_once "sections/api.php";
+include_once "sections/cache.php";
+include_once "sections/package_specific.php";
+include_once "sections/codebase.php";
+include_once "sections/user_roles.php";
 
 
-	$settings_tabs = [
-		// [0-20] reserved for \compose\ tabs
-		0 => [
-			'id' => 'general',
-			'title' => 'General',
-			'icon' => 'fa fa-sliders',
-			'content' => settings_custom_package_tab,
-			'content_args' => ['core', Core::getPackageSettings('core')]
-		],
-		1 => [
-			'id' => 'packages',
-			'title' => 'Packages',
-			'icon' => 'fa fa-cubes',
-			'content' => settings_packages_tab,
-			'content_args' => null
-		],
-		2 => [
-			'id' => 'pages',
-			'title' => 'Pages',
-			'icon' => 'fa fa-file-text-o',
-			'content' => settings_pages_tab,
-			'content_args' => null
-		],
-		3 => [
-			'id' => 'api',
-			'title' => 'API End-points',
-			'icon' => 'fa fa-sitemap',
-			'content' => settings_api_tab,
-			'content_args' => null
-		],
-		4 => [
-			'id' => 'roles',
-			'title' => 'User roles',
-			'icon' => 'fa fa-users',
-			'content' => settings_user_roles_tab,
-			'content_args' => null
-		],
+include_once "sections/theme.php";
 
-		// [21-100] reserved for packages
 
-		// [101-400] free to use
+$settings_tabs = [
+    // [0-20] reserved for \compose\ tabs
+    0 => [
+        'id' => 'general',
+        'title' => 'General',
+        'icon' => 'fa fa-sliders',
+        'content' => settings_custom_package_tab,
+        'content_args' => ['core', Core::getPackageSettings('core')]
+    ],
+    1 => [
+        'id' => 'packages',
+        'title' => 'Packages',
+        'icon' => 'fa fa-cubes',
+        'content' => settings_packages_tab,
+        'content_args' => null
+    ],
+    2 => [
+        'id' => 'pages',
+        'title' => 'Pages',
+        'icon' => 'fa fa-file-text-o',
+        'content' => settings_pages_tab,
+        'content_args' => null
+    ],
+    3 => [
+        'id' => 'api',
+        'title' => 'API End-points',
+        'icon' => 'fa fa-sitemap',
+        'content' => settings_api_tab,
+        'content_args' => null
+    ],
+    4 => [
+        'id' => 'roles',
+        'title' => 'User roles',
+        'icon' => 'fa fa-users',
+        'content' => settings_user_roles_tab,
+        'content_args' => null
+    ],
+    10 => [
+        'id' => 'theme',
+        'title' => 'Theme',
+        'icon' => 'fa fa-paint-brush',
+        'content' => settings_theme_tab,
+        'content_args' => null
+    ],
 
-		// #501 reserved for cache tab
+    // [21-100] reserved for packages
 
-		// [502-600] reserved for \compose\ tabs
-		502 => [
-			'id' => 'codebase',
-			'title' => 'Codebase',
-			'icon' => 'fa fa-code',
-			'content' => settings_codebase_tab,
-			'content_args' => null
-		]
-	];
+    // [101-400] free to use
 
-	if( Cache::enabled() ){
-		// add cache tab if the flag is active
-		$settings_tabs[501] = [
-			'id' => 'cache',
-			'title' => 'Cache',
-			'icon' => 'fa fa-history',
-			'content' => settings_cache_tab,
-			'content_args' => null
-		];
-	}
+    // #501 reserved for cache tab
 
-	$i = 10;
-	foreach( Core::getPackagesList() as $pkg_id => $pkg ){
-		if( $pkg_id == 'core' ) continue;
-		$pkg_setts = Core::getPackageSettings( $pkg_id );
-		if( $pkg_setts['success'] && !$pkg_setts['data']->is_configurable() ) continue;
-		$settings_tabs[$i] = [
-			'id' => 'package_'.$pkg_id,
-			'title' => 'Package: <b>'.$pkg['name'].'</b>',
-			'icon' => 'fa fa-cube',
-			'content' => settings_custom_package_tab,
-			'content_args' => [$pkg_id, $pkg_setts]
-		];
-		$i += 1;
-	}
-	?>
+    // [502-600] reserved for \compose\ tabs
+    502 => [
+        'id' => 'codebase',
+        'title' => 'Codebase',
+        'icon' => 'fa fa-code',
+        'content' => settings_codebase_tab,
+        'content_args' => null
+    ]
+];
 
-	<div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
-		<?php
-		$tab_idxs = array_keys($settings_tabs);
-		sort( $tab_idxs );
-		foreach( $tab_idxs as $tab_idx) {
-			$settings_tab = $settings_tabs[$tab_idx];
-			$header = $settings_tab['id'].'_header';
-			$collapse = $settings_tab['id'].'_collapse';
-			?>
-			<div class="panel panel-default">
-				<div class="panel-heading" role="tab" id="<?php echo $header ?>">
-					<a id="collapse_a_<?php echo $collapse ?>" class="collapsed collapse_a" role="button" data-toggle="collapse" data-parent="#accordion" href="#<?php echo $collapse ?>" aria-expanded="true" aria-controls="<?php echo $collapse ?>">
-						<h4 class="panel-title">
-							<span class="<?php echo $settings_tab['icon'] ?>" aria-hidden="true"></span>
-							&nbsp;
-							<?php echo $settings_tab['title'] ?>
-							<!--  -->
-							<span id="<?php echo $settings_tab['id'] ?>_unsaved_changes_mark" style="float:right; color:darkorange; font-size:11pt; display:none">
-								Unsaved changes &nbsp;
-								<span class="fa fa-exclamation-triangle" aria-hidden="true"></span>
-							</span>
-						</h4>
-					</a>
-				</div>
-				<div id="<?php echo $collapse ?>" class="panel-collapse collapse <?php echo ($tab_idx == 0)? 'in' : '' ?>" role="tabpanel" aria-labelledby="<?php echo $header ?>">
-					<div class="panel-body">
-						<?php
-						call_user_func( $settings_tab['content'], $settings_tab['content_args'], $settings_tab['id'] );
-						?>
-					</div>
-				</div>
-			</div>
-			<?php
-		}
-		?>
-	</div>
+if( Cache::enabled() ){
+    // add cache tab if the flag is active
+    $settings_tabs[501] = [
+        'id' => 'cache',
+        'title' => 'Cache',
+        'icon' => 'fa fa-history',
+        'content' => settings_cache_tab,
+        'content_args' => null
+    ];
+}
 
+$i = 21;
+foreach (Core::getPackagesList() as $pkg_id => $pkg) {
+    if ($pkg_id == 'core') continue;
+    $pkg_setts = Core::getPackageSettings($pkg_id);
+    // skip package if it is not configurable
+    if (!$pkg_setts['data'] instanceof EditableConfiguration ||
+        !$pkg_setts['data']->is_configurable()){
+        continue;
+    }
+    // render package-specific tab
+    $settings_tabs[$i] = [
+        'id' => 'package_'.$pkg_id,
+        'title' => 'Package: <b>'.$pkg['name'].'</b>',
+        'icon' => 'fa fa-cube',
+        'content' => settings_custom_package_tab,
+        'content_args' => [$pkg_id, $pkg_setts]
+    ];
+    // ---
+    $i += 1;
+}
+?>
+
+<div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+    <?php
+    $tab_idxs = array_keys($settings_tabs);
+    sort( $tab_idxs );
+    foreach( $tab_idxs as $tab_idx) {
+        $settings_tab = $settings_tabs[$tab_idx];
+        $header = $settings_tab['id'].'_header';
+        $collapse = $settings_tab['id'].'_collapse';
+        ?>
+        <div class="panel panel-default">
+            <div class="panel-heading" role="tab" id="<?php echo $header ?>">
+                <a id="collapse_a_<?php echo $collapse ?>" class="collapsed collapse_a" role="button" data-toggle="collapse" data-parent="#accordion" href="#<?php echo $collapse ?>" aria-expanded="true" aria-controls="<?php echo $collapse ?>">
+                    <h4 class="panel-title">
+                        <span class="<?php echo $settings_tab['icon'] ?>" aria-hidden="true"></span>
+                        &nbsp;
+                        <?php echo $settings_tab['title'] ?>
+                        <!--  -->
+                        <span id="<?php echo $settings_tab['id'] ?>_unsaved_changes_mark" style="float:right; color:darkorange; font-size:11pt; display:none">
+                            Unsaved changes &nbsp;
+                            <span class="fa fa-exclamation-triangle" aria-hidden="true"></span>
+                        </span>
+                    </h4>
+                </a>
+            </div>
+            <div id="<?php echo $collapse ?>" class="panel-collapse collapse <?php echo ($tab_idx == 0)? 'in' : '' ?>" role="tabpanel" aria-labelledby="<?php echo $header ?>">
+                <div class="panel-body">
+                    <?php
+                    call_user_func( $settings_tab['content'], $settings_tab['content_args'], $settings_tab['id'] );
+                    ?>
+                </div>
+            </div>
+        </div>
+        <?php
+    }
+    ?>
 </div>
 
 <script type="text/javascript">

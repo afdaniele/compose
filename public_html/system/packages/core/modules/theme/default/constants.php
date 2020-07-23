@@ -1,0 +1,6 @@
+<?php
+
+$TOPBAR_HEIGHT = 50;
+$BOTTOMBAR_HEIGHT = 50;
+
+?>

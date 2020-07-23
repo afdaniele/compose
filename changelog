@@ -32,10 +32,13 @@ Things to add later in the development:
             [ ] - make jquery-ui.{css, js} available as auxiliary library and remove it from the duckietown package
 
     [ ] - v1.0
+        [X] - package configurations are now implemented using DBs
+        [X] - enable/disable pages is now implemented using DBs
+        [X] - enable/disable packages is now implemented using DBs
         [ ] - clean up the code
         [ ] - finish documentation for \system\classes\
-        [ ] - add setup page for \compose\
-        [ ] - add setup pages for newly installed packages
+        [X] - add setup page for \compose\
+        [X] - add setup pages for newly installed packages
         [ ] - add support for package-specific configurable parameters in URL-rewrite rules (e.g., $(param docs_dir))
         [ ] - when an admin is logged in, query github and get the versions of all the packages that are compatible with the current version of \compose\
             [ ] - define somehow pkg <-> compose compatibility maps

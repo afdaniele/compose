@@ -33,7 +33,7 @@ functionalities for managing settings for both the `core` package and other
 additional packages.
 
 The [RESTful](https://restfulapi.net/) API module in **\\compose\\** offers an easy
-way for packages to export API end-points accessible via HTTP.
+way for packages to export API end-points accessible via HTTP. 
 
 
 ## Documentation
@@ -76,4 +76,4 @@ Run
 
 Run
 
-`docker run -d -p <PORT>:80 afdaniele/compose:<IMAGE_TAG>` 
+`docker run -d -p <PORT>:80 afdaniele/compose:<IMAGE_TAG>`

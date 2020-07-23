@@ -1,0 +1,157 @@
+{
+    "details": "Provides the tools for managing user groups",
+    "actions": {
+        "create": {
+            "details": "Creates a new user group",
+            "access_level": [
+                "administrator"
+            ],
+            "authentication": [
+                "web"
+            ],
+            "parameters": {
+                "mandatory": {
+                    "name": {
+                        "type": "text",
+                        "length": null,
+                        "details": "Name of the group to create"
+                    },
+                    "description": {
+                        "type": "text",
+                        "length": null,
+                        "details": "Description of the group to create"
+                    }
+                },
+                "optional": {}
+            },
+            "return": {
+                "values": {}
+            }
+        },
+        "list": {
+            "details": "Returns the list of user groups",
+            "access_level": [
+                "administrator"
+            ],
+            "authentication": [
+                "web"
+            ],
+            "parameters": {
+                "mandatory": {},
+                "optional": {}
+            },
+            "return": {
+                "values": {
+                    "groups": {
+                        "type": "array",
+                        "details": "List of user group keys",
+                        "_data": [
+                            {
+                                "type": "text",
+                                "details": "A group key"
+                            },
+                            "..."
+                        ]
+                    }
+                }
+            }
+        },
+        "delete": {
+            "details": "Deletes a user group",
+            "access_level": [
+                "administrator"
+            ],
+            "authentication": [
+                "web"
+            ],
+            "parameters": {
+                "mandatory": {
+                    "group": {
+                        "type": "key",
+                        "details": "Key of the group to delete"
+                    }
+                },
+                "optional": {}
+            },
+            "return": {
+                "values": {}
+            }
+        },
+        "members": {
+            "details": "Returns the list of members of a group",
+            "access_level": [
+                "administrator"
+            ],
+            "authentication": [
+                "web"
+            ],
+            "parameters": {
+                "mandatory": {
+                    "group": {
+                        "type": "key",
+                        "details": "Key of the group for which to list the members"
+                    }
+                },
+                "optional": {}
+            },
+            "return": {
+                "values": {
+                    "members": {
+                        "type": "array",
+                        "details": "List of group members",
+                        "_data": [
+                            {
+                                "type": "key",
+                                "details": "The username of a group member"
+                            }
+                        ]
+                    }
+                }
+            }
+        },
+        "link": {
+            "details": "Add an existing user to an existing group",
+            "access_level": [
+                "administrator"
+            ],
+            "authentication": [
+                "web"
+            ],
+            "parameters": {
+                "mandatory": {
+                    "user": {
+                        "type": "key",
+                        "details": "Username of the user to add to the group"
+                    },
+                    "group": {
+                        "type": "key",
+                        "details": "Key of the group to add the user to"
+                    }
+                },
+                "optional": {}
+            }
+        },
+        "unlink": {
+            "details": "Remove a user from a group",
+            "access_level": [
+                "administrator"
+            ],
+            "authentication": [
+                "web"
+            ],
+            "parameters": {
+                "mandatory": {
+                    "user": {
+                        "type": "key",
+                        "details": "Username of the user to remove from the group"
+                    },
+                    "group": {
+                        "type": "key",
+                        "details": "Key of the group to remove the user from"
+                    }
+                },
+                "optional": {}
+            }
+        }
+    }
+}

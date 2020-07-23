@@ -7,13 +7,6 @@
 
 namespace system\api\apiinterpreter;
 
-//init configuration
-require_once $GLOBALS['__SYSTEM__DIR__'].'/classes/Configuration.php';
-use system\classes\Configuration;
-
-require_once $GLOBALS['__SYSTEM__DIR__'].'/classes/Core.php';
-use system\classes\Core;
-
 require_once __DIR__.'/../utils/utils.php';
 
 
@@ -24,36 +17,42 @@ class APIinterpreter {
 	public static function interpret( &$service, &$actionName, &$arguments, &$format ){
 		$serviceName = $service['id'];
 		$executorPath = $service['executor'];
-
+		
 		// 1. verify data completeness and correctness
 		$action = $service['actions'][$actionName];
 		// check for mandatory arguments
-		$data = array();
+		$errors = [];
 		$error = null;
 		if( is_array($action['parameters']['mandatory']) ){
+    		// prepare arguments
+            prepareArguments($arguments, $action['parameters']['mandatory']);
+            // check arguments
 			foreach( $action['parameters']['mandatory'] as $name => $details ){
 				if( !( checkArgument( $name, $arguments, $details, $error ) === true ) ){
-					$data[$name] = $error['message'];
+					$errors[$name] = $error['message'];
 				}
 			}
 		}
 		if( $error !== null ){
 			$error['message'] = 'An error occurred while processing the data in your request. Please check and try again!';
-			$error['data']['errors'] = $data;
+			$error['data']['errors'] = $errors;
 			return $error;
 		}
 		// check for optional arguments
 		$error = null;
 		if( is_array($action['parameters']['optional']) ){
+    		// prepare arguments
+            prepareArguments($arguments, $action['parameters']['optional']);
+            // check arguments
 			foreach( $action['parameters']['optional'] as $name => $details ){
 				if( !( checkArgument( $name, $arguments, $details, $error, false ) === true ) ){
-					$data[$name] = $error['message'];
+					$errors[$name] = $error['message'];
 				}
 			}
 		}
 		if( $error !== null ){
 			$error['message'] = 'An error occurred while processing the data in your request. Please check and try again!';
-			$error['data']['errors'] = $data;
+			$error['data']['errors'] = $errors;
 			return $error;
 		}
 
@@ -74,7 +73,7 @@ class APIinterpreter {
 
 
 		// 4. execute the action
-		$result = execute( $service, $actionName, $arguments, $format );
+		$result = execute($service, $actionName, $arguments, $format);
 
 
 		// 5. format the result content
@@ -82,14 +81,11 @@ class APIinterpreter {
 			formatResult( $result['data'], $action['return']['values'] );
 		}
 
-
-		// 6. format the response
-		require_once __DIR__.'/../../formatter/'.$format.'_formatter.php';
-		$data = formatData( $result );
-		$result['data'] = $data;
-		$result['formatted'] = true;
-		if( !isset($result['message']) )
+		
+        // 6. compile result
+		if (!isset($result['message'])) {
 			$result['message'] = '';
+		}
 
 
 		// ==================================================================================================================

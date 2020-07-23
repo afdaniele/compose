@@ -318,7 +318,7 @@ function _api_page_getting_started_section( &$api_setup, &$version, &$sget, &$ag
                     </h3>
                     <div>
                         <p>
-                            We distinguish between client-side errors (<span class="mono">4XX</span> erros) ed server-side errors (<span class="mono">5XX</span> errors).
+                            We distinguish between client-side errors (<span class="mono">4XX</span> errors) and server-side errors (<span class="mono">5XX</span> errors).
                             The error codes used in this API are:
                         </p>
                         <p style="padding-left:30px">

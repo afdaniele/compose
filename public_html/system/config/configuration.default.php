@@ -10,6 +10,6 @@ $CACHE_SYSTEM = 'apcu';
 $ASSETS_STORE_URL = 'https://raw.githubusercontent.com/afdaniele/compose-assets-store/';
 
 /* Branch of the \compose\ assets store defined in $ASSETS_STORE_URL */
-$ASSETS_STORE_BRANCH = 'v2';
+$ASSETS_STORE_VERSION = 'v3';
 
 ?>

@@ -71,7 +71,7 @@ if [ -f VERSION ]; then
     # Check if your current source is not already tagged by using current hash
     GIT_COMMIT=`git rev-parse HEAD`
     NEEDS_TAG=`git describe --contains $GIT_COMMIT 2>/dev/null`
-    # Only tag if no tag already (would be better if the git describe command above could have a silent option)
+    # Only tag if no tag already
     if [ -n "$NEEDS_TAG" ]; then
         echo -e "${WARNING_FLAG} Current code is already released."
         exit 0

@@ -21,8 +21,9 @@ class StringType {
 	const PASSWORD = "/^[a-zA-Z0-9_.-]+$/";
 	const TEXT = "/^[\\w\\D\\s_.,-:\(\)]*$/";
 	const EMAIL = "/^[a-zA-Z0-9_.-]+@[a-zA-Z0-9-]+.[a-zA-Z0-9-.]+$/";
-	const KEY = "/^[a-zA-Z_]+$/";
+	const KEY = "/^[A-Za-z0-9_]+$/";
 	const VERSION = "/^v?\\d+(\\.\\d+)?(\\.\\d+)?$/";
+	const COLOR = "/^#([0-9a-f]{3}){1,2}$/";
 
 
 	// methods
@@ -82,9 +83,41 @@ class StringType {
 				return self::KEY;
 			case 'version':
 				return self::VERSION;
+			case 'color':
+				return self::COLOR;
 			default:
 				return null;
 		}
 	}//getRegexByTypeName
+
+
+	public static function getHTML5TypeByTypeName( $name ){
+        /**
+         * The HTML5 types are the following:
+         *  text, password, datetime, datetime-local, date, month, time, week, number, email, url, search, tel, color
+         */
+		switch( $name ){
+			case 'text':
+			case 'key':
+			case 'version':
+			case 'alpha':
+			case 'alphabetic':
+			case 'alphaspace':
+			case 'alphanumeric':
+			case 'alphanumericspace':
+				return 'text';
+			case 'numeric':
+			case 'float':
+				return 'number';
+			case 'password':
+				return 'password';
+			case 'email':
+				return 'email';
+            case 'color':
+                return 'color';
+			default:
+				return null;
+		}
+	}//getHTML5TypeByTypeName
 
 }//StringType

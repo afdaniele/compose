@@ -30,12 +30,12 @@ use \system\classes\Core;
 
         <div class="text-center" style="padding:25px 0 35px 0">
           <?php
-          $login_enabled = Core::getSetting('login_enabled', 'core', False);
+          $login_enabled = Core::getSetting('login_enabled', 'core');
           if( $login_enabled ){
             ?>
             <div id="g-signin" class="text-left" style="margin-left:100px;"></div>
             <!--  -->
-            <img id="signin-loader" src="<?php echo Configuration::$BASE_URL ?>images/loading_blue.gif" style="display:none; width:32px; height:32px; margin-top:10px">
+            <img id="signin-loader" src="<?php echo Configuration::$BASE ?>images/loading_blue.gif" style="display:none; width:32px; height:32px; margin-top:10px">
             <?php
             // get list of login plugins files
             $login_addon_files_per_pkg = Core::getPackagesModules('login', null);
@@ -67,7 +67,12 @@ use \system\classes\Core;
 </section>
 
 <script type="text/javascript">
-  $(window).on('COMPOSE_LOGGED_IN', function(){
-    window.open("<?php echo Configuration::$BASE_URL.base64_decode($_GET['q']) ?>", "_top");
-  });
+    $(window).on('COMPOSE_LOGGED_IN', function(){
+        let resource = "<?php echo trim(Configuration::$BASE.base64_decode($_GET['q'])) ?>";
+        if (resource.length > 0) {
+            window.open(resource, "_top");
+        } else {
+            location.reload();
+        }
+    });
 </script>

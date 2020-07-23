@@ -5,7 +5,7 @@
 use \system\classes\Core;
 use \system\classes\Configuration;
 
-if( !Core::getSetting('maintenance_mode', 'core', true) ){
+if( !Core::getSetting('maintenance_mode', 'core') ){
 	\system\classes\Core::redirectTo('');
 }
 
@@ -19,7 +19,7 @@ if( !Core::getSetting('maintenance_mode', 'core', true) ){
 <div class="col-md-3 text-center">
 	<br/>
 	<br/>
-	<img src="<?php echo Configuration::$BASE_URL ?>images/work_in_progress.png" style="width:100%; max-width:220px">
+	<img src="<?php echo Configuration::$BASE ?>images/work_in_progress.png" style="width:100%; max-width:220px">
 </div>
 
 <div class="col-md-9 text-left">

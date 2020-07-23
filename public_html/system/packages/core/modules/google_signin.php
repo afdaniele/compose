@@ -8,33 +8,14 @@ use \system\classes\Configuration;
 
 $is_login_enabled = Core::getSetting('login_enabled', 'core');
 $is_google_client_id_set = strlen(Core::getSetting('google_client_id', 'core')) > 4;
-$login_with_google = $is_login_enabled && $is_google_client_id_set;
+$login_with_google_enabled = $is_login_enabled && $is_google_client_id_set;
+$is_logged_in = Core::isUserLoggedIn();
 ?>
 
 <script type="text/javascript">
 
   <?php
-  if(Core::isUserLoggedIn()){
-    ?>
-    $(window).on('COMPOSE_LOGGED_OUT', function(evt){
-      <?php
-      if($login_with_google){
-        ?>
-        // Sign-out from Google
-        var auth2 = gapi.auth2.getAuthInstance();
-        auth2.signOut().then(function(){
-          $(window).trigger('GOOGLE_LOGGED_OUT');
-          hidePleaseWait();
-          window.location.href = '<?php echo Configuration::$BASE ?>';
-        });
-        <?php
-      }else{
-        echo "window.location.href = '<?php echo Configuration::$BASE ?>';";
-      }
-      ?>
-    });
-    <?php
-  }else{
+  if (!$is_logged_in && $login_with_google_enabled) {
     ?>
     $(window).on('GOOGLE_LOGGED_IN', function(evt){
 			// sign-in with Google and get the temporary id_token
@@ -42,63 +23,64 @@ $login_with_google = $is_login_enabled && $is_google_client_id_set;
 			var id_token = googleUser.getAuthResponse().id_token;
 			// Sign-in in the back-end server by verifying the id_token with Google
 			userLogInWithGoogle(
-				'<?php echo Configuration::$BASE_URL ?>',
+				'<?php echo Configuration::$BASE ?>',
 				'<?php echo Configuration::$WEBAPI_VERSION ?>',
 				'<?php echo $_SESSION['TOKEN'] ?>',
 				id_token,
         function(){
-          $(window).trigger('COMPOSE_LOGGED_IN', ['google']);
+          $(window).trigger('COMPOSE_LOGGED_IN');
         }
 			);
     });
+
+
+    function onGoogleLoginError(error){
+      if (error.hasOwnProperty('error') && error.error == 'popup_closed_by_user')
+        return;
+      var msg = "An error occurred while authenticating with Google. The server returns: '{0}'.";
+      msg += "<br/>Make sure the hostname <strong>{1}</strong> is whitelisted on";
+      msg += " <a href=\"https://console.developers.google.com/\">https://console.developers.google.com/</a>"
+      msg += " for your project's client ID."
+      msg = msg.format(JSON.stringify(error), "<?php echo Core::getBrowserHostname() ?>");
+      openAlert('danger', msg);
+    }//onGoogleLoginError
     <?php
   }
   ?>
 
-  function logOutButtonClick(){
-    userLogOut(
-      '<?php echo Configuration::$BASE_URL ?>',
-      '<?php echo Configuration::$WEBAPI_VERSION ?>',
-      '<?php echo $_SESSION['TOKEN'] ?>',
-      function(){ /* successFcn: on success function */
-        $(window).trigger('COMPOSE_LOGGED_OUT');
-      }
-    );
-  }//logOutButtonClick
-
-  function onGoogleLoginError(error){
-    if (error.hasOwnProperty('error') && error.error == 'popup_closed_by_user')
-      return;
-    var msg = "An error occurred while authenticating with Google. The server returns: '{0}'.";
-    msg += "<br/>Make sure the hostname <strong>{1}</strong> is whitelisted on";
-    msg += " <a href=\"https://console.developers.google.com/\">https://console.developers.google.com/</a>"
-    msg += " for your project's client ID."
-    msg = msg.format(JSON.stringify(error), "<?php echo $_SERVER['HTTP_HOST'] ?>");
-    openAlert('danger', msg);
-  }//onGoogleLoginError
-
-  function renderGoogleLoginButton() {
+  $(window).on('GOOGLE_SIGNIN_LOADED', function(evt){
+    // initialize Google Sign-in library
     gapi.auth2.init();
-    if ($("#g-signin").length) {
-      gapi.signin2.render('g-signin', {
-        'scope': 'profile email',
-        'width': 240,
-        'height': 50,
-        'longtitle': true,
-        'onsuccess': function(user){$(window).trigger("GOOGLE_LOGGED_IN", [user])},
-        'onfailure': onGoogleLoginError
-      });
+    <?php
+    if (in_array(Configuration::$PAGE, ['login', 'setup'])) {
+      ?>
+      // render Sign-in button
+      if ($("#g-signin").length) {
+        gapi.signin2.render('g-signin', {
+          'scope': 'profile email',
+          'width': 240,
+          'height': 50,
+          'longtitle': true,
+          'onsuccess': function(user){$(window).trigger("GOOGLE_LOGGED_IN", [user])},
+          'onfailure': onGoogleLoginError
+        });
+      }
+      <?php
     }
-  }//renderGoogleLoginButton
+    ?>
+  });
 
   $(document).on('ready', function(){
     <?php
-    if($login_with_google){
+    if($login_with_google_enabled){
       ?>
-      // initialize Google Sign-in library and there is at least one Google button
-  		gapi.load('signin2', renderGoogleLoginButton);
+      // load google sign-in library
+  		gapi.load('signin2', function(){
+        $(window).trigger('GOOGLE_SIGNIN_LOADED', ['google']);
+      });
     <?php
-    }else{
+    }
+    if (Configuration::$PAGE == 'login' && !$login_with_google_enabled) {
     ?>
       $("#g-signin").html('Login with Google is not configured yet');
     <?php

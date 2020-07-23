@@ -4,12 +4,10 @@
 # @Last modified by:   afdaniele
 
 use \system\classes\Core;
-use \system\classes\Configuration;
 use \system\classes\Database;
-use \system\classes\enum\StringType;
+use system\classes\Utils;
 
-require_once __DIR__."/../../settings/sections/package_specific.php";
-
+require_once $GLOBALS['__SYSTEM__DIR__'] . 'templates/forms/SmartForm.php';
 
 $step_no = 3;
 
@@ -32,7 +30,7 @@ if(
 }
 
 // get configuration for core package
-$res = Core::getPackageSettings( 'core' );
+$res = Core::getPackageSettings('core');
 if( !$res['success'] )
   Core::throwError($res['data']);
 $core_pkg_setts = $res['data'];
@@ -43,59 +41,62 @@ $step_keys = [
   "timezone",
   "admin_contact_email_address"
 ];
+
+// get settings schema
+$schema = $core_pkg_setts->getSchema();
+$schema_arr = $schema->asArray();
+
+// keep only settings we want to change at first setup
+foreach ($schema_arr['_data'] as $key => &$_) {
+    if (!in_array($key, $step_keys)) {
+        unset($schema_arr['_data'][$key]);
+    }
+}
+
+// merge defaults and actual configuration
+$core_pkg_setts_full = Utils::arrayMergeAssocRecursive(
+    $schema->defaults(), $core_pkg_setts->asArray(), false
+);
+
+// create form
+$form = new SmartForm($schema_arr, $core_pkg_setts_full);
 ?>
 
-<form id="step-form">
-  <input type="text" name="package" style="display:none" value="core">
+<div style="margin: 40px 60px">
+    <?php
+    $form->render();
+    ?>
+</div>
 
-  <table style="width:100%; margin-top:20px">
-    <tr>
-      <td>
-        <div style="width:700px; margin:auto">
-          <?php
-          $settings_values = $core_pkg_setts->asArray();
-          $metadata = $core_pkg_setts->getMetadata();
-          $metadata = $metadata['configuration_content'];
-          // ---
-          foreach( $step_keys as $key ){
-            $settings_entry = $metadata[$key];
-            $settings_entry_value =
-              array_key_exists($key, $settings_values)?
-                $settings_values[$key] :
-                ( is_null($settings_entry['default'])? '' : $settings_entry['default'] );
-            create_row( $key, $settings_entry, $settings_entry_value );
-          }
-          ?>
-        </div>
-      </td>
-    </tr>
-    <tr>
-      <td>
-        <button type="button" class="btn btn-success" id="confirm-step-button" style="float:right">
-          <span class="fa fa-arrow-down" aria-hidden="true"></span>
-          &nbsp;
-          Next
-        </button>
-      </td>
-    </tr>
-  </table>
-</form>
+<button type="button" class="btn btn-success" id="confirm-step-button" style="float:right">
+  <span class="fa fa-arrow-down" aria-hidden="true"></span>&nbsp; Next
+</button>
 
 <script type="text/javascript">
-  $('#confirm-step-button').on('click', function(){
-    qs = serializeForm( '#step-form' );
-    //
-    url = "{0}web-api/{1}/configuration/set/json?{2}&token={3}".format(
-      "<?php echo Configuration::$BASE_URL ?>",
-      "<?php echo Configuration::$WEBAPI_VERSION ?>",
-      qs,
-      "<?php echo $_SESSION["TOKEN"] ?>"
-    );
-
-    succ_fcn = function(r){
-      location.href = 'setup?step=<?php echo $step_no ?>&confirm=1';
-    }
-
-    callAPI(url, true, false, succ_fcn);
-  });
+    
+    $('#confirm-step-button').on('click', function(){
+        let form = ComposeForm.get("<?php echo $form->formID ?>");
+        // define success function
+        let succ_fcn = function(r){
+            location.href = 'setup?step=<?php echo $step_no ?>&confirm=1';
+        };
+        // call API
+        smartAPI('configuration', 'set', {
+            method: 'POST',
+            arguments: {
+                package: "core"
+            },
+            data: {
+                configuration: form.serialize()
+            },
+            block: true,
+            confirm: true,
+            reload: false,
+            on_success: succ_fcn
+        });
+    });
+    
 </script>
+
+
+

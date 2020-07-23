@@ -6,134 +6,132 @@
 
 namespace system\classes;
 
-require_once __DIR__.'/jsonDB/JsonDB.php';
-use system\classes\jsonDB\JsonDB;
+require_once __DIR__ . '/Database.php';
 
 
 class EditableConfiguration {
 
-	// JSONdb instance
-	private $jsondb = null;
-	private $package_name = null;
-	private $jsondb_config_file = null;
-	private $configuration_details = null;
-	private $is_configurable = false;
-	private $error_state = null;
+    private $package_name = null;
+    private $configuration = [];
+    private $default_configuration = [];
+    private $db = null;
+    private $schema = null;
+    private $is_configurable = false;
+    private $error_state = null;
+    private $database_name = '__configuration__';
+    private $configuration_key = 'content';
 
 
-	// constructor
-	public function __construct( $package_name ){
-		$this->package_name = $package_name;
-		$jsondb_config_file = sprintf("%s/../packages/%s/configuration/configuration.json", __DIR__, $package_name);
-		$configuration_details_file = sprintf("%s/../packages/%s/configuration/metadata.json", __DIR__, $package_name);
-		if( !file_exists($jsondb_config_file) && !file_exists($configuration_details_file) ){
-			$this->is_configurable = false;
-			return;
-		}
-		// load configuration metadata. This file must be always present.
-		if( !file_exists($configuration_details_file) ){
-			$this->error_state = sprintf('The configuration metadata for the package "%s" does not exist or is corrupted.', $package_name);
-			return;
-		}
-		$this->configuration_details = json_decode( file_get_contents($configuration_details_file), true );
-		if( is_null($this->configuration_details) ){
-			$this->error_state = sprintf('The configuration metadata for the package "%s" is corrupted.', $package_name);
-			return;
-		}
-		// if the metadata defines no parameters, then the package is simply not configurable
-		if( count($this->configuration_details['configuration_content']) <= 0 ){
-			$this->is_configurable = false;
-			return;
-		}
-		$this->is_configurable = true;
-		// try to load the custom settings from 'configuration.json' if it exists.
-		$this->jsondb_config_file = $jsondb_config_file;
-		$this->jsondb = new JsonDB( $this->jsondb_config_file );
-		// if it doesn't exist, create a new one and use the default values from the metadata file
-		if( !file_exists($jsondb_config_file) ){
-			// create new file
-			foreach ($this->configuration_details['configuration_content'] as $key => $value) {
-				$this->jsondb->set( $key, $value['default'] );
-			}
-			// (try to) write the file to disk
-			$res = $this->jsondb->commit();
-			if( !$res['success'] ){
-				$this->error_state = $res['data'];
-				return;
-			}
-		}
-		// make sure that all the keys defined in the metadata are also present in the config file
-		foreach ($this->configuration_details['configuration_content'] as $key => $value) {
-			if( !$this->jsondb->contains($key) ){
-				$this->jsondb->set( $key, $value['default'] );
-			}
-		}
-	}//__construct
+    // constructor
+    public function __construct($package_name) {
+        $this->package_name = $package_name;
+        $schema_file = sprintf("%s/../packages/%s/configuration/schema.json", __DIR__, $package_name);
+        if (!file_exists($schema_file)) {
+            $schema_file = sprintf("%s%s/configuration/schema.json", $GLOBALS['__USERDATA__PACKAGES__DIR__'], $package_name);
+        }
+        // ---
+        // load configuration schema. This file must be always present.
+        if (!file_exists($schema_file)) {
+            $this->error_state = sprintf('The configuration schema for the package "%s" does not exist or is corrupted.', $package_name);
+            return;
+        }
+        try {
+            $this->schema = ComposeSchema::from_schema(json_decode(file_get_contents($schema_file), true));
+        } catch (\Exception $e) {
+            $this->error_state = sprintf(
+                'The configuration schema for the package "%s" is corrupted. The error reads:<br/>%s',
+                $package_name, $e->getMessage()
+            );
+            return;
+        }
+        // if the schema defines no parameters, then the package is simply not configurable
+        if ($this->schema->is_empty()) {
+            $this->is_configurable = false;
+            return;
+        }
+        $this->is_configurable = true;
+        // load the default values
+        $this->configuration = [];
+        $this->default_configuration = $this->schema->defaults();
+        // try to load the custom settings from the database if it exists
+        $this->db = new Database($package_name, $this->database_name);
+        if (Database::database_exists($package_name, $this->database_name)) {
+            $res = $this->db->read($this->configuration_key);
+            if (!$res['success']) {
+                $this->error_state = $res['data'];
+                return;
+            }
+            $this->configuration = $res['data'];
+        }
+    }//__construct
 
 
-	public function sanityCheck(){
-		if( !is_null($this->error_state) ){
-			return array( 'success' => false, 'data' => $this->error_state );
-		}
-		return array( 'success' => true, 'data' => null );
-	}//sanityCheck
+    public function sanityCheck() {
+        if (!is_null($this->error_state)) {
+            return ['success' => false, 'data' => $this->error_state];
+        }
+        return ['success' => true, 'data' => null];
+    }//sanityCheck
 
 
-	public function getMetadata(){
-		return $this->configuration_details;
-	}//getMetadata
+    public function getSchema() {
+        return $this->schema;
+    }//getSchema
 
 
-	public function asArray(){
-		return $this->jsondb->asArray();
-	}//asArray
+    public function asArray() {
+        return $this->configuration;
+    }//asArray
 
 
-	public function get( $key, $default=null ){
-		if( $this->jsondb != null ){
-			if( $this->jsondb->contains($key) ){
-				$val = $this->jsondb->get($key, $default);
-				return array('success' => true, 'data' => $val);
-			}elseif( array_key_exists($key, $this->configuration_details['configuration_content']) ){
-				return array('success' => true, 'data' => '');
-			}else{
-				return array('success' => false, 'data' => sprintf('Parameter "%s" unknown', $key));
-			}
-		}
-		return array('success' => false, 'data' => 'An error occurred while reading the configurations. Please, retry!');
-	}//get
+    public function get($key, $default = null) {
+        $path = explode('/', $key);
+        if (!Utils::pathExists($this->default_configuration, $path)) {
+            return ['success' => false, 'data' => sprintf('Unknown parameter "%s" for the package "%s"', $key, $this->package_name)];
+        }
+        $default_cursor = Utils::cursorTo($this->default_configuration, $path);
+        // ---
+        $cfg_cursor = Utils::cursorTo($this->configuration, $path);
+        if (!is_null($cfg_cursor) && strlen($cfg_cursor) > 0) {
+            return ['success' => true, 'data' => $cfg_cursor];
+        }
+        if (is_null($default) && !is_null($default_cursor)) {
+            return ['success' => true, 'data' => $default_cursor];
+        }
+        return ['success' => true, 'data' => $default];
+    }//get
 
 
-	public function set( $key, $val ){
-		if( $this->jsondb != null ){
-			if( array_key_exists($key, $this->configuration_details['configuration_content']) ){
-				$this->jsondb->set($key, $val);
-				return array('success' => true );
-			}
-			return array('success' => false, 'data' => sprintf('Unknown parameter "%s" for the package "%s"', $key, $this->package_name));
-		}
-		return array('success' => false, 'data' => 'An error occurred while writing the configurations. Please, retry!');
-	}//set
+    public function set($key, $val) {
+        $path = explode('/', $key);
+        if (!Utils::pathExists($this->default_configuration, $path)) {
+            return ['success' => false, 'data' => sprintf('Unknown parameter "%s" for the package "%s"', $key, $this->package_name)];
+        }
+        $cfg_cursor = &Utils::cursorTo($this->configuration, $path, true);
+        $cfg_cursor = $val;
+        return ['success' => true, 'data' => null];
+    }//set
 
 
-	public function commit(){
-		if( $this->jsondb != null ){
-			$res = $this->jsondb->commit();
-			return $res;
-		}
-		return array('success' => false, 'data' => 'An error occurred while writing the configurations. Please, retry!');
-	}//commit
+    public function commit() {
+        if (!$this->is_configurable()) {
+            return ['success' => false, 'data' => 'The package is not configurable'];
+        }
+        return $this->db->write($this->configuration_key, $this->configuration);
+    }//commit
 
 
-	public function is_writable(){
-		return is_writable( $this->jsondb_config_file );
-	}//is_writable
+    public function is_writable() {
+        if (!$this->is_configurable()) {
+            return false;
+        }
+        return $this->db->is_writable($this->configuration_key);
+    }//is_writable
 
 
-	public function is_configurable( $package_name ){
-		return $this->is_configurable;
-	}//is_configurable
-
+    public function is_configurable() {
+        return $this->is_configurable;
+    }//is_configurable
 
 }//EditableConfiguration
 

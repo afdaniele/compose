@@ -3,6 +3,10 @@
 # @Email:  afdaniele@ttic.edu
 # @Last modified by:   afdaniele
 
+
+require_once __DIR__.'/../system/environment.php';
+
+
 // clean buffer
 if (ob_get_length()) ob_clean();
 
@@ -38,14 +42,22 @@ $scriptName = preg_replace('/\.php$/', '', $scriptName);
 $scriptFile = preg_replace('/[^a-zA-Z0-9_-]/', '', $scriptName);
 
 // check whether the script exists
-$scriptPath = sprintf("%s/../system/packages/%s/scripts/%s.php", __DIR__, $packageName, $scriptFile);
-if (!file_exists($scriptPath)) {
-  echo sprintf("Script '%s/%s' not found!", $packageName, $scriptFile);
-  return;
+$scriptPaths = [
+  sprintf("%s/../system/packages/%s/scripts/%s.php", __DIR__, $packageName, $scriptFile),
+  sprintf("%s%s/scripts/%s.php", $GLOBALS['__USERDATA__PACKAGES__DIR__'], $packageName, $scriptFile)
+];
+
+foreach ($scriptPaths as $scriptPath) {
+  // if this does not exist, try the next
+  if (!file_exists($scriptPath)) {
+    continue;
+  }
+
+  // load script
+  require_once $scriptPath;
+
+  // close
+  exit;
 }
 
-// load script
-require_once $scriptPath;
-
-// close
-exit;
+echo sprintf("Script '%s/%s' not found!", $packageName, $scriptFile);

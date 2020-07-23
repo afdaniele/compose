@@ -3,15 +3,16 @@
 
 # Allow files and directories
 !assets
-!assets.devel
+!assets.debug
 !public_html
 !dependencies-apt.txt
 !configure.py
 !VERSION
-!.git
+!.git/refs/heads/
+!.git/refs/tags/
+!.git/refs/remotes/origin/
 
 # exclude packages (but core)
 public_html/system/packages
 !public_html/system/packages/core
-public_html/system/packages/core/configuration/configuration.json
-public_html/system/packages/*/data/private
+public_html/system/user-data

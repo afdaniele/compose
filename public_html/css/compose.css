@@ -5,9 +5,7 @@
 
 .container{
     width: 1000px !important;
-    margin: auto;
-    padding-bottom:15px;
-    margin-top:42px
+    padding: 0;
 }
 
 bold{
@@ -69,10 +67,12 @@ footer #avatar{
     font-weight: bold;
 }
 
+.page-title-static,
 .page-title{
-  padding: 10px 0;
-  border-bottom: 1px solid #ddd;
-  margin-bottom: 32px;
+    padding: 10px 0;
+    border-bottom: 1px solid #ddd;
+    margin-bottom: 32px;
+    margin-top: 0;
 }
 
 select.form-control{
@@ -473,4 +473,12 @@ a.anchor{
   vertical-align: top;
   color: #757575;
   line-height: 24px;
+}
+
+input[type=color] {
+    padding: 2px;
+}
+
+input[type=color]:hover {
+    cursor: pointer;
 }

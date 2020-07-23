@@ -1,0 +1,82 @@
+/**
+ * @Author: Andrea F. Daniele <afdaniele>
+ * @Email:  afdaniele@ttic.edu
+ */
+
+
+.compose-smart-form {
+    margin-bottom: 40px;
+}
+
+.compose-smart-form .compose-form-atom {
+    margin: 0 0 40px 0;
+}
+
+.compose-smart-form .input-group {
+    width: 100%;
+    margin: 4px 0;
+}
+
+.compose-smart-form .input-group-addon {
+    text-align: left;
+}
+
+.compose-smart-form .input-group-addon.closure-block {
+    padding: 6px;
+}
+
+.compose-smart-form .input-group div.toggle {
+    border-radius: 0;
+}
+
+.compose-smart-form .help-block-details {
+    color: #9c9c9c;
+}
+
+.compose-smart-form .help-block-default {
+    color: #9c9c9c;
+    float: right;
+}
+.compose-smart-form .help-block-default span{
+    font-family: monospace;
+}
+
+.compose-form-group {
+    margin-bottom: 40px;
+}
+
+.compose-form-group h4 {
+    margin-bottom: 0;
+}
+
+.compose-form-group h5 {
+    margin: 2px 0 0 0;
+}
+
+.compose-form-group .compose-form-group-content {
+    margin: 10px 0 10px 20px;
+    padding: 6px 0 0 16px;
+    border-left: 1px solid lightgrey;
+    border-bottom: 1px solid lightgrey;
+    border-radius: 0 10px;
+}
+
+input.compose-smart-form-input {
+    text-align: right;
+}
+
+select.compose-smart-form-input {}
+
+input.compose-smart-form-input[type=text] {}
+
+input.compose-smart-form-input[type=number] {
+    padding-right: 2px;
+}
+
+input.compose-smart-form-input[type=password] {}
+
+input.compose-smart-form-input[type=email] {}
+
+input.compose-smart-form-input[type=color] {
+    padding: 0;
+}

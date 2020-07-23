@@ -2,11 +2,14 @@
 
 namespace system\utils;
 
+use \system\classes\Configuration;
+use \system\classes\Core;
+
 class URLrewrite{
 
     public static function match(){
         $request_uri = $_SERVER['REQUEST_URI'];
-        $packages = \system\classes\Core::getPackagesList();
+        $packages = Core::getPackagesList();
         // temporary vars
         $matched = false;
         $rewritten_uri = "";
@@ -41,11 +44,11 @@ class URLrewrite{
                     $matched = true;
                 }
 
-                $redirect_url = sprintf( "%s/%s", \system\classes\Configuration::$BASE_URL, $rewritten_uri );
+                $redirect_url = sprintf("%s%s", Configuration::$BASE, $rewritten_uri);
 
                 // redirect
                 if (ob_get_length()) ob_clean();
-                header( "HTTP/1.1 301 Moved Permanently" );
+                header("HTTP/1.1 301 Moved Permanently");
                 header(
                     sprintf("Location: %s", $redirect_url),
                     true,

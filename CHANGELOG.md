@@ -1,3 +1,250 @@
+## 1.0.0-rc6 (July 04, 2020)
+  - added support for remote docker endpoint in Makefile
+  - added String.prototype.[l|r]split; fixed bug;
+
+## 1.0.0-rc5 (July 03, 2020)
+  - now installing compose-cms python library for easy configuration
+
+## 1.0.0-rc4 (July 03, 2020)
+  - dropped configure.py
+  - fixed bug in Core::pageExists
+  - fixed bug in git_ref
+  - now printing raw commands in package manager
+
+## 1.0.0-rc3 (July 02, 2020)
+  - fixed bug in git ref
+
+## 1.0.0-rc2 (July 02, 2020)
+  - fixed GIT_REF in Dockerfile
+
+## 1.0.0-rc (July 02, 2020)
+  - BREAKING: modified function `string_to_valid_filename`
+  - added humanFileSize to JS
+  - now supporting JS namespace window.compose
+  - now importing new JS color palette
+  - added new compose color palette
+  - fixed bug in entrypoint
+  - added string.capitalize.js
+  - chowned /user-data
+  - fixed bug in configure.py
+  - Merge remote-tracking branch 'origin/devel' into devel
+  - added support for custom HTTP and HTTPS ports in Docker (for apps that need --net=host)
+  - minor JS stuff
+  - fixed bug in login page not refreshing after login
+  - Update README.md
+  - Update README.md
+  - Merge remote-tracking branch 'origin/devel' into devel
+  - minor
+  - Update README.md
+  - Merge remote-tracking branch 'origin/devel' into devel
+  - Update README.md
+  - improved updateBase
+  - Update README.md
+  - fixed bug
+  - renamed unstable branch master -> devel
+  - temporary disabled unset of app_id|secret in webapi
+  - updated remote head from 'master' to 'devel' in update helper
+  - added compose-form JS and SmartForm modal
+  - formatted yes_no_modal.php
+  - minor
+  - minor
+  - minor
+  - fixed bug in APIinterpreter
+  - now allowing image.php script to accept relative image paths
+  - reformatted navbar.php
+  - added support for pre-formatted query strings (string object) in Core::getURL
+  - added front-end for user groups
+  - minor
+  - minor
+  - fixed bug in form template
+  - reformatted web-api/index and removed support for preformatting of the API output by the action handler
+  - reformat of API utils and fixed bug in the handling of boolean arguments in API calls
+  - added Core::getGroupInfo
+  - removed pre-formatting of the API endpoints' results by the action handler
+  - renamed parameter userid -> user in userprofile/edit API endpoint
+  - minor
+  - typo
+  - added user groups feature
+  - minor
+  - reformat Core
+  - StringType::KEY and Utils::string_to_valid_filename are now aligned
+  - minor
+  - minor
+  - minor
+  - reformat
+  - added StringType::getHTML5TypeByTypeName
+  - minor
+  - added support for arrays and objects in API request body
+  - added _bad_request and _illegal_arg help functions
+  - added API_DEBUG function
+  - API: parameters of type array are turned into arrays even if single-valued
+  - API now supports arrays in POST body
+  - added Core::getPackageRootDir
+  - minor changes in Core
+  - added authentication parameters section to API reference page
+  - minor
+  - deprecated generateForm function, improved readability of forms.php
+  - fixed bug in record_editor_modal.php
+  - added template PHP script
+  - reformat EditableConfiguration.php
+  - removed unused code
+  - fixed warning in packages' core import
+  - fixed no reload with empty $BASE; fixed deprecated location.reaload(forceReload=true) calls
+  - minor
+  - pinned xdebug version to 2.4.1 (working with Chrome)
+  - added xdebug settings for PhpStorm
+  - simplified devel-build target
+  - fixed entrypoint for fast docker stop
+  - pinned xdebug version
+  - Merge branch 'stable' into devel
+  - minor
+  - fixed bug in index.php
+  - added plugins for ChartJS to main index.php
+  - reformat index.php
+  - added plugins for ChartJS
+  - auto-format compose.js
+  - improved mission control
+  - fixed bugs in MissionControl.php
+  - minor
+  - fixed bug in Core.php > isPackageEnabled
+  - fixed bug in entrypoint.sh
+  - code format Core
+  - added conecpt of volatileSession; fixed bug;
+  - added QEMU for arm64v8
+  - minor
+  - added support for external \compose\ host in smartAPI
+  - added support for CORS
+  - added PHP utils startsWith and endsWith
+  - added tableToObject to compose.js
+  - bootstrap-select is now part of \compose\
+  - minor
+  - added bootstrap-select from https://developer.snapappointments.com/bootstrap-select/
+  - exposing BASE and TOKEN to JS
+  - now String.prototype.format supports JS objects with keys
+  - added API_VERSION const to compose.js; added smartAPI function to compose.js
+  - fixed bug
+  - redirect stdout/stderr from healthcheck to /dev/null
+  - new default userdata directory in Docker is /user-data
+  - fixed configure.py and package_manager.py with new USERDATA
+  - importing utils in Core
+  - minor
+  - using remote head instead of local for cache handling
+  - fixed bug
+  - fixed bug
+  - fixed bug
+  - added support for SESSION before login
+  - minor
+  - removed check for SERVER_NAME
+  - Merge branch 'stable' into devel
+  - minor
+  - administrators can now change user roles
+  - removed __PACKAGES__DIR__
+  - bug fixes
+  - added target devel-build to Makefile
+  - fixed cache in Dockerfile
+  - Merge branch 'devel-no-chown' into devel
+  - minor
+  - replaced chown with smart user/group creation
+  - removed chown from entrypoint
+  - google_signin is now imported only when not logged or logged with google
+  - fixed bug in coreclass loader for packages
+  - added trailing '/' to pkg['root']
+  - deprecated $BASE_URL, now using $BASE
+  - Merge branch 'devel-relative-paths' into devel
+  - Merge branch 'devel-user-data' into devel
+  - changed server_name string checker
+  - EditableConfiguration and RESTfulAPI classes use user-data
+  - removed trailing slashes
+  - changed (image|css|js|script).php to use user-data
+  - Merge branch 'devel-user-data' into devel
+  - improved SERVER_NAME in html check
+  - fixed bug in the way we compute depth to root
+  - added special __NR (no-redirect) argument (debug only)
+  - [TEMPORARY]: added check for SERVER_NAME in html
+  - changed how we compute Configuration::$BASE(_URL)
+  - minor
+  - renamed htaccess arg -> __arg__; avoid conflicts
+  - removed HOSTNAME
+  - bug fixes
+  - fixed codebase info
+  - packages are now loaded from two locations
+  - added HTMLRendererBlock
+  - improved MissionControl
+  - devel stuff re-added
+  - Merge branch 'stable' into devel
+  - Merge branch 'stable' into devel
+  - now devel builds on stable
+  - Merge branch 'stable' into devel
+  - removing COMPOSE_VERSION env variable
+  - minor
+  - Merge branch 'patch-smart-build' into devel
+  - test on Jenkinsfile
+  - minor
+  - Merge branch 'patch-smart-build' into devel
+  - Merge branch 'patch-retry' into devel
+  - merge
+  - modified Makefile to build the right tag
+  - added Core::getBrowserHostname()
+  - added column Version to Packages list in Settings page
+  - added space to the right of mission control for the menu
+  - Merge branch 'master' into devel
+  - Merge branch 'jenkins-branch' into devel
+  - Merge branch 'stable' into devel
+  - databases moved to user-data/databases/; configuration db renamed to __configuration__
+  - added placeholders
+  - Merge branch 'master' into devel
+  - json format
+  - fixed google sign-in errors by introducing $_SESSION['LOGIN_SYSTEM']
+  - Merge branch 'devel' of github.com:afdaniele/compose into devel
+  - fixed bug in Database::list_dbs()
+  - minor
+  - updated `configure.py` to use DBs in user-data instead of old `configuration.json`
+  - fixed bug
+  - improved Database::is_writable
+  - default config values are used but never written to the config file
+  - EditableConfiguration now uses DBs
+  - removed explicit default value from `Core::getSetting` calls
+  - added `is_writable` to Database
+  - removed `disabled.flag` from .gitignore
+  - enable/disable pages now use DBs
+  - minor
+  - fixed bug
+  - enable/disable packages now use DBs
+  - databases are now stored in `system/user-data`
+  - removed read-only message from Databases
+  - fixed bug in Database::list_dbs()
+  - minor
+  - updated `configure.py` to use DBs in user-data instead of old `configuration.json`
+  - fixed bug
+  - improved Database::is_writable
+  - default config values are used but never written to the config file
+  - EditableConfiguration now uses DBs
+  - removed explicit default value from `Core::getSetting` calls
+  - added `is_writable` to Database
+  - removed `disabled.flag` from .gitignore
+  - enable/disable pages now use DBs
+  - minor
+  - fixed bug
+  - Merge branch 'package-status-on-db' of github.com:afdaniele/compose into package-status-on-db
+  - removed old code
+  - enable/disable packages now use DBs
+  - merge
+  - enable/disable packages now use DBs
+  - databases are now stored in `system/user-data`
+
+## 0.9.9 (January 09, 2020)
+  - removed devel stuff
+  - added _build_all and _clean_all to Makefile
+  - APT packages moved to dependencies-apt.txt
+  - added rretry
+  - Merge branch 'patch-smart-build' into stable
+  - added fix for Jenkins pull
+  - improved makefile
+  - added retry
+  - minor
+  - implemented smart-build
+  - modified Dockerfile to accept COMPOSE_VERSION
+
 ## 0.9.8 (January 02, 2020)
   - Merge branch 'stable' of github.com:afdaniele/compose into stable
   - modified Makefile to build the right tag

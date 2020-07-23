@@ -142,7 +142,7 @@ function format( $val, $type ){
 			return ( (booleanval($val))? '<span class="glyphicon glyphicon-eye-open" aria-hidden="true" style="color:#626262; margin-top:5px" data-toggle="tooltip" data-placement="bottom" title="Read"></span>' : '<span class="glyphicon glyphicon-fire" aria-hidden="true" style="color:#ff9818; margin-top:5px" data-toggle="tooltip" data-placement="bottom" title="Unread"></span>' );
 			break;
 		case 'placeholder':
-			return '<div id="_format_placeholder_'.$val.'"><img src="'.\system\classes\Configuration::$BASE_URL.'images/loading_blue.gif" style="width:22px; height:22px;"></div>';
+			return '<div id="_format_placeholder_'.$val.'"><img src="'.\system\classes\Configuration::$BASE.'images/loading_blue.gif" style="width:22px; height:22px;"></div>';
 			break;
 		case 'avatar_image_small':
 			return sprintf('<img src="%s" class="formatted-avatar formatted-avatar-small">', $val);
@@ -210,4 +210,33 @@ function is_JSON($string) {
   json_decode($string);
   return (json_last_error() == JSON_ERROR_NONE);
 }//is_JSON
+
+function join_path() {
+    $args = func_get_args();
+    $paths = array();
+    foreach ($args as $arg) {
+        $paths = array_merge($paths, (array)$arg);
+    }
+    $paths = array_map(create_function('$p', 'return trim($p, "/");'), $paths);
+    $paths = array_filter($paths);
+    return ($args[0][0] == '/' ? '/' : '').join('/', $paths);
+}//join_path
+
+// Function to check string starting
+// with given substring
+function startsWith ($string, $startString) {
+    $len = strlen($startString);
+    return (substr($string, 0, $len) === $startString);
+}//startsWith
+
+// Function to check the string is ends
+// with given substring or not
+function endsWith($string, $endString) {
+    $len = strlen($endString);
+    if ($len == 0) {
+        return true;
+    }
+    return (substr($string, -$len) === $endString);
+}//endsWith
+
 ?>

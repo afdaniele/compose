@@ -15,6 +15,6 @@
     RewriteRule ^script.php$ /scripts/script.php [QSA,NC,L]
 
     RewriteCond %{REQUEST_FILENAME} !-f
-    RewriteRule ^(.*)$ index.php?arg=$1 [QSA,NC,L]
+    RewriteRule ^(.*)$ index.php?__arg__=$1 [QSA,NC,L]
 
 </IfModule>

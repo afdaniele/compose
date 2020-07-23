@@ -2,6 +2,7 @@ ARG ARCH=amd64
 ARG PHP_VERSION=7.0.31
 ARG OS_DISTRO=stretch
 ARG COMPOSE_VERSION=stable
+ARG GIT_REF=heads
 
 FROM ${ARCH}/php:${PHP_VERSION}-apache-${OS_DISTRO}
 
@@ -9,6 +10,8 @@ FROM ${ARCH}/php:${PHP_VERSION}-apache-${OS_DISTRO}
 ARG ARCH
 ARG PHP_VERSION
 ARG OS_DISTRO
+ARG GIT_REF
+ARG COMPOSE_VERSION
 
 # configure environment: system & libraries
 ENV ARCH=${ARCH}
@@ -19,9 +22,9 @@ ENV OS_DISTRO=${OS_DISTRO}
 ENV APP_DIR "/var/www"
 ENV COMPOSE_DIR "${APP_DIR}/html"
 ENV COMPOSE_URL "https://github.com/afdaniele/compose.git"
-ENV COMPOSE_PACKAGES_DIR "${COMPOSE_DIR}/public_html/system/packages"
-ENV COMPOSE_HTTP_PORT 80
-ENV COMPOSE_HTTPS_PORT 443
+ENV COMPOSE_USERDATA_DIR "/user-data"
+ENV HTTP_PORT 80
+ENV HTTPS_PORT 443
 ENV SSL_DIR "${APP_DIR}/ssl"
 ENV SSL_CERTFILE "${SSL_DIR}/certfile.pem"
 ENV SSL_KEYFILE "${SSL_DIR}/privkey.pem"
@@ -39,7 +42,8 @@ RUN apt-get update \
 
 # install python dependencies
 RUN pip3 install \
-  run-and-retry
+  run-and-retry \
+  compose-cms==0.1.12
 
 # install apcu
 RUN pecl channel-update pecl.php.net \
@@ -54,7 +58,9 @@ COPY assets/usr/local/etc/php/conf.d/log_errors.ini /usr/local/etc/php/conf.d/
 # remove pre-installed app
 RUN rm -rf "${APP_DIR}"
 RUN mkdir -p "${COMPOSE_DIR}"
+RUN mkdir -p "${COMPOSE_USERDATA_DIR}"
 RUN chown -R www-data:www-data "${APP_DIR}"
+RUN chown -R www-data:www-data "${COMPOSE_USERDATA_DIR}"
 
 # enable mod rewrite
 RUN a2enmod rewrite
@@ -75,10 +81,15 @@ RUN a2dissite 000-default-ssl
 # switch to simple user
 USER www-data
 
+# copy SHA of the current commit. This has two effects:
+# - stores the SHA of the commit from which the image was built
+# - correct the issue with docker cache due to git clone command below
+COPY .git/refs/${GIT_REF}/${COMPOSE_VERSION} /compose.builder.version.sha
+
 # install \compose\
 RUN rretry \
-  --min 20 \
-  --max 60 \
+  --min 40 \
+  --max 120 \
   --tries 3 \
   --on-retry "rm -rf ${COMPOSE_DIR}" \
   --verbose \
@@ -86,7 +97,6 @@ RUN rretry \
     git clone -b stable "${COMPOSE_URL}" "${COMPOSE_DIR}"
 
 # fetch tags and checkout the wanted version
-ARG COMPOSE_VERSION
 RUN git -C "${COMPOSE_DIR}" fetch --tags
 RUN git -C "${COMPOSE_DIR}" checkout "${COMPOSE_VERSION}"
 
@@ -102,10 +112,10 @@ HEALTHCHECK \
   --interval=30s \
   --timeout=8s \
   CMD \
-    curl --fail 'http://localhost/script.php?script=healthcheck' \
+    curl --fail "http://localhost:${HTTP_PORT}/script.php?script=healthcheck" > /dev/null 2>&1 \
     || \
     exit 1
 
 # configure HTTP/HTTPS port
-EXPOSE ${COMPOSE_HTTP_PORT}/tcp
-EXPOSE ${COMPOSE_HTTPS_PORT}/tcp
+EXPOSE ${HTTP_PORT}/tcp
+EXPOSE ${HTTPS_PORT}/tcp

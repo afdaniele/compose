@@ -49,13 +49,7 @@ require_once __DIR__.'/parts/menu.php';
 	}
 </style>
 
-<table style="width:100%; border-bottom:1px solid #ddd; margin-bottom:22px">
-	<tr>
-		<td style="width:100%">
-			<h2>RESTful API</h2>
-		</td>
-	</tr>
-</table>
+<h2 class="page-title"></h2>
 
 <?php
 _api_page_header_part( $api_setup, $version );

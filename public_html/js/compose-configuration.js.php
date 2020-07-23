@@ -13,8 +13,6 @@ use \system\classes\Configuration;
         printf('"/core/%s": "%s",', 'GMT', Configuration::$GMT);
         printf('"/core/%s": "%s",', 'DEBUG', Configuration::$DEBUG);
 
-        printf('"/core/%s": "%s",', 'BASE_URL', Configuration::$BASE_URL);
-        printf('"/core/%s": "%s",', 'HOSTNAME', Configuration::$HOSTNAME);
         printf('"/core/%s": "%s",', 'BASE', Configuration::$BASE);
         printf('"/core/%s": "%s",', 'PAGE', Configuration::$PAGE);
         printf('"/core/%s": "%s",', 'ACTION', Configuration::$ACTION);
@@ -27,7 +25,7 @@ use \system\classes\Configuration;
         printf('"/core/%s": "%s",', 'CACHE_SYSTEM', Configuration::$CACHE_SYSTEM);
         printf('"/core/%s": "%s",', 'WEBAPI_VERSION', Configuration::$WEBAPI_VERSION);
         printf('"/core/%s": "%s",', 'ASSETS_STORE_URL', Configuration::$ASSETS_STORE_URL);
-        printf('"/core/%s": "%s",', 'ASSETS_STORE_BRANCH', Configuration::$ASSETS_STORE_BRANCH);
+        printf('"/core/%s": "%s",', 'ASSETS_STORE_VERSION', Configuration::$ASSETS_STORE_VERSION);
         ?>
       };
     }
