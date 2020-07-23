@@ -98,7 +98,7 @@ class ComposeFormFieldSelect {
         this.values = values;
         this.labels = (labels === undefined) ? values : labels;
         this.disabled = disabled;
-        this.labelWidth = '75%';
+        this.labelWidth = '60%';
     }
 
     toHTML(value = '') {
