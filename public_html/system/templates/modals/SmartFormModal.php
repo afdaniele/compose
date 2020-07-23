@@ -3,6 +3,8 @@
 <?php
 
 require_once __DIR__ . '/../../utils/utils.php';
+require_once $GLOBALS['__SYSTEM__DIR__'] . 'templates/forms/SmartForm.php';
+
 
 class SmartFormModal {
     
@@ -44,7 +46,13 @@ class SmartFormModal {
                         <h4 class="modal-title"></h4>
                     </div>
 
-                    <div class="modal-body" id="modal-form-container" style="padding: 0 50px">
+                    <div class="modal-body" style="padding: 20px 50px">
+                        <div id="modal-form-container">
+                            <?php
+                            $form = new SmartForm($this->schema, $this->values, $this->formID);
+                            $form->render();
+                            ?>
+                        </div>
                     </div>
 
                     <div class="modal-footer">
@@ -59,9 +67,6 @@ class SmartFormModal {
 
         <script type="text/javascript">
             $('#<?php echo $this->modalID ?>').on('show.bs.modal', function (e) {
-                let formID = "<?php echo $this->formID ?>";
-                let schema = <?php echo json_encode($this->schema) ?>;
-                let values = <?php echo json_encode($this->values, JSON_FORCE_OBJECT) ?>;
                 // two supported modes: insert, edit
                 let mode = $(e.relatedTarget).data('modal-mode');
                 let title = $(e.relatedTarget).data('modal-title');
@@ -73,13 +78,6 @@ class SmartFormModal {
                     }
                 }
                 $('#<?php echo $this->modalID ?> .modal-title').html(title);
-                // ---
-                // create form
-                let form = new ComposeForm(null, schema, formID);
-                form.render(
-                    '#<?php echo $this->modalID ?> #modal-form-container',
-                    values
-                );
             });
 
             $('#<?php echo $this->modalID ?>').on('hide.bs.modal', function () {
