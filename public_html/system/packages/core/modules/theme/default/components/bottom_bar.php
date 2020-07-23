@@ -50,6 +50,14 @@ include_once join_path(__DIR__, '..', 'constants.php');
         font-size: 16pt;
         padding-right: 20px;
     }
+    
+    #credits_table_center {
+        margin: 10px auto 0 auto;
+    }
+    
+    #credits_table_right {
+        margin: 10px 0 0 auto;
+    }
 </style>
 
 
