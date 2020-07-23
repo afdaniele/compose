@@ -44,7 +44,7 @@ function execute(&$service, &$actionName, &$arguments) {
             $theme_schema = $res['data'];
             // check arguments
             $out = null;
-            $res = checkArgument('configuration', $arguments, $theme_schema->as_array(), $out, false);
+            $res = checkArgument('configuration', $arguments, $theme_schema->asArray(), $out, false);
             if ($res !== true) {
                 return response400BadRequest($out['message']);
             }

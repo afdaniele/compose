@@ -73,7 +73,7 @@ function execute(&$service, &$actionName, &$arguments) {
             $setts_schema->walk($pkg_cfg, $w);
             // check arguments
             $out = null;
-            $res = checkArgument('configuration', $arguments, $setts_schema->as_array(), $out, false);
+            $res = checkArgument('configuration', $arguments, $setts_schema->asArray(), $out, false);
             if ($res !== true) {
                 return response400BadRequest($out['message']);
             }

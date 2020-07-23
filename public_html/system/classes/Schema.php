@@ -196,11 +196,11 @@ class ComposeSchema {
     }
     
     /**
-     * as_array magic method.
+     * Returns the schema as array;
      *
      * @return array
      */
-    public function as_array() {
+    public function asArray() {
         // create result
         $schema = [];
         foreach ($this->schema as $ns => $value) {
@@ -212,7 +212,7 @@ class ComposeSchema {
         }
         // ---
         return $schema;
-    }
+    }//asArray
     
     /**
      * Returns all the default values of the form in a Values array.
