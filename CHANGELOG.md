@@ -1,3 +1,46 @@
+## 1.0.0 (July 23, 2020)
+  - added new version to doxygen docs file
+  - Merge branch 'devel' into stable
+  - Merge branch 'stable' of github.com:afdaniele/compose into stable
+  - minor
+  - mission control menu now supports new theme
+  - improved SmartFormModal.php
+  - fixed bug in first setup, step3 with default values not appearing in form
+  - renamed Schema->as_array() -> Schema->asArray()
+  - renamed Schema->as_array() -> Schema->asArray()
+  - fixed broken footer in default schema
+  - fixed bug in package store
+  - bug fix
+  - implemented support for assets store v3
+  - minor
+  - format code
+  - reformat RESTfulAPI.php
+  - reformatted; adapted all pages to new page-title functionality
+  - fixed first setup page
+  - renamed page data -> 404
+  - minor
+  - fixed bug in sidebar button in modern theme
+  - fixed bug
+  - removed timezone enum filler function
+  - fixed bug in EditableConfiguration.php
+  - minor
+  - added CSS class page-title-static
+  - new features: - added support for themes - added global progress bar - added theme_configuration API service
+  - minor CSS improvements
+  - added clearCache JS function
+  - added Schema and Color PHP classes
+  - core now using schema.json for configuration
+  - improved Utils.php
+  - minor
+  - EditableConfiguration now using ComposeSchema
+  - renamed build 'devel' -> 'debug'
+  - improved new compose form
+  - bug fixes
+  - reformat Configuration.php
+  - added support for themes
+  - reformatted index.php
+  - Update README.md
+
 ## 1.0.0-rc6 (July 04, 2020)
   - added support for remote docker endpoint in Makefile
   - added String.prototype.[l|r]split; fixed bug;
