@@ -25,7 +25,7 @@ use \system\classes\Configuration;
         printf('"/core/%s": "%s",', 'CACHE_SYSTEM', Configuration::$CACHE_SYSTEM);
         printf('"/core/%s": "%s",', 'WEBAPI_VERSION', Configuration::$WEBAPI_VERSION);
         printf('"/core/%s": "%s",', 'ASSETS_STORE_URL', Configuration::$ASSETS_STORE_URL);
-        printf('"/core/%s": "%s",', 'ASSETS_STORE_BRANCH', Configuration::$ASSETS_STORE_BRANCH);
+        printf('"/core/%s": "%s",', 'ASSETS_STORE_VERSION', Configuration::$ASSETS_STORE_VERSION);
         ?>
       };
     }
