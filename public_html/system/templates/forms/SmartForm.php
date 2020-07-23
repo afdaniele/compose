@@ -18,7 +18,7 @@ class SmartForm {
         $this->formID = $formID ?? generateRandomString(7);
         // arguments
         $this->values = $values;
-        $this->schema = ($schema instanceof ComposeSchema)? $schema->as_array() : $schema;
+        $this->schema = ($schema instanceof ComposeSchema)? $schema->asArray() : $schema;
     }
     
     public function render() {
