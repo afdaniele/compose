@@ -5,6 +5,7 @@
 
 use \system\classes\Core;
 use \system\classes\Database;
+use system\classes\Utils;
 
 require_once $GLOBALS['__SYSTEM__DIR__'] . 'templates/forms/SmartForm.php';
 
@@ -41,14 +42,24 @@ $step_keys = [
   "admin_contact_email_address"
 ];
 
-$schema = $core_pkg_setts->getSchema()->as_array();
-foreach ($schema['_data'] as $key => &$_) {
+// get settings schema
+$schema = $core_pkg_setts->getSchema();
+$schema_arr = $schema->asArray();
+
+// keep only settings we want to change at first setup
+foreach ($schema_arr['_data'] as $key => &$_) {
     if (!in_array($key, $step_keys)) {
-        unset($schema['_data'][$key]);
+        unset($schema_arr['_data'][$key]);
     }
 }
 
-$form = new SmartForm($schema, $core_pkg_setts->asArray());
+// merge defaults and actual configuration
+$core_pkg_setts_full = Utils::arrayMergeAssocRecursive(
+    $schema->defaults(), $core_pkg_setts->asArray(), false
+);
+
+// create form
+$form = new SmartForm($schema_arr, $core_pkg_setts_full);
 ?>
 
 <div style="margin: 40px 60px">
