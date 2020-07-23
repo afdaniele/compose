@@ -119,9 +119,10 @@ function get_package_latest_version ($pkg) {
     // ---
     foreach ($index['packages'][$pkg]['versions'] as $v => $vinfo) {
         $compatibility = $vinfo['compatibility']['compose'];
-        if (version_compare($ver($compose_version), $ver($compatibility['minimum']), '>=') &&
+        if (is_null($compose_version) ||
+            (version_compare($ver($compose_version), $ver($compatibility['minimum']), '>=') &&
             version_compare($ver($compose_version), $ver($compatibility['maximum']), '<=')
-            ) {
+            )) {
             if (is_null($version)) $version = $v;
             if (version_compare($ver($v), $ver($version), '>')) $version = $v;
         }

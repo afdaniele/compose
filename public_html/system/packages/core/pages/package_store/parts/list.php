@@ -104,9 +104,19 @@ $assets_index_url = sanitize_url(
     )
 );
 
+// get info about \compose\'s codebase
 $codebase_info = Core::getCodebaseInfo();
 $compose_version =
     ($codebase_info['latest_tag'] == 'ND')? null : explode('-', $codebase_info['latest_tag'])[0];
+
+// show warning if the version of compose cannot be detected
+if (is_null($compose_version)) {
+    Core::requestAlert('WARNING',
+        'The version of your copy of \\compose\\ could not be detected. ' .
+        'This does not allow us to show you only packages that are compatible. Install packages ' .
+        'at your own risk.'
+    );
+}
 ?>
 
 <div class="input-group" style="margin-top:28px">
