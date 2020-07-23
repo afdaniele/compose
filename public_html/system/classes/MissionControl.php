@@ -340,7 +340,7 @@ class MissionControlMenu {
         <style type="text/css">
 
             .mission-control-side-menu {
-                position: fixed;
+                position: absolute;
                 top: 90px;
             <?php echo $side ?>: 10px;
                 width: 70px;
