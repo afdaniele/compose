@@ -193,6 +193,7 @@ $login_enabled = Core::getSetting('login_enabled', 'core');
     
     ._ctheme_footer ._ctheme_footer_credits {
         height: 75px;
+        color: <?php echo Configuration::$THEME_CONFIG['colors']['secondary']['foreground'] ?>;
     }
     
     ._ctheme_footer ._ctheme_footer_credits td {
