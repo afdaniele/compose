@@ -1,3 +1,9 @@
+## 1.0.1 (July 24, 2020)
+  - bumped compose-cms lib to 1.0.3
+  - developer watermark now supports themes
+  - minor
+  - now using compose-cms library v1.0.1
+
 ## 1.0.0 (July 23, 2020)
   - added new version to doxygen docs file
   - Merge branch 'devel' into stable
