@@ -229,11 +229,6 @@
     // Load login system
     include(join_path($CORE_PKG_DIR, 'modules/login.php'));
     
-    // Developer mode watermark
-    if (Core::getSetting('developer_mode')) {
-        include(join_path($CORE_PKG_DIR, 'modules/devel_watermark.php'));
-    }
-    
     // Updates helper
     if (Core::getUserRole() == 'administrator' && Core::getSetting('check_updates')) {
         include(join_path($CORE_PKG_DIR, 'modules/updates_helper.php'));

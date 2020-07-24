@@ -74,6 +74,13 @@ $CORE_PKG_DIR = $GLOBALS['__CORE__PACKAGE__DIR__'];
         
         <div class="_ctheme_container">
             
+            <?php
+            // Developer mode watermark
+            if (Core::getSetting('developer_mode')) {
+                include(join_path($CORE_PKG_DIR, 'modules/devel_watermark.php'));
+            }
+            ?>
+            
             <div class="_ctheme_content">
 
                 <!-- Begin page content -->
