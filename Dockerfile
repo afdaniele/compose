@@ -43,7 +43,7 @@ RUN apt-get update \
 # install python dependencies
 RUN pip3 install \
   run-and-retry \
-  compose-cms==0.1.12
+  compose-cms==1.0.1
 
 # install apcu
 RUN pecl channel-update pecl.php.net \
