@@ -65,7 +65,9 @@ input.compose-smart-form-input {
     text-align: right;
 }
 
-select.compose-smart-form-input {}
+select.compose-smart-form-input {
+    text-align-last: right;
+}
 
 input.compose-smart-form-input[type=text] {}
 
