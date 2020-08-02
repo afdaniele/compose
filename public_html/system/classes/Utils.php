@@ -88,6 +88,9 @@ class Utils {
     
     
     public static function &cursorTo(&$array, $ns, $create = false) {
+        if (is_string($ns)) {
+            $ns = preg_split('[/\.]', trim($ns, '/.'));
+        }
         $sel = &$array;
         foreach ($ns as $ptr) {
             if (!array_key_exists($ptr, $sel)) {
