@@ -167,13 +167,82 @@ class ComposeSchema {
     }
     
     
-    private static function _full_ns($path) {
+    private static function _path_to_namespace($path) {
         // reconstruct absolute ns
         $ns_key = str_replace('/', '/_data/', $path);
         $ns_key = str_replace('.', '/', $ns_key);
         // ---
         return $ns_key;
     }
+    
+    
+    private static function _namespace_to_path($ns) {
+        // go from absolute ns to path
+        $path = rtrim($ns, '/');
+        $path = str_replace('/_data/', '|', $path);
+        $path = str_replace('/', '.', $path);
+        $path = str_replace('|', '/', $path);
+        // ---
+        return $path;
+    }
+    
+    
+    /**
+     * Reconstruct schema from a given namespace;
+     *
+     * @param string $ns       The path to the field inside the schema.
+     * @return ComposeSchema   Schema from the given path, an empty schema is returned if the subschema does not exist.
+     */
+    private function _subschema($ns) {
+        // find all keys with this prefix
+        $subschema = [];
+        foreach ($this->schema as $k => $v) {
+            if (startsWith($k, $ns)) {
+                $nk = substr($k, strlen($ns) - 1);
+                $subschema[$nk] = $v;
+            }
+        }
+        if (count($subschema) === 0) {
+            return null;
+        }
+        // ---
+        $schema = new ComposeSchema();
+        $schema->schema = $subschema;
+        return $schema;
+    }
+    
+    /** Finds all leaves corresponding to the field `field_name` of subschemas
+     *
+     * @param $field_name string    Name of the field corresponding to the leaves to extract
+     * @return array                Namespaces identifying leaves of type `$field_name`
+     */
+    private function _leaves($field_name) {
+        $match = sprintf('/%s', $field_name);
+        // find all namespaces ending in /$field_name
+        $leaves_candidates = [];
+        foreach ($this->schema as $ns => &$_) {
+            if (!endsWith($ns, $match)) continue;
+            array_push($leaves_candidates, $ns);
+        }
+        // keep only those namespaces that are not pointing to subschemas
+        $leaves = [];
+        foreach ($leaves_candidates as $leaf) {
+            $is_leaf = true;
+            $parent_ns = substr($leaf, 0, strlen($leaf) - strlen($field_name));
+            $_data_ns = sprintf('%s%s', $parent_ns, '_data');
+            foreach ($this->schema as $ns => &$_) {
+                if (startsWith($ns, $_data_ns)) {
+                    $is_leaf = false;
+                    break;
+                }
+            }
+            if ($is_leaf) {
+                array_push($leaves, $leaf);
+            }
+        }
+        // ---
+        return $leaves;
+    }//_leaves
     
     //============================================================
     // PUBLIC FUNCTIONS
@@ -247,7 +316,7 @@ class ComposeSchema {
      */
     public function has($path) {
         // reconstruct absolute ns
-        $ns_key = self::_full_ns($path);
+        $ns_key = self::_path_to_namespace($path);
         // ---
         return array_key_exists($ns_key, $this->schema);
     }
@@ -261,7 +330,7 @@ class ComposeSchema {
      */
     public function get($path, $default = null) {
         // reconstruct absolute ns
-        $ns_key = self::_full_ns($path);
+        $ns_key = self::_path_to_namespace($path);
         // ---
         return array_key_exists($ns_key, $this->schema)?
             self::_decode_value($this->schema[$ns_key]) : $default;
@@ -277,7 +346,7 @@ class ComposeSchema {
      */
     public function set($path, $value, $allow_new=false) {
         // reconstruct absolute ns
-        $ns_key = self::_full_ns($path);
+        $ns_key = self::_path_to_namespace($path);
         // ---
         if ($allow_new || array_key_exists($ns_key, $this->schema)) {
             $this->schema[$ns_key] = &self::_encode_value($value);
@@ -294,60 +363,32 @@ class ComposeSchema {
      */
     public function subschema($path) {
         // reconstruct absolute ns
-        $ns_prefix = self::_full_ns($path) . '/';
-        // find all keys with this prefix
-        $subschema = [];
-        foreach ($this->schema as $k => $v) {
-            if (startsWith($k, $ns_prefix)) {
-                $nk = substr($k, strlen($ns_prefix) - 1);
-                $subschema[$nk] = $v;
-            }
-        }
-        if (count($subschema) === 0) {
-            return null;
-        }
-        // ---
-        $schema = new ComposeSchema();
-        $schema->schema = $subschema;
-        return $schema;
+        $ns_prefix = self::_path_to_namespace($path) . '/';
+        // extract subschema
+        return $this->_subschema($ns_prefix);
     }
     
     /**
      * Walk over a Values array and apply a callback function. The callback
-     * receives the arguments ($value, $schema), where:
-     *      - $value is a leaf value from the Values array;
-     *      - $schema is the subschema corresponing to the level of the leaf value;
+     * receives the arguments ($ns, $value, $schema), where:
+     *      - $ns is the absolute namespace of the leaf currently visiting;
+     *      - $value is a leaf value from the Values array (or NULL if values are not given
+     *          or the value for the current leaf is not set in $values);
+     *      - $schema is the Subschema corresponing to the level of the leaf value;
      *
-     * @param array $values A Values array to walk over.
      * @param callable $callback The callback to apply to each (schema, value) pair.
+     * @param array $values A Values array to walk over.
      */
-    public function walk(&$values, &$callback) {
-        $w = function ($ns, &$value) use (&$w, &$callback) {
-            if (is_array($value)) {
-                if (is_assoc($value)) {
-                    foreach ($value as $k => &$v) {
-                        $w(array_merge($ns, [$k]), $v);
-                    }
-                } else {
-                    foreach ($value as $_ => &$v) {
-                        $w(array_merge($ns, [0]), $v);
-                    }
-                }
-            } else {
-                // reconstruct full ns
-                $ns_key = [];
-                foreach ($ns as $p) {
-                    array_push($ns_key, $p);
-                }
-                $ns_key = implode('/', array_merge([''], $ns_key));
-                // get subschema
-                $subschema = $this->subschema($ns_key);
-                // execute callback
-                $callback($ns_key, $value, $subschema);
-            }
-        };
-        // start recursion
-        $w([], $values);
+    public function walk(&$callback, &$values=null) {
+        $type_leaves = $this->_leaves('type');
+        foreach ($type_leaves as &$leaf_ns) {
+            $parent_ns = substr($leaf_ns, 0, strlen($leaf_ns) - 4);
+            $subschema = $this->_subschema($parent_ns);
+            $path = self::_namespace_to_path($parent_ns);
+            $value_ptr = &Utils::cursorTo($values, $path);
+            // execute callback
+            $callback($path, $value_ptr, $subschema);
+        }
     }
     
 }
