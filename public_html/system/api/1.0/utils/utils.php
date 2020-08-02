@@ -68,7 +68,7 @@ function prepareArgument(&$type, &$value) {
     		'yes' => true
 		];
     	if (array_key_exists(strtolower($value), $string_to_bool)) {
-            $value = booleanval($string_to_bool[strtolower($value)]);
+            $value = $string_to_bool[strtolower($value)];
         }
     }
 }//prepareArgument
@@ -95,7 +95,7 @@ function checkArgument($name, &$array, &$details, &$res, $mandatory = true, $ns 
         if (!is_bool($value)) {
             $res = _bad_request(sprintf(
                 "The value of parameter '%s%s' must be boolean, got [%s] instead.",
-                $ns, $name, $value
+                $ns, $name, gettype($value)
             ));
             return false;
         }
