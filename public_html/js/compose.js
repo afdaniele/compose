@@ -27,6 +27,33 @@ function humanFileSize(size) {
     return ( size / Math.pow(1024, i) ).toFixed(2) * 1 + ' ' + ['B', 'kB', 'MB', 'GB', 'TB'][i];
 };
 
+/**
+ * Translates seconds into human readable format of seconds, minutes, hours, days, and years
+ *
+ * @param  {number} seconds     The number of seconds to be processed
+ * @param  {boolean} compact    Generate compact string
+ * @param  {string} precision   Specify the last quantity to show. Choose between [y, d, h, m, s].
+ * @return {string}         The phrase describing the the amount of time
+ */
+function humanTime (seconds, compact = false, precision= 's') {
+    let levels = [
+        [Math.floor(seconds / 31536000), (compact)? 'y' : 'years'],
+        [Math.floor((seconds % 31536000) / 86400), (compact) ? 'd' : 'days'],
+        [Math.floor(((seconds % 31536000) % 86400) / 3600), (compact) ? 'h' : 'hours'],
+        [Math.floor((((seconds % 31536000) % 86400) % 3600) / 60), (compact) ? 'm' : 'minutes'],
+        [(((seconds % 31536000) % 86400) % 3600) % 60, (compact) ? 's' : 'seconds'],
+    ];
+    let returntext = '';
+
+    let precision_lvls = {'y': 1, 'd': 2, 'h': 3, 'm': 4, 's': 5};
+
+    for (let i = 0, max = precision_lvls[precision]; i < max; i++) {
+        if ( levels[i][0] === 0 ) continue;
+        returntext += ' ' + levels[i][0] + (compact ? '' : ' ') + (levels[i][0] === 1 ? levels[i][1].substr(0, levels[i][1].length-1) : levels[i][1]);
+    };
+    return returntext.trim();
+}
+
 function range(start, end, step) {
     var range = [];
     var typeofStart = typeof start;
