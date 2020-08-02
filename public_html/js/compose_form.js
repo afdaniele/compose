@@ -95,7 +95,7 @@ class ComposeFormFieldSelect {
     constructor(key, values, labels, disabled = false) {
         this.ID = randomStr(32);
         this.key = key;
-        this.values = values;
+        this.values = (values === undefined) ? [] : values;
         this.labels = (labels === undefined) ? values : labels;
         this.disabled = disabled;
         this.labelWidth = '60%';
