@@ -3,38 +3,12 @@
 use \system\classes\Configuration;
 use \system\classes\Color;
 
-
-// blue
-//$_THEME_COLOR_1 = new Color(44, 86, 134);
-// yellow
-//$_THEME_COLOR_2 = new Color(247, 99, 59);
-// orange
-//$_THEME_COLOR_3 = new Color(255, 181, 0);
-
-
-//// blue
-//$_THEME_COLOR_1 = new Color(44, 86, 134);
-//
-//// brick
-////$_THEME_COLOR_1 = new Color(140, 20, 20);
-//// yellow
-//$_THEME_COLOR_2 = new Color(255, 198, 17);
-//// orange
-//$_THEME_COLOR_3 = new Color(100, 100, 100);
-//
-//$_THEME_FG_COLOR_1 = new Color(30, 30, 30);
-////// grey
-//$_THEME_FG_COLOR_2 = new Color(30, 30, 30);
-
 $_THEME_COLOR_1 = Color::from_hex(Configuration::$THEME_CONFIG['colors']['primary']['background']);
 $_THEME_COLOR_2 = Color::from_hex(Configuration::$THEME_CONFIG['colors']['secondary']['background']);
 $_THEME_COLOR_3 = Color::from_hex(Configuration::$THEME_CONFIG['colors']['tertiary']);
 
-
-
 $_THEME_FG_COLOR_1 = Color::from_hex(Configuration::$THEME_CONFIG['colors']['primary']['foreground']);
 $_THEME_FG_COLOR_2 = Color::from_hex(Configuration::$THEME_CONFIG['colors']['secondary']['foreground']);
-
 
 $_THEME_GRADIENT_FMT = "
 background: rgb({color1});
