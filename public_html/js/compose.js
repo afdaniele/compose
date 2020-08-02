@@ -166,7 +166,7 @@ function openAlert(type, messageHTML) {
     // show
     $('#page_alert_container').css('display', '');
     // move to the page header
-    $('html, body').animate({scrollTop: 0}, 'slow');
+    $('._ctheme_content').animate({scrollTop: 0}, 'slow');
     // trigger the 'alert show event'
     $(document).trigger("show.bs.alert");
 }
