@@ -65,12 +65,13 @@ function execute(&$service, &$actionName, &$arguments) {
             // get new configuration
             $pkg_cfg = &$arguments['configuration'];
             // prepare arguments
-            $w = function ($_, &$value, &$schema){
+            $w = function ($_, &$value, &$schema) use (&$pkg_cfg) {
                 if (!is_null($schema) && $schema->has('.type')) {
-                    prepareArgument($schema->get('.type'), $value);
+                    $type = $schema->get('.type');
+                    prepareArgument($type, $value);
                 }
             };
-            $setts_schema->walk($pkg_cfg, $w);
+            $setts_schema->walk($w, $pkg_cfg);
             // check arguments
             $out = null;
             $res = checkArgument('configuration', $arguments, $setts_schema->asArray(), $out, false);
