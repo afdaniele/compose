@@ -35,7 +35,7 @@
                 "footer_height": {
                     "details": "Height of the footer bar (in pixels)",
                     "type": "numeric",
-                    "default": 180
+                    "default": 175
                 }
             }
         },
