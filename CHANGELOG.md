@@ -1,3 +1,16 @@
+## 1.0.2 (August 03, 2020)
+  - minor adjustment to theme
+  - cleaned up commented code
+  - minor
+  - minor
+  - adapted to new schema walk function
+  - improved Schema.php, implemented new walk function
+  - minor
+  - minor
+  - added JS humanTime utils function
+  - in compose_form selects are flushed to the right
+  - fixed bug w/ autoscroll to top on openAlert
+
 ## 1.0.1 (July 24, 2020)
   - bumped compose-cms lib to 1.0.3
   - developer watermark now supports themes
