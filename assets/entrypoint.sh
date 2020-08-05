@@ -75,7 +75,7 @@ compose_terminate() {
   kill -INT $(pgrep -P $$) 2> /dev/null
 }
 
-# register termination function against the signals SIGINT, SIGTERM, and SIGKILL
+# register termination function against the signals SIGINT, SIGTERM
 trap compose_terminate SIGINT
 trap compose_terminate SIGTERM
 
