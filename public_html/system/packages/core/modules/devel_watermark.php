@@ -5,25 +5,20 @@
         font-weight: bold;
         position: absolute;
         text-align: center;
-        font-size: 20pt;
+        font-size: 15pt;
         line-height: 24px;
         z-index: 9999;
     }
 
     .developer_mode_watermark_bottom_right {
-        bottom: 40px;
+        bottom: 20px;
         right: 10px;
     }
 
     .developer_mode_watermark_top_left {
-        top: 40px;
-        left: 10px;
+        top: 20px;
     }
 </style>
 
-<div class="developer_mode_watermark developer_mode_watermark_top_left">
-    Mode<br/>Developer
-</div>
-<div class="developer_mode_watermark developer_mode_watermark_bottom_right">
-    Developer<br/>Mode
-</div>
+<div class="developer_mode_watermark developer_mode_watermark_top_left">Mode<br/>Developer</div>
+<div class="developer_mode_watermark developer_mode_watermark_bottom_right">Developer<br/>Mode</div>
