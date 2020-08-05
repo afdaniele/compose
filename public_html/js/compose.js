@@ -844,3 +844,39 @@ function clearCache() {
     let resultDataType = 'text';
     callExternalAPI(url, callType, resultDataType, successDialog, reload);
 }
+
+function _compose_vertical_fit() {
+    $('.vertical_fit').each(function (_, dom_elem) {
+        let elem = $(dom_elem);
+        let container = $(elem.data('vertical-fit-parent') ?? "._ctheme_content");
+        let elem_pos = elem.offset();
+        let container_pos = container.offset();
+        let container_h = container.height();
+        let container_padding = parseInt(container.css('padding-top'));
+        let space = container_h + container_padding - (elem_pos.top - container_pos.top);
+        let height = Math.max(1, space);
+        elem.css('height', '{0}px'.format(height));
+    });
+}
+
+$(document).ready(function () {
+    $(window).resize(function() {
+        _compose_vertical_fit();
+    });
+    // get all elements that need to be vertically fit
+    let elems = $('.vertical_fit');
+    // refit when the object is ready
+    elems.ready(function(){
+        _compose_vertical_fit();
+    });
+    // refit when the object is loaded
+    elems.load(function(){
+        _compose_vertical_fit();
+    });
+    // refit when the object changes shape
+    elems.resize(function(){
+        _compose_vertical_fit();
+    });
+    // refit right now
+    _compose_vertical_fit();
+});
