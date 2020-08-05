@@ -1,3 +1,7 @@
+## 1.0.3 (August 05, 2020)
+  - reduced size of developer watermark
+  - minor
+
 ## 1.0.2 (August 03, 2020)
   - minor adjustment to theme
   - cleaned up commented code
