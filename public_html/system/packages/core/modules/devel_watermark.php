@@ -11,12 +11,13 @@
     }
 
     .developer_mode_watermark_bottom_right {
-        bottom: 20px;
+        bottom: 30px;
         right: 10px;
     }
 
     .developer_mode_watermark_top_left {
-        top: 20px;
+        top: 30px;
+        left: 10px;
     }
 </style>
 
