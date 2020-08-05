@@ -1,3 +1,7 @@
+## 1.0.4 (August 05, 2020)
+  - added vertical_fit CSS class
+  - fixed bug in devel watermark
+
 ## 1.0.3 (August 05, 2020)
   - reduced size of developer watermark
   - minor
