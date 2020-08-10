@@ -551,6 +551,17 @@ class Core {
      *        The `data` field contains an error string when `success` is `FALSE`.
      */
     public static function close() {
+        // clear alerts
+        if (isset($_SESSION['_ALERT_ERROR'])) {
+            unset($_SESSION['_ALERT_ERROR']);
+        }
+        if (isset($_SESSION['_ALERT_INFO'])) {
+            unset($_SESSION['_ALERT_INFO']);
+        }
+        if (isset($_SESSION['_ALERT_WARNING'])) {
+            unset($_SESSION['_ALERT_WARNING']);
+        }
+        // ---
         return ['success' => TRUE, 'data' => NULL];
     }//close
     

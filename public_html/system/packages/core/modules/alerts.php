@@ -3,38 +3,19 @@
 $message = '';
 $type = null;
 
-$prefix = '_ALERT_';
-//
-if( isset($_SESSION[$prefix.'ERROR']) ){
-	$message = '<strong>Error!</strong> '.$_SESSION[$prefix.'ERROR'];
-	$type = 'danger';
-	//
-	unset( $_SESSION[$prefix.'ERROR'] );
+if (isset($_SESSION['_ALERT_ERROR'])) {
+    $message = '<strong>Error!</strong> ' . $_SESSION['_ALERT_ERROR'];
+    $type = 'danger';
 }
-if( isset($_SESSION[$prefix.'INFO']) ){
-	$message = $_SESSION[$prefix.'INFO'];
-	$type = 'info';
-	//
-	unset( $_SESSION[$prefix.'INFO'] );
+if (isset($_SESSION['_ALERT_INFO'])) {
+    $message = $_SESSION['_ALERT_INFO'];
+    $type = 'info';
 }
-if( isset($_SESSION[$prefix.'WARNING']) ){
-	$message = $_SESSION[$prefix.'WARNING'];
-	$type = 'warning';
-	//
-	unset( $_SESSION[$prefix.'WARNING'] );
-}
-
-if( $type != null ){
-	?>
-<script type="application/javascript">
-	$( document ).ready(function() {
-		openAlert( '<?php echo $type ?>', "<?php echo $message ?>" );
-	});
-</script>
-<?php
+if (isset($_SESSION['_ALERT_WARNING'])) {
+    $message = $_SESSION['_ALERT_WARNING'];
+    $type = 'warning';
 }
 ?>
-
 
 <div style="display:none; padding: 0 30px" id="page_alert_container">
 	<div class="alert alert-dismissible" role="alert" id="page_alert_object">
@@ -44,3 +25,15 @@ if( $type != null ){
 		</div>
 	</div>
 </div>
+
+<?php
+if( $type != null ){
+	?>
+    <script type="application/javascript">
+        $(document).ready(function() {
+            openAlert('<?php echo $type ?>', "<?php echo $message ?>");
+        });
+    </script>
+<?php
+}
+?>
