@@ -68,7 +68,7 @@ use \system\classes\Core;
 
 <script type="text/javascript">
     $(window).on('COMPOSE_LOGGED_IN', function(){
-        let resource = "<?php echo trim(Configuration::$BASE.base64_decode($_GET['q'])) ?>";
+        let resource = "<?php echo trim(Configuration::$BASE . base64_decode($_GET['q'])) ?>";
         if (resource.length > 0) {
             window.open(resource, "_top");
         } else {

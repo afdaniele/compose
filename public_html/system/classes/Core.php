@@ -415,12 +415,12 @@ class Core {
     
     public static function setVolatileSession($val) {
         self::$volatile_session = $val;
-    }//healthCheck
+    }//setVolatileSession
     
     
     public static function isVolatileSession() {
         return self::$volatile_session;
-    }//healthCheck
+    }//isVolatileSession
     
     
     public static function getCurrentResource() {
