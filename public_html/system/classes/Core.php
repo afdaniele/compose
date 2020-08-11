@@ -415,12 +415,12 @@ class Core {
     
     public static function setVolatileSession($val) {
         self::$volatile_session = $val;
-    }//healthCheck
+    }//setVolatileSession
     
     
     public static function isVolatileSession() {
         return self::$volatile_session;
-    }//healthCheck
+    }//isVolatileSession
     
     
     public static function getCurrentResource() {
@@ -551,6 +551,17 @@ class Core {
      *        The `data` field contains an error string when `success` is `FALSE`.
      */
     public static function close() {
+        // clear alerts
+        if (isset($_SESSION['_ALERT_ERROR'])) {
+            unset($_SESSION['_ALERT_ERROR']);
+        }
+        if (isset($_SESSION['_ALERT_INFO'])) {
+            unset($_SESSION['_ALERT_INFO']);
+        }
+        if (isset($_SESSION['_ALERT_WARNING'])) {
+            unset($_SESSION['_ALERT_WARNING']);
+        }
+        // ---
         return ['success' => TRUE, 'data' => NULL];
     }//close
     
