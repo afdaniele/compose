@@ -508,6 +508,15 @@
                 "enum_filler_args": []
             }
         },
+        "favicon": {
+            "type": "enum",
+            "default": "core",
+            "details": "Package whose icon (favicon) should be used for the site",
+            "__form__": {
+                "enum_filler_fcn": "_available_favicons",
+                "enum_filler_args": []
+            }
+        },
         "guest_default_page": {
             "type": "enum",
             "default": "login",

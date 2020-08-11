@@ -134,6 +134,17 @@
     if (is_null($theme_file)) {
         $theme_file = Core::getThemeFile('default');
     }
+    
+    // get favicon
+    $favicon = join_path(Configuration::$BASE, "images", "favicon.ico");
+    $favicon_pkg_id = Core::getSetting('favicon');
+    if ($favicon_pkg_id != 'core' && Core::packageExists($favicon_pkg_id)) {
+        $pkg_root = Core::getPackageRootDir($favicon_pkg_id);
+        $icon_path = join_path($pkg_root, 'images', 'favicon.ico');
+        if (file_exists($icon_path)) {
+            $favicon = Core::getImageURL('favicon.ico', $favicon_pkg_id);
+        }
+    }
     ?>
 
     <meta charset="utf-8">
@@ -142,7 +153,7 @@
     <meta name="description" content="">
     <meta name="author" content="">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-    <link rel="icon" href="<?php echo Configuration::$BASE ?>images/favicon.ico">
+    <link rel="icon" href="<?php echo $favicon ?>">
 
     <title><?php echo Core::getSiteName() . ' - ' . Core::getPageDetails(Configuration::$PAGE, 'name') ?></title>
 

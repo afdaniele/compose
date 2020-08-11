@@ -46,6 +46,22 @@ function _installed_themes($args){
 }//_installed_themes
 
 
+function _available_favicons ($args) {
+    $icon_pkgs = [
+        ['id' => 'core', 'value' => 'core', 'label' => 'Default']
+    ];
+    foreach (array_keys(Core::getPackagesList()) as $pkg_id) {
+        $pkg_root = Core::getPackageRootDir($pkg_id);
+        $icon_path = join_path($pkg_root, 'images', 'favicon.ico');
+        if (file_exists($icon_path)) {
+            $label = Core::getPackageDetails($pkg_id, 'name');
+            array_push($icon_pkgs, ['id' => $pkg_id, 'value' => $pkg_id, 'label' => $label]);
+        }
+    }
+    return $icon_pkgs;
+}//_available_favicons
+
+
 function _static_enum ($args) {
     return array_map(
         function($a){
