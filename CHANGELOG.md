@@ -1,3 +1,9 @@
+## 1.0.5 (August 11, 2020)
+  - Merge branch 'stable' into devel
+  - added support for custom favicons
+  - alert messages are now cleared in Core::close()
+  - minor
+
 ## 1.0.4 (August 05, 2020)
   - added vertical_fit CSS class
   - fixed bug in devel watermark
