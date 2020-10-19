@@ -1,3 +1,6 @@
+## 1.0.6 (October 18, 2020)
+  - fixed bug in package manager (update)
+
 ## 1.0.5 (August 11, 2020)
   - Merge branch 'stable' into devel
   - added support for custom favicons
