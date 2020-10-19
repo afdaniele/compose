@@ -62,7 +62,7 @@ $installed_packages = Core::getPackagesList();
     }
 
     #packages-table > tbody .compose-package .package-icon {
-        width: 42px;
+        width: 50px;
     }
 
     #packages-table > tbody .compose-package > td:nth-child(4) .disabled-button {
