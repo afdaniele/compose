@@ -175,6 +175,7 @@ class PackageManager(object):
         # find user-data
         userdata_dir = environ.get('COMPOSE_USERDATA_DIR',
                                    join(self._compose_dir, 'system', 'user-data'))
+        log('user-data: `%s`' % userdata_dir)
         self._packages_dir = join(userdata_dir, 'packages')
         # try to create the directory if it does not exist
         if not isdir(self._packages_dir):
@@ -359,8 +360,10 @@ class PackageManager(object):
         package = self.get_package(package_name)
         package.pre_update(dryrun=dryrun)
 
-    def update(self, package_name, version, dryrun=False):
+    def update(self, package_name, version=None, dryrun=False):
         package = self.get_package(package_name)
+        if version is None:
+            version = self.get_package_latest_compatible_version(package_name)
         package.update(version, dryrun=dryrun)
 
     def post_update(self, package_name, dryrun=False):
@@ -638,7 +641,7 @@ if __name__ == '__main__':
     def package_and_version(package_str):
         # split package==version  =>  (package, version)
         parts = package_str.split('==') + [None]
-        return (parts[0], parts[1])
+        return parts[0], parts[1]
 
     # get input
     to_install = set(args.install or [])
@@ -668,9 +671,10 @@ if __name__ == '__main__':
     # perform update
     requires_post_update = []
     for _package_name in to_update:
+        _package_name, _package_version = package_and_version(_package_name)
         if _package_name in pm.list_installed_packages():
             log('Performing UPDATE on package "%s"...' % _package_name)
-            pm.update(_package_name, dryrun=args.dry_run)
+            pm.update(_package_name, version=_package_version, dryrun=args.dry_run)
             requires_post_update.append(_package_name)
             out_data['updated'].append(_package_name)
             log('Done!\n')
