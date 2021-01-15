@@ -1,3 +1,8 @@
+## 1.0.7 (January 15, 2021)
+  - Merge branch 'devel' into stable
+  - added JS utility functions `copyToClipboard`, `getAbsoluteURLtoResource`, `getCurrentAbsoluteURL`
+  - minor
+
 ## 1.0.6 (October 18, 2020)
   - fixed bug in package manager (update)
 
