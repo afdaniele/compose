@@ -845,6 +845,33 @@ function clearCache() {
     callExternalAPI(url, callType, resultDataType, successDialog, reload);
 }
 
+function copyToClipboard (text) {
+    let dummy = document.createElement("textarea");
+    document.body.appendChild(dummy);
+    dummy.value = text;
+    dummy.select();
+    document.execCommand("copy");
+    document.body.removeChild(dummy);
+}
+
+function getAbsoluteURLtoResource(resource, protocol = true, host = true, path = true, qs = true, hash = true) {
+    if (resource === undefined) {
+        resource = "";
+    }
+    let link = document.createElement("a");
+    link.href = resource;
+    let s_protocol = protocol ? "{0}//".format(link.protocol) : "";
+    let s_host = host ? link.host : "";
+    let s_path = path ? link.pathname : "";
+    let s_qs = qs ? link.search : "";
+    let s_hash = hash ? link.hash : "";
+    return "{0}{1}{2}{3}{4}".format(s_protocol, s_host, s_path, s_qs, s_hash);
+}
+
+function getCurrentAbsoluteURL(protocol = true, host = true, path = true, qs = true, hash = true) {
+    return getAbsoluteURLtoResource("", protocol, host, path, qs, hash);
+}
+
 function _compose_vertical_fit() {
     $('.vertical_fit').each(function (_, dom_elem) {
         let elem = $(dom_elem);
