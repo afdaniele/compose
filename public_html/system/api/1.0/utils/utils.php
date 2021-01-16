@@ -57,6 +57,10 @@ function prepareArgument(&$type, &$value) {
     if ($value == 'null') {
         $value = null;
     }
+    // allow nullable numeric values
+    if ($type == 'numeric' && strlen(trim($value)) <= 0) {
+        $value = null;
+    }
     // convert boolean values
     if ($type == 'boolean' && is_string($value)) {
     	$string_to_bool = [
@@ -161,7 +165,7 @@ function checkArgument($name, &$array, &$details, &$res, $mandatory = true, $ns 
     } else {
         if (!StringType::isValid($value, StringType::getRegexByTypeName($type))) {
             $res = _bad_request(sprintf(
-                "Illegal value [%s] for parameter '%s%s' of type %s.",
+                "Illegal value `%s` for parameter '%s%s' of type %s.",
                 $value, $ns, $name, $type
             ));
             return false;
