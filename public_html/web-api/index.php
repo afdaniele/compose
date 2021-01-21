@@ -163,6 +163,20 @@ switch ($auth_mode) {
             $error_msg = sprintf('The API end-point `%s/%s` cannot be used with authentication via Cookies', $serviceName, $actionName);
             break;
         }
+        // authorize based on the access level. The user's role must be in $action['access_level']
+        $access_lvl_success = False;
+        foreach ($access_lvl as $lvl) {
+            $parts = explode(':', $lvl);
+            $package = (count($parts) == 1) ? 'core' : $parts[0];
+            $cur_lvl = (count($parts) == 1) ? $parts[0] : $parts[1];
+            $user_role = Core::getUserRole($package);
+            //
+            $access_lvl_success = boolval($access_lvl_success || boolval($user_role == $cur_lvl));
+        }
+        if (!$access_lvl_success) {
+            $error_msg = 'The selected action cannot be executed by the current user. No role matches the access level.';
+            break;
+        }
         // check if the selected action has an access level that requires login
         $need_login = !in_array('guest', $access_lvl);
         // init a PHP session (if needed)
@@ -181,20 +195,6 @@ switch ($auth_mode) {
         $token_success = boolval(!$need_login || ($user_logged_in && $user_session_token == $token));
         if (!$token_success) {
             $error_msg = 'The token provided is not correct';
-            break;
-        }
-        // authorize based on the access level. The user's role must be in $action['access_level']
-        $access_lvl_success = False;
-        foreach ($access_lvl as $lvl) {
-            $parts = explode(':', $lvl);
-            $package = (count($parts) == 1) ? 'core' : $parts[0];
-            $cur_lvl = (count($parts) == 1) ? $parts[0] : $parts[1];
-            $user_role = Core::getUserRole($package);
-            //
-            $access_lvl_success = boolval($access_lvl_success || boolval($user_role == $cur_lvl));
-        }
-        if (!$access_lvl_success) {
-            $error_msg = 'The selected action cannot be executed by the current user. No role matches the access level.';
             break;
         }
         // an authorized user has the right bits to access the action and the right token
