@@ -163,6 +163,19 @@ switch ($auth_mode) {
             $error_msg = sprintf('The API end-point `%s/%s` cannot be used with authentication via Cookies', $serviceName, $actionName);
             break;
         }
+        // check if the selected action has an access level that requires login
+        $need_login = !in_array('guest', $access_lvl);
+        // init a PHP session (if needed)
+        $user_logged_in = false;
+        $user_session_token = null;
+        if ($need_login) {
+            Core::startSession();
+            //
+            $user_logged_in = Core::isUserLoggedIn();
+            $user_session_token = $user_logged_in ? $_SESSION['TOKEN'] : null;
+            //
+            Core::closeSession();
+        }
         // authorize based on the access level. The user's role must be in $action['access_level']
         $access_lvl_success = False;
         foreach ($access_lvl as $lvl) {
@@ -176,19 +189,6 @@ switch ($auth_mode) {
         if (!$access_lvl_success) {
             $error_msg = 'The selected action cannot be executed by the current user. No role matches the access level.';
             break;
-        }
-        // check if the selected action has an access level that requires login
-        $need_login = !in_array('guest', $access_lvl);
-        // init a PHP session (if needed)
-        $user_logged_in = false;
-        $user_session_token = null;
-        if ($need_login) {
-            Core::startSession();
-            //
-            $user_logged_in = Core::isUserLoggedIn();
-            $user_session_token = $user_logged_in ? $_SESSION['TOKEN'] : null;
-            //
-            Core::closeSession();
         }
         // authorize based on login info available on the server if the access level is higher than `guest`
         $token = $_GET['token'];
