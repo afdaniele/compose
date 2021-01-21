@@ -92,7 +92,7 @@ class EditableConfiguration {
         $default_cursor = Utils::cursorTo($this->default_configuration, $path);
         // ---
         $cfg_cursor = Utils::cursorTo($this->configuration, $path);
-        if (!is_null($cfg_cursor) && strlen($cfg_cursor) > 0) {
+        if (!is_null($cfg_cursor) && (is_array($cfg_cursor) || strlen($cfg_cursor) > 0)) {
             return ['success' => true, 'data' => $cfg_cursor];
         }
         if (is_null($default) && !is_null($default_cursor)) {
