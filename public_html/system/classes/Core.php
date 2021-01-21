@@ -245,7 +245,8 @@ class Core {
     
     private static $DEVELOPER_USER_INFO = [
         "username" => '_compose_developer',
-        "name" => 'Developer', "email" => NULL,
+        "name" => 'Developer',
+        "email" => NULL,
         "picture" => 'images/developer.jpg',
         "role" => "administrator",
         "active" => TRUE,
