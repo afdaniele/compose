@@ -1,3 +1,10 @@
+## 1.0.8 (January 21, 2021)
+  - fixed regression bug in API
+  - API now checks for access level before checking the token
+  - minor
+  - fixed bug in EditableConfiguration w/ default values and array values
+  - fixed bug in API parameters value parsing
+
 ## 1.0.7 (January 15, 2021)
   - Merge branch 'devel' into stable
   - added JS utility functions `copyToClipboard`, `getAbsoluteURLtoResource`, `getCurrentAbsoluteURL`
