@@ -59,6 +59,26 @@ clean:
 bump:
 	./bump-version.sh
 
+build_all_arch:
+	set -e; \
+	brun \
+	  -f arch:list:amd64,arm32v7,arm64v8 \
+	  -p \
+	  -- \
+	    make \
+	      build \
+	        ARCH={arch}
+
+push_all_arch:
+	set -e; \
+	brun \
+	  -f arch:list:amd64,arm32v7,arm64v8 \
+	  -p \
+	  -- \
+	    make \
+	      push \
+	        ARCH={arch}
+
 _build_all:
 	set -e; \
 	TAGS=`git tag | sed -z "s/\n/,/g"`; \
