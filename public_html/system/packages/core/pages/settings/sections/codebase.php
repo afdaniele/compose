@@ -107,10 +107,10 @@ function settings_codebase_tab(){
       }
     });
 
-    function on_success_fcn(update_available){
+    function on_success_fcn(update_available, version){
       if (update_available) {
         $('#settings_codebase_update_result').html(
-          'A new version of <b>\\compose\\</b> is available!'
+          'Version ' + version + ' of <b>\\compose\\</b> is available!'
         );
         $('#settings_codebase_update_result').css('background-color', 'lightgreen');
         $('#settings_codebase_update_check_button').attr('disabled', false);
@@ -136,6 +136,7 @@ function settings_codebase_tab(){
       $('#settings_codebase_update_result').html(
         'An error occurred while checking for updates. Try again later!'
       );
+      $('#settings_codebase_update_result').css('background-color', 'gold');
       $('#settings_codebase_update_check_button').attr('disabled', false);
     }//on_error_fcn
 

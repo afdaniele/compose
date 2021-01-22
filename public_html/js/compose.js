@@ -735,16 +735,16 @@ $(document).on('ready', function () {
 // Check for updates
 function checkForUpdates(git_provider, git_owner, git_repo, git_local_head, allow_unstable, on_success_fcn, on_error_fcn, ignore_cache) {
     // 0: git_owner, 1: git_repo, 2: action, 3: arguments
-    var api_url = '';
+    let api_url = '';
     if (git_provider === 'github.com') {
-        api_url = 'https://api.github.com/repos/{0}/{1}/{2}/{3}';
+        api_url = 'https://api.github.com/repos/{0}/{1}/{2}{3}';
     }
-    var headers = {};
+    let headers = {};
     if (ignore_cache === undefined || !ignore_cache) {
         headers = {
             'release': {
-                'If-Modified-Since': localStorage.getItem('github_compose_release_last_modified'),
-                'If-None-Match': localStorage.getItem('github_compose_release_etag')
+                'If-Modified-Since': localStorage.getItem('github_compose_tags_last_modified'),
+                'If-None-Match': localStorage.getItem('github_compose_tags_etag')
             },
             'compare': {
                 'If-Modified-Since': localStorage.getItem('github_compose_compare_last_modified'),
@@ -756,19 +756,19 @@ function checkForUpdates(git_provider, git_owner, git_repo, git_local_head, allo
     // function that compares two heads
     function compareHeads(local_head, remote_head) {
         let args_str = '{0}...{1}'.format(local_head, remote_head);
-        let url_compare_commits = api_url.format(git_owner, git_repo, 'compare', args_str);
+        let url_compare_commits = api_url.format(git_owner, git_repo, 'compare/', args_str);
 
         function fmt_fcn1(result, status, xhr) {
             if (xhr.status === 304) {
                 // use cache values
                 let needs_update = localStorage.getItem('github_compose_needs_update') === 'true';
-                return on_success_fcn(needs_update);
+                return on_success_fcn(needs_update, remote_head);
             } else {
                 let needs_update = result.status === 'ahead';
                 localStorage.setItem('github_compose_compare_last_modified', xhr.getResponseHeader("Last-Modified"));
                 localStorage.setItem('github_compose_compare_etag', xhr.getResponseHeader("ETag"));
-                localStorage.setItem('github_compose_needs_update', needs_update);
-                return on_success_fcn(needs_update);
+                localStorage.setItem('github_compose_needs_update', needs_update.toString());
+                return on_success_fcn(needs_update, remote_head);
             }
         }
 
@@ -779,24 +779,30 @@ function checkForUpdates(git_provider, git_owner, git_repo, git_local_head, allo
     if (allow_unstable) {
         compareHeads(git_local_head, 'devel');
     } else {
-        // get latest release
-        let url_latest_release = api_url.format(git_owner, git_repo, 'releases', 'latest');
+        // get tags list
+        let url_tags_list = api_url.format(git_owner, git_repo, 'tags', '?per_page=100&page=-1');
 
         function fmt_fcn2(result, status, xhr) {
-            localStorage.setItem('github_compose_release_last_modified', xhr.getResponseHeader("Last-Modified"));
-            localStorage.setItem('github_compose_release_etag', xhr.getResponseHeader("ETag"));
-            let tag_name = "";
+            localStorage.setItem('github_compose_tags_last_modified', xhr.getResponseHeader("Last-Modified"));
+            localStorage.setItem('github_compose_tags_etag', xhr.getResponseHeader("ETag"));
+            let tag_name = null;
             if (xhr.status === 304) {
                 // use cache values
                 tag_name = localStorage.getItem('github_compose_latest_tag_name');
             } else {
-                localStorage.setItem('github_compose_latest_tag_name', result.tag_name);
-                tag_name = result.tag_name;
+                if (result.length > 0) {
+                    tag_name = result[0].name;
+                    localStorage.setItem('github_compose_latest_tag_name', result[0].name);
+                }
             }
-            compareHeads(git_local_head, tag_name);
+            if (tag_name !== null) {
+                compareHeads(git_local_head, tag_name);
+            } else {
+                on_error_fcn();
+            }
         }
 
-        callExternalAPI(url_latest_release, 'GET', 'json', false, false, fmt_fcn2, true, true, on_error_fcn, [], headers['release']);
+        callExternalAPI(url_tags_list, 'GET', 'json', false, false, fmt_fcn2, true, true, on_error_fcn, [], headers['release']);
     }
 }//checkForUpdates
 
