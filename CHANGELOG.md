@@ -1,3 +1,7 @@
+## 1.0.9 (January 21, 2021)
+  - compose updates are now checked against `git tags` instead of `github releases`
+  - added new targets to Makefile
+
 ## 1.0.8 (January 21, 2021)
   - fixed regression bug in API
   - API now checks for access level before checking the token
