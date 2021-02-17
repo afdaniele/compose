@@ -63,6 +63,7 @@ include_once "sections/cache.php";
 include_once "sections/package_specific.php";
 include_once "sections/codebase.php";
 include_once "sections/user_roles.php";
+include_once "sections/php_info.php";
 
 
 include_once "sections/theme.php";
@@ -121,6 +122,13 @@ $settings_tabs = [
 
     // [502-600] reserved for \compose\ tabs
     502 => [
+        'id' => 'php',
+        'title' => 'PHP Info',
+        'icon' => 'fa fa-server',
+        'content' => settings_phpinfo_tab,
+        'content_args' => null
+    ],
+    580 => [
         'id' => 'codebase',
         'title' => 'Codebase',
         'icon' => 'fa fa-code',
