@@ -1839,6 +1839,24 @@ class Core {
     }//getRegisteredCSSstylesheets
     
     
+    /** Returns the URL to a package-specific PHP Script file.
+     *    The PHP script file must in the directory `/scripts` of the package.
+     *
+     * @param string $script_name
+     *        Filename of the PHP Script file (excluding extension);
+     *
+     * @param string $package_name
+     *        (optional) Name of the package the requested PHP script file belongs to. Default is
+     *        'core';
+     *
+     * @retval string
+     *        URL to the requested PHP script file.
+     */
+    public static function getPackageScriptURL($script_name, $package_name = "core") {
+        return sprintf("%sscript.php?package=%s&script=%s", Configuration::$BASE, $package_name, $script_name);
+    }//getPackageScriptURL
+    
+    
     // =======================================================================================================
     // Pages management functions
     
