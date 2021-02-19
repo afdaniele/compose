@@ -25,8 +25,5 @@ COPY assets.debug/usr/local/etc/php/conf.d/xdebug.ini /usr/local/etc/php/conf.d/
 RUN echo "" >> /usr/local/etc/php/conf.d/xdebug.ini
 RUN echo "zend_extension=`find /usr/local/lib/php | grep xdebug.so`;" >> /usr/local/etc/php/conf.d/xdebug.ini
 
-# copy phpinfo script
-ADD assets.debug/phpinfo.php $COMPOSE_DIR/public_html/
-
 # copy APCu monitor script
 ADD assets.debug/apc.php $COMPOSE_DIR/public_html/
