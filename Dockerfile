@@ -49,6 +49,13 @@ RUN pip3 install \
 RUN pecl channel-update pecl.php.net \
   && pecl install apcu
 
+# install composer
+RUN cd /tmp/ && \
+    wget https://getcomposer.org/installer && \
+    php ./installer && \
+    mv ./composer.phar /usr/local/bin/composer && \
+    rm ./installer
+
 # configure apcu
 COPY assets/usr/local/etc/php/conf.d/apcu.ini /usr/local/etc/php/conf.d/
 

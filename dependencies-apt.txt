@@ -7,6 +7,10 @@ python3
 git
 net-tools
 
+# system utilities (used by composer)
+zip
+unzip
+
 # python libraries
 python3-requests
 python3-toposort
