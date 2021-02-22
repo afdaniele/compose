@@ -3,8 +3,6 @@
 # @Email:  afdaniele@ttic.edu
 # @Last modified by:   afdaniele
 
-use system\classes\Core;
-
 include_once __DIR__.'/utils/enum_fillers.php';
 
 
@@ -24,7 +22,7 @@ function settings_custom_package_tab( $args, $settings_tab_id ){
         }
         $package_settings = ($package_settings_res['success'])? $package_settings_res['data'] : null;
         if (is_null($package_settings)) {
-            echo 'Generic Error.';
+            echo sprintf("Error: %s", $package_settings_res['data']);
             return;
         }
         //
@@ -43,7 +41,7 @@ function settings_custom_package_tab( $args, $settings_tab_id ){
 
     <?php
     $config_schema = $package_settings->getSchema();
-    $config_values = $package_settings->asArray();
+    $config_values = $package_settings->asArray(true);
     
     // fill in enums
     $w = function ($path, &$_, &$schema) use (&$config_schema) {
