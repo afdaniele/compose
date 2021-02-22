@@ -282,6 +282,10 @@ class ComposeSchemaAtom {
         return new ComposeSchemaAtom(this.key, this.schema);
     }
 
+    destroy() {
+        $("#{0}".format(this.ID)).remove();
+    }
+
     static isAtomSchema(schema) {
         return getHTML5TypeByTypeName(schema.type) != null || ['enum', 'boolean'].includes(schema.type);
     }
@@ -292,8 +296,7 @@ class ComposeSchemaAtom {
 class ComposeFormGroup {
 
     constructor(parent_id, name, details, removable = false, ns = null) {
-        this.ID = randomStr(32);
-        this.parent_id = parent_id;
+        this.ID = parent_id;
         this.name = name;
         this.details = details;
         this.removable = removable;
@@ -312,21 +315,27 @@ class ComposeFormGroup {
         $.each(this.children, function (k, c) {
             let v = (group_value[k] === undefined) ? (c instanceof ComposeSchemaAtom ? '' : {}) : group_value[k];
             content.push(c.toHTML(v));
-            if (host.removable) {
+            if (host.removable && ! (c instanceof ComposeFormExtender)) {
                 content.push(host._get_removable_button(c));
             }
         });
         content = content.join('');
-        // ---
-        return (this.name === null) ? content : `
-            <div id="{id}" class="compose-form-group">
-                <h4>{name}</h4>
-                <h5>{details}</h5>
-                <div class="compose-form-group-content">
-                    {content}
-                </div>
+        // create IDed container
+        let container = `
+            <div id="{0}" class="compose-form-group">
+                {content}
             </div>
-        `.format({'id': this.ID, 'name': this.name, 'details': this.details, 'content': content});
+        `.format(this.ID);
+        // decorate content if a name is available
+        content = (this.name === null) ? content : `
+            <h4>{name}</h4>
+            <h5>{details}</h5>
+            <div class="compose-form-group-content">
+                {content}
+            </div>
+        `.format({'name': this.name, 'details': this.details, 'content': content});
+        // add content to container
+        return container.format({'content': content});
     }
 
     serialize() {
@@ -335,11 +344,11 @@ class ComposeFormGroup {
 
     _get_removable_button(child) {
         return `
-        <button type="button" class="btn btn-danger btn-sm compose-form-extender-button" style="float:right; margin-top: -56px" data-parent="{parent}" data-target="{target}">
+        <button type="button" class="btn btn-danger btn-sm compose-form-remove-button" style="float:right; margin-top: -56px" data-parent="{parent}" data-target="{target}">
             <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
             Remove
         </button>
-        `.format({parent: this.parent_id, target: child.ID});
+        `.format({parent: this.ID, target: child.ID});
     }
 
 }
@@ -467,6 +476,19 @@ class ComposeFormObject {
         return copy;
     }
 
+    remove_child(child) {
+        $.each(this.data, function (k, c) {
+            if (c === child) {
+                delete this.data[k];
+                return false;
+            }
+        });
+    }
+
+    destroy() {
+        $("#{0}".format(this.ID)).remove();
+    }
+
     static from_schema(name, schema, ns = '') {
         let opts = (schema['__form__'] === undefined) ? {} : schema['__form__'];
         name = (opts['title'] === undefined) ? name : opts['title'];
@@ -561,12 +583,18 @@ class ComposeFormArray {
         // add remove buttons behavior
         html += `
         <script type="application/javascript">
-        $(".compose-form-extender-button").on('click', function() {
+        $("button.compose-form-remove-button").on('click', function() {
             let target_id = $(this).data('target');
             let parent_id = $(this).data('parent');
-            // find and remove child from parent
+            // get parent and target (child)
             let parent = ComposeForm.whiteboard[parent_id];
-            parent.remove();
+            let target = ComposeForm.whiteboard[target_id];
+            // remove child from parent
+            parent.remove_child(target);
+            // remove html from page
+            target.destroy();
+            // remove this button's HTML
+            $(this).remove();
         });
                 
         </script>
@@ -590,6 +618,19 @@ class ComposeFormArray {
             copy.add(s.copy());
         })
         return copy;
+    }
+
+    remove_child(child) {
+        for(let i in this.data){
+            if(this.data[i] === child){
+                this.data.splice(i,1);
+                break;
+            }
+        }
+    }
+
+    destroy() {
+        $("#{0}".format(this.ID)).remove();
     }
 
     static from_schema(name, schema, ns = '') {
