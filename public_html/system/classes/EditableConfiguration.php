@@ -79,9 +79,27 @@ class EditableConfiguration {
     }//getSchema
 
 
-    public function asArray() {
-        return $this->configuration;
+    public function asArray(bool $use_defaults = false) {
+        $cfg = $this->configuration;
+        $dcfg = $this->default_configuration;
+        if ($use_defaults) {
+            $existing_paths = Utils::arrayPaths($cfg);
+            $default_paths = Utils::arrayPaths($dcfg);
+            // add to $cfg those paths that exist in $dcfg but not in $cfg
+            $missing_paths = array_diff($default_paths, $existing_paths);
+            foreach ($missing_paths as $path) {
+                $sel = &Utils::cursorTo($cfg, $path, true);
+                $val = Utils::cursorTo($dcfg, $path);
+                $sel = $val;
+            }
+        }
+        return $cfg;
     }//asArray
+
+
+    public function getDefaults(): array {
+        return $this->default_configuration;
+    }//getDefaults
 
 
     public function get($key, $default = null) {
