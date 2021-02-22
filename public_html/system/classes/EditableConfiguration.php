@@ -88,9 +88,36 @@ class EditableConfiguration {
             // add to $cfg those paths that exist in $dcfg but not in $cfg
             $missing_paths = array_diff($default_paths, $existing_paths);
             foreach ($missing_paths as $path) {
+                // do not take into account `_templates` branches
+                if (strpos($path, '._templates.') !== false)
+                    continue;
                 $sel = &Utils::cursorTo($cfg, $path, true);
                 $val = Utils::cursorTo($dcfg, $path);
                 $sel = $val;
+            }
+            // fill in the defaults values for templated objects
+            foreach ($existing_paths as $path) {
+                if (!endsWith($path, '.__template__'))
+                    continue;
+                // ---
+                $ns = Utils::splitPath($path);
+                // get template name
+                $template_name = Utils::cursorTo($cfg, $ns);
+                // get namespaces to Value, Parent and Template
+                $vns = array_slice($ns, 0, count($ns) - 1);
+                $pns = array_slice($vns, 0, count($vns) - 1);
+                $tns = array_merge($pns, ["_templates", $template_name]);
+                // get template
+                $template = Utils::cursorTo($dcfg, $tns);
+                // apply defaults to Value from Template
+                $paths = Utils::arrayPaths($template);
+                foreach ($paths as $p) {
+                    $ns1 = array_merge($vns, Utils::splitPath($p));
+                    if (Utils::pathExists($cfg, $ns1))
+                        continue;
+                    $sel = &Utils::cursorTo($cfg, $ns1, true);
+                    $sel = Utils::cursorTo($template, $p);
+                }
             }
         }
         return $cfg;
@@ -104,17 +131,14 @@ class EditableConfiguration {
 
     public function get($key, $default = null) {
         $path = explode('/', $key);
-        if (!Utils::pathExists($this->default_configuration, $path)) {
+        $cfg = self::asArray(true);
+        if (!Utils::pathExists($cfg, $path)) {
             return ['success' => false, 'data' => sprintf('Unknown parameter "%s" for the package "%s"', $key, $this->package_name)];
         }
-        $default_cursor = Utils::cursorTo($this->default_configuration, $path);
+        $cursor = Utils::cursorTo($cfg, $path);
         // ---
-        $cfg_cursor = Utils::cursorTo($this->configuration, $path);
-        if (!is_null($cfg_cursor) && (is_array($cfg_cursor) || strlen($cfg_cursor) > 0)) {
-            return ['success' => true, 'data' => $cfg_cursor];
-        }
-        if (is_null($default) && !is_null($default_cursor)) {
-            return ['success' => true, 'data' => $default_cursor];
+        if (!is_null($cursor) && (is_array($cursor) || strlen($cursor) > 0)) {
+            return ['success' => true, 'data' => $cursor];
         }
         return ['success' => true, 'data' => $default];
     }//get
