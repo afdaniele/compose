@@ -1,3 +1,10 @@
+## 1.1.0 (February 19, 2021)
+  - utility script ./run now works with debug version of the image
+  - now supporting `composer`
+  - added Core::getPackageScriptURL
+  - removed phpinfo() from debug image
+  - added "PHP Info" tab to Settings page
+
 ## 1.0.9 (January 21, 2021)
   - compose updates are now checked against `git tags` instead of `github releases`
   - added new targets to Makefile
