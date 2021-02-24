@@ -24,7 +24,7 @@ function settings_custom_package_tab( $args, $settings_tab_id ){
         }
         $package_settings = ($package_settings_res['success'])? $package_settings_res['data'] : null;
         if (is_null($package_settings)) {
-            echo 'Generic Error.';
+            echo sprintf("Error: %s", $package_settings_res['data']);
             return;
         }
         //
