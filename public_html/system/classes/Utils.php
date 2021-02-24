@@ -90,7 +90,7 @@ class Utils {
     
     
     public static function splitPath($path) {
-        return preg_split("/[\/|.]/", trim($path, '/.'));
+        return preg_split('[/\.]', trim($path, '/.'));
     }//splitPath
     
     

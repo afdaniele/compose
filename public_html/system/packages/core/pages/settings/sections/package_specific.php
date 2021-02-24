@@ -41,7 +41,7 @@ function settings_custom_package_tab( $args, $settings_tab_id ){
 
     <?php
     $config_schema = $package_settings->getSchema();
-    $config_values = $package_settings->asArray(true);
+    $config_values = $package_settings->asArray();
     
     // fill in enums
     $w = function ($path, &$_, &$schema) use (&$config_schema) {
