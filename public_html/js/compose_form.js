@@ -51,11 +51,10 @@ function getHTML5TypeByTypeName(name) {
 
 class ComposeFormFieldInput {
 
-    constructor(key, type, static_value = null, placeholder = null, disabled = false) {
+    constructor(key, type, placeholder = null, disabled = false) {
         this.ID = randomStr(32);
         this.key = key;
         this.type = type;
-        this.static_value = (static_value == null || false)? null : static_value;
         this.placeholder = placeholder;
         this.disabled = disabled;
         this.labelWidth = (this.type === 'color')? '90%' : '1%';
@@ -78,7 +77,7 @@ class ComposeFormFieldInput {
                 "key": this.key,
                 "type": getHTML5TypeByTypeName(this.type),
                 "placeholder": (this.placeholder == null) ? '' : this.placeholder,
-                "value": (this.static_value == null)? value : this.static_value,
+                "value": value,
                 "attribute_html": (this.disabled ? 'readonly' : '')
             }
         );
@@ -182,21 +181,14 @@ class ComposeFormFieldSwitch {
 
 class ComposeSchemaAtom {
 
-    constructor(key, schema, opts = {}) {
+    constructor(key, schema) {
         this.ID = randomStr(32);
         this.key = key;
-        this.schema = schema;
         this.type = schema.type;
         this.details = schema.details;
         this.default = schema.default;
         this.values = schema.values;
         this.opts = (schema['__form__'] === undefined) ? {} : schema['__form__'];
-        this.opts = {
-            ...this.opts,
-            ...opts
-        }
-        this.hidden = this.opts.hidden === true;
-        this.static_value = this.opts.value;
         // use given title (if any), fall back to ucfirst key
         this.title = (this.opts['title'] === undefined) ? human_key(key) : this.opts['title'];
         // create children
@@ -212,12 +204,9 @@ class ComposeSchemaAtom {
             case "key":
             case "color":
             case "version":
-            case undefined:
-            case null:
                 this.child = new ComposeFormFieldInput(
                     key,
                     this.type,
-                    this.static_value,
                     this.opts['placeholder'],
                     this.opts['disabled']
                 );
@@ -241,13 +230,11 @@ class ComposeSchemaAtom {
             case "object":
                 break;
         }
-        // register component against the ComposeForm dictionary
-        ComposeForm.whiteboard[this.ID] = this;
     }
 
     toHTML(value) {
         return `
-        <div class="compose-form-atom" style="{style}">
+        <div class="compose-form-atom">
             <div class="input-group">
                 <span class="input-group-addon text-bold" style="width: {label_width}">
                     {title}
@@ -259,7 +246,7 @@ class ComposeSchemaAtom {
                 <i class="fa fa-info-circle" aria-hidden="true"></i>&nbsp; {details}
             </span>
             <span class="help-block-default">
-                default: &nbsp;<span class="help-block-default">{default}</span>
+                default: <span class="help-block-default">{default}</span>
             </span>
         </div>
         `.format(
@@ -268,7 +255,6 @@ class ComposeSchemaAtom {
                 "default": (this.default === null || this.default === undefined || this.default === '')? "null" : this.default.toString(),
                 "child": (this.child === null) ? 'EMPTY' : this.child.toHTML(value),
                 "details": this.details,
-                "style": (this.hidden ? 'display: none' : ''),
                 "label_width": this.child.labelWidth
             }
         );
@@ -276,10 +262,6 @@ class ComposeSchemaAtom {
 
     serialize() {
         return this.child.serialize();
-    }
-
-    copy() {
-        return new ComposeSchemaAtom(this.key, this.schema);
     }
 
     static isAtomSchema(schema) {
@@ -320,7 +302,7 @@ class ComposeFormGroup {
                     {content}
                 </div>
             </div>
-        `.format({'id': this.ID, 'name': this.name, 'details': this.details, 'content': content});
+        `.format({'id': 'ND', 'name': this.name, 'details': this.details, 'content': content});
     }
 
     serialize() {
@@ -332,29 +314,28 @@ class ComposeFormGroup {
 
 class ComposeFormExtender {
 
-    constructor(target, templates = {}, ns = '') {
+    constructor(templates = {}) {
         this.ID = randomStr(32);
-        this.target = target;
         this.templates = templates;
-        this.ns = ns;
     }
 
     toHTML() {
+        if (typeof this.templates !== 'object' || this.templates === null) {
+            return '';
+        }
         // create options for dropdown
         let options = [];
-        let target = this.target;
-        $.each(this.templates, function (k, template) {
+        $.each(this.templates, function (k, s) {
+            let encoded_schema = CryptoJS.enc.Base64.stringify(CryptoJS.enc.Utf8.parse(s));
             options.push(
                 `
                 <li>
-                    <a href="#" class="compose-form-extender-button" data-target="{target}" data-template="{template}">
+                    <a href="#" class="compose-form-extender-button" data-schema="{schema}">
                         {name}
                     </a>
                 </li>
                 `.format({
-                    name: human_key(k),
-                    target: target,
-                    template: template.ID
+                    schema: encoded_schema, name: human_key(k)
                 })
             );
         });
@@ -364,40 +345,19 @@ class ComposeFormExtender {
         }
         // add options to a dropdown button
         return `
-        <div id="{id}" class="btn-group" style="margin-bottom: 20px">
+        <div class="btn-group">
             <button type="button" class="btn btn-success dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                 <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> 
-                &nbsp; Add new &nbsp;
+                &nbsp;
+                Add new element 
+                &nbsp;
                 <span class="caret"></span>
             </button>
             <ul class="dropdown-menu">
                 {options}
             </ul>
         </div>
-        
-        <script type="application/javascript">
-        $("#{id} a.compose-form-extender-button").on('click', function(){
-            // get form parent 'target' and new element 'template'
-            let target_id = $(this).data('target');
-            let target = ComposeForm.whiteboard[target_id];
-            let template_id = $(this).data('template');
-            let template = ComposeForm.whiteboard[template_id];
-            // instantiate a new form component from the template
-            let child = template.copy();
-            child.name = "*";
-            child.add('__template__', new ComposeSchemaAtom(
-                '__template__', 
-                {type: 'text'}, 
-                {hidden: true}
-            ));
-            // add new child to the target parent
-            target.add(child);
-            // compile template into HTML and add it to the parent
-            let html = child.toHTML({});
-            $("#{id}").prepend(html);
-        });
-        </script>
-        `.format({id: this.ID, options: options});
+        `.format({options: options});
     }
 
     serialize() {
@@ -417,8 +377,6 @@ class ComposeFormObject {
         this.templates = templates;
         this.ns = ns;
         this.data = {};
-        // register component against the ComposeForm dictionary
-        ComposeForm.whiteboard[this.ID] = this;
     }
 
     add(key, child) {
@@ -432,6 +390,9 @@ class ComposeFormObject {
         $.each(this.data, function (k, s) {
             group.add(k, s);
         });
+        // add button for templates extension
+        //TODO: fix the TODO
+        group.add('TODO', new ComposeFormExtender(this.templates));
         // ---
         return group.toHTML(values);
     }
@@ -442,14 +403,6 @@ class ComposeFormObject {
             ser[k] = s.serialize();
         });
         return ser;
-    }
-
-    copy() {
-        let copy = new ComposeFormObject(this.name, this.details, this.templates, this.ns);
-        $.each(this.data, function (k, s) {
-            copy.add(k, s.copy());
-        })
-        return copy;
     }
 
     static from_schema(name, schema, ns = '') {
@@ -482,26 +435,9 @@ class ComposeFormArray {
         this.name = name;
         this.type = 'array';
         this.details = details;
-        this.templates = (templates == null)? {} : templates;
+        this.templates = templates;
         this.ns = ns;
         this.data = [];
-        // ---
-        // parse templates
-        let host = this;
-        $.each(templates, function (k, s) {
-            if (ComposeSchemaAtom.isAtomSchema(s)) {
-                host.templates[k] = new ComposeSchemaAtom(k, s);
-            } else {
-                if (s.type === 'object') {
-                    host.templates[k] = ComposeFormObject.from_schema(human_key(k), s, '{0}.{1}'.format(ns, k));
-                }
-                if (s.type === 'array') {
-                    host.templates[k] = ComposeFormArray.from_schema(human_key(k), s, '{0}[{1}]'.format(ns, k));
-                }
-            }
-        });
-        // register component against the ComposeForm dictionary
-        ComposeForm.whiteboard[this.ID] = this;
     }
 
     add(child) {
@@ -509,60 +445,45 @@ class ComposeFormArray {
     }
 
     toHTML(values) {
+        // check if the template Entity in _data needs to be broadcasted
+        if (this.data.length !== 1 && values.length > 0 && this.data.length !== values.length) {
+            throw new Error('Entities of type Array should have a single Entity in _data or as many as the number of given values. {0} != {1}'.format(this.data.length, values.length));
+        }
+        let broadcast_effect = (this.data.length > 1) + 0;
+        let schemas = this.data;
         // collect children
         let group = new ComposeFormGroup(this.name, this.details);
-        let host = this;
         // iterate over values
-        $.each(values, function (k, value) {
-            // make sure the entry explicitly declares its template
-            if (!value.hasOwnProperty('__template__')) {
-                console.log("WARNING: Missing property `__template__` in an element of ComposeFormArray.")
-                return;
-            }
-            // make sure we recognize that template
-            let template_name = value['__template__'];
-            if (!host.templates.hasOwnProperty(template_name)) {
-                console.log("WARNING: Unknown template `{0}` in an element of ComposeFormArray.".format(template_name))
-                return;
-            }
-            // instantiate a child from the template
-            let template = host.templates[template_name];
-            let child = template.copy();
-            child.name = k;
-            // add hidden template field
-            child.add('__template__', new ComposeSchemaAtom(
-                '__template__',
-                {type: 'text'},
-                {hidden: true}
-            ));
-            // add child to this object and the HTML group
-            host.add(child);
-            group.add(k, child);
+        $.each(values, function (k, _) {
+            let s = schemas[k * broadcast_effect];
+            group.add(k, new ComposeSchemaAtom(k, s));
         });
         // add button for templates extension
-        group.add('__extender__', new ComposeFormExtender(this.ID, this.templates));
+        //TODO: fix the TODO
+        group.add('TODO', new ComposeFormExtender(this.templates));
         // ---
         return group.toHTML(values);
     }
 
     serialize() {
-        let ser = [];
-        $.each(this.data, function (_, s) {
-            ser.push(s.serialize());
-        });
-        return ser;
-    }
-
-    copy() {
-        let copy = new ComposeFormArray(this.name, this.details, this.templates, this.ns);
-        $.each(this.data, function (_, s) {
-            copy.add(s.copy());
-        })
-        return copy;
+        return [];
     }
 
     static from_schema(name, schema, ns = '') {
-        return new ComposeFormArray(name, schema.details, schema._templates, ns);
+        let group = new ComposeFormArray(name, schema.details, schema._templates, ns);
+        $.each(schema._data, function (k, s) {
+            if (ComposeSchemaAtom.isAtomSchema(s)) {
+                group.add(new ComposeSchemaAtom(k, s));
+            } else {
+                if (s.type === 'object') {
+                    group.add(ComposeFormArray.from_schema(human_key(k), s, '{0}.{1}'.format(ns, k)));
+                }
+                if (s.type === 'array') {
+                    group.add(ComposeFormArray.from_schema(human_key(k), s, '{0}[{1}]'.format(ns, k)));
+                }
+            }
+        });
+        return group;
     }
 
 }
@@ -571,7 +492,6 @@ class ComposeFormArray {
 class ComposeForm {
 
     static _forms = {};
-    static whiteboard = {};
 
     constructor(name, schema, id=null, klass=null) {
         this.name = name;
@@ -587,8 +507,7 @@ class ComposeForm {
         ComposeForm._forms[this.id] = this;
     }
 
-    render(container_id = null, values={}) {
-        container_id = (container_id == null)? this.id : container_id;
+    render(container_id, values={}) {
         $(container_id).html(this.content.toHTML(values));
     }
 
