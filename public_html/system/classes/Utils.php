@@ -89,14 +89,9 @@ class Utils {
     }//arrayMergeAssocRecursive
     
     
-    public static function splitPath($path) {
-        return preg_split("/[\/|.]/", trim($path, '/.'));
-    }//splitPath
-    
-    
     public static function &cursorTo(&$array, $ns, $create = false) {
         if (is_string($ns)) {
-            $ns = Utils::splitPath($ns);
+            $ns = preg_split('[/\.]', trim($ns, '/.'));
         }
         $sel = &$array;
         $null_sel = null;
