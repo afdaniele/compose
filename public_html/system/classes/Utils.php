@@ -120,25 +120,6 @@ class Utils {
         return true;
     }//cursorTo
     
-    
-    public static function arrayPaths(&$array): array {
-        $paths = [];
-        Utils::_arrayPathsWorker($paths, $array, '');
-        return $paths;
-    }
-    
-    
-    private static function _arrayPathsWorker(&$paths, &$a, $ns) {
-        foreach ($a as $k => &$v) {
-            $current_ns = sprintf("%s.%s", $ns, $k);
-            if (!is_array($v)) {
-                array_push($paths, $current_ns);
-            } else {
-                Utils::_arrayPathsWorker($paths, $v, $current_ns);
-            }
-        }
-    }
-    
 }//Utils
 
 ?>
