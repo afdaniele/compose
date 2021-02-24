@@ -95,7 +95,7 @@ class EditableConfiguration {
                 $val = Utils::cursorTo($dcfg, $path);
                 $sel = $val;
             }
-            // fill in the defaults values for templated objects
+            // fill in the default values for templated objects
             foreach ($existing_paths as $path) {
                 if (!endsWith($path, '.__template__'))
                     continue;
@@ -131,15 +131,17 @@ class EditableConfiguration {
 
     public function get($key, $default = null) {
         $path = explode('/', $key);
-        $cfg = self::asArray(true);
-        if (!Utils::pathExists($cfg, $path)) {
-            return ['success' => false, 'data' => sprintf('Unknown parameter "%s" for the package "%s"', $key, $this->package_name)];
+        // try to find the key in the current configuration
+        $cfg_cursor = Utils::cursorTo($this->configuration, $path);
+        if (!is_null($cfg_cursor) && (is_array($cfg_cursor) || strlen($cfg_cursor) > 0)) {
+            return ['success' => true, 'data' => $cfg_cursor];
         }
-        $cursor = Utils::cursorTo($cfg, $path);
-        // ---
-        if (!is_null($cursor) && (is_array($cursor) || strlen($cursor) > 0)) {
-            return ['success' => true, 'data' => $cursor];
+        // revert to default configuration
+        $default_cursor = Utils::cursorTo($this->default_configuration, $path);
+        if (is_null($default) && !is_null($default_cursor)) {
+            return ['success' => true, 'data' => $default_cursor];
         }
+        // return the given default (null by default)
         return ['success' => true, 'data' => $default];
     }//get
 
