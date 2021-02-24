@@ -131,14 +131,17 @@ class EditableConfiguration {
 
     public function get($key, $default = null) {
         $path = explode('/', $key);
-        $cfg = self::asArray(true);
-        if (!Utils::pathExists($cfg, $path)) {
+        if (!Utils::pathExists($this->default_configuration, $path)) {
             return ['success' => false, 'data' => sprintf('Unknown parameter "%s" for the package "%s"', $key, $this->package_name)];
         }
-        $cursor = Utils::cursorTo($cfg, $path);
+        $default_cursor = Utils::cursorTo($this->default_configuration, $path);
         // ---
-        if (!is_null($cursor) && (is_array($cursor) || strlen($cursor) > 0)) {
-            return ['success' => true, 'data' => $cursor];
+        $cfg_cursor = Utils::cursorTo($this->configuration, $path);
+        if (!is_null($cfg_cursor) && (is_array($cfg_cursor) || strlen($cfg_cursor) > 0)) {
+            return ['success' => true, 'data' => $cfg_cursor];
+        }
+        if (is_null($default) && !is_null($default_cursor)) {
+            return ['success' => true, 'data' => $default_cursor];
         }
         return ['success' => true, 'data' => $default];
     }//get
