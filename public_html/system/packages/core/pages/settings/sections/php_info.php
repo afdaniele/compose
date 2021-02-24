@@ -22,17 +22,12 @@ function settings_phpinfo_tab(){
     
     <script type="application/javascript">
         let iframe = $("#_compose_settings_phpinfo_tab_iframe");
-        iframe.closest(".panel-body").css("padding", "0");
-        
-        function _on_phpinfo_iframe_ready() {
-            let dom = iframe.get()[0];
-            let content_h = dom.contentWindow.document.body.scrollHeight;
+        iframe.load(function (evt) {
+            let content_h = evt.target.contentWindow.document.body.scrollHeight;
             content_h += 40;
-            dom.style.height = "{0}px".format(content_h);
-        }
-        
-        iframe.load(_on_phpinfo_iframe_ready);
-        $("#php_collapse").on('shown.bs.collapse', _on_phpinfo_iframe_ready);
+            evt.target.style.height = "{0}px".format(content_h);
+        });
+        iframe.closest(".panel-body").css("padding", "0");
     </script>
     <?php
 }
