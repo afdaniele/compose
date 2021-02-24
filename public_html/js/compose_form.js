@@ -291,12 +291,10 @@ class ComposeSchemaAtom {
 
 class ComposeFormGroup {
 
-    constructor(parent_id, name, details, removable = false, ns = null) {
+    constructor(name, details, ns = null) {
         this.ID = randomStr(32);
-        this.parent_id = parent_id;
         this.name = name;
         this.details = details;
-        this.removable = removable;
         this.ns = ns;
         this.children = {};
     }
@@ -308,13 +306,9 @@ class ComposeFormGroup {
     toHTML(values) {
         let content = [];
         let group_value = (this.ns != null) ? values[this.ns] : values;
-        let host = this;
         $.each(this.children, function (k, c) {
             let v = (group_value[k] === undefined) ? (c instanceof ComposeSchemaAtom ? '' : {}) : group_value[k];
             content.push(c.toHTML(v));
-            if (host.removable) {
-                content.push(host._get_removable_button(c));
-            }
         });
         content = content.join('');
         // ---
@@ -331,15 +325,6 @@ class ComposeFormGroup {
 
     serialize() {
         return {};
-    }
-
-    _get_removable_button(child) {
-        return `
-        <button type="button" class="btn btn-danger btn-sm compose-form-extender-button" style="float:right; margin-top: -56px" data-parent="{parent}" data-target="{target}">
-            <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
-            Remove
-        </button>
-        `.format({parent: this.parent_id, target: child.ID});
     }
 
 }
@@ -442,7 +427,7 @@ class ComposeFormObject {
 
     toHTML(values) {
         // collect children
-        let group = new ComposeFormGroup(this.ID, this.name, this.details);
+        let group = new ComposeFormGroup(this.name, this.details);
         // iterate over values
         $.each(this.data, function (k, s) {
             group.add(k, s);
@@ -525,7 +510,7 @@ class ComposeFormArray {
 
     toHTML(values) {
         // collect children
-        let group = new ComposeFormGroup(this.ID, this.name, this.details, true);
+        let group = new ComposeFormGroup(this.name, this.details);
         let host = this;
         // iterate over values
         $.each(values, function (k, value) {
@@ -556,24 +541,8 @@ class ComposeFormArray {
         });
         // add button for templates extension
         group.add('__extender__', new ComposeFormExtender(this.ID, this.templates));
-        // get group's HTML
-        let html = group.toHTML(values);
-        // add remove buttons behavior
-        html += `
-        <script type="application/javascript">
-        $(".compose-form-extender-button").on('click', function() {
-            let target_id = $(this).data('target');
-            let parent_id = $(this).data('parent');
-            // find and remove child from parent
-            let parent = ComposeForm.whiteboard[parent_id];
-            parent.remove();
-        });
-                
-        </script>
-        `;
-
         // ---
-        return html
+        return group.toHTML(values);
     }
 
     serialize() {
