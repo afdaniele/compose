@@ -37,7 +37,7 @@ class Utils {
         return $string;
     }//string_to_valid_filename
     
-    public static function generateRandomString($length) {
+    public static function generateRandomString($length): string {
         $chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
         $count = mb_strlen($chars);
         //
@@ -56,13 +56,14 @@ class Utils {
         $commonkeys = array_intersect(array_keys($arr1), array_keys($arr2));
         $ret = array();
         foreach ($commonkeys as $key) {
-            $ret[$key] =& self::arrayIntersectAssocRecursive($arr1[$key], $arr2[$key]);
+            $res = self::arrayIntersectAssocRecursive($arr1[$key], $arr2[$key]);
+            $ret[$key] =& $res;
         }
         return $ret;
     }//arrayIntersectAssocRecursive
     
     
-    public static function arrayMergeAssocRecursive(&$arr1, &$arr2, $allow_create = true) {
+    public static function arrayMergeAssocRecursive(&$arr1, &$arr2, $allow_create = true): array {
         if (!is_array($arr1) || !is_array($arr2)) {
             return $arr2;
         }
@@ -79,7 +80,8 @@ class Utils {
                     }
                 }
                 else {
-                    $ret[$key] =& self::arrayMergeAssocRecursive($arr1[$key], $arr2[$key], $allow_create);
+                    $res = self::arrayMergeAssocRecursive($arr1[$key], $arr2[$key], $allow_create);
+                    $ret[$key] =& $res;
                 }
             }
         }
@@ -87,17 +89,23 @@ class Utils {
     }//arrayMergeAssocRecursive
     
     
+    public static function pathToNS($path): array {
+        return preg_split('[/|\.]', trim($path, '/.'));
+    }//pathToNS
+    
+    
     public static function &cursorTo(&$array, $ns, $create = false) {
         if (is_string($ns)) {
-            $ns = preg_split('[/\.]', trim($ns, '/.'));
+            $ns = Utils::pathToNS($ns);
         }
         $sel = &$array;
+        $null = null;
         foreach ($ns as $ptr) {
             if (!array_key_exists($ptr, $sel)) {
                 if ($create) {
                     $sel[$ptr] = [];
                 } else {
-                    return null;
+                    return $null;
                 }
             }
             $sel = &$sel[$ptr];
@@ -106,7 +114,7 @@ class Utils {
     }//cursorTo
     
     
-    public static function &pathExists(&$array, $ns) {
+    public static function pathExists(&$array, $ns): bool {
         $sel = &$array;
         foreach ($ns as $ptr) {
             if (!array_key_exists($ptr, $sel)) {
