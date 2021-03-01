@@ -56,8 +56,7 @@ class Utils {
         $commonkeys = array_intersect(array_keys($arr1), array_keys($arr2));
         $ret = array();
         foreach ($commonkeys as $key) {
-            $res = self::arrayIntersectAssocRecursive($arr1[$key], $arr2[$key]);
-            $ret[$key] =& $res;
+            $ret[$key] =& self::arrayIntersectAssocRecursive($arr1[$key], $arr2[$key]);
         }
         return $ret;
     }//arrayIntersectAssocRecursive
@@ -80,8 +79,7 @@ class Utils {
                     }
                 }
                 else {
-                    $res = self::arrayMergeAssocRecursive($arr1[$key], $arr2[$key], $allow_create);
-                    $ret[$key] =& $res;
+                    $ret[$key] =& self::arrayMergeAssocRecursive($arr1[$key], $arr2[$key], $allow_create);
                 }
             }
         }
@@ -99,13 +97,12 @@ class Utils {
             $ns = Utils::pathToNS($ns);
         }
         $sel = &$array;
-        $null = null;
         foreach ($ns as $ptr) {
             if (!array_key_exists($ptr, $sel)) {
                 if ($create) {
                     $sel[$ptr] = [];
                 } else {
-                    return $null;
+                    return null;
                 }
             }
             $sel = &$sel[$ptr];
