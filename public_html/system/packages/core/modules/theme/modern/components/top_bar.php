@@ -87,6 +87,11 @@ use system\classes\Configuration;
         height: 5px;
         border-radius: 0;
     }
+    
+    #_updates_helper_btn {
+        top: 94px;
+        right: 30px;
+    }
 </style>
 
 <div class="_ctheme_side_bar_btn">
