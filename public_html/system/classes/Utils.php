@@ -63,7 +63,7 @@ class Utils {
     }//arrayIntersectAssocRecursive
     
     
-    public static function arrayMergeAssocRecursive(&$arr1, &$arr2, $allow_create = true): array {
+    public static function arrayMergeAssocRecursive(&$arr1, &$arr2, $allow_create = true) {
         if (!is_array($arr1) || !is_array($arr2)) {
             return $arr2;
         }
