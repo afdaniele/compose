@@ -1,3 +1,6 @@
+## 1.1.3 (February 28, 2021)
+  - updating from devel source now pulls from `stable` branch; by default only tagged versions are considered updates.
+
 ## 1.1.2 (February 28, 2021)
   - fixed update helper button to play nice with the modern theme.
   - updating from devel source now pulls from `stable` branch; by default only tagged versions are considered updates.
