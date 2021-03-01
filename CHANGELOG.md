@@ -1,3 +1,32 @@
+## 1.1.1 (February 28, 2021)
+  - added small logo option; removed developed by string; added option to hide compose credits
+  - bug fixes
+  - Database.php: reformatting
+  - bug fix
+  - improved compose_form.js: added support for hidden fields, partial support for arrays and templates
+  - added utility function Utils::arrayPaths
+  - fixed bugs in Utils::pathToNS and package-specific settings tab w/ missing default values;
+  - minor
+  - re-revert: fixed bug in php_info
+  - Revert "fixed bug in setting/php_info tab"
+  - Revert "improved support for arrays in compose_form.js"
+  - Revert "working on removables for ComposeForm"
+  - Revert "minor"
+  - Revert "added Utils::arrayPaths"
+  - Revert "added Remove button to arrays in ComposeForm"
+  - Revert "fixed bug in package settings tab where default values were missing"
+  - Revert "fixed bug in missing configuration default values"
+  - Merge branch 'stable' into devel
+  - fixed bug in missing configuration default values
+  - fixed bug in package settings tab where default values were missing
+  - added Remove button to arrays in ComposeForm
+  - added EditableConfiguration::asArray(use_defaults), EditableConfiguration::getDefaults()
+  - added Utils::arrayPaths
+  - minor
+  - working on removables for ComposeForm
+  - improved support for arrays in compose_form.js
+  - fixed bug in setting/php_info tab
+
 ## 1.1.0 (February 19, 2021)
   - utility script ./run now works with debug version of the image
   - now supporting `composer`
