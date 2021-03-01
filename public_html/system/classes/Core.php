@@ -2470,7 +2470,6 @@ class Core {
         $branch = 'stable';
         if (is_null($version)) {
             $version = 'devel';
-            $branch = 'devel';
         }
         // fetch everything new
         exec(sprintf('git -C "%s" fetch origin 2>&1', $GLOBALS['__COMPOSE__DIR__']), $info, $exit_code);
