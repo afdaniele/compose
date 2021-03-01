@@ -50,11 +50,11 @@ include_once join_path(__DIR__, '..', 'constants.php');
         font-size: 16pt;
         padding-right: 20px;
     }
-    
+
     #credits_table_center {
         margin: 10px auto 0 auto;
     }
-    
+
     #credits_table_right {
         margin: 10px 0 0 auto;
     }
@@ -71,8 +71,7 @@ function footer_user_menu() {
     // check if compose was configured correctly
     if (!Core::isComposeConfigured()) {
         $pages_whitelist = ['setup'];
-    }
-    else {
+    } else {
         $pages_blacklist = ['setup'];
     }
     
@@ -172,21 +171,27 @@ function footer_credits($float) {
     ?>
     <table id="credits_table_<?php echo $float ?>">
         <tr>
-            <td id="footer_compose_credit">
-                <p>
-          <span>
-            powered by &nbsp;
-          </span>
-                    <a href="https://github.com/afdaniele/compose" target="_blank">
-                        <img src="<?php echo Configuration::$BASE ?>images/compose-white-logo.svg"></img>
-                    </a>
-                </p>
-            </td>
-
-            <td id="footer_compose_separator">
-                &nbsp;|&nbsp;
-            </td>
-
+            <?php
+            $hide_credits = Core::getSetting("hide_credits");
+            if ($hide_credits !== true) {
+                ?>
+                <td id="footer_compose_credit">
+                    <p>
+                        <span>
+                          powered by &nbsp;
+                        </span>
+                        <a href="https://github.com/afdaniele/compose" target="_blank">
+                            <img src="<?php echo Configuration::$BASE ?>images/compose-white-logo.svg"></img>
+                        </a>
+                    </p>
+                </td>
+    
+                <td id="footer_compose_separator">
+                    &nbsp;|&nbsp;
+                </td>
+            <?php
+            }
+            ?>
             <td id="footer_developer_credit">
                 <?php
                 $codebase_info = Core::getCodebaseInfo();
@@ -197,12 +202,8 @@ function footer_credits($float) {
                 $codebase_str = (in_array($codebase_tag, ['ND', null])) ? '' : sprintf("%s | ", $codebase_tag);
                 ?>
                 <p>
-                    <strong>developed by</strong> &nbsp; <a href="http://www.afdaniele.com"
-                                                            style="color:white">Andrea F.
-                        Daniele</a>
-                    <br/>
-                    <strong>serial</strong> &nbsp; <span
-                            style="font-family:monospace">git | <?php echo $codebase_str . $codebase_hash ?></span>
+                    <strong>serial</strong>
+                    <span style="font-family:monospace">git | <?php echo $codebase_str . $codebase_hash ?></span>
                 </p>
             </td>
             
@@ -246,8 +247,7 @@ function footer_credits($float) {
                     <?php footer_credits('right'); ?>
                 </td>
                 <?php
-            }
-            else {
+            } else {
                 ?>
                 <td>
                     <?php footer_credits('center'); ?>

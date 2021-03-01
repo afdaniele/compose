@@ -114,7 +114,6 @@ $login_enabled = Core::getSetting('login_enabled', 'core');
     }
     
     ._ctheme_side_bar_buttons_group {
-        padding-left: 20px;
         height: 100%;
         overflow: auto;
     }
@@ -125,7 +124,6 @@ $login_enabled = Core::getSetting('login_enabled', 'core');
         height: 42px;
         font-size: 11pt;
         text-transform: uppercase;
-        text-align: left;
         font-family: monospace;
         border-radius: 10px;
         padding: 10px 2px;
@@ -213,25 +211,33 @@ $login_enabled = Core::getSetting('login_enabled', 'core');
 
 <a class="_ctheme_logo_div" href="<?php echo Configuration::$BASE ?>">
     <table>
-        <tr>
+        <tr class="_ctheme_side_bar_off" style="display: grid !important;">
             <td>
                 <?php
                 $logo = Core::getSetting('logo_white');
-                $base = Configuration::$BASE;
-                $logo = str_replace('~', $base, str_replace('~/', '~', $logo));
+                $logo = str_replace('~', Configuration::$BASE, str_replace('~/', '~', $logo));
                 ?>
                 <img id="navbarLogo" src="<?php echo $logo ?>" alt=""/>
             </td>
-            <td class="_ctheme_side_bar_off">
+            <td>
                 <h3><?php echo Core::getSetting('navbar_title') ?></h3>
                 <?php
-                $subtitle = Core::getSetting('navbar_subtitle', 'core', null);
+                $subtitle = Core::getSetting('navbar_subtitle');
                 if (!is_null($subtitle) && strlen(trim($subtitle)) > 0) {
                     ?>
                     <h6><?php echo $subtitle ?></h6>
                     <?php
                 }
                 ?>
+            </td>
+        </tr>
+        <tr class="_ctheme_side_bar_on" style="display: none">
+            <td>
+                <?php
+                $logo = Core::getSetting('logo_white_small');
+                $logo = str_replace('~', Configuration::$BASE, str_replace('~/', '~', $logo));
+                ?>
+                <img id="navbarLogo" src="<?php echo $logo ?>" alt="" style="max-height: 44px !important;"/>
             </td>
         </tr>
     </table>
@@ -262,7 +268,6 @@ $login_enabled = Core::getSetting('login_enabled', 'core');
         if (count(array_intersect($user_roles, $page['menu_entry']['exclude_roles'])) > 0) {
             continue;
         }
-        $is_last = boolval($i == count($pages) - 1);
         $icon = sprintf('%s %s-%s', $page['menu_entry']['icon']['class'], $page['menu_entry']['icon']['class'], $page['menu_entry']['icon']['name']);
         $active = (Configuration::$PAGE == $page['id']) || in_array(Configuration::$PAGE, $page['child_pages']);
         $active_page_btn_id = $active? sprintf("_sidebar_page_btn_%s", $page['id']) : '';
@@ -319,21 +324,20 @@ $login_enabled = Core::getSetting('login_enabled', 'core');
     
     <tr class="_ctheme_footer_credits">
         <td class="_ctheme_side_bar_off">
-            <span class="_ctheme_footer_credit_row">
-                developed by
-                <a href="http://www.afdaniele.com"><b>Andrea F. Daniele</b></a>
-            </span>
-            <br/>
-            
-            <span class="_ctheme_footer_credit_row">
-                powered by
-                <a href="https://github.com/afdaniele/compose" target="_blank">
-                    <img src="<?php echo Configuration::$BASE ?>images/compose-black-logo.svg" alt=""/>
-                </a>
-            </span>
-            <br/>
-            
             <?php
+            $hide_credits = Core::getSetting("hide_credits");
+            if ($hide_credits !== true) {
+                ?>
+                <span class="_ctheme_footer_credit_row">
+                    powered by
+                    <a href="https://github.com/afdaniele/compose" target="_blank">
+                        <img src="<?php echo Configuration::$BASE ?>images/compose-black-logo.svg" alt=""/>
+                    </a>
+                </span>
+                <br/>
+                <?php
+            }
+            // codebase info
             $codebase_info = Core::getCodebaseInfo();
             $codebase_hash = $codebase_info['head_hash'];
             $codebase_tag = $codebase_info['head_tag'];
@@ -403,10 +407,14 @@ $login_enabled = Core::getSetting('login_enabled', 'core');
             chevron = 'right';
             size = '<?php echo Configuration::$THEME_CONFIG['dimensions']['sidebar_small_width'] ?>px';
             $('._ctheme_side_bar_off').css('display', 'none');
+            $('._ctheme_side_bar_on').css('display', '');
+            $('._sidebar_page_btn').css('text-align', 'center');
         } else {
             chevron = 'left';
             size = '<?php echo Configuration::$THEME_CONFIG['dimensions']['sidebar_full_width'] ?>px';
-            $('._ctheme_side_bar_off').css('display', 'inline-block');
+            $('._ctheme_side_bar_off').css('display', '');
+            $('._ctheme_side_bar_on').css('display', 'none');
+            $('._sidebar_page_btn').css('text-align', 'left');
         }
         sidebar.css('width', size);
         topbar.css('left', size);

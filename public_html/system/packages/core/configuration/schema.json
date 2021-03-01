@@ -469,6 +469,16 @@
             "default": "~/images/compose-black-logo.svg",
             "details": "App logo (for light backgrounds). <code>~</code> autocompletes to <code>http(s)://HOSTNAME</code>."
         },
+        "logo_white_small": {
+            "type": "text",
+            "default": "~/images/compose-white-logo-small.svg",
+            "details": "(Small) app logo (for dark backgrounds). <code>~</code> autocompletes to <code>http(s)://HOSTNAME</code>."
+        },
+        "logo_black_small": {
+            "type": "text",
+            "default": "~/images/compose-black-logo-small.svg",
+            "details": "(Small) app logo (for light backgrounds). <code>~</code> autocompletes to <code>http(s)://HOSTNAME</code>."
+        },
         "admin_contact_email_address": {
             "type": "email",
             "default": "administrator@example.com",
@@ -515,6 +525,14 @@
             "__form__": {
                 "enum_filler_fcn": "_available_favicons",
                 "enum_filler_args": []
+            }
+        },
+        "hide_credits": {
+            "type": "boolean",
+            "default": false,
+            "details": "Hide compose credits",
+            "__form__": {
+                "hidden": true
             }
         },
         "guest_default_page": {
