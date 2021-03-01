@@ -49,7 +49,7 @@ function humanTime (seconds, compact = false, precision= 's') {
 
     for (let i = 0, max = precision_lvls[precision]; i < max; i++) {
         if ( levels[i][0] === 0 ) continue;
-        returntext += ' ' + levels[i][0] + (compact ? '' : ' ') + (levels[i][0] === 1 ? levels[i][1].substr(0, levels[i][1].length-1) : levels[i][1]);
+        returntext += ' ' + levels[i][0] + (compact ? '' : ' ') + ((!compact && levels[i][0] === 1) ? levels[i][1].substr(0, levels[i][1].length-1) : levels[i][1]);
     };
     return returntext.trim();
 }
