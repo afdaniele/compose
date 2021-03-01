@@ -733,7 +733,7 @@ $(document).on('ready', function () {
 
 
 // Check for updates
-function checkForUpdates(git_provider, git_owner, git_repo, git_local_head, allow_unstable, on_success_fcn, on_error_fcn, ignore_cache) {
+function checkForUpdates(git_provider, git_owner, git_repo, git_local_head, allow_unreleased, on_success_fcn, on_error_fcn, ignore_cache) {
     // 0: git_owner, 1: git_repo, 2: action, 3: arguments
     let api_url = '';
     if (git_provider === 'github.com') {
@@ -776,8 +776,8 @@ function checkForUpdates(git_provider, git_owner, git_repo, git_local_head, allo
     }
 
     // ---
-    if (allow_unstable) {
-        compareHeads(git_local_head, 'devel');
+    if (allow_unreleased) {
+        compareHeads(git_local_head, 'stable');
     } else {
         // get tags list
         let url_tags_list = api_url.format(git_owner, git_repo, 'tags', '?per_page=100&page=-1');
