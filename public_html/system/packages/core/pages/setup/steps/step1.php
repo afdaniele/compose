@@ -121,8 +121,8 @@ $client_id = ($client_id != 'NULL')? $client_id : null;
 <script type="text/javascript">
 
   function _first_setup_skip_step1(){
-    var url = "<?php echo Core::getURL('setup', null, null, null, ['force_step' => $step_no, 'skip' => 1]) ?>";
-    var question = "If you skip this step, the <strong>Developer Mode</strong> will be enabled.";
+    let url = "<?php echo Core::getURL('setup', null, null, null, ['force_step' => $step_no, 'skip' => 1]) ?>";
+    let question = "If you skip this step, the <strong>Developer Mode</strong> will be enabled.";
     question += "<br/>The Developer Mode allows everybody to access the platform without logging in.";
     question += "<br/>Remember to turn it off before deploying your application.";
     question += "<br/>Learn more about <a href=\"http://compose.afdaniele.com/docs/latest/developer-mode\" target=\"_blank\">Developer Mode</a>.";
