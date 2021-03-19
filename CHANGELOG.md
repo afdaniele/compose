@@ -1,3 +1,8 @@
+## 1.1.4 (March 19, 2021)
+  - minor
+  - dropped Jenkinsfile, CI is now using the Makefile
+  - minor
+
 ## 1.1.3 (February 28, 2021)
   - updating from devel source now pulls from `stable` branch; by default only tagged versions are considered updates.
 
