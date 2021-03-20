@@ -1,3 +1,7 @@
+## 1.1.5 (March 20, 2021)
+  - Merge branch 'devel' into stable
+  - fixed bug with NULL default values in EditableConfiguration.php being shown in forms as "null" strings
+
 ## 1.1.4 (March 19, 2021)
   - minor
   - dropped Jenkinsfile, CI is now using the Makefile
