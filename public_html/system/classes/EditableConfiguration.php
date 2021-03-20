@@ -88,8 +88,10 @@ class EditableConfiguration {
             // add to $cfg those paths that exist in $dcfg but not in $cfg
             $missing_paths = array_diff($default_paths, $existing_paths);
             foreach ($missing_paths as $path) {
-                $sel = &Utils::cursorTo($cfg, $path, true);
                 $val = Utils::cursorTo($dcfg, $path);
+                if (is_null($val))
+                    continue;
+                $sel = &Utils::cursorTo($cfg, $path, true);
                 $sel = $val;
             }
         }
