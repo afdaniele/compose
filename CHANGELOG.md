@@ -1,3 +1,7 @@
+## 1.1.6 (April 05, 2021)
+  - Merge branch 'devel' into stable
+  - package_store/list: now using a smaller JSON string to pass data from PHP to JS
+
 ## 1.1.5 (March 20, 2021)
   - Merge branch 'devel' into stable
   - fixed bug with NULL default values in EditableConfiguration.php being shown in forms as "null" strings
