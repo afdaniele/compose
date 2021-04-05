@@ -169,12 +169,17 @@ if (is_null($compose_version)) {
     };
     
     <?php
+    // keep only codebase.headtag
+    $installed_packages_versions = [];
+    foreach ($installed_packages as $pkgid => $pkg) {
+        $installed_packages_versions[$pkgid] = $pkg['codebase']['head_tag'];
+    }
     // this fixes nested quotes
-    $json_str = str_replace("\u0022", "\\\\\"", json_encode($installed_packages, JSON_HEX_QUOT));
+    $json_str = str_replace("\u0022", "\\\\\"", json_encode($installed_packages_versions, JSON_HEX_QUOT));
     ?>
-    let installed_packages = JSON.parse('<?php echo $json_str ?>');
+    let installed_packages_htags = JSON.parse('<?php echo $json_str ?>');
 
-    let installed_packages_ids = Object.keys(installed_packages);
+    let installed_packages_ids = Object.keys(installed_packages_htags);
 
     let packages_table_body_row_template = `
     <tr class="compose-package" id="{5}" data-search="{4}">
@@ -372,7 +377,7 @@ if (is_null($compose_version)) {
         let installed_version_str = '';
         let version_sep_str = '';
         let available_version_str = '';
-        let installed_version = (is_installed) ? installed_packages[id].codebase.head_tag : null;
+        let installed_version = (is_installed) ? installed_packages_htags[id] : null;
         if (is_installed) {
             // show installed version
             installed_version = (installed_version === 'ND') ? 'devel' : installed_version;
