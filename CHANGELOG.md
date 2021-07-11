@@ -1,3 +1,8 @@
+## 1.1.7 (July 11, 2021)
+  - added sandbox
+  - entrypoint.sh: now chmodding g+rw the COMPOSE_USERDATA_DIR
+  - added Core::RESERVED_PAGES array
+
 ## 1.1.6 (April 05, 2021)
   - Merge branch 'devel' into stable
   - package_store/list: now using a smaller JSON string to pass data from PHP to JS
