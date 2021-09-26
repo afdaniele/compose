@@ -35,6 +35,8 @@ class Configuration {
     public static $WEBAPI_VERSION;
     public static $ASSETS_STORE_URL;
     public static $ASSETS_STORE_VERSION;
+    public static $DEFAULT_DATABASE_TYPE;
+    public static $DATABASE_CONNECTORS;
     
     
     //Init
@@ -71,6 +73,9 @@ class Configuration {
             self::$WEBAPI_VERSION = $WEBAPI_VERSION;
             self::$ASSETS_STORE_URL = $ASSETS_STORE_URL;
             self::$ASSETS_STORE_VERSION = $ASSETS_STORE_VERSION;
+            //
+            self::$DEFAULT_DATABASE_TYPE = $DEFAULT_DATABASE_TYPE;
+            self::$DATABASE_CONNECTORS = $DATABASE_CONNECTORS;
             //
             self::$initialized = true;
             //
