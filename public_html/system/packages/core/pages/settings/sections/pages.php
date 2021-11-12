@@ -41,13 +41,13 @@ function settings_pages_tab(){
                             if( $package !== 'core' ){
                                 if( $page['enabled'] ){
                                     ?>
-                                    <button type="button" class="btn btn-xs btn-warning page-disable-button" data-package="<?php echo $package ?>" data-page="<?php echo $page['id'] ?>">
+                                    <button type="button" class="btn btn-sm btn-warning page-disable-button" data-package="<?php echo $package ?>" data-page="<?php echo $page['id'] ?>">
                                         <span class="glyphicon glyphicon-pause" aria-hidden="true"></span>&nbsp;Disable
                                     </button>
                                     <?php
                                 }else{
                                     ?>
-                                    <button type="button" class="btn btn-xs btn-success page-enable-button" data-package="<?php echo $package ?>" data-page="<?php echo $page['id'] ?>">
+                                    <button type="button" class="btn btn-sm btn-success page-enable-button" data-package="<?php echo $package ?>" data-page="<?php echo $page['id'] ?>">
                                         <span class="glyphicon glyphicon-play" aria-hidden="true"></span>&nbsp;Enable
                                     </button>
                                     <?php

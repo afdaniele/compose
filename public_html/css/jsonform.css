@@ -1,0 +1,11 @@
+/**
+ * @Author: Andrea F. Daniele <afdaniele>
+ * @Email:  afdaniele@ttic.edu
+ */
+
+.jsonform-group {}
+
+.jsonform-description {
+    color: grey;
+    margin-bottom: 1.5rem;
+}

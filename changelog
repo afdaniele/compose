@@ -24,8 +24,10 @@ Things to add later in the development:
 
 
     [ ] - v2.0
-        [ ] - switch to Bootstrap 4.X
-        [ ] - replace JSON with ProtoBuf
+        [ ] - switch to Bootstrap 5.X
+        [ ] - use proper JSON schemas
+        [ ] - use https://github.com/eclipsesource/jsonforms instead of custom form libraries
+        [ ] - remove all non-MIT libraries
 
     [ ] - v1.1
         [ ] - allow the specification of auxiliary libraries to load for specific pages in the page metadata file

@@ -256,7 +256,7 @@ class ComposeSchemaAtom {
                 <span class="input-group-addon closure-block"></span>
             </div>
             <span class="help-block-details">
-                <i class="fa fa-info-circle" aria-hidden="true"></i>&nbsp; {details}
+                <i class="bi bi-info-circle" aria-hidden="true"></i>&nbsp; {details}
             </span>
             <span class="help-block-default">
                 default: &nbsp;<span class="help-block-default">{default}</span>

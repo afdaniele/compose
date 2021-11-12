@@ -126,7 +126,7 @@ function settings_api_tab(){
                                     <td class="content-box" colspan="3">
                                         <div class="input-group lvl0">
                                             <div class="input-group-addon">
-                                                <i class="fa fa-cube" aria-hidden="true"></i>
+                                                <i class="bi bi-cube" aria-hidden="true"></i>
                                             </div>
                                             <div class="form-control">
                                                 <?php echo $api_package ?>
@@ -152,7 +152,7 @@ function settings_api_tab(){
                                         <td class="content-box" colspan="2">
                                             <div class="input-group lvl1">
                                                 <div class="input-group-addon">
-                                                    <i class="fa fa-gears" aria-hidden="true"></i>
+                                                    <i class="bi bi-gears" aria-hidden="true"></i>
                                                 </div>
                                                 <div class="form-control">
                                                     <?php echo $api_service ?>
@@ -164,7 +164,7 @@ function settings_api_tab(){
                                                     <div style="float:right">
                                                         Status: <?php echo format($api_service_desc['enabled'], 'boolean') ?>
                                                         &nbsp; | &nbsp;
-                                                        <button type="button" class="btn btn-xs btn-info api-service-info-button"
+                                                        <button type="button" class="btn btn-sm btn-info api-service-info-button"
                                                             id="api-service-<?php echo $service_btns_id ?>-info-button"
                                                             data-service="<?php echo $api_service ?>"
                                                             data-details="<?php echo $api_service_desc['details'] ?>"
@@ -182,7 +182,7 @@ function settings_api_tab(){
                                                             <?php
                                                         }elseif( $api_service_desc['enabled'] ){
                                                             ?>
-                                                            <button type="button" class="btn btn-xs btn-warning api-service-disable-button"
+                                                            <button type="button" class="btn btn-sm btn-warning api-service-disable-button"
                                                                 data-version="<?php echo $api_version ?>"
                                                                 data-service="<?php echo $api_service ?>"
                                                                 >
@@ -192,7 +192,7 @@ function settings_api_tab(){
                                                             <?php
                                                         }else{
                                                             ?>
-                                                            <button type="button" class="btn btn-xs btn-success api-service-enable-button"
+                                                            <button type="button" class="btn btn-sm btn-success api-service-enable-button"
                                                                 style="padding: 0 7px"
                                                                 data-version="<?php echo $api_version ?>"
                                                                 data-service="<?php echo $api_service ?>"
@@ -222,7 +222,7 @@ function settings_api_tab(){
                                             <td class="content-box">
                                                 <div class="input-group lvl2">
                                                     <div class="input-group-addon">
-                                                        <i class="fa fa-gear" aria-hidden="true"></i>
+                                                        <i class="bi bi-gear" aria-hidden="true"></i>
                                                     </div>
                                                     <div class="form-control">
                                                         <?php echo $api_action ?>
@@ -233,7 +233,7 @@ function settings_api_tab(){
                                                         <div style="float:right">
                                                             Status: <?php echo format($api_action_desc['enabled'], 'boolean') ?>
                                                             &nbsp; | &nbsp;
-                                                            <button type="button" class="btn btn-xs btn-info api-action-info-button"
+                                                            <button type="button" class="btn btn-sm btn-info api-action-info-button"
                                                                 id="api-action-<?php echo $action_btns_id ?>-info-button"
                                                                 data-service="<?php echo $api_service ?>"
                                                                 data-action="<?php echo $api_action ?>"
@@ -252,7 +252,7 @@ function settings_api_tab(){
                                                                 <?php
                                                             }elseif($api_action_desc['enabled']){
                                                                 ?>
-                                                                <button type="button" class="btn btn-xs btn-warning api-action-disable-button"
+                                                                <button type="button" class="btn btn-sm btn-warning api-action-disable-button"
                                                                     data-version="<?php echo $api_version ?>"
                                                                     data-service="<?php echo $api_service ?>"
                                                                     data-action="<?php echo $api_action ?>"
@@ -263,7 +263,7 @@ function settings_api_tab(){
                                                                 <?php
                                                             }else{
                                                                 ?>
-                                                                <button type="button" class="btn btn-xs btn-success api-action-enable-button"
+                                                                <button type="button" class="btn btn-sm btn-success api-action-enable-button"
                                                                     style="padding: 0 7px"
                                                                     data-version="<?php echo $api_version ?>"
                                                                     data-service="<?php echo $api_service ?>"

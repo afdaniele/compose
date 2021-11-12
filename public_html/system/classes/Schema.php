@@ -22,7 +22,7 @@ class ComposeSchema {
      * For example, the schema:
      *
      *      {
-     *          "details": "Description 1",
+     *          "description": "Description 1",
      *          "type": "object",
      *          "_data": {
      *              "a": "1",
@@ -34,7 +34,7 @@ class ComposeSchema {
      *  will be stored as:
      *
      *      {
-     *          "/details": "Description 1",
+     *          "/description": "Description 1",
      *          "/type": "object",
      *          "/_data/a": "1",
      *          "/_data/b": "2",
@@ -42,7 +42,6 @@ class ComposeSchema {
      *      }
      *
      *
-     *      /details
      *
      * @access protected.
      * @var array
@@ -127,7 +126,7 @@ class ComposeSchema {
                 if (!is_assoc($value)) {
                     return "Expected object of type 'schema'";
                 }
-                $mandatory_keys = ['type', 'details'];
+                $mandatory_keys = ['type', 'title', 'description'];
                 foreach ($mandatory_keys as $mkey) {
                     if (!array_key_exists($mkey, $value)) {
                         return sprintf("Expected mandatory key '%s'", $mkey);
@@ -140,7 +139,7 @@ class ComposeSchema {
                 }
                 break;
             case 'array':
-                if (!is_assoc(value)) {
+                if (!is_assoc($value)) {
                     return "Expected object of type 'array' (aka positional-array)";
                 }
                 break;
@@ -160,8 +159,9 @@ class ComposeSchema {
     
     
     private static function &_encode_value(&$value) {
+        $default = "![]";
         if (is_array($value) && count($value) == 0) {
-            return '![]';
+            return $default;
         }
         return $value;
     }

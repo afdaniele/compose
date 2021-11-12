@@ -71,10 +71,10 @@ function execute(&$service, &$actionName, &$arguments) {
                     prepareArgument($type, $value);
                 }
             };
-            $setts_schema->walk($w, $pkg_cfg);
+//            $setts_schema->walk($w, $pkg_cfg);
             // check arguments
             $out = null;
-            $res = checkArgument('configuration', $arguments, $setts_schema->asArray(), $out, false);
+            $res = checkArgument('configuration', $arguments, $setts_schema, $out, false);
             if ($res !== true) {
                 return response400BadRequest($out['message']);
             }

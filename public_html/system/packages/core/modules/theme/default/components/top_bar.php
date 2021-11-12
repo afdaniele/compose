@@ -27,8 +27,7 @@ $pages_blacklist = null;
 // check if compose was configured correctly
 if (!Core::isComposeConfigured()) {
     $pages_whitelist = ['setup'];
-}
-else {
+} else {
     $pages_blacklist = ['setup'];
 }
 
@@ -79,15 +78,10 @@ foreach ($buttons as &$button) {
 }
 ?>
 
-<nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
-    <div style="padding-right:30px">
-        <div class="navbar-header">
-            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse"
-                    data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-            </button>
+<header>
+    <!-- Fixed navbar -->
+    <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
+        <div class="container-fluid">
             <a class="navbar-brand" href="<?php echo Configuration::$BASE ?>"
                style="padding:10px 15px">
                 <table>
@@ -98,7 +92,7 @@ foreach ($buttons as &$button) {
                             $base = Configuration::$BASE;
                             $logo = str_replace('~', $base, str_replace('~/', '~', $logo));
                             ?>
-                            <img id="navbarLogo" src="<?php echo $logo ?>"></img>
+                            <img id="navbarLogo" src="<?php echo $logo ?>" alt=""/>
                         </td>
                         <td style="vertical-align:top">
                             <h3 style="margin:0 0 0 15px">
@@ -106,115 +100,122 @@ foreach ($buttons as &$button) {
                         </td>
                     </tr>
                 </table>
-
             </a>
-        </div>
 
-        <div id="navbar" class="collapse navbar-collapse">
-            <ul class="nav navbar-nav navbar-right">
-                <?php
-                $pages = Core::getFilteredPagesList(
-                    'by-menuorder',
-                    true /* enabledOnly */,
-                    $user_roles /* accessibleBy */
-                );
-                
-                // create buttons
-                for ($i = 0; $i < count($pages); $i++) {
-                    $elem = $pages[$i];
-                    if (!$login_enabled && $elem['id'] == 'login') {
-                        continue;
-                    }
-                    if (!is_null($pages_whitelist) && !in_array($elem['id'], $pages_whitelist)) {
-                        continue;
-                    }
-                    if (!is_null($pages_blacklist) && in_array($elem['id'], $pages_blacklist)) {
-                        continue;
-                    }
-                    // hide pages if maintenance mode is enabled
-                    if ($main_user_role != 'administrator' && Core::getSetting('maintenance_mode', 'core') && $elem['id'] != 'login') {
-                        continue;
-                    }
-                    // hide page if the current user' role is excluded
-                    if (count(array_intersect($user_roles, $elem['menu_entry']['exclude_roles'])) > 0) {
-                        continue;
-                    }
-                    $is_last = boolval($i == count($pages) - 1);
-                    $icon = sprintf('%s %s-%s', $elem['menu_entry']['icon']['class'], $elem['menu_entry']['icon']['class'], $elem['menu_entry']['icon']['name']);
-                    $active = (Configuration::$PAGE == $elem['id']) || in_array(Configuration::$PAGE, $elem['child_pages']);
-                    //
-                    ?>
-                    <li class="<?php echo (isset($responsive_buttons[$elem['id']])) ? 'navbar-' . $responsive_buttons[$elem['id']] . '-full-button-component' : '' ?>
-						<?php echo ($active) ? 'active' : '' ?>">
-                        <a href="<?php echo Configuration::$BASE . $elem['id'] ?>">
-                            <span class="<?php echo $icon ?>" aria-hidden="true"
-                                  style="font-size:12pt"></span> &nbsp;
-                            <?php echo $elem['name'] ?>
-                        </a>
-                    </li>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
+                    aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                     <?php
-                    if (!$is_last) {
+                    $pages = Core::getFilteredPagesList(
+                        'by-menuorder',
+                        true /* enabledOnly */,
+                        $user_roles /* accessibleBy */
+                    );
+                    
+                    // create buttons
+                    for ($i = 0; $i < count($pages); $i++) {
+                        $elem = $pages[$i];
+                        if (!$login_enabled && $elem['id'] == 'login') {
+                            continue;
+                        }
+                        if (!is_null($pages_whitelist) && !in_array($elem['id'], $pages_whitelist)) {
+                            continue;
+                        }
+                        if (!is_null($pages_blacklist) && in_array($elem['id'], $pages_blacklist)) {
+                            continue;
+                        }
+                        // hide pages if maintenance mode is enabled
+                        if ($main_user_role != 'administrator' && Core::getSetting('maintenance_mode', 'core') && $elem['id'] != 'login') {
+                            continue;
+                        }
+                        // hide page if the current user' role is excluded
+                        if (count(array_intersect($user_roles, $elem['menu_entry']['exclude_roles'])) > 0) {
+                            continue;
+                        }
+                        $is_last = boolval($i == count($pages) - 1);
+                        $icon = sprintf('%s %s-%s', $elem['menu_entry']['icon']['class'], $elem['menu_entry']['icon']['class'], $elem['menu_entry']['icon']['name']);
+                        $active = (Configuration::$PAGE == $elem['id']) || in_array(Configuration::$PAGE, $elem['child_pages']);
+                        $responsiveness = (isset($responsive_buttons[$elem['id']])) ? 'navbar-' . $responsive_buttons[$elem['id']] . '-full-button-component' : '';
                         ?>
-                        <li style="width:2px">&nbsp;</li>
+                        <li class="nav-item <?php echo $responsiveness ?>">
+                            <a class="nav-link active"
+                               href="<?php echo Configuration::$BASE . $elem['id'] ?>">
+                                <span class="<?php echo $icon ?>" aria-hidden="true"
+                                      style="font-size:12pt"></span> &nbsp;
+                                <?php echo $elem['name'] ?>
+                            </a>
+                        </li>
+                        <?php
+                        if (!$is_last) {
+                            ?>
+                            <li style="width:2px">&nbsp;</li>
+                            <?php
+                        }
+                    }
+                    
+                    if (count($responsive_buttons) > 0) {
+                        ?>
+                        <!-- Responsive navbar -->
+                        <li class="nav-item dropdown navbar-<?php echo $responsive_current_width ?>-responsive-button-component">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown"
+                               role="button"
+                               aria-expanded="false">
+                                <span class="glyphicon glyphicon-chevron-down" aria-hidden="true"
+                                      style="margin-top:2px"></span>
+                            </a>
+                            <ul class="dropdown-menu" role="menu">
+                                <?php
+                                foreach ($responsive_buttons as $id => $width) {
+                                    $elem = $pages_list['by-id'][$id];
+                                    $icon = sprintf('%s %s-%s', $elem['menu_entry']['icon']['class'], $elem['menu_entry']['icon']['class'], $elem['menu_entry']['icon']['name']);
+                                    ?>
+                                    <li class="navbar-<?php echo $width ?>-responsive-button-component">
+                                        <a href="<?php echo Configuration::$BASE . $id ?>">
+                                            <span class="<?php echo $icon ?>"
+                                                  aria-hidden="true"></span> &nbsp;
+                                            <?php echo $elem['name'] ?>
+                                        </a>
+                                    </li>
+                                    <?php
+                                }
+                                ?>
+                            </ul>
+                        </li>
                         <?php
                     }
-                }
-                
-                if (count($responsive_buttons) > 0) {
                     ?>
-                    <!-- Responsive navbar -->
-                    <li class="dropdown navbar-<?php echo $responsive_current_width ?>-responsive-button-component">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button"
-                           aria-expanded="false">
-                            <span class="glyphicon glyphicon-chevron-down" aria-hidden="true"
-                                  style="margin-top:2px"></span>
-                        </a>
-                        <ul class="dropdown-menu" role="menu">
-                            <?php
-                            foreach ($responsive_buttons as $id => $width) {
-                                $elem = $pages_list['by-id'][$id];
-                                $icon = sprintf('%s %s-%s', $elem['menu_entry']['icon']['class'], $elem['menu_entry']['icon']['class'], $elem['menu_entry']['icon']['name']);
-                                ?>
-                                <li class="navbar-<?php echo $width ?>-responsive-button-component">
-                                    <a href="<?php echo Configuration::$BASE . $id ?>">
-                                        <span class="<?php echo $icon ?>"
-                                              aria-hidden="true"></span> &nbsp;
-                                        <?php echo $elem['name'] ?>
-                                    </a>
-                                </li>
-                                <?php
-                            }
-                            ?>
-                        </ul>
-                    </li>
+                    
                     <?php
-                }
-                ?>
-                
-                <?php
-                // Add LogOut button if the user is logged in
-                if (Core::isUserLoggedIn()) {
+                    // Add LogOut button if the user is logged in
+                    if (Core::isUserLoggedIn()) {
+                        ?>
+                        <li style="width:26px; text-align:center; color:white; margin-top:15px; margin-left: 15px">
+                            &nbsp;&bull;&nbsp;
+                        </li>
+
+                        <li>
+                            <a class="cursor-pointer"
+                               onclick="logOutButtonClick();"
+                               style="color:#ffc864; padding-right:0">
+                                <span class="glyphicon glyphicon-log-out"
+                                      aria-hidden="true"></span>
+                                &nbsp;Log out
+                            </a>
+                        </li>
+                        <?php
+                    }
                     ?>
-                    <li style="width:26px; text-align:center; color:white; margin-top:15px; margin-left: 15px">
-                        &nbsp;&bull;&nbsp;
-                    </li>
 
-                    <li>
-                        <a class="cursor-pointer"
-                           onclick="logOutButtonClick();"
-                           style="color:#ffc864; padding-right:0">
-                            <span class="glyphicon glyphicon-log-out" aria-hidden="true"></span>
-                            &nbsp;Log out
-                        </a>
-                    </li>
-                    <?php
-                }
-                ?>
-
-            </ul>
-        </div><!--/.nav-collapse -->
-    </div>
-</nav>
+                </ul>
+            </div><!--/.nav-collapse -->
+        </div>
+    </nav>
+</header>
 
 
 <script type="text/javascript">

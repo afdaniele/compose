@@ -561,7 +561,7 @@ class MissionControlMenu {
                                     <td class="text-center"><?php echo $i ?></td>
                                     <td><?php echo $mission ?></td>
                                     <td class="text-center">
-                                        <a class="btn btn-default btn-xs"
+                                        <a class="btn btn-default btn-sm"
                                            onclick="mission_control_load_fcn('<?php echo $mission ?>')"
                                            role="button">
                                             <span class="glyphicon glyphicon-download-alt"
@@ -569,7 +569,7 @@ class MissionControlMenu {
                                             Open
                                         </a>
                                         &nbsp; | &nbsp;
-                                        <a class="btn btn-danger btn-xs" role="button"
+                                        <a class="btn btn-danger btn-sm" role="button"
                                            onclick="mission_control_delete_fcn('<?php echo $mission ?>')">
                                             <span class="glyphicon glyphicon-trash"
                                                   aria-hidden="true"></span>
@@ -627,10 +627,10 @@ class MissionControlMenu {
                                     <td class="text-center"><?php echo $i ?></td>
                                     <td><?php echo $renderer ?></td>
                                     <td class="text-center">
-                                        <a class="btn btn-default btn-xs"
+                                        <a class="btn btn-default btn-sm"
                                            onclick="mission_control_add_block_fcn('<?php echo $mission_name ?>', '<?php echo $default_json ?>')"
                                            role="button">
-                                            <i class="fa fa-plus" aria-hidden="true"></i>
+                                            <i class="bi bi-plus" aria-hidden="true"></i>
                                             Add
                                         </a>
                                     </td>
@@ -833,7 +833,7 @@ class MissionControlConfiguration {
                 data-toggle="modal"
                 data-target="#mission_<?php echo $grid_id ?>_options_modal"
         >
-            <i class="fa fa-cog" aria-hidden="true"></i>&nbsp;
+            <i class="bi bi-cog" aria-hidden="true"></i>&nbsp;
             Settings
         </button>
         <?php

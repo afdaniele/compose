@@ -9,6 +9,11 @@ namespace system\classes;
 require_once __DIR__ . '/Database.php';
 
 
+use Swaggest\JsonDiff\Exception;
+use Swaggest\JsonSchema\Schema;
+use function GuzzleHttp\Psr7\str;
+
+
 class EditableConfiguration {
 
     private $package_name = null;
@@ -16,6 +21,7 @@ class EditableConfiguration {
     private $default_configuration = [];
     private $db = null;
     private $schema = null;
+    private $schema_array = null;
     private $is_configurable = false;
     private $error_state = null;
     private $database_name = '__configuration__';
@@ -36,7 +42,7 @@ class EditableConfiguration {
             return;
         }
         try {
-            $this->schema = ComposeSchema::from_schema(json_decode(file_get_contents($schema_file), true));
+            $this->schema_array = json_decode(file_get_contents($schema_file), true);
         } catch (\Exception $e) {
             $this->error_state = sprintf(
                 'The configuration schema for the package "%s" is corrupted. The error reads:<br/>%s',
@@ -44,15 +50,19 @@ class EditableConfiguration {
             );
             return;
         }
+        // make a Schema object
+        $schema_obj = json_decode(file_get_contents($schema_file));
+        $this->schema = Schema::import($schema_obj);
         // if the schema defines no parameters, then the package is simply not configurable
-        if ($this->schema->is_empty()) {
+        if (count($this->schema_array) <= 0) {
             $this->is_configurable = false;
             return;
         }
         $this->is_configurable = true;
         // load the default values
         $this->configuration = [];
-        $this->default_configuration = $this->schema->defaults();
+        // TODO: this is wrong
+        $this->default_configuration = $this->schema_array;
         // try to load the custom settings from the database if it exists
         $this->db = new Database($package_name, $this->database_name);
         if (Database::database_exists($package_name, $this->database_name)) {
@@ -76,6 +86,11 @@ class EditableConfiguration {
 
     public function getSchema() {
         return $this->schema;
+    }//getSchema
+    
+    
+    public function getSchemaAsArray() {
+        return $this->schema_array;
     }//getSchema
 
 
@@ -124,9 +139,23 @@ class EditableConfiguration {
 
     public function set($key, $val) {
         $path = explode('/', $key);
-        if (!Utils::pathExists($this->default_configuration, $path)) {
-            return ['success' => false, 'data' => sprintf('Unknown parameter "%s" for the package "%s"', $key, $this->package_name)];
+    
+        // make fake input
+        $input = [];
+        $key_cursor = &Utils::cursorTo($input, $path, true);
+        $key_cursor = $val;
+        // check against the schema
+        try {
+            $this->schema->in($input);
+        } catch (\Swaggest\JsonSchema\Exception $e) {
+            return [
+                'success' => false,
+                'data' => sprintf('Unknown parameter "%s" for the package "%s". Error: %s',
+                    $key, $this->package_name, $e->getMessage()
+                )
+            ];
         }
+        
         $cfg_cursor = &Utils::cursorTo($this->configuration, $path, true);
         $cfg_cursor = $val;
         return ['success' => true, 'data' => null];

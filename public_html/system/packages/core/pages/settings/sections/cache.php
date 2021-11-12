@@ -39,7 +39,7 @@ function settings_cache_tab(){
       onclick="_clear_cache();"
       style="float: right">
         &nbsp;
-        <i class="fa fa-refresh" aria-hidden="true"></i>
+        <i class="bi bi-refresh" aria-hidden="true"></i>
         &nbsp;
         Clear cache
       </button>

@@ -42,13 +42,13 @@ function settings_packages_tab(){
                         if( $pkg_id !== 'core' ){
                             if( $pkg['enabled'] ){
                                 ?>
-                                <button type="button" class="btn btn-xs btn-warning package-disable-button" data-package="<?php echo $pkg_id ?>">
+                                <button type="button" class="btn btn-sm btn-warning package-disable-button" data-package="<?php echo $pkg_id ?>">
                                     <span class="glyphicon glyphicon-pause" aria-hidden="true"></span>&nbsp;Disable
                                 </button>
                                 <?php
                             }else{
                                 ?>
-                                <button type="button" class="btn btn-xs btn-success package-enable-button" data-package="<?php echo $pkg_id ?>">
+                                <button type="button" class="btn btn-sm btn-success package-enable-button" data-package="<?php echo $pkg_id ?>">
                                     <span class="glyphicon glyphicon-play" aria-hidden="true"></span>&nbsp;Enable
                                 </button>
                                 <?php

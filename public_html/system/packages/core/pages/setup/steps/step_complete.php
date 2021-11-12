@@ -48,7 +48,7 @@ if(
 
   <div style="float: right; margin-top: 20px">
     <button type="button" class="btn btn-success" id="confirm-step-button">
-      <span class="fa fa-arrow-down" aria-hidden="true"></span>
+      <span class="bi bi-arrow-down" aria-hidden="true"></span>
       &nbsp;
       Finish
     </button>

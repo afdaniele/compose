@@ -1,37 +1,44 @@
 {
     "type": "object",
-    "details": "General \\compose\\ configuration",
-    "_data": {
+    "title": "Configuration",
+    "description": "General \\compose\\ configuration",
+    "properties": {
         "maintenance_mode": {
+            "title": "Maintenance Mode",
             "type": "boolean",
             "default": false,
-            "details": "Whether the platform is in maintenance mode"
+            "description": "Whether the platform is in maintenance mode"
         },
         "developer_mode": {
+            "title": "Developer Mode",
             "type": "boolean",
             "default": false,
-            "details": "Whether the platform is in developer mode"
+            "description": "Whether the platform is in developer mode"
         },
         "website_name": {
-            "type": "text",
+            "title": "Website Name",
+            "type": "string",
             "default": "\\compose\\",
-            "details": "Name of your website"
+            "description": "Name of your website"
         },
         "navbar_title": {
-            "type": "text",
+            "title": "Navbar Title",
+            "type": "string",
             "default": "Welcome",
-            "details": "Text in the header of the navbar"
+            "description": "Text in the header of the navbar"
         },
         "navbar_subtitle": {
-            "type": "text",
+            "title": "Navbar Subtitle",
+            "type": "string",
             "default": null,
-            "details": "Text in the header of the navbar (below the title)"
+            "description": "Text in the header of the navbar (below the title)"
         },
         "timezone": {
-            "type": "enum",
+            "title": "Timezone",
+            "type": "string",
             "default": "America/Chicago",
-            "details": "The default timezone to use on the website",
-            "values": [
+            "description": "The default timezone to use on the website",
+            "enum": [
                 "Africa/Abidjan",
                 "Africa/Accra",
                 "Africa/Addis_Ababa",
@@ -460,112 +467,130 @@
             ]
         },
         "logo_white": {
-            "type": "text",
+            "title": "Logo (light)",
+            "type": "string",
             "default": "~/images/compose-white-logo.svg",
-            "details": "App logo (for dark backgrounds). <code>~</code> autocompletes to <code>http(s)://HOSTNAME</code>."
+            "description": "App logo (for dark backgrounds). <code>~</code> autocompletes to <code>http(s)://HOSTNAME</code>."
         },
         "logo_black": {
-            "type": "text",
+            "title": "Logo (dark)",
+            "type": "string",
             "default": "~/images/compose-black-logo.svg",
-            "details": "App logo (for light backgrounds). <code>~</code> autocompletes to <code>http(s)://HOSTNAME</code>."
+            "description": "App logo (for light backgrounds). <code>~</code> autocompletes to <code>http(s)://HOSTNAME</code>."
         },
         "logo_white_small": {
-            "type": "text",
+            "title": "Logo (light / small)",
+            "type": "string",
             "default": "~/images/compose-white-logo-small.svg",
-            "details": "(Small) app logo (for dark backgrounds). <code>~</code> autocompletes to <code>http(s)://HOSTNAME</code>."
+            "description": "(Small) app logo (for dark backgrounds). <code>~</code> autocompletes to <code>http(s)://HOSTNAME</code>."
         },
         "logo_black_small": {
-            "type": "text",
+            "title": "Logo (dark / small)",
+            "type": "string",
             "default": "~/images/compose-black-logo-small.svg",
-            "details": "(Small) app logo (for light backgrounds). <code>~</code> autocompletes to <code>http(s)://HOSTNAME</code>."
+            "description": "(Small) app logo (for light backgrounds). <code>~</code> autocompletes to <code>http(s)://HOSTNAME</code>."
         },
         "admin_contact_email_address": {
-            "type": "email",
+            "title": "Administrator e-mail",
+            "type": "string",
+            "format": "email",
             "default": "administrator@example.com",
-            "details": "E-mail address of the administrator"
+            "description": "E-mail address of the administrator"
         },
         "login_enabled": {
+            "title": "Enable Login",
             "type": "boolean",
             "default": true,
-            "details": "Enable user login functionality"
+            "description": "Enable user login functionality"
         },
         "google_client_id": {
-            "type": "text",
+            "title": "Google Client ID",
+            "type": "string",
             "default": "NULL",
-            "details": "Google Client ID. Get one from https://console.developers.google.com/apis/credentials"
+            "description": "Google Client ID. Get one from https://console.developers.google.com/apis/credentials"
         },
         "cache_enabled": {
+            "title": "Enable Cache",
             "type": "boolean",
             "default": false,
-            "details": "Cache status"
+            "description": "Cache status"
         },
         "check_updates": {
+            "title": "Check for Updates",
             "type": "boolean",
             "default": true,
-            "details": "Whether the system should constantly check for updates"
+            "description": "Whether the system should constantly check for updates"
         },
         "allow_devel_updates": {
+            "title": "Allow beta update",
             "type": "boolean",
             "default": false,
-            "details": "Whether to allow updating to non-production ready versions"
+            "description": "Whether to allow updating to non-production ready versions"
         },
         "theme": {
-            "type": "enum",
+            "title": "Theme",
+            "type": "string",
             "default": "core:default",
-            "details": "The theme used by \\compose\\",
+            "description": "The theme used by \\compose\\",
             "__form__": {
                 "enum_filler_fcn": "_installed_themes",
                 "enum_filler_args": []
             }
         },
         "favicon": {
-            "type": "enum",
+            "title": "Icon",
+            "type": "string",
             "default": "core",
-            "details": "Package whose icon (favicon) should be used for the site",
+            "description": "Package whose icon (favicon) should be used for the site",
             "__form__": {
                 "enum_filler_fcn": "_available_favicons",
                 "enum_filler_args": []
             }
         },
         "hide_credits": {
+            "title": "Hide credits",
             "type": "boolean",
             "default": false,
-            "details": "Hide compose credits",
+            "description": "Hide compose credits",
             "__form__": {
                 "hidden": true
             }
         },
         "guest_default_page": {
-            "type": "enum",
+            "title": "Default page (guest)",
+            "type": "string",
             "default": "login",
-            "details": "The page the guest will be redirected to when no page is specified",
+            "description": "The page the guest will be redirected to when no page is specified",
             "__form__": {
                 "enum_filler_fcn": "_pages_avail_to_role",
                 "enum_filler_args": ["guest"]
             }
         },
         "user_default_page": {
-            "type": "enum",
+            "title": "Default page (user)",
+            "type": "string",
             "default": "profile",
-            "details": "The page the user will be redirected to when no page is specified",
+            "description": "The page the user will be redirected to when no page is specified",
             "__form__": {
                 "enum_filler_fcn": "_pages_avail_to_role",
                 "enum_filler_args": ["user"]
             }
         },
         "supervisor_default_page": {
-            "type": "enum",
+            "title": "Default page (supervisor)",
+            "type": "string",
             "default": "profile",
-            "details": "The page the supervisor will be redirected to when no page is specified",
+            "description": "The page the supervisor will be redirected to when no page is specified",
             "__form__": {
                 "enum_filler_fcn": "_pages_avail_to_role",
                 "enum_filler_args": ["supervisor"]
             }
         },
         "administrator_default_page": {
-            "type": "enum",
+            "title": "Default page (administrator)",
+            "type": "string",
             "default": "profile",
-            "details": "The page the administrator will be redirected to when no page is specified",
+            "description": "The page the administrator will be redirected to when no page is specified",
             "__form__": {
                 "enum_filler_fcn": "_pages_avail_to_role",
                 "enum_filler_args": ["administrator"]

@@ -1,0 +1,12 @@
+.card > .card-header a {
+    color: inherit;
+    text-decoration: none;
+}
+
+.card {
+    margin-bottom: 20px;
+}
+
+.card-title {
+    margin: .25rem 0;
+}

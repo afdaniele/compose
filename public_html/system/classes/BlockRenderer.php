@@ -61,7 +61,7 @@ class BlockRenderer{
                 ?>
                 <div class="btn-group">
                   <a class="btn dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    <i class="fa fa-ellipsis-v" aria-hidden="true"></i>
+                    <i class="bi bi-ellipsis-v" aria-hidden="true"></i>
                   </a>
                   <ul class="dropdown-menu" style="color:black">
 

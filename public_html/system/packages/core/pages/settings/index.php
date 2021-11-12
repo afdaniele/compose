@@ -189,7 +189,7 @@ foreach (Core::getPackagesList() as $pkg_id => $pkg) {
                         <!--  -->
                         <span id="<?php echo $settings_tab['id'] ?>_unsaved_changes_mark" style="float:right; color:darkorange; font-size:11pt; display:none">
                             Unsaved changes &nbsp;
-                            <span class="fa fa-exclamation-triangle" aria-hidden="true"></span>
+                            <span class="bi bi-exclamation-triangle" aria-hidden="true"></span>
                         </span>
                     </h4>
                 </a>

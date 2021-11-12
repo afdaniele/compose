@@ -28,10 +28,12 @@ require_once __DIR__ . '/yaml/Spyc.php';
 require_once __DIR__ . '/jsonDB/JsonDB.php';
 
 require_once __DIR__ . '/Color.php';
-require_once __DIR__ . '/Schema.php';
 
 // load Google API client
 require_once __DIR__ . '/google_api_php_client/vendor/autoload.php';
+
+// load json-schema
+require_once __DIR__ . '/json_schema/vendor/autoload.php';
 
 
 use system\classes\enum\EmailTemplates;
@@ -2275,7 +2277,7 @@ class Core {
             $theme_cfg_schema = json_decode(file_get_contents($theme_cfg_file), true);
         }
         // ---
-        return ['success' => true, 'data' => ComposeSchema::from_schema($theme_cfg_schema)];
+        return ['success' => true, 'data' => $theme_cfg_schema];
     }//getThemeConfigurationSchema
     
     
@@ -2305,7 +2307,9 @@ class Core {
         if (!$res['success']) return $res;
         $cfg_schema = $res['data'];
         // read theme default configuration
-        $default_res = ['success' => true, 'data' => $cfg_schema->defaults()];
+        // TODO: this used to call ->defaults() on ComposeSchema, implement the defaults function
+        $cfg_defaults = [];
+        $default_res = ['success' => true, 'data' => $cfg_defaults];
         // open the database
         $db_name = 'theme_configuration';
         if (!Database::database_exists('core', $db_name)) {

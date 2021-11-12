@@ -78,10 +78,8 @@ function footer_user_menu() {
     // get user info
     $user = Core::getUserLogged();
     ?>
-    <ul class="nav navbar-nav" style="margin-left:10px;">
-
-        <li class="dropup">
-
+    <ul class="navbar-nav me-auto mb-2 mb-md-0">
+        <li class="nav-item dropup">
             <a class="dropdown-toggle cursor-pointer" data-toggle="dropdown"
                style="padding-top:12px; padding-bottom:0; z-index:999999">
                 <span class="glyphicon glyphicon-chevron-up" aria-hidden="true"></span>
@@ -185,11 +183,11 @@ function footer_credits($float) {
                         </a>
                     </p>
                 </td>
-    
+
                 <td id="footer_compose_separator">
                     &nbsp;|&nbsp;
                 </td>
-            <?php
+                <?php
             }
             ?>
             <td id="footer_developer_credit">
@@ -231,32 +229,30 @@ function footer_credits($float) {
 ?>
 
 
-<footer id="footer" class="footer navbar-inverse">
-
-    <table style="width:100%">
-        <tr>
-            
-            <?php
-            if (Core::isUserLoggedIn()) {
-                ?>
-                <td class="text-left">
-                    <?php footer_user_menu(); ?>
-                </td>
-
-                <td class="text-right">
-                    <?php footer_credits('right'); ?>
-                </td>
+<footer id="footer" class="footer mt-auto bg-dark">
+    <div class="container">
+        <table style="width:100%">
+            <tr>
                 <?php
-            } else {
+                if (Core::isUserLoggedIn()) {
+                    ?>
+                    <td class="text-left">
+                        <?php footer_user_menu(); ?>
+                    </td>
+
+                    <td class="text-right">
+                        <?php footer_credits('right'); ?>
+                    </td>
+                    <?php
+                } else {
+                    ?>
+                    <td>
+                        <?php footer_credits('center'); ?>
+                    </td>
+                    <?php
+                }
                 ?>
-                <td>
-                    <?php footer_credits('center'); ?>
-                </td>
-                <?php
-            }
-            ?>
-
-        </tr>
-    </table>
-
+            </tr>
+        </table>
+    </div>
 </footer>

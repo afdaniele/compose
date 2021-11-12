@@ -16,7 +16,7 @@ function settings_codebase_tab(){
 
     <div class="input-group">
       <div class="input-group-addon">
-        <i class="fa fa-code-fork" aria-hidden="true"></i>
+        <i class="bi bi-code-fork" aria-hidden="true"></i>
         &nbsp;
         Provider
       </div>
@@ -29,7 +29,7 @@ function settings_codebase_tab(){
         <a class="btn btn-default" type="button" style="width:100%; text-align:left"
           href="<?php echo $codebase_info['git_remote_url']; ?>"
           target="_blank">
-          <i class="fa fa-external-link" aria-hidden="true"></i>
+          <i class="bi bi-external-link" aria-hidden="true"></i>
           &nbsp;
           Go to the repository
         </a>
@@ -40,7 +40,7 @@ function settings_codebase_tab(){
 
     <div class="input-group">
       <div class="input-group-addon">
-        <i class="fa fa-hashtag" aria-hidden="true"></i>
+        <i class="bi bi-hashtag" aria-hidden="true"></i>
         &nbsp;
         Codebase Hash
       </div>
@@ -70,7 +70,7 @@ function settings_codebase_tab(){
             Core::getCodebaseHash(true)
           )?>"
           target="_blank">
-          <i class="fa fa-external-link" aria-hidden="true"></i>
+          <i class="bi bi-external-link" aria-hidden="true"></i>
           &nbsp;
           Browse this version
         </a>

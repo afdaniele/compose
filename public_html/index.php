@@ -162,9 +162,11 @@
         window.COMPOSE_TOKEN = "<?php echo Configuration::$TOKEN ?>";
     </script>
 
-    <!-- Bootstrap v3.3.1 by getbootstrap.com -->
-    <link href="<?php echo Configuration::$BASE ?>css/bootstrap.min.css" rel="stylesheet"
+    <!-- Bootstrap v5.1.3 by getbootstrap.com -->
+    <link href="<?php echo Configuration::$BASE ?>css/bootstrap.5.1.3.min.css" rel="stylesheet"
           type="text/css">
+
+    <!-- OLD Bootstrap v3.3.1 by getbootstrap.com -->
     <link href="<?php echo Configuration::$BASE ?>css/bootstrap-toggle.min.css" rel="stylesheet"
           type="text/css">
     <link href="<?php echo Configuration::$BASE ?>css/bootstrap-theme.min.css" rel="stylesheet"
@@ -172,22 +174,30 @@
     <link href="<?php echo Configuration::$BASE ?>css/bootstrap-callout.css" rel="stylesheet"
           type="text/css">
 
-    <!-- FontAwesome v4.7 by fontawesome.io -->
+    <!-- Bootstrap Icons v1.7.0 by getbootstrap.com -->
     <link rel="stylesheet"
-          href="<?php echo Configuration::$BASE ?>css/font-awesome/css/font-awesome.min.css">
+          href="<?php echo Configuration::$BASE ?>css/bootstrap-icons.1.7.0.css">
 
-    <!-- Bootstrap Select v1.13.9 by developer.snapappointments.com/bootstrap-select/ -->
-    <link rel="stylesheet" href="<?php echo Configuration::$BASE ?>css/bootstrap-select.min.css">
+    <!-- JQuery UI v1.13.0 by Google -->
+    <link rel="stylesheet"
+          href="<?php echo Configuration::$BASE ?>css/jquery-ui-1.13.0.min.css">
 
-    <!-- Compose Form CSS -->
-    <link href="<?php echo Configuration::$BASE ?>css/compose_form.css" rel="stylesheet" media="all">
+    <!-- JSONForm v2.2.5 by https://github.com/jsonform/jsonform -->
+    <link rel="stylesheet"
+          href="<?php echo Configuration::$BASE ?>css/jsonform.css">
+    
+    <!-- OLD Bootstrap Select v1.13.9 by developer.snapappointments.com/bootstrap-select/ -->
+<!--    <link rel="stylesheet" href="--><?php //echo Configuration::$BASE ?><!--css/bootstrap-select.min.css">-->
 
-    <!-- Custom CSS -->
+    <!-- OLD Compose Form CSS -->
+<!--    <link href="--><?php //echo Configuration::$BASE ?><!--css/compose_form.css" rel="stylesheet" media="all">-->
+
+    <!-- OLD Custom CSS -->
     <link href="<?php echo Configuration::$BASE ?>css/compose.css" rel="stylesheet" media="all">
 
 
-    <!-- JQuery v1.11.1 by Google -->
-    <script src="<?php echo Configuration::$BASE ?>js/jquery.1.11.1.min.js"></script>
+    <!-- JQuery v3.6.0 by Google -->
+    <script src="<?php echo Configuration::$BASE ?>js/jquery-3.6.0.min.js"></script>
 
     <!-- ChartJS v2.7.0 by chartjs.org  -->
     <script src="<?php echo Configuration::$BASE ?>js/Chart.min.js"></script>
@@ -195,9 +205,15 @@
 
     <!-- Bootstrap Select v1.13.9 by developer.snapappointments.com/bootstrap-select/ -->
     <script src="<?php echo Configuration::$BASE ?>js/bootstrap-select.min.js"></script>
-    <script type="text/javascript">
-        $.fn.selectpicker.Constructor.BootstrapVersion = '3';
-    </script>
+
+    <!-- JSONForm v2.2.5 by https://github.com/jsonform/jsonform -->
+    <script src="<?php echo Configuration::$BASE ?>js/jsonform/deps/underscore.js"></script>
+    <script src="<?php echo Configuration::$BASE ?>js/jsonform/deps/opt/jsv.js"></script>
+    <script src="<?php echo Configuration::$BASE ?>js/jsonform/jsonform.js"></script>
+    
+<!--    <script type="text/javascript">-->
+<!--        $.fn.selectpicker.Constructor.BootstrapVersion = '3';-->
+<!--    </script>-->
 
     <!-- Custom JS -->
     <script src="<?php echo Configuration::$BASE ?>js/compose.js"></script>
@@ -286,8 +302,12 @@
     <!-- Bootstrap core JavaScript
     ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->
+
+    <!-- Bootstrap v5.1.3 by getbootstrap.com -->
     <script type="text/javascript"
-            src="<?php echo Configuration::$BASE ?>js/bootstrap.min.js"></script>
+            src="<?php echo Configuration::$BASE ?>js/bootstrap.5.1.3.bundle.min.js"></script>
+    
+    <!-- OLD Bootstrap v3.3.1 by getbootstrap.com -->
     <script type="text/javascript"
             src="<?php echo Configuration::$BASE ?>js/bootstrap-toggle.min.js"></script>
 

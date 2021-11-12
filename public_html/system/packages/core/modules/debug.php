@@ -14,7 +14,7 @@ if( Configuration::$DEBUG && $is_admin && $something_to_show ){
             <div class="panel-heading" role="tab" id="debug_header">
                 <a id="collapse_a_debug" class="collapsed collapse_a" role="button" data-toggle="collapse" data-parent="#accordion" href="#debug" aria-expanded="true" aria-controls="debug">
                     <h4 class="panel-title" style="color:orangered">
-                        <span class="fa fa-bug" aria-hidden="true"></span>&nbsp;Debug
+                        <span class="bi bi-bug" aria-hidden="true"></span>&nbsp;Debug
                     </h4>
                 </a>
             </div>

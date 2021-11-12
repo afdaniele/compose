@@ -17,7 +17,7 @@ use \system\classes\RESTfulAPI;
         <tr>
             <td>
                 <h3 class="text-left" style="margin:0">
-                    <span class="fa fa-key" aria-hidden="true"></span>&nbsp;
+                    <span class="bi bi-key" aria-hidden="true"></span>&nbsp;
                     <span class="mono">API Keys</span>
                     <button type="button" class="btn btn-warning" id="api-page-new-key-button" style="float:right"
                         data-toggle="tooltip dialog" data-target="#record-editor-modal-insert-form"
@@ -26,7 +26,7 @@ use \system\classes\RESTfulAPI;
                             Configuration::$BASE,
                             Configuration::$WEBAPI_VERSION) ?>"
                         >
-                        <span class="fa fa-plus" aria-hidden="true"></span>
+                        <span class="bi bi-plus" aria-hidden="true"></span>
                         &nbsp;
                         Create new Application
                     </button>
@@ -165,7 +165,7 @@ foreach( RESTfulAPI::getConfiguration() as $pkg_id => &$pkg_api ){
             if( in_array($user_role, $action_config['access_level']) ){
                 $pair = sprintf('%s__%s', $service_id, $action_id);
                 $form_edit[$pair] = array(
-                    'name' => '<span class="fa fa-plug" aria-hidden="true"></span>&nbsp;API <span class="mono" style="font-weight:normal">'.sprintf('%s/%s', $service_id, $action_id).'</span>',
+                    'name' => '<span class="bi bi-plug" aria-hidden="true"></span>&nbsp;API <span class="mono" style="font-weight:normal">'.sprintf('%s/%s', $service_id, $action_id).'</span>',
                     'editable' => true,
                     'type' => 'boolean'
                 );

@@ -255,7 +255,7 @@ foreach ($actions as $action) {
         <div class="panel-heading" role="tab">
             <a aria-expanded="true" aria-controls="">
                 <h4 class="panel-title">
-                    <span class="fa fa-download" style="color:<?php echo $color ?>"
+                    <span class="bi bi-download" style="color:<?php echo $color ?>"
                           aria-hidden="true"></span>
                     &nbsp;
                     <strong>Packages to <?php echo $name ?>:</strong>
@@ -301,7 +301,7 @@ foreach ($actions as $action) {
    style="float:right"
    onclick="process_packages<?php echo count($to_uninstall_full) > 0 ? '_confirm' : '' ?>()"
    href="javascript:void(0);">
-    <i class="fa fa-check" aria-hidden="true"></i>
+    <i class="bi bi-check" aria-hidden="true"></i>
     &nbsp;
     Confirm
 </a>

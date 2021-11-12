@@ -103,7 +103,7 @@ foreach ($tasks as $task) {
             <div class="panel-heading" role="tab">
                 <a aria-expanded="true" aria-controls="">
                     <h4 class="panel-title">
-                        <span class="fa fa-<?php echo $task['icon'] ?>"
+                        <span class="bi bi-<?php echo $task['icon'] ?>"
                               style="color:<?php echo $task['color'] ?>" aria-hidden="true"></span>
                         &nbsp;
                         <strong><?php echo $task['name'] ?>:</strong>
@@ -121,7 +121,7 @@ foreach ($tasks as $task) {
                             $package_name,
                             $package_id,
                             sprintf(
-                                '<span class="fa fa-tag" style="color:black" aria-hidden="true"></span> %s',
+                                '<span class="bi bi-tag" style="color:black" aria-hidden="true"></span> %s',
                                 $package_metadata['codebase']['head_tag']
                             )
                         );
@@ -137,7 +137,7 @@ foreach ($tasks as $task) {
 
 <a class="btn btn-success" role="button" style="float:right"
    href="<?php echo Configuration::$BASE ?>">
-    <i class="fa fa-check" aria-hidden="true"></i>
+    <i class="bi bi-check" aria-hidden="true"></i>
     &nbsp;
     Done!
 </a>

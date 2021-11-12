@@ -19,7 +19,7 @@ $url_to_codebase = Core::getURL('settings', null, null, null, ['check_updates' =
 </style>
 
 <a role="button" id="_updates_helper_btn" class="btn btn-warning updates_helper" style="display: none" href="<?php echo $url_to_codebase ?>">
-  <i class="fa fa-cloud-download" aria-hidden="true"></i>
+  <i class="bi bi-cloud-download" aria-hidden="true"></i>
   Updates available
 </a>
 

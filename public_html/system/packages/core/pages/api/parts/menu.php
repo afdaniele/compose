@@ -53,7 +53,7 @@ function _api_page_menu_part(&$api_setup, &$version, &$sget, &$aget){
         <div role="tab" class="api_menu_item_header api_menu_item_header<?php echo (Configuration::$ACTION == 'keys')? '-active':''?>">
             <h4 class="panel-title">
                 <a href="<?php echo _create_link('keys', $version); ?>" role="button" aria-expanded="true">
-                    <span class="fa fa-key" aria-hidden="true"></span>&nbsp;
+                    <span class="bi bi-key" aria-hidden="true"></span>&nbsp;
                     API Keys
                 </a>
             </h4>
@@ -65,7 +65,7 @@ function _api_page_menu_part(&$api_setup, &$version, &$sget, &$aget){
         <div role="tab" class="api_menu_item_header api_menu_item_header<?php echo (Configuration::$ACTION == 'getting_started')? '-active':''?>">
             <h4 class="panel-title">
                 <a href="<?php echo _create_link('getting_started', $version); ?>" role="button" aria-expanded="true">
-                    <span class="fa fa-book" aria-hidden="true"></span>&nbsp;
+                    <span class="bi bi-book" aria-hidden="true"></span>&nbsp;
                     Getting Started
                 </a>
             </h4>
@@ -82,7 +82,7 @@ function _api_page_menu_part(&$api_setup, &$version, &$sget, &$aget){
                 <div role="tab" class="api_menu_item_header api_menu_item_header<?php echo ($sget == $sname)? '-active':''?>">
                     <h4 class="panel-title">
                         <a role="button" data-toggle="collapse" data-parent="#services_actions_accordion" href="#<?php echo $service_btn_id ?>" aria-expanded="true" aria-controls="<?php echo $service_btn_id ?>">
-                            <span class="fa fa-tasks" aria-hidden="true"></span>&nbsp;
+                            <span class="bi bi-tasks" aria-hidden="true"></span>&nbsp;
                             <?php echo $sname ?>
                         </a>
                     </h4>
@@ -94,7 +94,7 @@ function _api_page_menu_part(&$api_setup, &$version, &$sget, &$aget){
 						?>
 							<a href="<?php echo _create_link('reference', $version, $sname, $aname); ?>">
                                 <h5 class="<?php echo ( ($sget == $sname && $aget == $aname)? 'active' : '' ) ?>">
-    								<span class="fa fa-cog" aria-hidden="true"></span>&nbsp;
+    								<span class="bi bi-cog" aria-hidden="true"></span>&nbsp;
                                     <?php echo $aname ?>
                                 </h5>
 							</a>

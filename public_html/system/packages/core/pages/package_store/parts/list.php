@@ -215,34 +215,34 @@ if (is_null($compose_version)) {
 
     let source_action = `
       <a class="btn btn-default" href="{0}" role="button" target="_blank">
-        <i class="fa fa-code" aria-hidden="true"></i>&nbsp;
+        <i class="bi bi-code" aria-hidden="true"></i>&nbsp;
         Code
       </a>`;
     let install_action = `
       <a role="button" class="btn btn-success main-button action-button {2}" onclick="mark_to_install('{0}', '{1}')" href="javascript:void(0);">
-        <i class="fa fa-download" aria-hidden="true"></i>&nbsp;
+        <i class="bi bi-download" aria-hidden="true"></i>&nbsp;
         Install
       </a>
       <a role="button" class="btn btn-warning main-button undo-button" style="display:none" onclick="mark_to_uninstall('{0}', '{1}')" href="javascript:void(0);">
-        <i class="fa fa-times" aria-hidden="true"></i>&nbsp;
+        <i class="bi bi-times" aria-hidden="true"></i>&nbsp;
         Cancel
       </a>`;
     let uninstall_action = `
       <a role="button" class="btn btn-danger main-button action-button {2}" onclick="mark_to_uninstall('{0}', '{1}')" href="javascript:void(0);">
-        <i class="fa fa-trash" aria-hidden="true"></i>&nbsp;
+        <i class="bi bi-trash" aria-hidden="true"></i>&nbsp;
         Uninstall
       </a>
       <a role="button" class="btn btn-warning main-button undo-button" style="display:none" onclick="mark_to_install('{0}', '{1}')" href="javascript:void(0);">
-        <i class="fa fa-times" aria-hidden="true"></i>&nbsp;
+        <i class="bi bi-times" aria-hidden="true"></i>&nbsp;
         Cancel
       </a>`;
     let update_action = `
       <a role="button" class="btn btn-info update-button action-button {2}" onclick="mark_to_update('{0}', '{1}')" href="javascript:void(0);">
-        <i class="fa fa-cloud-download" aria-hidden="true"></i>&nbsp;
+        <i class="bi bi-cloud-download" aria-hidden="true"></i>&nbsp;
         Update
       </a>
       <a role="button" class="btn btn-warning update-button undo-button" style="display:none" onclick="mark_to_install('{0}', '{1}')" href="javascript:void(0);">
-        <i class="fa fa-times" aria-hidden="true"></i>&nbsp;
+        <i class="bi bi-times" aria-hidden="true"></i>&nbsp;
         Cancel
       </a>`;
 
