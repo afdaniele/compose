@@ -36,6 +36,10 @@ fi
 echo "Adding user www-data to the group ${GNAME} (GID:${GID})."
 usermod -aG ${GNAME} www-data
 
+# give the newly created group r/w access to the user-data dir
+chmod -R g+r "${COMPOSE_USERDATA_DIR}"
+chmod -R g+w "${COMPOSE_USERDATA_DIR}"
+
 # check if a custom HTTP_PORT was given
 if [ "${HTTP_PORT}" != "${DEFAULT_HTTP_PORT}" ]; then
   echo "Configuring \\compose\\ to be served on custom HTTP port ${HTTP_PORT}."
