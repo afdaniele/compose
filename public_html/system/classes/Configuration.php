@@ -51,7 +51,7 @@ class Configuration {
                 // try to load the default configuration file
                 $configFile = __DIR__ . '/../config/configuration.default.php';
                 if (!file_exists($configFile)) {
-                    throw new FileNotFoundException("File not found: $configFile");
+                    throw new FileNotFoundException($configFile);
                 } else {
                     require($configFile);
                 }

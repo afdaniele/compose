@@ -3,6 +3,7 @@
 namespace exceptions;
 
 use Exception;
+use Throwable;
 
 class BaseException extends Exception {}
 
@@ -18,4 +19,9 @@ class ThemeNotFoundException extends BaseException {}
 
 class ModuleNotFoundException extends BaseException {}
 
-class FileNotFoundException extends BaseException {}
+class FileNotFoundException extends BaseException {
+    def public function __construct($fpath, $code = 0, Throwable $previous = null) {
+        parent::__construct("File '$fpath' not found.", $code, $previous);
+    }
+}
+

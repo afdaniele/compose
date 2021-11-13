@@ -9,6 +9,7 @@ namespace system\classes;
 require_once __DIR__ . '/Database.php';
 
 
+use exceptions\FileNotFoundException;
 use Swaggest\JsonDiff\Exception;
 use Swaggest\JsonSchema\Schema;
 use function GuzzleHttp\Psr7\str;
@@ -29,6 +30,15 @@ class EditableConfiguration {
 
 
     // constructor
+    
+    /**
+     * EditableConfiguration constructor.
+     * @param $package_name
+     * @throws FileNotFoundException
+     * @throws \Swaggest\JsonSchema\Exception
+     * @throws \Swaggest\JsonSchema\InvalidValue
+     *
+     */
     public function __construct($package_name) {
         $this->package_name = $package_name;
         $schema_file = sprintf("%s/../packages/%s/configuration/schema.json", __DIR__, $package_name);
@@ -38,9 +48,9 @@ class EditableConfiguration {
         // ---
         // load configuration schema. This file must be always present.
         if (!file_exists($schema_file)) {
-            $this->error_state = sprintf('The configuration schema for the package "%s" does not exist or is corrupted.', $package_name);
-            return;
+            throw new FileNotFoundException($schema_file);
         }
+        //TODO: remove '$this->error_state' and use exceptions instead
         try {
             $this->schema_array = json_decode(file_get_contents($schema_file), true);
         } catch (\Exception $e) {

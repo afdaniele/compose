@@ -316,8 +316,8 @@ class Core {
             self::$cache = new CacheProxy('core');
             //
             // load settings for the core module only (needed to initialize the cache)
-            self::$packages = ['core' => NULL];
-            self::$settings = self::_load_packages_settings(TRUE);
+            self::$packages = ['core' => null];
+            self::$settings = self::_load_packages_settings(true);
             //
             // set timezone
             date_default_timezone_set(self::getSetting('timezone', 'core', 'America/Chicago'));
@@ -1687,10 +1687,7 @@ class Core {
      */
     public static function getPackageSettingsAsArray($package_name) {
         if (key_exists($package_name, self::$settings)) {
-            if (self::$settings[$package_name]['success']) {
-                return self::$settings[$package_name]->asArray();
-            }
-            return self::$settings[$package_name];
+            return self::$settings[$package_name]->asArray();
         }
         return NULL;
     }//getPackageSettingsAsArray
@@ -2768,12 +2765,12 @@ class Core {
     }//_solve_dependencies_graph
     
     
-    private static function _load_packages_settings($core_only = FALSE) {
+    private static function _load_packages_settings($core_only = false) {
         // check if this object is cached
         $cache_key = sprintf("packages_settings%s", $core_only ? '_core_only' : '');
         if (self::$cache->has($cache_key))
             return self::$cache->get($cache_key);
-        //
+        // get packages
         $packages = self::getPackagesList();
         $packages_ids = array_keys($packages);
         $settings = [];
@@ -2782,16 +2779,13 @@ class Core {
             if ($core_only && $pkg_id != 'core')
                 continue;
             $pkg_settings = new EditableConfiguration($pkg_id);
-            $res = $pkg_settings->sanityCheck();
-            if (!$res['success']) {
-                $settings[$pkg_id] = $res;
-            } else {
-                $settings[$pkg_id] = ['success' => TRUE, 'data' => $pkg_settings];
-            }
+            // TODO: make sure this screams
+            $pkg_settings->sanityCheck();
+            $settings[$pkg_id] = $pkg_settings;
         }
         // cache object
         self::$cache->set($cache_key, $settings, CacheTime::HOURS_24);
-        //
+        // ---
         return $settings;
     }//_load_packages_settings
     
