@@ -2,6 +2,7 @@
 
 use \system\classes\Core;
 use \system\classes\Database;
+use system\classes\Utils;
 
 
 class MissionControl {
@@ -39,7 +40,7 @@ class MissionControl {
             <?php
             $empty_renderer = new EmptyRenderer($this);
             foreach ($this->blocks as $block) {
-                $rand_id = sprintf('block_%s', Core::generateRandomString(8));
+                $rand_id = sprintf('block_%s', Utils::generateRandomString(8));
                 $block_args = $block['args'];
                 if (!in_array($block['renderer'], $renderers_available)) {
                     $renderer = $empty_renderer;

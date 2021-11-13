@@ -2,6 +2,8 @@
 
 <?php
 
+use system\classes\Utils;
+
 require_once __DIR__ . '/../../utils/utils.php';
 require_once $GLOBALS['__SYSTEM__DIR__'] . 'templates/forms/SmartForm.php';
 
@@ -20,7 +22,7 @@ class SmartFormModal {
     
     function __construct(&$schema, $values = [], $modalSize = 'lg', $formID = null) {
         // default values: formID
-        $this->formID = $formID ?? generateRandomString(7);
+        $this->formID = $formID ?? Utils::generateRandomString(7);
         // arguments
         $this->values = $values;
         $this->modalSize = $modalSize;

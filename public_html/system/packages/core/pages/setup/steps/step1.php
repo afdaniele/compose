@@ -71,6 +71,14 @@ $core_pkg_setts = $res['data'];
 
 $client_id = Core::getSetting('google_client_id');
 $client_id = ($client_id != 'NULL') ? $client_id : null;
+
+echoArray($_SESSION);
+
+// enable developer mode
+$res = Core::setSetting('core', 'developer_mode', true);
+echoArray($res);
+
+echoArray($_SESSION);
 ?>
 
 <div style="margin: 10px 20px">

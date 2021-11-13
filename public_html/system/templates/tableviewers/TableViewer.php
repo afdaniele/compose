@@ -17,6 +17,7 @@ namespace system\templates\tableviewers;
 use system\classes\Configuration;
 use system\classes\Core;
 use system\classes\enum\StringType;
+use system\classes\Utils;
 
 class TableViewer {
 
@@ -161,7 +162,7 @@ class TableViewer {
 			}
 		}
 		//
-		$table_viewer_unique_id = generateRandomString(4);
+		$table_viewer_unique_id = Utils::generateRandomString(4);
 
 		?>
 		<div class="col-md-12" style="padding:0">

@@ -4,6 +4,8 @@
 # @Last modified by:   afdaniele
 
 use \system\classes\Core;
+use \system\classes\Configuration;
+
 
 if( isset($_GET['report']) ){
 	if( isset($_POST['errorMsg']) && isset($_SESSION['_ERROR_OCCURRED']) ){
@@ -15,16 +17,27 @@ if( isset($_GET['report']) ){
 		$_SESSION['_ALERT_INFO'] = 'Thanks for reporting the error!';
 	}
 	//
-	\system\classes\Core::redirectTo('');
+	Core::redirectTo('');
 }else{
 	// mark the ERROR flag
 	$_SESSION['_ERROR_OCCURRED'] = true;
 }
 
-if( !isset($_SESSION['_ERROR_PAGE_MESSAGE']) ){
-	\system\classes\Core::redirectTo('');
+$error = null;
+if (isset($_GET["errorMsg"])) {
+    $error = base64_decode($_GET["errorMsg"]);
 }
 
+if (!is_null($error) && isset($_SESSION['_ERROR_PAGE_MESSAGE']) ){
+    $error = $_SESSION['_ERROR_PAGE_MESSAGE'];
+}
+
+if (is_null($error)){
+	Core::redirectTo('');
+}
+
+// clear the error
+unset($_SESSION['_ERROR_PAGE_MESSAGE']);
 ?>
 
 <br/>
@@ -32,7 +45,7 @@ if( !isset($_SESSION['_ERROR_PAGE_MESSAGE']) ){
 <br/>
 
 <div class="col-md-6 text-right">
-	<img src="<?php echo \system\classes\Configuration::$BASE ?>images/error.jpg">
+	<img src="<?php echo Configuration::$BASE ?>images/error.jpg" alt="">
 </div>
 
 <div class="col-md-6">
@@ -53,7 +66,7 @@ if( !isset($_SESSION['_ERROR_PAGE_MESSAGE']) ){
 		<br/>
 		You can either ignore the error and return to the website or report the error using the orange button in the box below.
 		<br><br>
-		<a href="<?php echo \system\classes\Configuration::$BASE ?>/" type="button" class="btn btn-info" role="button">Go back to the Main page</a>
+		<a href="<?php echo Configuration::$BASE ?>/" type="button" class="btn btn-info" role="button">Go back to the Main page</a>
 	</div>
 
 </div>
@@ -68,14 +81,14 @@ if( !isset($_SESSION['_ERROR_PAGE_MESSAGE']) ){
 
 		<div class="panel-footer" style="padding:18px">
 			<code><?php
-				echo $_SESSION['_ERROR_PAGE_MESSAGE'];
+				echo $error;
 			?></code>
 
 			<br/>
 			<br/>
 
-			<form method="post" action="<?php echo \system\classes\Configuration::$BASE ?>error?report=1">
-				<input type="hidden" name="errorMsg" value="<?php echo urlencode($_SESSION['_ERROR_PAGE_MESSAGE']) ?>">
+			<form method="post" action="<?php echo Configuration::$BASE ?>error?report=1">
+				<input type="hidden" name="errorMsg" value="<?php echo urlencode($error) ?>">
 				<table style="width:100%">
 					<tr>
 						<td class="col-md-12 text-right" style="padding-right:0">
@@ -90,8 +103,3 @@ if( !isset($_SESSION['_ERROR_PAGE_MESSAGE']) ){
 		</div>
 	</div>
 </div>
-
-<?php
-// clear the error console
-unset( $_SESSION['_ERROR_PAGE_MESSAGE'] );
-?>

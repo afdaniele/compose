@@ -8,6 +8,8 @@
 
 namespace system\classes;
 
+use exceptions\FileNotFoundException;
+
 require_once __DIR__ . '/libs/booleanval.php';
 
 
@@ -37,32 +39,24 @@ class Configuration {
     public static $ASSETS_STORE_VERSION;
     
     
-    //Init
+    /** Initializes the Configuration.
+     *
+     * @throws FileNotFoundException
+     */
     public static function init() {
         $configFile = __DIR__ . '/../config/configuration.php';
         //
         if (!self::$initialized) {
-            //
-            $error = false;
-            $error_msg = null;
-            //
             if (!file_exists($configFile)) {
                 // try to load the default configuration file
                 $configFile = __DIR__ . '/../config/configuration.default.php';
                 if (!file_exists($configFile)) {
-                    $error = true;
-                    $error_msg = "File not found: " . $configFile;
-                }
-                else {
+                    throw new FileNotFoundException("File not found: $configFile");
+                } else {
                     require($configFile);
                 }
-            }
-            else {
+            } else {
                 require($configFile);
-            }
-            //
-            if ($error) {
-                return array('success' => false, 'data' => $error_msg);
             }
             //
             self::$TIMEZONE = $TIMEZONE;
@@ -73,11 +67,6 @@ class Configuration {
             self::$ASSETS_STORE_VERSION = $ASSETS_STORE_VERSION;
             //
             self::$initialized = true;
-            //
-            return array('success' => true);
-        }
-        else {
-            return array('success' => true);
         }
     }//init
     

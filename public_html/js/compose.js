@@ -899,15 +899,15 @@ $(document).ready(function () {
     // get all elements that need to be vertically fit
     let elems = $('.vertical_fit');
     // refit when the object is ready
-    elems.ready(function(){
+    elems.on("ready", function(){
         _compose_vertical_fit();
     });
     // refit when the object is loaded
-    elems.load(function(){
+    elems.on("load", function(){
         _compose_vertical_fit();
     });
     // refit when the object changes shape
-    elems.resize(function(){
+    elems.on("resize", function(){
         _compose_vertical_fit();
     });
     // refit right now

@@ -37,8 +37,21 @@ class Utils {
         return $string;
     }//string_to_valid_filename
     
-    public static function generateRandomString($length): string {
-        $chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    public static function generateRandomString($length, $set = "alphanumeric"): string {
+        switch ($set) {
+            case 'alphanumeric':
+                $chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+                break;
+            case 'alphabetic':
+                $chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+                break;
+            case 'numeric':
+                $chars = '0123456789';
+                break;
+            default: // alphanumeric
+                $chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+                break;
+        }
         $count = mb_strlen($chars);
         //
         for ($i = 0, $result = ''; $i < $length; $i++) {
@@ -71,14 +84,12 @@ class Utils {
         foreach ($allkeys as $key) {
             if (array_key_exists($key, $arr1) && !array_key_exists($key, $arr2)) {
                 $ret[$key] =& $arr1[$key];
-            }
-            else {
+            } else {
                 if (array_key_exists($key, $arr2) && !array_key_exists($key, $arr1)) {
                     if ($allow_create) {
                         $ret[$key] =& $arr2[$key];
                     }
-                }
-                else {
+                } else {
                     $ret[$key] =& self::arrayMergeAssocRecursive($arr1[$key], $arr2[$key], $allow_create);
                 }
             }

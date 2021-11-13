@@ -1,6 +1,27 @@
 <?php
 # @Author: Andrea F. Daniele <afdaniele>
 # @Email:  afdaniele@ttic.edu
+
+
+// load constants
+require_once 'system/environment.php';
+
+// load core libraries
+require_once 'system/classes/Core.php';
+require_once 'system/classes/Configuration.php';
+
+// load the error handler module
+require_once 'system/packages/core/modules/error_handler.php';
+
+// simplify namespaces
+use exceptions\BaseException;
+use exceptions\PackageNotFoundException;
+use exceptions\ThemeNotFoundException;
+use system\classes\Core;
+use system\classes\Configuration;
+
+// create a Session
+Core::startSession();
 ?>
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
@@ -8,28 +29,19 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
     <?php
-    // load constants
-    require_once 'system/environment.php';
-    
     // load core libraries
-    require_once 'system/classes/Core.php';
-    require_once 'system/classes/Configuration.php';
     require_once 'system/classes/Database.php';
     require_once 'system/classes/BlockRenderer.php';
     require_once 'system/classes/MissionControl.php';
     require_once 'system/classes/enum/EmailTemplates.php';
     require_once 'system/utils/utils.php';
     require_once 'system/utils/URLrewrite.php';
+    // TODO: remove what is not needed
     require_once 'system/templates/forms/forms.php';
     require_once 'system/templates/sections/sections.php';
     require_once 'system/templates/paginators/paginators.php';
     
-    // load the error handler module
-    require_once 'system/packages/core/modules/error_handler.php';
-    
     // simplify namespaces
-    use system\classes\Core;
-    use system\classes\Configuration;
     use system\utils\URLrewrite;
     
     // compute how far this page is from the root
@@ -53,14 +65,14 @@
     Configuration::$ARG1 = (count($args) > 2 && $args[2] !== '') ? $args[2] : NULL;
     Configuration::$ARG2 = (count($args) > 3 && $args[3] !== '') ? $args[3] : NULL;
     
-    // create a Session
-    Core::startSession();
-    
     // init Core
     $safe_mode = in_array($requested_page, ['error', 'maintenance']);
-    $res = Core::init($safe_mode);
-    if (!$res['success']) {
-        Core::throwError($res['data']);
+    try {
+        Core::init($safe_mode);
+    } catch (BaseException $e) {
+        $msg = $e->getMessage();
+        Core::requestAlert("ERROR", "Error: '$msg'.");
+        return;
     }
     
     // get info about the current user
@@ -75,17 +87,13 @@
     }
     
     // redirect user to maintenance mode (if necessary)
-    if ($main_user_role != 'administrator' &&
-        Core::getSetting('maintenance_mode', 'core') &&
-        !in_array($requested_page, ['login', 'setup', 'error', 'maintenance'])) {
+    if ($main_user_role != 'administrator' && Core::getSetting('maintenance_mode') && !in_array($requested_page, ['login', 'setup', 'error', 'maintenance'])) {
         Core::redirectTo('maintenance');
     }
     
     // get the list of pages the current user has access to
     $pages_list = Core::getFilteredPagesList('list', TRUE, $user_roles);
-    $available_pages = array_map(function ($p) {
-        return $p['id'];
-    }, $pages_list);
+    $available_pages = array_map(function ($p) {return $p['id'];}, $pages_list);
     
     // get factory default page
     $factory_default_page = Core::getFactoryDefaultPagePerRole($main_user_role);
@@ -99,7 +107,7 @@
     }
     
     // get default page
-    $default_page = Core::getDefaultPagePerRole($main_user_role, 'core');
+    $default_page = Core::getDefaultPagePerRole($main_user_role);
     foreach (array_keys(Core::getPackagesList()) as $pkg_id) {
         if ($pkg_id == 'core') {
             continue;
@@ -130,9 +138,23 @@
     // get theme
     $theme_id = Core::getSetting('theme');
     $theme_parts = explode(':', $theme_id);
-    $theme_file = Core::getThemeFile($theme_parts[1], $theme_parts[0]);
+    $theme_name = (count($theme_parts) == 1)? $theme_parts[0] : $theme_parts[1];
+    $theme_name = (strlen($theme_name) <= 0)? 'default' : $theme_name;
+    $theme_package = (count($theme_parts) == 1)? 'core' : $theme_parts[0];
+    $theme_file = null;
+    try {
+        $theme_file = Core::getThemeFile($theme_name, $theme_package);
+    } catch (BaseException $e) {
+        $msg = $e->getMessage();
+        Core::requestAlert("WARNING", "Error: $msg. Falling back to 'default' theme.");
+    }
     if (is_null($theme_file)) {
-        $theme_file = Core::getThemeFile('default');
+        try {
+            $theme_file = Core::getThemeFile('default');
+        } catch (BaseException $e) {
+            echo "ERROR: Failed to load default theme.";
+            return;
+        }
     }
     
     // get favicon

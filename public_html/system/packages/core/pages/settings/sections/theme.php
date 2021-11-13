@@ -3,6 +3,8 @@
 # @Email:  afdaniele@ttic.edu
 # @Last modified by:   afdaniele
 
+use exceptions\PackageNotFoundException;
+use exceptions\ThemeNotFoundException;
 use system\classes\Core;
 
 require_once $GLOBALS['__SYSTEM__DIR__'] . 'templates/forms/SmartForm.php';
@@ -15,15 +17,18 @@ function settings_theme_tab($args, $settings_tab_id) {
     $theme = $theme_parts[1];
     
     // get theme configuration schema
-    $res = Core::getThemeConfigurationSchema($theme, $package);
-    if (!$res['success']) {
-        Core::throwError($res['data']);
+    try {
+        $theme_schema = Core::getThemeConfigurationSchema($theme, $package);
+    } catch (PackageNotFoundException $e) {
+        Core::throwException($e);
+        return;
+    } catch (ThemeNotFoundException $e) {
+        Core::throwException($e);
         return;
     }
-    $theme_schema = $res['data'];
     
     // not configurable themes
-    if ($theme_schema->is_empty()) {
+    if (count($theme_schema["properties"]) <= 0) {
         ?>
         <h4 class="text-center">(not configurable)</h4>
         <?php

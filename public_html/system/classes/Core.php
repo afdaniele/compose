@@ -5,6 +5,7 @@
 
 namespace system\classes;
 
+require_once __DIR__ . '/../exceptions.php';
 require_once __DIR__ . '/../environment.php';
 require_once __DIR__ . '/../utils/utils.php';
 
@@ -36,6 +37,12 @@ require_once __DIR__ . '/google_api_php_client/vendor/autoload.php';
 require_once __DIR__ . '/json_schema/vendor/autoload.php';
 
 
+use exceptions\BaseException;
+use exceptions\CircularDependencyException;
+use exceptions\FileNotFoundException;
+use exceptions\NoVCSFoundException;
+use exceptions\PackageNotFoundException;
+use exceptions\ThemeNotFoundException;
 use system\classes\enum\EmailTemplates;
 use system\classes\enum\CacheTime;
 
@@ -72,11 +79,14 @@ class Core {
     private static $debugger_data = [];
     private static $volatile_session = FALSE;
     private static $registered_css_stylesheets = [];
+    
     private static $default_page_per_role = [
-        'administrator' => 'profile',
-        'supervisor' => 'profile', 'user' => 'profile',
-        'guest' => 'login'
+        'guest' => 'login',
+        'user' => 'profile',
+        'supervisor' => 'profile',
+        'administrator' => 'profile'
     ];
+    
     private static $registered_user_roles = [
         'core' => [
             'guest' => [
@@ -285,18 +295,22 @@ class Core {
      *    ]</code></pre>
      *        where, the `success` field indicates whether the call succeded.
      *        The `data` field contains an error string when `success` is `FALSE`.
+     *
+     * @param bool $safe_mode       Load 'core' package only.
+     * @return bool                 Whether the operation succeded.
+     * @throws BaseException
+     * @throws FileNotFoundException
+     * @throws CircularDependencyException
      */
-    public static function init($safe_mode = FALSE) {
+    public static function init($safe_mode = false) {
         if (!self::$initialized) {
             // set encoding
             mb_internal_encoding("UTF-8");
             // configure umask
             self::_set_umask(0002);
             // init configuration
-            $res = Configuration::init();
-            if (!$res['success']) {
-                return $res;
-            }
+            // TODO: make sure this screams
+            Configuration::init();
             //
             // create cache proxy (cache initialization happens later)
             self::$cache = new CacheProxy('core');
@@ -315,7 +329,7 @@ class Core {
             }
             //
             // initialize cache
-            if (self::getSetting('cache_enabled', 'core')) {
+            if (self::getSetting('cache_enabled')) {
                 Cache::init();
             }
             //
@@ -332,9 +346,7 @@ class Core {
             $theme_name = $theme_parts[1];
             // load theme configuration
             try {
-                $res = self::getThemeConfiguration($theme_name, $theme_pkg);
-                if (!$res['success']) throw new \Exception($res['data']);
-                Configuration::$THEME_CONFIG = $res['data'];
+                Configuration::$THEME_CONFIG = self::getThemeConfiguration($theme_name, $theme_pkg);
             } catch (\Exception $e) {
                 Core::requestAlert(
                     'WARNING',
@@ -349,7 +361,7 @@ class Core {
             // safe mode (everything after this point should be optional)
             if ($safe_mode) {
                 self::$initialized = TRUE;
-                return ['success' => TRUE, 'data' => NULL];
+                return true;
             }
             //
             // load email templates
@@ -364,10 +376,7 @@ class Core {
                 $dep_graph[$pkg_id] = $pkg['dependencies']['packages'];
             }
             // solve the dependencies graph
-            $res = self::_solve_dependencies_graph($dep_graph);
-            if (!$res['success'])
-                return $res;
-            $package_order = $res['data'];
+            $package_order = self::_solve_dependencies_graph($dep_graph);
             //
             // initialize all the packages
             foreach ($package_order as $pkg_id) {
@@ -377,34 +386,31 @@ class Core {
                 // initialize package Core class
                 if (!is_null($pkg['core'])) {
                     // try to load the core file
-                    $file_loaded = include_once $pkg['core']['file'];
+                    $file_loaded = include_once($pkg['core']['file']);
                     if ($file_loaded) {
                         // TODO: do not prepend \system\classes if it is already in $pkg['core']['namespace']
                         $php_init_command = sprintf("return \system\packages\%s\%s::init();", $pkg['core']['namespace'], $pkg['core']['class']);
                         // try to initialize the package core class
                         try {
                             $res = eval($php_init_command);
-                            if (!is_array($res))
-                                return [
-                                    'success' => FALSE,
-                                    'data' => sprintf('An error occurred while initializing the package `%s`. Command `%s`', $pkg['id'], $php_init_command)
-                                ];
-                            if (!$res['success'])
-                                return [
-                                    'success' => FALSE,
-                                    'data' => sprintf('An error occurred while initializing the package `%s`. Command `%s`. The module reports: "%s"', $pkg['id'], $php_init_command, $res['data'])
-                                ];
+                            if (!is_array($res)) {
+                                $msg = sprintf('An error occurred while initializing the package `%s`. Command `%s`', $pkg['id'], $php_init_command);
+                                throw new BaseException($msg);
+                            }
+                            if (!$res['success']) {
+                                $msg = sprintf('An error occurred while initializing the package `%s`. Command `%s`. The module reports: "%s"', $pkg['id'], $php_init_command, $res['data']);
+                                throw new BaseException($msg);
+                            }
                         } catch (\Error $e) {
-                            return ['success' => FALSE, 'data' => $e->getMessage()];
+                            $msg = sprintf('An error occurred while initializing the package `%s`. Error: "%s"', $pkg['id'], $e->getMessage());
+                            throw new BaseException($msg);
                         }
                     }
                 }
             }
             self::$initialized = TRUE;
-            return ['success' => TRUE, 'data' => NULL];
-        } else {
-            return ['success' => TRUE, 'data' => "Core already initialized!"];
         }
+        return true;
     }//init
     
     
@@ -419,7 +425,7 @@ class Core {
     
     
     public static function healthCheck() {
-        return ['success' => TRUE, 'data' => NULL];
+        return true;
     }//healthCheck
     
     
@@ -435,7 +441,9 @@ class Core {
     
     public static function getCurrentResource() {
         $resource_parts = [
-            Configuration::$PAGE, Configuration::$ACTION, Configuration::$ARG1,
+            Configuration::$PAGE,
+            Configuration::$ACTION,
+            Configuration::$ARG1,
             Configuration::$ARG2
         ];
         $resource_parts = array_filter($resource_parts, function ($e) {
@@ -586,7 +594,7 @@ class Core {
             session_start();
         if (!isset($_SESSION['TOKEN'])) {
             // generate a session token
-            $token = self::generateRandomString(16);
+            $token = Utils::generateRandomString(16);
             $_SESSION['TOKEN'] = $token;
         }
         // init configuration
@@ -1680,9 +1688,9 @@ class Core {
     public static function getPackageSettingsAsArray($package_name) {
         if (key_exists($package_name, self::$settings)) {
             if (self::$settings[$package_name]['success']) {
-                return self::$settings[$package_name]['data']->asArray();
+                return self::$settings[$package_name]->asArray();
             }
-            return self::$settings[$package_name]['data'];
+            return self::$settings[$package_name];
         }
         return NULL;
     }//getPackageSettingsAsArray
@@ -1700,23 +1708,16 @@ class Core {
      *        the default value returned if the key does not exist.
      *        DEFAULT = null;
      *
+     * @return mixed
      * @retval mixed
      *        If the function succeeds, it returns the value of the setting key specified.
      *        If the package is not installed or an error occurred while reading the
      *        configuration for the given package, `NULL` is returned.
      */
-    public static function getSetting($key, $package_name = 'core', $default_value = NULL) {
+    public static function getSetting(string $key, string $package_name = 'core', $default_value = NULL) {
         if (key_exists($package_name, self::$settings)) {
-            if (self::$settings[$package_name]['success']) {
-                $res = self::$settings[$package_name]['data']->get($key, $default_value);
-                if (!$res['success']) {
-                    return $default_value;
-                }
-                return $res['data'];
-            }
-            return $default_value;
+            return self::$settings[$package_name]->get($key, $default_value);
         }
-        return $default_value;
     }//getSetting
     
     
@@ -1731,36 +1732,24 @@ class Core {
      * @param string $value
      *        the new value to store in the package's settings;
      *
-     * @retval mixed
-     *        If the function succeeds, it returns `TRUE`.
-     *        If the package is not installed, the function returns `NULL`.
-     *        If an error occurred while writing the configuration of the given
-     *        package, a `string` containing the error is returned.
+     * @throws PackageNotFoundException
      */
-    public static function setSetting($package_name, $key, $value) {
+    public static function setSetting(string $package_name, string $key, string $value) {
         if (key_exists($package_name, self::$settings)) {
-            if (self::$settings[$package_name]['success']) {
-                // update the key,value pair
-                $res = self::$settings[$package_name]['data']->set($key, $value);
-                if (!$res['success']) {
-                    return $res;
-                }
-                // commit the new configuration
-                $res = self::$settings[$package_name]['data']->commit();
-                if (!$res['success']) {
-                    return $res;
-                }
-                // update cache (if necessary)
-                $cache_key = "packages_settings";
-                if (self::$cache->has($cache_key)) {
-                    self::$cache->set($cache_key, self::$settings, CacheTime::HOURS_24);
-                }
-                // success
-                return ['success' => TRUE, 'data' => NULL];
+            // update the key,value pair
+            // TODO: make sure this screams
+            self::$settings[$package_name]->set($key, $value);
+            // commit the new configuration
+            // TODO: make sure this screams
+            self::$settings[$package_name]->commit();
+            // update cache (if necessary)
+            $cache_key = "packages_settings";
+            if (self::$cache->has($cache_key)) {
+                self::$cache->set($cache_key, self::$settings, CacheTime::HOURS_24);
             }
-            return ['success' => FALSE, 'data' => self::$settings[$package_name]['data']];
+        } else {
+            throw new PackageNotFoundException("Package '$package_name' not found.");
         }
-        return ['success' => FALSE, 'data' => sprintf('Package "%s" not found', $package_name)];
     }//setSetting
     
     
@@ -2231,17 +2220,19 @@ class Core {
      * @return string
      *        Path to the theme entrypoint file or NULL if the theme does not exist.
      *
+     * @throws PackageNotFoundException
+     * @throws ThemeNotFoundException
      */
     public static function getThemeFile($theme_name, $package_id = 'core') {
         // check if the package exists
         if (!self::packageExists($package_id)) {
-            return null;
+            throw new PackageNotFoundException("Package '$package_id' not found.");
         }
         // check if the theme exists
         $theme_file = join_path(
             self::getPackageRootDir($package_id), 'modules', 'theme', $theme_name, 'index.php');
         if (!file_exists($theme_file)) {
-            return null;
+            throw new ThemeNotFoundException("Theme '$theme_name' not found.");
         }
         // everything looks ok
         return $theme_file;
@@ -2256,7 +2247,6 @@ class Core {
      * @param string $package_id
      *        ID of the package the theme belongs to.
      *
-     * @retval array
      * @return array
      *        a status array of the form
      *    <pre><code class="php">[
@@ -2267,24 +2257,23 @@ class Core {
      *        The `data` field contains an error string when `success` is `FALSE`,
      *        an associative array containing the theme configuration schema otherwise.
      *
+     * @throws PackageNotFoundException
+     * @throws ThemeNotFoundException
+     * @retval array
      */
-    public static function getThemeConfigurationSchema($theme_name, $package_id = 'core') {
+    public static function getThemeConfigurationSchema(string $theme_name, $package_id = 'core') {
         // check if both the package and the theme exist
-        if (is_null(self::getThemeFile($theme_name, $package_id))) {
-            return [
-                'success' => false, 'data' =>
-                sprintf('Either package(%s) or theme(%s) not found', $package_id, $theme_name)
-            ];
-        }
+        self::getThemeFile($theme_name, $package_id);
         // read theme default configuration
         $theme_cfg_schema = [];
-        $theme_cfg_file = join_path(self::getPackageRootDir($package_id), 'modules',
-            'theme', $theme_name, 'configuration.json');
+        $theme_cfg_file = join_path(
+            self::getPackageRootDir($package_id), 'modules', 'theme', $theme_name, 'configuration.json'
+        );
         if (file_exists($theme_cfg_file)) {
             $theme_cfg_schema = json_decode(file_get_contents($theme_cfg_file), true);
         }
         // ---
-        return ['success' => true, 'data' => $theme_cfg_schema];
+        return $theme_cfg_schema;
     }//getThemeConfigurationSchema
     
     
@@ -2296,7 +2285,6 @@ class Core {
      * @param string $package_id
      *        ID of the package the theme belongs to.
      *
-     * @retval array
      * @return array
      *        a status array of the form
      *    <pre><code class="php">[
@@ -2307,33 +2295,30 @@ class Core {
      *        The `data` field contains an error string when `success` is `FALSE`,
      *        an associative array containing the theme configuration otherwise.
      *
+     * @throws PackageNotFoundException
+     * @throws ThemeNotFoundException
+     * @retval array
      */
-    public static function getThemeConfiguration($theme_name, $package_id = 'core') {
+    public static function getThemeConfiguration(string $theme_name, string $package_id = 'core') {
         // get configuration schema
-        $res = self::getThemeConfigurationSchema($theme_name, $package_id);
-        if (!$res['success']) return $res;
-        $cfg_schema = $res['data'];
+        $cfg_schema = self::getThemeConfigurationSchema($theme_name, $package_id);
         // read theme default configuration
         // TODO: this used to call ->defaults() on ComposeSchema, implement the defaults function
         $cfg_defaults = [];
-        $default_res = ['success' => true, 'data' => $cfg_defaults];
         // open the database
         $db_name = 'theme_configuration';
         if (!Database::database_exists('core', $db_name)) {
-            return $default_res;
+            return $cfg_defaults;
         }
         $db = new Database('core', $db_name);
         $entry_key = sprintf('%s__%s', $package_id, $theme_name);
         if (!$db->key_exists($entry_key)) {
-            return $default_res;
+            return $cfg_defaults;
         }
-        $res = $db->read($entry_key);
-        if (!$res['success']) return $res;
+        //TODO: make sure this screams
+        $values = $db->read($entry_key);
         // merge configs
-        return [
-            'success' => true,
-            'data' => Utils::arrayMergeAssocRecursive($default_res['data'], $res['data'], false)
-        ];
+        return Utils::arrayMergeAssocRecursive($cfg_defaults, $values, false);
     }//getThemeConfiguration
     
     
@@ -2361,9 +2346,7 @@ class Core {
      */
     public static function setThemeConfiguration($theme_name, $configuration, $package_id = 'core') {
         // read current configuration
-        $res = self::getThemeConfiguration($theme_name, $package_id);
-        if (!$res['success']) return $res;
-        $current_cfg = $res['data'];
+        $current_cfg = self::getThemeConfiguration($theme_name, $package_id);
         // open the database
         $db_name = 'theme_configuration';
         $db = new Database('core', $db_name);
@@ -2477,39 +2460,50 @@ class Core {
     }//getDebugInfo
     
     
+    /** Updates \\compose\\ to the latest version.
+     *
+     * @throws NoVCSFoundException
+     *
+     */
     public static function updateBase($version = NULL) {
         $branch = 'stable';
         if (is_null($version)) {
             $version = 'devel';
         }
+        $stdout = [];
         // fetch everything new
-        exec(sprintf('git -C "%s" fetch origin 2>&1', $GLOBALS['__COMPOSE__DIR__']), $info, $exit_code);
+        exec(sprintf('git -C "%s" fetch origin 2>&1', $GLOBALS['__COMPOSE__DIR__']), $stdout, $exit_code);
         if ($exit_code != 0) {
-            return ['success' => FALSE, 'data' => implode('<br/>', $info)];
+            throw new NoVCSFoundException(implode('<br/>', $stdout));
         }
         // checkout branch
-        exec(sprintf('git -C "%s" checkout %s 2>&1', $GLOBALS['__COMPOSE__DIR__'], $branch), $info, $exit_code);
+        exec(sprintf('git -C "%s" checkout %s 2>&1', $GLOBALS['__COMPOSE__DIR__'], $branch), $stdout, $exit_code);
         if ($exit_code != 0) {
-            return ['success' => FALSE, 'data' => implode('<br/>', $info)];
+            throw new NoVCSFoundException(implode('<br/>', $stdout));
         }
         // pull new code
-        exec(sprintf('git -C "%s" pull origin %s --tags 2>&1', $GLOBALS['__COMPOSE__DIR__'], $branch), $info, $exit_code);
+        exec(sprintf('git -C "%s" pull origin %s --tags 2>&1', $GLOBALS['__COMPOSE__DIR__'], $branch), $stdout, $exit_code);
         if ($exit_code != 0) {
-            return ['success' => FALSE, 'data' => implode('<br/>', $info)];
+            throw new NoVCSFoundException(implode('<br/>', $stdout));
         }
         // switch to tag (if not devel update)
         if ($version !== 'devel') {
             // checkout given version
-            exec(sprintf('git -C "%s" checkout %s 2>&1', $GLOBALS['__COMPOSE__DIR__'], $version), $info, $exit_code);
+            exec(sprintf('git -C "%s" checkout %s 2>&1', $GLOBALS['__COMPOSE__DIR__'], $version), $stdout, $exit_code);
             if ($exit_code != 0) {
-                return ['success' => FALSE, 'data' => implode('<br/>', $info)];
+                throw new NoVCSFoundException(implode('<br/>', $stdout));
             }
         }
-        return ['success' => TRUE, 'data' => NULL];
     }//updateBase
     
     
-    public static function redirectTo($resource, $append_qs = FALSE) {
+    /** Drops Javascript code that will trigger a redirect to the given resource once
+     * executed in the browser.
+     *
+     * @param $resource       string Resource to redirect to.
+     * @param $append_qs      bool   Append the current REQUEST_URI to the resource URL as querystring
+     */
+    public static function redirectTo($resource, $append_qs = false) {
         $qs = '';
         $uri = ltrim(trim($_SERVER['REQUEST_URI']), '/');
         if ($append_qs && strlen($uri) > 0) {
@@ -2528,16 +2522,27 @@ class Core {
         );
         if (!$dry_run) {
             die();
-            exit;
         }
     }//redirectTo
     
     
+    /** Extract hostname from the URL in the browser.
+     *
+     * @return null|string  Hostname extracted from the browser hostname
+     */
     public static function getBrowserHostname() {
-        return strstr($_SERVER['HTTP_HOST'] . ':' . $_SERVER['SERVER_PORT'], ':', TRUE);
+        $res = strstr($_SERVER['HTTP_HOST'] . ':' . $_SERVER['SERVER_PORT'], ':', true);
+        if ($res === false) return null;
+        return $res;
     }//getBrowserHostname
     
     
+    /** Drops Javascript code that opens an alert of a given $type and with a given $message
+     * once executed by the browser.
+     *
+     * @param $type     string Type of alert, options are 'INFO', 'ERROR', 'WARNING'
+     * @param $message  string Message to show in the alert
+     */
     public static function openAlert($type, $message) {
         echo sprintf("<script type=\"application/javascript\">
       	$(document).ready(function() {
@@ -2546,6 +2551,13 @@ class Core {
       </script>", $type, addslashes($message));
     }//openAlert
     
+    
+    /** Requests an alert that will appear at the next page loaded. Unlike `openAlert`, this
+     * code drop the alert directly in the HTML instead of relying on Javascript.
+     *
+     * @param $type     string Type of alert, options are 'INFO', 'ERROR', 'WARNING'
+     * @param $message  string Message to show in the alert
+     */
     public static function requestAlert($type, $message) {
         if (!in_array($type, ['INFO', 'ERROR', 'WARNING'])) {
             self::throwErrorF('Unknown alert type "%s". Allowed values are ["%s"]', $type, implode('", "', [
@@ -2558,65 +2570,23 @@ class Core {
         $_SESSION[$alert_key] = $message;
     }//requestAlert
     
+    
+    public static function throwException(BaseException $e) {
+        $_SESSION['_ERROR_PAGE_MESSAGE'] = sprintf("%s<br/><br/>Error: %s", $e->getTraceAsString(), $e->getMessage());
+        self::redirectTo('error');
+    }//throwError
+    
+    
     public static function throwError($errorMsg) {
         $_SESSION['_ERROR_PAGE_MESSAGE'] = $errorMsg;
-        //
         self::redirectTo('error');
     }//throwError
     
     
     public static function throwErrorF(...$args) {
         $_SESSION['_ERROR_PAGE_MESSAGE'] = call_user_func_array('sprintf', $args);
-        //
         self::redirectTo('error');
     }//throwErrorF
-    
-    
-    public static function throwException($exceptionMsg) {
-        self::throwError($exceptionMsg);
-    }//throwException
-    
-    
-    // public static function sendEMail($to, $subject, $template, $replace, $replyTo=null){
-    // 	// prepare the message body
-    // 	$res = EmailTemplates::fill($template, $replace);
-    // 	if (!$res['success']) {
-    // 		return $res;
-    // 	}
-    // 	$body = $res['data'];
-    // 	// create the mail object
-    // 	$mail = new \PHPMailer();
-    // 	//
-    // 	$mail->isSMTP();                                      				// Set mailer to use SMTP
-    // 	$mail->Host = Configuration::$NOREPLY_MAIL_HOST;	  				// Specify main and backup SMTP servers
-    // 	$mail->SMTPAuth = Configuration::$NOREPLY_MAIL_AUTH;  				// Enable SMTP authentication
-    // 	$mail->Username = Configuration::$NOREPLY_MAIL_USERNAME;           	// SMTP username
-    // 	$mail->Password = Configuration::$NOREPLY_MAIL_PASSWORD;      		// SMTP password
-    // 	if (!in_array(Configuration::$NOREPLY_MAIL_SECURE_PROTOCOL, array('', 'none') )) {
-    // 		$mail->SMTPSecure = Configuration::$NOREPLY_MAIL_SECURE_PROTOCOL;  	// Enable TLS encryption, `ssl` also accepted
-    // 	}
-    // 	$mail->Port = Configuration::$NOREPLY_MAIL_SERVER_PORT;
-    // 	//
-    // 	$mail->From = Configuration::$NOREPLY_MAIL_ADDRESS;
-    // 	$mail->FromName = self::getSiteName();
-    // 	$mail->addAddress($to);     										// Add a recipient
-    // 	//
-    // 	if ($replyTo !== null) {
-    // 		$mail->addReplyTo($replyTo['email'], $replyTo['name']);
-    // 	}
-    // 	//
-    // 	//$mail->addAttachment('/tmp/image.jpg', 'new.jpg');    			// Add an Attachment
-    // 	$mail->isHTML(true);                                  				// Set email format to HTML
-    // 	//
-    // 	$mail->Subject = $subject;
-    // 	$mail->Body = $body;
-    // 	//
-    // 	if(!$mail->send()) {
-    // 		return array('success' => false, 'data' => $mail->ErrorInfo);
-    // 	} else {
-    // 		return array('success' => true, 'data' => null);
-    // 	}
-    // }//sendEMail
     
     
     public static function getErrorRecordsList() {
@@ -2671,24 +2641,18 @@ class Core {
         self::$debugger_data[$package][$test_id] = [$test_value, $test_type];
     }//collectDebugInfo
     
-    // TODO: DO NOT USE: moving to Utils, use Utils::generateRandomString() instead
-    public static function generateRandomString($length) {
-        $chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-        $count = mb_strlen($chars);
-        //
-        for ($i = 0, $result = ''; $i < $length; $i++) {
-            $index = rand(0, $count - 1);
-            $result .= mb_substr($chars, $index, 1);
-        }
-        return $result;
-    }//generateRandomString
-    
-    
+    /** Set verbose mode.
+     *
+     * @param bool $verbose_flag        Verbose flag.
+     */
     public static function verbose($verbose_flag = TRUE) {
         self::$verbose = $verbose_flag;
     }//verbose
     
-    
+    /** Set debug mode.
+     *
+     * @param bool $debug_flag          Debug mode.
+     */
     public static function debug($debug_flag = TRUE) {
         self::$debug = $debug_flag;
     }//debug
@@ -2701,7 +2665,10 @@ class Core {
         }
     }//log
     
-    
+    /** Regenerates the PHP session ID.
+     *
+     * @param false $delete_old_session     Whether data from the current session should be deleted.
+     */
     public static function regenerateSessionID($delete_old_session = FALSE) {
         session_regenerate_id($delete_old_session);
     }//regenerateSessionID
@@ -2714,6 +2681,10 @@ class Core {
     // Private functions
     
     
+    /** Sets umask.
+     *
+     * @param $umask    integer Umask.
+     */
     private static function _set_umask($umask) {
         /*
         The umask defines what privileges can be assigned to newly created files and directories.
@@ -2748,8 +2719,9 @@ class Core {
      * @param array $unresolved List of unresolved items
      *
      * @return array
+     * @throws CircularDependencyException
      */
-    function _dep_solve_dependencies_graph($item, array $items, array $resolved, array $unresolved) {
+    private static function _dep_solve_dependencies_graph($item, array $items, array $resolved, array $unresolved) {
         array_push($unresolved, $item);
         if (!array_key_exists($item, $items)) {
             return [$resolved, $unresolved];
@@ -2760,7 +2732,7 @@ class Core {
                     array_push($unresolved, $dep);
                     list($resolved, $unresolved) = self::_dep_solve_dependencies_graph($dep, $items, $resolved, $unresolved);
                 } else {
-                    throw new \RuntimeException("Circular dependency: $item -> $dep");
+                    throw new CircularDependencyException("Circular dependency: $item -> $dep");
                 }
             }
         }
@@ -2776,20 +2748,23 @@ class Core {
         return [$resolved, $unresolved];
     }//_dep_solve_dependencies_graph
     
-    
+    /**
+     * Solve dependency graph.
+     *
+     * @param array $graph Graph as array of (package, array[deps]) pairs
+     *
+     * @return array        Graph solution.
+     * @throws CircularDependencyException
+     */
     private static function _solve_dependencies_graph($graph) {
         $resolved = [];
         $unresolved = [];
         // resolve dependencies for each node
         foreach (array_keys($graph) as $node) {
-            try {
-                list ($resolved, $unresolved) = self::_dep_solve_dependencies_graph($node, $graph, $resolved, $unresolved);
-            } catch (\Exception $e) {
-                return ['success' => FALSE, 'data' => $e->getMessage()];
-            }
+            list ($resolved, $unresolved) = self::_dep_solve_dependencies_graph($node, $graph, $resolved, $unresolved);
         }
         //
-        return ['success' => TRUE, 'data' => $resolved];
+        return $resolved;
     }//_solve_dependencies_graph
     
     

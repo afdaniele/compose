@@ -5,6 +5,7 @@
 require_once __DIR__ . '/../../utils/utils.php';
 
 use system\classes\ComposeSchema;
+use system\classes\Utils;
 
 class SmartForm {
     
@@ -15,7 +16,7 @@ class SmartForm {
     
     function __construct(&$schema, $values = [], $formID = null) {
         // default values: formID
-        $this->formID = $formID ?? generateRandomString(7);
+        $this->formID = $formID ?? Utils::generateRandomString(7);
         // arguments
         $this->values = $values;
         $this->schema = ($schema instanceof ComposeSchema)? $schema->asArray() : $schema;
