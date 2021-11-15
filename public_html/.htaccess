@@ -17,4 +17,7 @@
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteRule ^(.*)$ index.php?__arg__=$1 [QSA,NC,L]
 
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteRule ^nugget/(.*)$ nugget.php?__arg__=$1 [QSA,NC,L]
+
 </IfModule>
