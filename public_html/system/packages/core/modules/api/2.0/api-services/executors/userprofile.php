@@ -7,7 +7,7 @@
 use system\classes\Core as Core;
 
 
-function execute(&$service, &$actionName, &$arguments) {
+function execute($service, $actionName, &$arguments): APIResponse {
     $action = $service['actions'][$actionName];
     Core::startSession();
     //

@@ -1,4 +1,5 @@
-<?php
+<?php /** @noinspection PhpIncludeInspection */
+
 /**
  * Created by PhpStorm.
  * User: andrea
@@ -43,10 +44,17 @@ class Configuration {
      *
      * @throws FileNotFoundException
      */
-    public static function init() {
+    public static function init(): bool {
         $configFile = __DIR__ . '/../config/configuration.php';
         //
         if (!self::$initialized) {
+            // containers
+            $TIMEZONE = null;
+            $CACHE_SYSTEM = null;
+            $WEBAPI_VERSION = null;
+            $ASSETS_STORE_URL = null;
+            $ASSETS_STORE_VERSION = null;
+            // load configuration file
             if (!file_exists($configFile)) {
                 // try to load the default configuration file
                 $configFile = __DIR__ . '/../config/configuration.default.php';
@@ -65,11 +73,12 @@ class Configuration {
             self::$WEBAPI_VERSION = $WEBAPI_VERSION;
             self::$ASSETS_STORE_URL = $ASSETS_STORE_URL;
             self::$ASSETS_STORE_VERSION = $ASSETS_STORE_VERSION;
+            // set TOKEN
+            self::$TOKEN = $_SESSION['TOKEN'] ?? null;
             //
             self::$initialized = true;
         }
+        return true;
     }//init
     
 }//Configuration
-
-?>

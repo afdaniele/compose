@@ -2,21 +2,34 @@
 
 namespace system\classes;
 
+use exceptions\DatabaseKeyNotFoundException;
+use exceptions\GenericException;
+use exceptions\IOException;
+use JetBrains\PhpStorm\Pure;
 use \system\classes\jsonDB\JsonDB;
+
 
 class Database {
     
     // private static attributes
-    private static $dbs_location = "%sdatabases/%s/";
+    private static string $dbs_location = "%sdatabases/%s/";
     
     // private attributes
-    private $package;
-    private $database;
-    private $entry_regex;
-    private $db_dir;
+    private string $package;
+    private string $database;
+    private string|null $entry_regex;
+    private string $db_dir;
     
     // Constructor
-    function __construct($package, $database, $entry_regex = null) {
+    
+    /**
+     * Database constructor.
+     *
+     * @param string $package       Package the database belongs to.
+     * @param string $database      Database name.
+     * @param string|null $entry_regex
+     */
+    function __construct(string $package, string $database, string $entry_regex = null) {
         if (!Core::packageExists($package)) {
             Core::throwError(sprintf('Tried to create a Database for the package `%s` but the package does not exist', $package));
         }
@@ -29,16 +42,15 @@ class Database {
         $this->db_dir = self::_get_db_dir($package, $database);
     }//__construct
     
-    
-    // Private static functions
-    
-    private static function _get_db_dir($package, $database) {
-        return sprintf(self::$dbs_location . "%s", $GLOBALS['__USERDATA__DIR__'], $package, $database);
-    }//_get_db_dir
-    
     // Public static functions
     
-    public static function database_exists($package, $database) {
+    /** Check whether a database exists.
+     *
+     * @param string $package       Package the database belongs to.
+     * @param string $database      Database name.
+     * @return bool
+     */
+    public static function database_exists(string $package, string $database): bool {
         $db_dir = self::_get_db_dir($package, $database);
         if (!Core::packageExists($package) || !file_exists($db_dir)) {
             return false;
@@ -46,7 +58,12 @@ class Database {
         return true;
     }//database_exists
     
-    public static function list_dbs($package) {
+    /** Lists all databases for a package.
+     *
+     * @param string $package   package to list databases for.
+     * @return array
+     */
+    public static function list_dbs(string $package): array {
         // get list of all json files
         $entry_wild = self::_get_db_dir($package, '*') . '/';
         // cut the path and keep the key
@@ -67,47 +84,66 @@ class Database {
         return $keys;
     }//list_dbs
     
-    public static function delete_db($package, $database) {
+    /** Deletes a database.
+     *
+     * @param string $package       Package the database belongs to.
+     * @param string $database      Database name.
+     * @return bool
+     */
+    public static function delete_db(string $package, string $database): bool {
         $db_dir = self::_get_db_dir($package, $database);
         // remove all keys
         array_map('unlink', glob("$db_dir/*.*"));
         // remove empty db
         rmdir($db_dir);
         // ---
-        return ['success' => true, 'data' => null];
+        return true;
     }//delete_db
     
     
     // Public functions
     
-    public function read($key) {
+    /** Read entry from the database as array.
+     *
+     * @param string $key       Key of the entry to read.
+     * @return array            Database entry.
+     * @throws DatabaseKeyNotFoundException
+     */
+    public function read(string $key): array {
         $key = self::_safe_key($key);
-        $res = self::get_entry($key);
-        if (!$res['success']) {
-            return $res;
-        }
-        return ['success' => true, 'data' => $res['data']->asArray()];
+        return self::get_entry($key)->asArray();
     }//read
     
-    public function get_entry($key) {
+    /** Read entry from the database as editable JsonDB.
+     *
+     * @param string $key       Key of the entry to read.
+     * @return JsonDB           Database entry.
+     * @throws DatabaseKeyNotFoundException
+     */
+    public function get_entry(string $key): JsonDB {
         $key = self::_safe_key($key);
         // check if key exists
         if (!self::key_exists($key)) {
-            return ['success' => false, 'data' => sprintf("Entry with key '%s' not found!", $key)];
+            throw new DatabaseKeyNotFoundException($this->package, $this->database, $key);
         }
         // load data
         $entry_file = self::_key_to_db_file($key);
-        $jsondb = new JsonDB($entry_file, '_data');
-        return ['success' => true, 'data' => $jsondb];
+        return new JsonDB($entry_file, '_data');
     }//get_entry
     
-    public function write($key, $data) {
+    /** Write a (key, value) pair to the database.
+     *
+     * @param string $key       The key.
+     * @param mixed $data       The value.
+     * @return boolean
+     * @throws GenericException
+     * @throws IOException
+     */
+    public function write(string $key, mixed $data): bool {
         $key = self::_safe_key($key);
         if (!is_null($this->entry_regex) && !preg_match($this->entry_regex, $key)) {
-            return [
-                'success' => false,
-                'data' => 'The given key does not match the given pattern. This instance of Database has a limited scope'
-            ];
+            throw new GenericException("The given key does not match the given pattern.
+                                        This instance of Database has a limited scope");
         }
         // get filename from key
         $entry_file = self::_key_to_db_file($key);
@@ -116,25 +152,33 @@ class Database {
         $jsondb->set('_data', $data);
         $jsondb->set('_metadata', []);
         // make sure that the path to the file exists
-        $res = $jsondb->createDestinationIfNotExists();
-        if (!$res['success']) {
-            return $res;
-        }
+        $jsondb->createDestinationIfNotExists();
         // write data to file
         return $jsondb->commit();
     }//write
     
-    public function delete($key) {
+    /** Deletes a key from the database.
+     *
+     * @param string $key       Key to delete.
+     * @return bool
+     * @throws DatabaseKeyNotFoundException
+     */
+    public function delete(string $key): bool {
         $key = self::_safe_key($key);
         $entry_file = self::_key_to_db_file($key);
         // delete if exists
         if (file_exists($entry_file)) {
-            return ['success' => @unlink($entry_file), 'data' => null];
+            return @unlink($entry_file);
         }
-        return ['success' => false, 'data' => 'The entry was not found'];
+        throw new DatabaseKeyNotFoundException($this->package, $this->database, $key);
     }//delete
     
-    public function key_exists($key) {
+    /** Checks whether a key exists in the database.
+     *
+     * @param string $key       The key to check for.
+     * @return bool
+     */
+    public function key_exists(string $key): bool {
         $key = self::_safe_key($key);
         if (!is_null($this->entry_regex) && !preg_match($this->entry_regex, $key)) {
             return false;
@@ -145,7 +189,11 @@ class Database {
         return file_exists($entry_file);
     }//key_exists
     
-    public function list_keys() {
+    /** Lists keys inside the database.
+     *
+     * @return array
+     */
+    public function list_keys(): array {
         // get list of all json files
         $entry_wild = sprintf('%s/*.json', $this->db_dir);
         $files = glob($entry_wild);
@@ -164,17 +212,31 @@ class Database {
         return $keys;
     }//list_keys
     
-    public function size() {
+    /** Returns the number of (key, value) pairs in the database.
+     *
+     * @return int
+     */
+    public function size(): int {
         // return count of list of keys
         return count(self::list_keys());
     }//size
     
-    public function key_size($key) {
+    /** Returns the length in number of bytes of the value corresponding to the given key.
+     *
+     * @param string $key       The key to check the size for.
+     * @return int
+     */
+    public function key_size(string $key): int {
         // return size of key file in number of bytes
         return filesize(self::_key_to_db_file($key));
     }//key_size
     
-    public function is_writable($key) {
+    /** Checks whether the given key is writable.
+     *
+     * @param string $key       The key to check for.
+     * @return bool
+     */
+    public function is_writable(string $key): bool {
         // return wether the key can be written to disk
         $entry_file = self::_key_to_db_file($key);
         return !file_exists($entry_file) || is_writable($entry_file);
@@ -183,32 +245,36 @@ class Database {
     
     // Private functions
     
-    private function _safe_key($key) {
+    /** Sanitizes a key.
+     *
+     * @param string $key       The key to sanitizie.
+     * @return string
+     */
+    private function _safe_key(string $key): string {
         return Utils::string_to_valid_filename($key);
     }//_safe_key
     
-    private function _key_to_db_file($key) {
+    /** Returns the database file a key corresponds to.
+     *
+     * @param string $key       The key.
+     * @return string
+     */
+    private function _key_to_db_file(string $key): string {
         $entry_filename = self::_safe_key($key);
-        $entry_file = sprintf('%s/%s.json', $this->db_dir, $entry_filename);
-        return $entry_file;
+        return sprintf('%s/%s.json', $this->db_dir, $entry_filename);
     }//_key_to_db_file
     
-    private function _key_list_to_regex($key) {
-        $key_regex = '';
-        for ($i = 0; $i < count($key); $i++) {
-            $k = $key[$i];
-            if ($i > 0) {
-                $key_regex .= '\.';
-            }
-            if (is_null($k)) {
-                $key_regex .= '([A-Za-z0-9_]+)';
-            } else {
-                $key_regex .= Utils::string_to_valid_filename($key);
-            }
-        }
-        // compose regex
-        return sprintf("/^%s$/", $key_regex);
-    }//_key_list_to_regex
+    
+    // Private static functions
+    
+    /** Get path to database directory.
+     *
+     * @param string $package       Package the database belongs to.
+     * @param string $database      Database name.
+     * @return string
+     */
+    #[Pure] private static function _get_db_dir(string $package, string $database): string {
+        return sprintf(self::$dbs_location . "%s", $GLOBALS['__USERDATA__DIR__'], $package, $database);
+    }//_get_db_dir
     
 }//Database
-?>

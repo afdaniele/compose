@@ -4,6 +4,7 @@
 # @Last modified by:   afdaniele
 
 
+use JetBrains\PhpStorm\Pure;
 use system\classes\enum\StringType;
 
 
@@ -280,41 +281,64 @@ function getArgument(&$arguments, $name) {
 }//getArgument
 
 
-function _createResponseArray($code, $status, $message, $data) {
-    return array(
-        'code' => $code,
-        'status' => $status,
-        'message' => $message,
-        'data' => $data
-    );
-}//_createResponseArray
+class APIResponse {
+    protected int $code;
+    protected string $status;
+    protected string $message;
+    protected array|null $data;
+    
+    protected static array $statuses = [
+        200 => 'OK',
+        401 => 'Unauthorized',
+        400 => 'Bad Request',
+        412 => 'Precondition Failed',
+        404 => 'Not Found',
+        500 => 'Internal Server Error',
+    ];
+    
+    function __construct(int $code, string $status, string $message, array|null $data) {
+        $this->code = $code;
+        $this->$status = $status;
+        $this->message = $message;
+        $this->data = $data;
+    }
+    
+    public static function fromException(Throwable $e, int $code): APIResponse {
+        $status =  array_key_exists($code, self::$statuses)? self::$statuses[$code] : "Error";
+        return _createAPIResponse($code, $status, $e->getMessage(), null);
+    }
+}
 
-function response200OK($data = null) {
-    return _createResponseArray(200, 'OK', null, $data);
+
+#[Pure] function _createAPIResponse($code, $status, $message, $data): APIResponse {
+    return new APIResponse($code, $status, $message, $data);
+}//_createAPIResponse
+
+
+#[Pure] function response200OK($data = null): APIResponse {
+    return _createAPIResponse(200, 'OK', null, $data);
 }//response200OK
 
-function response401Unauthorized() {
-    return _createResponseArray(401, 'Unauthorized', 'Unauthorized', null);
+#[Pure] function response401Unauthorized(): APIResponse {
+    return _createAPIResponse(401, 'Unauthorized', 'Unauthorized', null);
 }//response401Unauthorized
 
-function response401UnauthorizedMsg($message) {
-    return _createResponseArray(401, 'Unauthorized', $message, null);
+#[Pure] function response401UnauthorizedMsg($message): APIResponse {
+    return _createAPIResponse(401, 'Unauthorized', $message, null);
 }//response401UnauthorizedMsg
 
-function response400BadRequest($message) {
-    return _createResponseArray(400, 'Bad Request', $message, null);
+#[Pure] function response400BadRequest($message): APIResponse {
+    return _createAPIResponse(400, 'Bad Request', $message, null);
 }//response400BadRequest
 
-function response412PreconditionFailed($message) {
-    return _createResponseArray(412, 'Precondition Failed', $message, null);
+#[Pure] function response412PreconditionFailed($message): APIResponse {
+    return _createAPIResponse(412, 'Precondition Failed', $message, null);
 }//response412PreconditionFailed
 
-function response404NotFound($message) {
-    return _createResponseArray(404, 'Not Found', $message, null);
+#[Pure] function response404NotFound($message): APIResponse {
+    return _createAPIResponse(404, 'Not Found', $message, null);
 }//response404NotFound
 
-function response500InternalServerError($message) {
-    return _createResponseArray(500, 'Internal Server Error', $message, null);
+#[Pure] function response500InternalServerError($message): APIResponse {
+    return _createAPIResponse(500, 'Internal Server Error', $message, null);
 }//response500InternalServerError
-
-?>

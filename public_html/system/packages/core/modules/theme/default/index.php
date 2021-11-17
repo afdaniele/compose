@@ -29,8 +29,8 @@ $CORE_PKG_DIR = $GLOBALS['__CORE__PACKAGE__DIR__'];
 
     ._ctheme_container {
         position: absolute;
-        top: <?php echo $TOPBAR_HEIGHT ?>px;
-        bottom: <?php echo $BOTTOMBAR_HEIGHT ?>px;
+        top: <?php echo $TOPBAR_HEIGHT ?? 70 ?>px;
+        bottom: <?php echo $BOTTOMBAR_HEIGHT ?? 50 ?>px;
         left: 0;
         right: 0;
     }
@@ -47,7 +47,7 @@ $CORE_PKG_DIR = $GLOBALS['__CORE__PACKAGE__DIR__'];
 
     ._ctheme_progress_bar {
         position: absolute;
-        top: <?php echo $TOPBAR_HEIGHT ?>px;
+        top: <?php echo $TOPBAR_HEIGHT ?? 70 ?>px;
         bottom: 0;
         left: 0;
         right: 0;

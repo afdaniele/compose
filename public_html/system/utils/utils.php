@@ -179,7 +179,7 @@ function secsToHHMMss($seconds) {
     return date('H:i:s', mktime($hours, $mins, $secs, 0, 0));
 }
 
-function human_filesize($bytes, $decimals = 2) {
+function human_filesize($bytes, $decimals = 2): string {
     $size = array('B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB');
     $factor = floor((strlen($bytes) - 1) / 3);
     return sprintf("%.{$decimals}f ", $bytes / pow(1024, $factor)) . @$size[$factor];
@@ -189,35 +189,36 @@ function sanitize_url($url) {
     return preg_replace('/([^:])(\/{2,})/', '$1/', $url);
 }//sanitize_url
 
-function is_JSON($string) {
+function is_JSON($string): bool {
+    //TODO: use try-catch instead
     json_decode($string);
     return (json_last_error() == JSON_ERROR_NONE);
 }//is_JSON
 
-function join_path() {
+function join_path(): string {
     $args = func_get_args();
     $paths = array();
     foreach ($args as $arg) {
         $paths = array_merge($paths, (array)$arg);
     }
-    $paths = array_map(create_function('$p', 'return trim($p, "/");'), $paths);
+    $paths = array_map(function ($p) {
+        return trim($p, "/");
+    }, $paths);
     $paths = array_filter($paths);
-    return ($args[0][0] == '/' ? '/' : '') . join('/', $paths);
+    return (startsWith($args[0], '/') ? '/' : '') . join('/', $paths);
 }//join_path
 
 // Function to check string starting with given substring
-function startsWith($string, $startString) {
+function startsWith($string, $startString): bool {
     $len = strlen($startString);
     return (substr($string, 0, $len) === $startString);
 }//startsWith
 
 // Function to check the string is ends with given substring or not
-function endsWith($string, $endString) {
+function endsWith($string, $endString): bool {
     $len = strlen($endString);
     if ($len == 0) {
         return true;
     }
     return (substr($string, -$len) === $endString);
 }//endsWith
-
-?>

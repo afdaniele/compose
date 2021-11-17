@@ -3,6 +3,7 @@
 # @Email:  afdaniele@ttic.edu
 # @Last modified by:   afdaniele
 
+use exceptions\PackageNotFoundException;
 use \system\classes\Core;
 use \system\classes\Cache;
 use \system\classes\Configuration;
@@ -25,10 +26,7 @@ if (
             Core::throwError('Invalid value for parameter "data" for page "/setup", step #' . $step_no . '.');
         }
         // store google client ID
-        $res = Core::setSetting('core', 'google_client_id', $google_client_id);
-        if (!$res['success']) {
-            Core::throwError($res['data']);
-        }
+        Core::setSetting('google_client_id', 'core', $google_client_id);
         // mark the step as completed
         array_push($confirm_steps, $step_no);
     }
@@ -37,10 +35,7 @@ if (
     if (isset($_GET['skip']) && $_GET['skip'] == '1') {
         $first_setup_db->write('no_admin', null);
         // enable developer mode
-        $res = Core::setSetting('core', 'developer_mode', true);
-        if (!$res['success']) {
-            Core::throwError($res['data']);
-        }
+        Core::setSetting('developer_mode', 'core', true);
         // mark the steps as completed
         array_push($confirm_steps, 1);
         array_push($confirm_steps, 2);
@@ -63,22 +58,13 @@ if (
 }
 
 // get configuration for core package
-$res = Core::getPackageSettings('core');
-if (!$res['success']) {
-    Core::throwError($res['data']);
-}
-$core_pkg_setts = $res['data'];
+$core_pkg_setts = Core::getPackageSettings('core');
 
 $client_id = Core::getSetting('google_client_id');
 $client_id = ($client_id != 'NULL') ? $client_id : null;
 
-echoArray($_SESSION);
-
 // enable developer mode
-$res = Core::setSetting('core', 'developer_mode', true);
-echoArray($res);
-
-echoArray($_SESSION);
+Core::setSetting('developer_mode', 'core', true);
 ?>
 
 <div style="margin: 10px 20px">
@@ -104,12 +90,12 @@ echoArray($_SESSION);
                 Google Client ID
             </span>
             <input
-                name="data"
-                type="text"
-                class="form-control"
-                placeholder="Your Google Client ID"
-                aria-label="google-id"
-                aria-describedby="google-id"
+                    name="data"
+                    type="text"
+                    class="form-control"
+                    placeholder="Your Google Client ID"
+                    aria-label="google-id"
+                    aria-describedby="google-id"
                 <?php echo is_null($client_id) ? '' : sprintf('value="%s"', $client_id) ?>
             >
         </div>

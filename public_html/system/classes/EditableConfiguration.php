@@ -9,104 +9,105 @@ namespace system\classes;
 require_once __DIR__ . '/Database.php';
 
 
+use Exception;
+use exceptions\ConfigurationException;
+use exceptions\DatabaseContentException;
+use exceptions\DatabaseKeyNotFoundException;
 use exceptions\FileNotFoundException;
-use Swaggest\JsonDiff\Exception;
-use Swaggest\JsonSchema\Schema;
-use function GuzzleHttp\Psr7\str;
+use exceptions\GenericException;
+use exceptions\InvalidSchemaException;
+use exceptions\IOException;
+use exceptions\SchemaViolationException;
 
 
 class EditableConfiguration {
-
-    private $package_name = null;
-    private $configuration = [];
-    private $default_configuration = [];
-    private $db = null;
-    private $schema = null;
-    private $schema_array = null;
-    private $is_configurable = false;
-    private $error_state = null;
-    private $database_name = '__configuration__';
-    private $configuration_key = 'content';
-
-
+    
+    private string $package;
+    private array $configuration = [];
+    private Database $db;
+    private Schema $schema;
+    private bool $is_configurable = false;
+    
+    private static string $database_name = '__configuration__';
+    private static string $configuration_key = 'content';
+    
+    
     // constructor
     
     /**
      * EditableConfiguration constructor.
-     * @param $package_name
+     * @param $package
      * @throws FileNotFoundException
-     * @throws \Swaggest\JsonSchema\Exception
-     * @throws \Swaggest\JsonSchema\InvalidValue
+     * @throws GenericException
+     * @throws DatabaseContentException
+     * @throws InvalidSchemaException
      *
      */
-    public function __construct($package_name) {
-        $this->package_name = $package_name;
-        $schema_file = sprintf("%s/../packages/%s/configuration/schema.json", __DIR__, $package_name);
+    public function __construct(string $package) {
+        $this->package = $package;
+        $schema_file = sprintf("%s/../packages/%s/configuration/schema.json", __DIR__, $package);
         if (!file_exists($schema_file)) {
-            $schema_file = sprintf("%s%s/configuration/schema.json", $GLOBALS['__USERDATA__PACKAGES__DIR__'], $package_name);
+            $schema_file = sprintf("%s%s/configuration/schema.json", $GLOBALS['__USERDATA__PACKAGES__DIR__'], $package);
         }
         // ---
         // load configuration schema. This file must be always present.
         if (!file_exists($schema_file)) {
             throw new FileNotFoundException($schema_file);
         }
-        //TODO: remove '$this->error_state' and use exceptions instead
         try {
-            $this->schema_array = json_decode(file_get_contents($schema_file), true);
-        } catch (\Exception $e) {
-            $this->error_state = sprintf(
-                'The configuration schema for the package "%s" is corrupted. The error reads:<br/>%s',
-                $package_name, $e->getMessage()
-            );
-            return;
+            $schema_array = json_decode(file_get_contents($schema_file), true);
+        } catch (Exception $e) {
+            $msg = "The configuration schema for the package '$package' is corrupted.
+                The error reads:<br/> {$e->getMessage()}";
+            throw new GenericException($msg);
         }
         // make a Schema object
-        $schema_obj = json_decode(file_get_contents($schema_file));
-        $this->schema = Schema::import($schema_obj);
+        $this->schema = new Schema($schema_array);
         // if the schema defines no parameters, then the package is simply not configurable
-        if (count($this->schema_array) <= 0) {
+        if (count($schema_array) <= 0) {
             $this->is_configurable = false;
             return;
         }
         $this->is_configurable = true;
         // load the default values
         $this->configuration = [];
-        // TODO: this is wrong
-        $this->default_configuration = $this->schema_array;
         // try to load the custom settings from the database if it exists
-        $this->db = new Database($package_name, $this->database_name);
-        if (Database::database_exists($package_name, $this->database_name)) {
-            $res = $this->db->read($this->configuration_key);
-            if (!$res['success']) {
-                $this->error_state = $res['data'];
-                return;
+        $this->db = new Database($package, self::$database_name);
+        if (Database::database_exists($package, self::$database_name)) {
+            try {
+                $cfg = $this->db->read(self::$configuration_key);
+            } catch (DatabaseKeyNotFoundException) {
+                throw new DatabaseContentException("Configuration database for package '$package'
+                is in a bad state. Missing 'content' entry.");
             }
-            $this->configuration = $res['data'];
+            $this->configuration = $cfg;
         }
     }//__construct
-
-
-    public function sanityCheck() {
-        if (!is_null($this->error_state)) {
-            return ['success' => false, 'data' => $this->error_state];
-        }
-        return ['success' => true, 'data' => null];
-    }//sanityCheck
-
-
-    public function getSchema() {
+    
+    /** Access underlying schema.
+     *
+     * @return Schema
+     */
+    public function getSchema(): Schema {
         return $this->schema;
     }//getSchema
     
-    
-    public function getSchemaAsArray() {
-        return $this->schema_array;
+    /** Access underlying schema (returned as array).
+     *
+     * @return array
+     */
+    public function getSchemaAsArray(): array {
+        return $this->schema->asArray();
     }//getSchema
-
-
-    public function asArray(bool $use_defaults = false) {
+    
+    /** Return configuration as array.
+     *
+     * @param bool $use_defaults        Fill missing values with defaults.
+     * @return array
+     */
+    public function asArray(bool $use_defaults = false): array {
         $cfg = $this->configuration;
-        $dcfg = $this->default_configuration;
+        $dcfg = $this->getDefaults();
         if ($use_defaults) {
             $existing_paths = Utils::arrayPaths($cfg);
             $default_paths = Utils::arrayPaths($dcfg);
@@ -114,84 +115,104 @@ class EditableConfiguration {
             $missing_paths = array_diff($default_paths, $existing_paths);
             foreach ($missing_paths as $path) {
                 $val = Utils::cursorTo($dcfg, $path);
-                if (is_null($val))
+                if (is_null($val)) {
                     continue;
+                }
                 $sel = &Utils::cursorTo($cfg, $path, true);
                 $sel = $val;
             }
         }
         return $cfg;
     }//asArray
-
-
+    
+    /** Get default values as defined in the schema.
+     *
+     * @return array
+     */
     public function getDefaults(): array {
-        return $this->default_configuration;
+        return $this->schema->defaults();
     }//getDefaults
-
-
-    public function get($key, $default = null) {
+    
+    /** Get the value corresponding to the given key.
+     *
+     * @param string $key               Key to fetch the value for.
+     * @param null $default             Default value to return if none is available.
+     * @return mixed
+     * @throws SchemaViolationException
+     */
+    public function get(string $key, $default = null): mixed {
         $path = explode('/', $key);
-        if (!Utils::pathExists($this->default_configuration, $path)) {
-            return ['success' => false, 'data' => sprintf('Unknown parameter "%s" for the package "%s"', $key, $this->package_name)];
-        }
-        $default_cursor = Utils::cursorTo($this->default_configuration, $path);
+        $cfg = $this->configuration;
+        $dcfg = $this->getDefaults();
         // ---
-        $cfg_cursor = Utils::cursorTo($this->configuration, $path);
+        if (!Utils::pathExists($dcfg, $path)) {
+            throw new SchemaViolationException("Unknown parameter '{$key}'' for the package '{$this->package}'");
+        }
+        $default_cursor = Utils::cursorTo($dcfg, $path);
+        // ---
+        $cfg_cursor = Utils::cursorTo($cfg, $path);
         if (!is_null($cfg_cursor) && (is_array($cfg_cursor) || strlen($cfg_cursor) > 0)) {
-            return ['success' => true, 'data' => $cfg_cursor];
+            return $cfg_cursor;
         }
         if (is_null($default) && !is_null($default_cursor)) {
-            return ['success' => true, 'data' => $default_cursor];
+            return $default_cursor;
         }
-        return ['success' => true, 'data' => $default];
+        return $default;
     }//get
-
-
-    public function set($key, $val) {
-        $path = explode('/', $key);
     
+    /** Set the value to a key;
+     *
+     * @param string $key       the key.
+     * @param mixed $val        the value.
+     * @return bool
+     * @throws ConfigurationException
+     */
+    public function set(string $key, mixed $val): bool {
+        $path = explode('/', $key);
         // make fake input
         $input = [];
         $key_cursor = &Utils::cursorTo($input, $path, true);
         $key_cursor = $val;
         // check against the schema
         try {
-            $this->schema->in($input);
-        } catch (\Swaggest\JsonSchema\Exception $e) {
-            return [
-                'success' => false,
-                'data' => sprintf('Unknown parameter "%s" for the package "%s". Error: %s',
-                    $key, $this->package_name, $e->getMessage()
-                )
-            ];
+            $this->schema->validate($input);
+        } catch (SchemaViolationException $e) {
+            $msg = "Unknown parameter '{$key}' for the package '{$this->package}'. Error: {$e->getMessage()}";
+            throw new ConfigurationException($msg);
         }
-        
         $cfg_cursor = &Utils::cursorTo($this->configuration, $path, true);
         $cfg_cursor = $val;
-        return ['success' => true, 'data' => null];
+        return true;
     }//set
-
-
-    public function commit() {
-        if (!$this->is_configurable()) {
-            return ['success' => false, 'data' => 'The package is not configurable'];
-        }
-        return $this->db->write($this->configuration_key, $this->configuration);
-    }//commit
-
-
-    public function is_writable() {
+    
+    /** Commit changes to underlying database.
+     * @return bool     whether changes were committed successfully.
+     *
+     * @throws GenericException
+     * @throws IOException
+     */
+    public function commit(): bool {
         if (!$this->is_configurable()) {
             return false;
         }
-        return $this->db->is_writable($this->configuration_key);
+        return $this->db->write(self::$configuration_key, $this->configuration);
+    }//commit
+    
+    /** Returns whether this instance is writable.
+     * @return bool     whether this instance is writable.
+     */
+    public function is_writable(): bool {
+        if (!$this->is_configurable()) {
+            return false;
+        }
+        return $this->db->is_writable(self::$configuration_key);
     }//is_writable
-
-
-    public function is_configurable() {
+    
+    /** Returns whether this instance is configurable.
+     * @return bool     whether this instance is configurable.
+     */
+    public function is_configurable(): bool {
         return $this->is_configurable;
     }//is_configurable
-
+    
 }//EditableConfiguration
-
-?>

@@ -15,7 +15,7 @@ use system\classes\RESTfulAPI;
 require_once $GLOBALS['__SYSTEM__DIR__'].'/api/1.0/utils/utils.php';
 
 
-function execute( &$service, &$actionName, &$arguments ){
+function execute($service, $actionName, &$arguments): APIResponse {
 	$cache = new CacheProxy('api');
 	$action = $service['actions'][$actionName];
 	//

@@ -4,11 +4,11 @@
 # @Last modified by:   afdaniele
 
 
-//error_reporting(E_ALL ^ E_NOTICE); //DEBUG only
-//ini_set('display_errors', 1); //DEBUG only
+error_reporting(E_ALL ^ E_NOTICE); //DEBUG only
+ini_set('display_errors', 1); //DEBUG only
+$DEBUG = true;
 
-ini_set('display_errors', 0);
-$DEBUG = false;
+//ini_set('display_errors', 0);
 
 class AUTH_MODE {
     const BROWSER_COOKIES = 0;

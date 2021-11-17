@@ -16,7 +16,6 @@
 namespace system\classes;
 
 
-
 /**
  * PHPColor Color Class
  *
@@ -114,8 +113,7 @@ class Color {
                 'blue' => $hex[4] . $hex[5]
             );
             
-        }
-        else {
+        } else {
             if (strlen($hex) == 3) {
                 
                 // parse 3 character code into array
@@ -125,8 +123,7 @@ class Color {
                     'blue' => $hex[2] . $hex[2]
                 );
                 
-            }
-            else {
+            } else {
                 
                 // invalid code... oops
                 $hex = array(
@@ -181,20 +178,17 @@ class Color {
         // amount to increment on each step
         if ($start_rgb['red'] <= $end_rgb['red']) {
             $red_increment = -($start_rgb['red'] - $end_rgb['red']) / ($steps + 1);
-        }
-        else {
+        } else {
             $red_increment = ($end_rgb['red'] - $start_rgb['red']) / ($steps + 1);
         }
         if ($start_rgb['green'] <= $end_rgb['green']) {
             $green_increment = -($start_rgb['green'] - $end_rgb['green']) / ($steps + 1);
-        }
-        else {
+        } else {
             $green_increment = ($end_rgb['green'] - $start_rgb['green']) / ($steps + 1);
         }
         if ($start_rgb['blue'] <= $end_rgb['blue']) {
             $blue_increment = -($start_rgb['blue'] - $end_rgb['blue']) / ($steps + 1);
-        }
-        else {
+        } else {
             $blue_increment = ($end_rgb['blue'] - $start_rgb['blue']) / ($steps + 1);
         }
         

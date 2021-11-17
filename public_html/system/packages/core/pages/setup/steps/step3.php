@@ -30,11 +30,7 @@ if (
 }
 
 // get configuration for core package
-$res = Core::getPackageSettings('core');
-if (!$res['success']) {
-    Core::throwError($res['data']);
-}
-$core_pkg_setts = $res['data'];
+$core_pkg_setts = Core::getPackageSettings('core');
 
 $step_keys = [
     "website_name",
@@ -57,7 +53,7 @@ foreach ($schema["properties"] as $key => &$_) {
 ?>
 
 <div style="margin: 40px 60px">
-    <form id="step3_form" ></form>
+    <form id="step3_form"></form>
 </div>
 
 
@@ -76,7 +72,7 @@ foreach ($schema["properties"] as $key => &$_) {
         form: ["*"]
     });
 
-    $('#confirm-step-button').on('click', function() {
+    $('#confirm-step-button').on('click', function () {
         let values = $('#step3_form').jsonFormValue();
         // define success function
         let succ_fcn = function (r) {

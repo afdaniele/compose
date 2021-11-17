@@ -4,7 +4,10 @@
 
 namespace system\classes;
 
+use exceptions\APIApplicationNotFoundException;
+use exceptions\DatabaseKeyNotFoundException;
 use system\classes\Core;
+use system\classes\jsonDB\JsonDB;
 use system\classes\Utils;
 use system\classes\Database;
 use system\classes\enum\CacheTime;
@@ -410,19 +413,20 @@ class RESTfulAPI {
     }//getUserApplications
     
     
-    /** TODO: Returns a list of applications with app_key...
+    /** TODO:
+     * @param $app_id
+     * @return array
+     * @throws APIApplicationNotFoundException
      */
-    public static function getApplication($app_id) {
+    public static function getApplication(string $app_id): array {
         // open applications DB
         $apps_db = new Database('core', 'api_applications');
-        // make sure that the app exists
-        if (!$apps_db->key_exists($app_id)) {
-            return ['success' => false, 'data' => sprintf('No application found with ID `%s`', $app_id)];
-        }
         // retrieve the app
-        $res = $apps_db->read($app_id);
-        // return app
-        return $res;
+        try {
+            return $apps_db->read($app_id);
+        } catch (DatabaseKeyNotFoundException $e) {
+            throw new APIApplicationNotFoundException($app_id);
+        }
     }//getUserApplication
     
     /** TODO: Creates a new app...

@@ -12,7 +12,7 @@ require_once __DIR__.'/../utils/utils.php';
 
 class APIinterpreter {
 
-	private static $VERSION = '1.0';
+	private static $VERSION = '2.0';
 
 	public static function interpret( &$service, &$actionName, &$arguments, &$format ){
 		$serviceName = $service['id'];

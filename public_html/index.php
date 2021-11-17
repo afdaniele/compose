@@ -1,4 +1,4 @@
-<?php
+<?php /** @noinspection PhpIncludeInspection */
 # @Author: Andrea F. Daniele <afdaniele>
 # @Email:  afdaniele@ttic.edu
 
@@ -15,93 +15,109 @@ require_once 'system/packages/core/modules/error_handler.php';
 
 // simplify namespaces
 use exceptions\BaseException;
-use exceptions\PackageNotFoundException;
-use exceptions\ThemeNotFoundException;
+use exceptions\URLRewriteException;
 use system\classes\Core;
 use system\classes\Configuration;
+use exceptions\FileNotFoundException;
+
+// collect errors and print them inside <body>
+$errors = [];
+
+// compute how far this page is from the root
+$__arg__ = strtolower($_GET['__arg__'] ?? "");
+$depth = substr_count($__arg__, '/');
+$to_root = implode('/', array_fill(0, $depth, '..'));
+$to_root .= strlen($to_root) ? '/' : '';
+
+// set the $BASE (Experimental)
+Configuration::$BASE = $to_root;
+
+// parse arguments
+$args = explode('/', $__arg__);
+$requested_page = $args[0];
+$requested_action = (count($args) > 1 && $args[1] !== '') ? $args[1] : ($_GET['action'] ?? "");
+$requested_action = ($requested_action !== '') ? $requested_action : null;
+
+// set configuration
+Configuration::$PAGE = $requested_page;
+Configuration::$ACTION = $requested_action;
+Configuration::$ARG1 = (count($args) > 2 && $args[2] !== '') ? $args[2] : null;
+Configuration::$ARG2 = (count($args) > 3 && $args[3] !== '') ? $args[3] : null;
 
 // create a Session
 Core::startSession();
+
+// init configuration
+try {
+    Configuration::init();
+} catch (FileNotFoundException $e) {
+    array_push($errors, $e);
+}
 ?>
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
         "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
 <head>
     <?php
     // load core libraries
-    require_once 'system/classes/Database.php';
-    require_once 'system/classes/BlockRenderer.php';
-    require_once 'system/classes/MissionControl.php';
-    require_once 'system/classes/enum/EmailTemplates.php';
     require_once 'system/utils/utils.php';
-    require_once 'system/utils/URLrewrite.php';
+//    require_once 'system/utils/URLrewrite.php';
+//    require_once 'system/classes/Database.php';
+//    require_once 'system/classes/BlockRenderer.php';
+//    require_once 'system/classes/MissionControl.php';
+//    require_once 'system/classes/enum/EmailTemplates.php';
     // TODO: remove what is not needed
-    require_once 'system/templates/forms/forms.php';
-    require_once 'system/templates/sections/sections.php';
-    require_once 'system/templates/paginators/paginators.php';
+//    require_once 'system/templates/forms/forms.php';
+//    require_once 'system/templates/sections/sections.php';
+//    require_once 'system/templates/paginators/paginators.php';
     
     // simplify namespaces
-    use system\utils\URLrewrite;
-    
-    // compute how far this page is from the root
-    $__arg__ = strtolower($_GET['__arg__']);
-    $depth = substr_count($__arg__, '/');
-    $to_root = implode('/', array_fill(0, $depth, '..'));
-    $to_root .= strlen($to_root) ? '/' : '';
-    
-    // set the $BASE (Experimental)
-    Configuration::$BASE = $to_root;
-    
-    // parse arguments
-    $args = explode('/', $__arg__);
-    $requested_page = $args[0];
-    $requested_action = (count($args) > 1 && $args[1] !== '') ? $args[1] : $_GET['action'];
-    $requested_action = ($requested_action !== '') ? $requested_action : NULL;
-    
-    // set configuration
-    Configuration::$PAGE = $requested_page;
-    Configuration::$ACTION = $requested_action;
-    Configuration::$ARG1 = (count($args) > 2 && $args[2] !== '') ? $args[2] : NULL;
-    Configuration::$ARG2 = (count($args) > 3 && $args[3] !== '') ? $args[3] : NULL;
+    use system\classes\Utils;
+//    use system\utils\URLrewrite;
     
     // init Core
     $safe_mode = in_array($requested_page, ['error', 'maintenance']);
     try {
         Core::init($safe_mode);
     } catch (BaseException $e) {
-        $msg = $e->getMessage();
-        Core::requestAlert("ERROR", "Error: '$msg'.");
-        return;
+        // collect error
+        array_push($errors, $e);
+        throw $e;
     }
     
     // get info about the current user
     $main_user_role = Core::getUserRole();
     $user_roles = Core::getUserRolesList();
     
+    // nice to haves
+    $is_admin = $main_user_role == 'administrator';
+    $is_maintenance = Core::getSetting('maintenance_mode', 'core', false);
+    
     // redirect user to the setup page (if necessary)
-    if (!Core::isComposeConfigured() && !in_array($requested_page, [
-            'error', 'setup', 'maintenance'
-        ])) {
+    $allow_before_setup = ['error', 'setup', 'maintenance'];
+    if (!Core::isComposeConfigured() && !in_array($requested_page, $allow_before_setup)) {
         Core::redirectTo('setup');
     }
     
     // redirect user to maintenance mode (if necessary)
-    if ($main_user_role != 'administrator' && Core::getSetting('maintenance_mode') && !in_array($requested_page, ['login', 'setup', 'error', 'maintenance'])) {
+    $allow_during_maintenance = ['login', 'setup', 'error', 'maintenance'];
+    if (!$is_admin && $is_maintenance && !in_array($requested_page, $allow_during_maintenance)) {
         Core::redirectTo('maintenance');
     }
     
     // get the list of pages the current user has access to
-    $pages_list = Core::getFilteredPagesList('list', TRUE, $user_roles);
-    $available_pages = array_map(function ($p) {return $p['id'];}, $pages_list);
+    $pages_list = Core::getFilteredPagesList('list', true, $user_roles);
+    $available_pages = array_map(function ($p) {
+        return $p['id'];
+    }, $pages_list);
     
     // get factory default page
     $factory_default_page = Core::getFactoryDefaultPagePerRole($main_user_role);
     if (strcmp($factory_default_page, "NO_DEFAULT_PAGE") == 0) {
         if ($main_user_role == 'guest') {
             $factory_default_page = 'login';
-        }
-        else {
+        } else {
             $factory_default_page = 'profile';
         }
     }
@@ -133,27 +149,31 @@ Core::startSession();
     }
     
     // execute URL rewrite
-    URLrewrite::match();
+//    try {
+//        URLrewrite::match();
+//    } catch (URLRewriteException $e) {
+//        // collect error
+//        array_push($errors, $e);
+//    }
     
     // get theme
     $theme_id = Core::getSetting('theme');
     $theme_parts = explode(':', $theme_id);
-    $theme_name = (count($theme_parts) == 1)? $theme_parts[0] : $theme_parts[1];
-    $theme_name = (strlen($theme_name) <= 0)? 'default' : $theme_name;
-    $theme_package = (count($theme_parts) == 1)? 'core' : $theme_parts[0];
+    $theme_name = (count($theme_parts) == 1) ? $theme_parts[0] : $theme_parts[1];
+    $theme_name = (strlen($theme_name) <= 0) ? 'default' : $theme_name;
+    $theme_package = (count($theme_parts) == 1) ? 'core' : $theme_parts[0];
     $theme_file = null;
     try {
         $theme_file = Core::getThemeFile($theme_name, $theme_package);
     } catch (BaseException $e) {
-        $msg = $e->getMessage();
-        Core::requestAlert("WARNING", "Error: $msg. Falling back to 'default' theme.");
+        array_push($errors, $e);
+        array_push($errors, new BaseException("Falling back to 'default' theme."));
     }
     if (is_null($theme_file)) {
         try {
             $theme_file = Core::getThemeFile('default');
         } catch (BaseException $e) {
-            echo "ERROR: Failed to load default theme.";
-            return;
+            array_push($errors, new BaseException("Failed to load 'default' theme."));
         }
     }
     
@@ -168,7 +188,6 @@ Core::startSession();
         }
     }
     ?>
-
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=1000">
@@ -176,8 +195,13 @@ Core::startSession();
     <meta name="author" content="">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
     <link rel="icon" href="<?php echo $favicon ?>">
-
-    <title><?php echo Core::getSiteName() . ' - ' . Core::getPageDetails(Configuration::$PAGE, 'name') ?></title>
+    
+    <?php
+    $site_name = Core::getSiteName();
+    $page_name = Core::getPageDetails(Configuration::$PAGE, 'name');
+    $title = "{$site_name} - {$page_name}";
+    ?>
+    <title><?php echo $title ?></title>
 
     <script type="text/javascript">
         window.COMPOSE_BASE = "<?php echo Configuration::$BASE ?>";
@@ -207,148 +231,152 @@ Core::startSession();
     <!-- JSONForm v2.2.5 by https://github.com/jsonform/jsonform -->
     <link rel="stylesheet"
           href="<?php echo Configuration::$BASE ?>css/jsonform.css">
-    
+
     <!-- OLD Bootstrap Select v1.13.9 by developer.snapappointments.com/bootstrap-select/ -->
-<!--    <link rel="stylesheet" href="--><?php //echo Configuration::$BASE ?><!--css/bootstrap-select.min.css">-->
+    <!--    <link rel="stylesheet" href="-->
+    <?php //echo Configuration::$BASE ?><!--css/bootstrap-select.min.css">-->
 
     <!-- OLD Compose Form CSS -->
-<!--    <link href="--><?php //echo Configuration::$BASE ?><!--css/compose_form.css" rel="stylesheet" media="all">-->
+    <!--    <link href="-->
+    <?php //echo Configuration::$BASE ?><!--css/compose_form.css" rel="stylesheet" media="all">-->
 
     <!-- OLD Custom CSS -->
     <link href="<?php echo Configuration::$BASE ?>css/compose.css" rel="stylesheet" media="all">
 
 
     <!-- JQuery v3.6.0 by Google -->
-    <script src="<?php echo Configuration::$BASE ?>js/jquery-3.6.0.min.js"></script>
+    <script src="<?php echo Configuration::$BASE ?>js/jquery-3.6.0.min.js" type="application/javascript"></script>
 
     <!-- ChartJS v2.7.0 by chartjs.org  -->
-    <script src="<?php echo Configuration::$BASE ?>js/Chart.min.js"></script>
-    <script src="<?php echo Configuration::$BASE ?>js/Chart.plugins.js"></script>
+    <script src="<?php echo Configuration::$BASE ?>js/Chart.min.js" type="application/javascript"></script>
+    <script src="<?php echo Configuration::$BASE ?>js/Chart.plugins.js" type="application/javascript"></script>
 
     <!-- Bootstrap Select v1.13.9 by developer.snapappointments.com/bootstrap-select/ -->
-    <script src="<?php echo Configuration::$BASE ?>js/bootstrap-select.min.js"></script>
+    <script src="<?php echo Configuration::$BASE ?>js/bootstrap-select.min.js" type="application/javascript"></script>
 
     <!-- JSONForm v2.2.5 by https://github.com/jsonform/jsonform -->
-    <script src="<?php echo Configuration::$BASE ?>js/jsonform/deps/underscore.js"></script>
-    <script src="<?php echo Configuration::$BASE ?>js/jsonform/deps/opt/jsv.js"></script>
-    <script src="<?php echo Configuration::$BASE ?>js/jsonform/jsonform.js"></script>
-    
-<!--    <script type="text/javascript">-->
-<!--        $.fn.selectpicker.Constructor.BootstrapVersion = '3';-->
-<!--    </script>-->
+    <script src="<?php echo Configuration::$BASE ?>js/jsonform/deps/underscore.js" type="application/javascript"></script>
+    <script src="<?php echo Configuration::$BASE ?>js/jsonform/deps/opt/jsv.js" type="application/javascript"></script>
+    <script src="<?php echo Configuration::$BASE ?>js/jsonform/jsonform.js" type="application/javascript"></script>
+
+    <!--    <script type="text/javascript">-->
+    <!--        $.fn.selectpicker.Constructor.BootstrapVersion = '3';-->
+    <!--    </script>-->
 
     <!-- Custom JS -->
-    <script src="<?php echo Configuration::$BASE ?>js/compose.js"></script>
-    <script src="<?php echo Configuration::$BASE ?>js/compose_form.js"></script>
-    <script src="<?php echo Configuration::$BASE ?>js/compose_colors.js"></script>
+    <script src="<?php echo Configuration::$BASE ?>js/compose.js" type="application/javascript"></script>
+    <script src="<?php echo Configuration::$BASE ?>js/compose_form.js" type="application/javascript"></script>
+    <script src="<?php echo Configuration::$BASE ?>js/compose_colors.js" type="application/javascript"></script>
 
     <!-- Utility JS -->
-    <script src="<?php echo Configuration::$BASE ?>js/md5.js"></script>
-    <script src="<?php echo Configuration::$BASE ?>js/hmac-sha256.js"></script>
-    <script src="<?php echo Configuration::$BASE ?>js/enc-base64-min.js"></script>
-    <script src="<?php echo Configuration::$BASE ?>js/string.format.js"></script>
-    <script src="<?php echo Configuration::$BASE ?>js/string.capitalize.js"></script>
-    <script src="<?php echo Configuration::$BASE ?>js/string.strip.js"></script>
+    <script src="<?php echo Configuration::$BASE ?>js/md5.js" type="application/javascript"></script>
+    <script src="<?php echo Configuration::$BASE ?>js/hmac-sha256.js" type="application/javascript"></script>
+    <script src="<?php echo Configuration::$BASE ?>js/enc-base64-min.js" type="application/javascript"></script>
+    <script src="<?php echo Configuration::$BASE ?>js/string.format.js" type="application/javascript"></script>
+    <script src="<?php echo Configuration::$BASE ?>js/string.capitalize.js" type="application/javascript"></script>
+    <script src="<?php echo Configuration::$BASE ?>js/string.strip.js" type="application/javascript"></script>
 
     <!-- Google API Library -->
-    <script src="https://apis.google.com/js/platform.js" async defer></script>
+    <script src="https://apis.google.com/js/platform.js" async defer type="application/javascript"></script>
     <?php
-    if (Core::getSetting('login_enabled', 'core')) {
+    $login_enabled = Core::getSetting('login_enabled');
+    $google_client_id = Core::getSetting('google_client_id');
+    if ($login_enabled) {
         ?>
-        <meta name="google-signin-client_id"
-              content="<?php echo Core::getSetting('google_client_id') ?>">
+        <meta name="google-signin-client_id" content="<?php echo $google_client_id ?>">
         <?php
     }
     ?>
 
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
     <!--[if lt IE 9]>
-    <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
-    <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js" type="application/javascript"></script>
+    <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js" type="application/javascript"></script>
     <![endif]-->
 </head>
 
 <body <?php echo((Configuration::$PAGE == 'error') ? 'style="background-color:white"' : '') ?>>
+<?php
 
-    <!-- Load JS Configuration class -->
-    <?php
-    include('js/compose-configuration.js.php');
-    $CORE_PKG_DIR = $GLOBALS['__CORE__PACKAGE__DIR__'];
-    
-    // Load login system
-    include(join_path($CORE_PKG_DIR, 'modules/login.php'));
-    
-    // Updates helper
-    if (Core::getUserRole() == 'administrator' && Core::getSetting('check_updates')) {
-        include(join_path($CORE_PKG_DIR, 'modules/updates_helper.php'));
-    }
+// show errors
+if (count($errors) > 0) {
     ?>
-    
-    
-    <!-- Load theme -->
+    <h5>The following errors were collected during initialization:</h5>
     <?php
-    include($theme_file);
-    ?>
-    
-    
-    <?php
-    // Load modals
-    include(join_path($CORE_PKG_DIR, 'modules/modals/loading_modal.php'));
-    include(join_path($CORE_PKG_DIR, 'modules/modals/success_modal.php'));
-    include(join_path($CORE_PKG_DIR, 'modules/modals/yes_no_modal.php'));
-    
-    // Debug section (Admin only)
-    include(join_path($CORE_PKG_DIR, 'modules/debug.php'));
-
-    // Global Background modules: get list of background/global module files
-    $global_background_scripts_per_pkg = Core::getPackagesModules('background/global');
-    foreach ($global_background_scripts_per_pkg as $pkg_id => $global_background_scripts) {
-        foreach ($global_background_scripts as $global_background_script) {
-            include($global_background_script);
-        }
+    foreach ($errors as $e) {
+        $msg = Utils::formatStacktrace($e);
+        echo "<pre>{$msg}</pre><br/>";
     }
-    
-    // Local Background modules: get list of background/local module files
-    $page_package = Core::getPageDetails(Configuration::$PAGE, 'package');
-    $local_background_scripts = Core::getPackagesModules('background/local', $page_package);
-    foreach ($local_background_scripts as $local_background_script) {
-        include($local_background_script);
+}
+
+// Load JS Configuration class
+include('js/compose-configuration.js.php');
+$CORE_PKG_DIR = $GLOBALS['__CORE__PACKAGE__DIR__'];
+
+// Load login system
+include(join_path($CORE_PKG_DIR, 'modules/login.php'));
+
+// Updates helper
+if (Core::getUserRole() == 'administrator' && Core::getSetting('check_updates')) {
+    include(join_path($CORE_PKG_DIR, 'modules/updates_helper.php'));
+}
+
+// Load theme
+include($theme_file);
+
+// Load modals
+include(join_path($CORE_PKG_DIR, 'modules/modals/loading_modal.php'));
+include(join_path($CORE_PKG_DIR, 'modules/modals/success_modal.php'));
+include(join_path($CORE_PKG_DIR, 'modules/modals/yes_no_modal.php'));
+
+// Debug section (Admin only)
+include(join_path($CORE_PKG_DIR, 'modules/debug.php'));
+
+// Global Background modules: get list of background/global module files
+$global_background_scripts_per_pkg = Core::getPackagesModules('background/global');
+foreach ($global_background_scripts_per_pkg as $pkg_id => $global_background_scripts) {
+    foreach ($global_background_scripts as $global_background_script) {
+        include($global_background_script);
     }
-    
-    // Package-specific CSS stylesheets
-    foreach (Core::getRegisteredCSSstylesheets() as $css_file) {
-        echo sprintf('<style type="text/css">%s</style>', file_get_contents($css_file));
-    }
-    ?>
-    
-    <!-- Bootstrap core JavaScript
-    ================================================== -->
-    <!-- Placed at the end of the document so the pages load faster -->
+}
 
-    <!-- Bootstrap v5.1.3 by getbootstrap.com -->
-    <script type="text/javascript"
-            src="<?php echo Configuration::$BASE ?>js/bootstrap.5.1.3.bundle.min.js"></script>
-    
-    <!-- OLD Bootstrap v3.3.1 by getbootstrap.com -->
-    <script type="text/javascript"
-            src="<?php echo Configuration::$BASE ?>js/bootstrap-toggle.min.js"></script>
+// Local Background modules: get list of background/local module files
+$page_package = Core::getPageDetails(Configuration::$PAGE, 'package');
+$local_background_scripts = Core::getPackagesModules('background/local', $page_package);
+foreach ($local_background_scripts as $local_background_script) {
+    include($local_background_script);
+}
 
-    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
-    <script type="text/javascript"
-            src="<?php echo Configuration::$BASE ?>js/ie10-viewport-bug-workaround.js"
-    ></script>
+// Package-specific CSS stylesheets
+foreach (Core::getRegisteredCSSstylesheets() as $css_file) {
+    echo sprintf('<style type="text/css">%s</style>', file_get_contents($css_file));
+}
+?>
 
-    <script type="text/javascript">
-        // configure button groups
-        $(".btn-group > .btn").click(function () {
-            $(this).addClass("active").siblings().removeClass("active");
-        });
-        
-        $(document).ready(function () {
-            // set page title
-            $('.page-title').html("<?php echo Core::getPageDetails(Configuration::$PAGE, 'name') ?>");
-        });
-    </script>
+<!-- Bootstrap core JavaScript
+================================================== -->
+<!-- Placed at the end of the document so the pages load faster -->
+
+<!-- Bootstrap v5.1.3 by getbootstrap.com -->
+<script src="<?php echo Configuration::$BASE ?>js/bootstrap.5.1.3.bundle.min.js" type="application/javascript"></script>
+
+<!-- OLD Bootstrap v3.3.1 by getbootstrap.com -->
+<script src="<?php echo Configuration::$BASE ?>js/bootstrap-toggle.min.js" type="application/javascript"></script>
+
+<!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+<script src="<?php echo Configuration::$BASE ?>js/ie10-viewport-bug-workaround.js" type="application/javascript"></script>
+
+<script type="text/javascript">
+    // configure button groups
+    $(".btn-group > .btn").click(function () {
+        $(this).addClass("active").siblings().removeClass("active");
+    });
+
+    $(document).ready(function () {
+        // set page title
+        $('.page-title').html("<?php echo Core::getPageDetails(Configuration::$PAGE, 'name') ?>");
+    });
+</script>
 
 </body>
 </html>

@@ -1,5 +1,13 @@
 <?php
 
+// load constants
+require_once __DIR__ . '/../../../environment.php';
+
+// load utils
+require_once $GLOBALS['__SYSTEM__DIR__'] . 'classes/Utils.php';
+
+use \system\classes\Utils;
+
 // define fatal error
 define('E_FATAL', E_ERROR | E_USER_ERROR | E_PARSE | E_CORE_ERROR |
     E_COMPILE_ERROR | E_RECOVERABLE_ERROR);
@@ -7,10 +15,6 @@ define('E_FATAL', E_ERROR | E_USER_ERROR | E_PARSE | E_CORE_ERROR |
 //Custom error handling vars
 define('ERROR_REPORTING', E_FATAL);
 define('LOG_ERRORS', TRUE);
-
-// set error handler functions
-register_shutdown_function('_error_handler_shutdown_function');
-set_error_handler('_error_handler_generic_error_function');
 
 
 function _error_handler_shutdown_function() {
@@ -85,9 +89,27 @@ function _error_handler_generic_error_function($errno, $errstr, $errfile, $errli
         //TODO: logging everything here could easily exhaust the hard drive space
     }
     
-    // set the message for the error page and redirect to it
-    $_SESSION['_ERROR_PAGE_MESSAGE'] = $message;
-    \system\classes\Core::redirectTo('error');
+    if (\system\classes\Core::isInitialized()) {
+        // set the message for the error page and redirect to it
+        $_SESSION['_ERROR_PAGE_MESSAGE'] = $message;
+        \system\classes\Core::redirectTo('error');
+    } else {
+        echo "ERROR: {$message}";
+        die();
+    }
 }//_error_handler_generic_error_function
 
-?>
+// set error handler functions
+register_shutdown_function('_error_handler_shutdown_function');
+
+
+set_error_handler(function ($code, $message) {
+    // convert error to ErrorException
+    throw new ErrorException($message, $code);
+});
+
+set_exception_handler(function (Throwable $e) {
+    $stack_trace = Utils::formatStacktrace($e);
+    $msg = "Error: {$e->getMessage()}<br/><br/>Stack Trace:<br/><pre>{$stack_trace}</pre>";
+    echo $msg;
+});

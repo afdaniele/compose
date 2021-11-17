@@ -26,6 +26,9 @@
     },
     "versions" : {
         "1.0" : {
+            "enabled" : false
+        },
+        "2.0" : {
             "enabled" : true
         }
     },

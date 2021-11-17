@@ -6,6 +6,8 @@
 
 namespace system\classes;
 
+use Throwable;
+
 /**
  *   Utility module.
  */
@@ -98,12 +100,12 @@ class Utils {
     }//arrayMergeAssocRecursive
     
     
-    public static function pathToNS($path): array {
+    public static function pathToNS(string $path): array {
         return preg_split('[/|\.]', trim($path, '/.'));
     }//pathToNS
     
     
-    public static function &cursorTo(&$array, $ns, $create = false) {
+    public static function &cursorTo(&$array, $ns, bool $create = false) {
         if (is_string($ns)) {
             $ns = Utils::pathToNS($ns);
         }
@@ -113,7 +115,8 @@ class Utils {
                 if ($create) {
                     $sel[$ptr] = [];
                 } else {
-                    return null;
+                    $nullptr = null;
+                    return $nullptr;
                 }
             }
             $sel = &$sel[$ptr];
@@ -122,7 +125,8 @@ class Utils {
     }//cursorTo
     
     
-    public static function pathExists(&$array, $ns): bool {
+    public static function pathExists(array &$array, string|array $ns): bool {
+        if (is_string($ns)) $ns = Utils::pathToNS($ns);
         $sel = &$array;
         foreach ($ns as $ptr) {
             if (!array_key_exists($ptr, $sel)) {
@@ -152,6 +156,22 @@ class Utils {
         }
     }
     
+    public static function formatStacktrace(Throwable $exception): string {
+        $i = 0;
+        $out = "";
+        foreach ($exception->getTrace() as $frame) {
+            $file = $frame["file"] ?? "&#10096;nofile&#10097;";
+            $line = $frame["line"] ?? "&#10096;noline&#10097;";
+            $function = $frame["function"] ?? "&#10096;nofunction&#10097;";
+            $args = $frame["args"] ?? [];
+            $args_str = implode(", ", array_map(function ($e) { return var_export($e, true); }, $args));
+            $out .= sprintf("#%d %s(%d): %s(%s)\n", $i++, $file, $line, $function, $args_str);
+        }
+        return $out;
+    }
+    
+    public static function assocArrayToObject(array $array) {
+        return json_decode(json_encode($array));
+    }
+    
 }//Utils
-
-?>
