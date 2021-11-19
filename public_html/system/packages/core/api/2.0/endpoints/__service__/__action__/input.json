@@ -10,5 +10,8 @@
             "type": "boolean",
             "description": "TODO: description for boolean '__key2__'"
         }
-    }
+    },
+    "required": [
+        "__key1__"
+    ]
 }
