@@ -1,0 +1,9 @@
+{
+    "description": "Authenticates a user on the platform using the Google Sign-In OAuth2 authentication system",
+    "access_level": [
+        "guest"
+    ],
+    "authentication": [
+        "web"
+    ]
+}

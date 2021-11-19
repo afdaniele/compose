@@ -1,0 +1,11 @@
+{
+    "description": "Closes the current session and logs out the user from the platform",
+    "access_level": [
+        "administrator",
+        "supervisor",
+        "user"
+    ],
+    "authentication": [
+        "web"
+    ]
+}

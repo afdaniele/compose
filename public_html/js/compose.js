@@ -216,17 +216,13 @@ function centerModal() {
 
 
 function showPleaseWait() {
-    try {
-        $('#pleaseWaitModal').modal('show');
-    } catch (e) {
-    }
+    let pleaseWaitModal = new bootstrap.Modal(document.getElementById('pleaseWaitModal'));
+    pleaseWaitModal.show();
 }
 
 function hidePleaseWait() {
-    try {
-        $('#pleaseWaitModal').modal('hide');
-    } catch (e) {
-    }
+    let pleaseWaitModal = new bootstrap.Modal(document.getElementById('pleaseWaitModal'));
+    pleaseWaitModal.hide();
 }
 
 
@@ -307,9 +303,11 @@ function userLogOut(baseurl, apiversion, token, successFcn) {
 }
 
 function showSuccessDialog(duration, funct) {
-    $('#successDialog').modal('show');
+    // TODO: rename successDialog to successModal
+    let successModal = new bootstrap.Modal(document.getElementById('successDialog'));
+    successModal.show();
     setTimeout(function () {
-        $('#successDialog').modal('hide');
+        successModal.hide();
         funct();
     }, duration);
 }
@@ -460,8 +458,6 @@ function callAPI(url, successDialog, reload, funct, silentMode, suppressErrors, 
                 }
             } else {
                 // error
-                // close any modal
-                $(".modal").modal('hide');
                 // call the callback function
                 errorFcn(result);
                 //open an alert
@@ -473,8 +469,6 @@ function callAPI(url, successDialog, reload, funct, silentMode, suppressErrors, 
         },
         error: function (jqXHR, textStatus, errorThrown) {
             // error
-            // close any modal
-            $(".modal").modal('hide');
             // call the callback function
             errorFcn(errorThrown);
             // open an alert

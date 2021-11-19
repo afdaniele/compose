@@ -470,11 +470,12 @@ class MissionControlMenu {
                 // trigger load event
                 $(window).trigger('MISSION_CONTROL_MENU_LOAD', [mission_name]);
                 // close modal
-                $('#mission-control-load-modal').modal('hide');
+                const modal = new bootstrap.Modal(document.getElementById('mission-control-load-modal'));
+                modal.hide();
             }//mission_control_load_fcn
 
             function mission_control_save_fcn() {
-                var question = "Are you sure you want to save?";
+                const question = "Are you sure you want to save?";
                 openYesNoModal(
                     question,
                     function () {
@@ -818,7 +819,8 @@ class MissionControlConfiguration {
                 let options = serializeFormToJSON(form, excludeDisabled = false, blacklist_keys = ['token']);
                 let options_json = JSON.stringify(options);
                 // close modal
-                $('#mission_<?php echo $grid_id ?>_options_modal').modal('hide');
+                let modal = new bootstrap.Modal(document.getElementById('mission_<?php echo $grid_id ?>_options_modal'));
+                modal.hide();
                 // save mission control
                 $(window).trigger('MISSION_CONTROL_OPTIONS_SAVE', [mission_name, options_json]);
             });

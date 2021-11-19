@@ -10,5 +10,9 @@
             "type": "object",
             "description": "Configuration to set"
         }
-    }
+    },
+    "required": [
+        "package",
+        "configuration"
+    ]
 }

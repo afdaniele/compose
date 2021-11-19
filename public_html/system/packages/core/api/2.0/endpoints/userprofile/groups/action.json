@@ -1,0 +1,11 @@
+{
+    "description": "Returns the list of groups, or, if a user is given, the list of groups the user is part of",
+    "access_level": [
+        "user",
+        "supervisor",
+        "administrator"
+    ],
+    "authentication": [
+        "web"
+    ]
+}

@@ -1,0 +1,14 @@
+{
+    "type": "object",
+    "description": "output",
+    "properties": {
+        "groups": {
+            "type": "array",
+            "description": "List of groups",
+            "items": {
+                "type": "string"
+            }
+        }
+    },
+    "required": []
+}

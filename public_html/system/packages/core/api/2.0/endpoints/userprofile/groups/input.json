@@ -1,0 +1,14 @@
+{
+    "type": "object",
+    "description": "input",
+    "properties": {
+        "user": {
+            "type": "string",
+            "description": "Username of the user to fetch the list of groups for",
+            "minLength": 1
+        }
+    },
+    "required": [
+        "user"
+    ]
+}

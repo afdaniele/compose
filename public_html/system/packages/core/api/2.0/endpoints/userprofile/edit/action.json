@@ -1,0 +1,10 @@
+{
+    "description": "Updates a user's profile",
+    "access_level": [
+        "administrator"
+    ],
+    "authentication": [
+        "web",
+        "app"
+    ]
+}

@@ -13,5 +13,6 @@
         "value": {
             "description": "Value of the parameter (Serialized if array)"
         }
-    }
+    },
+    "required": []
 }

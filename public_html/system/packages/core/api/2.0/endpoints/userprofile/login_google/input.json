@@ -1,0 +1,14 @@
+{
+    "type": "object",
+    "description": "input",
+    "properties": {
+        "id_token": {
+            "type": "string",
+            "description": "ID Token provided by Google Sign-In",
+            "minLength": 1
+        }
+    },
+    "required": [
+        "id_token"
+    ]
+}

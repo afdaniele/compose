@@ -1,0 +1,9 @@
+{
+    "description": "Authenticates a developer on the platform (must be enabled by an admin)",
+    "access_level": [
+        "guest"
+    ],
+    "authentication": [
+        "web"
+    ]
+}

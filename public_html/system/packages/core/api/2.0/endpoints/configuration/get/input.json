@@ -10,5 +10,9 @@
             "type": "string",
             "description": "Name of the parameter to query"
         }
-    }
+    },
+    "required": [
+        "package",
+        "key"
+    ]
 }

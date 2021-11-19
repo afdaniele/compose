@@ -1,0 +1,28 @@
+{
+    "type": "object",
+    "description": "input",
+    "properties": {
+        "user": {
+            "type": "string",
+            "description": "User ID of the user profile to update",
+            "minLength": 1
+        },
+        "active": {
+            "type": "boolean",
+            "description": "Whether the user is enabled"
+        },
+        "role": {
+            "type": "string",
+            "enum": [
+                "user",
+                "supervisor",
+                "administrator"
+            ],
+            "description": "User's role",
+            "minLength": 1
+        }
+    },
+    "required": [
+        "user"
+    ]
+}
