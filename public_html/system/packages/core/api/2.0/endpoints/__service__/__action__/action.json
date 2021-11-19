@@ -1,0 +1,10 @@
+{
+    "description": "TODO: description of the action",
+    "access_level": [
+        "administrator"
+    ],
+    "authentication": [
+        "web",
+        "app"
+    ]
+}

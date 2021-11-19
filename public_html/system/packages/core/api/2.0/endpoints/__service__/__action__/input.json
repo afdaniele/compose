@@ -1,0 +1,14 @@
+{
+    "type": "object",
+    "description": "input",
+    "properties": {
+        "__key1__": {
+            "type": "string",
+            "description": "TODO: description for string '__key1__'"
+        },
+        "__key2__": {
+            "type": "boolean",
+            "description": "TODO: description for boolean '__key2__'"
+        }
+    }
+}
