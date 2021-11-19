@@ -48,6 +48,7 @@ use exceptions\InactiveUserException;
 use exceptions\InvalidAuthenticationException;
 use exceptions\InvalidSchemaException;
 use exceptions\InvalidTokenException;
+use exceptions\IOException;
 use exceptions\ModuleNotFoundException;
 use exceptions\NoVCSFoundException;
 use exceptions\PackageNotFoundException;
@@ -278,6 +279,50 @@ class Core {
     public static function isVolatileSession(): bool {
         return self::$volatile_session;
     }//isVolatileSession
+    
+    
+    /** Loads a file from disk with support from the cache.
+     *
+     * @param string $fpath             Path of the file to load.
+     * @param bool $cacheable           Whether this resource can be taken from the cache if available.
+     * @param string $format            Format of the data to read.
+     * @param callable|null $decoder    Decoder function to apply to the raw text.
+     * @return string|array
+     * @throws FileNotFoundException
+     * @throws IOException
+     */
+    public static function loadFile(string $fpath, string $format = "raw", callable $decoder = null, bool $cacheable = true): string|array {
+        // absolute path
+        $fpath = realpath($fpath);
+        // make sure the file exists
+        if (!file_exists($fpath))
+            throw new FileNotFoundException($fpath);
+        // is it cached?
+        $cache_key = "file:content:{$format}:{$fpath}";
+        if ($cacheable && self::$cache->has($cache_key)) {
+            return self::$cache->get($cache_key);
+        } else {
+            // is it readable?
+            if (!is_readable($fpath))
+                throw new IOException("File '$fpath' is not readable.");
+            // load from disk
+            $content = file_get_contents($fpath);
+            // known decoders
+            if ($format == "json" && is_null($decoder)) {
+                $decoder = function ($text): array {
+                    return json_decode($text, true);
+                };
+            }
+            // decode (if necessary)
+            if (!is_null($decoder))
+                $content = $decoder($content);
+            // update cache (if necessary)
+            if ($cacheable)
+                self::$cache->set($cache_key, $content, CacheTime::HOURS_24);
+            // ---
+            return $content;
+        }
+    }//loadFile
     
     
     public static function getCurrentResource(): string {

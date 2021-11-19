@@ -19,7 +19,7 @@ window.chartColors = {
 
 window.compose = {};
 
-window.COMPOSE_API_VERSION = '1.0';
+window.COMPOSE_API_VERSION = '2.0';
 
 function humanFileSize(size) {
     if (size <= 0) return '0 B';

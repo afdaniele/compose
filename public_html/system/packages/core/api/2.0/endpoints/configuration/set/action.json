@@ -1,0 +1,11 @@
+{
+    "description": "Sets the value of a given parameter",
+    "access_level": [
+        "guest",
+        "administrator"
+    ],
+    "authentication": [
+        "web",
+        "app"
+    ]
+}

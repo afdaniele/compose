@@ -1,0 +1,15 @@
+{
+    "type": "object",
+    "description": "REST API service definition",
+    "properties": {
+        "description": {
+            "type": "string",
+            "description": "Description of the API service",
+            "minLength": 1
+        }
+    },
+    "required": [
+        "description"
+    ],
+    "additionalProperties": false
+}

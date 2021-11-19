@@ -1,0 +1,17 @@
+{
+    "type": "object",
+    "description": "output",
+    "properties": {
+        "package": {
+            "type": "string",
+            "details": "ID of the package the parameter queried belongs to"
+        },
+        "key": {
+            "type": "string",
+            "details": "Name of the parameter queried"
+        },
+        "value": {
+            "details": "Value of the parameter (Serialized if array)"
+        }
+    }
+}

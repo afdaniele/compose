@@ -43,56 +43,75 @@ require_once $GLOBALS['__SYSTEM__DIR__'] . '/classes/Configuration.php';
 require_once $GLOBALS['__SYSTEM__DIR__'] . '/classes/enum/StringType.php';
 require_once $GLOBALS['__SYSTEM__DIR__'] . '/utils/utils.php';
 
+use exceptions\BaseException;
+use exceptions\BaseRuntimeException;
 use system\classes\Core;
 use system\classes\RESTfulAPI;
 use system\classes\enum\StringType;
 use system\classes\Configuration;
 
 // init Core
-Core::init();
+try {
+    Core::init();
+} catch (BaseRuntimeException $e) {
+    sendResponse(500, 'Internal Server Error', $e->getMessage(), 'plaintext', null);
+}
+
+// init configuration
+try {
+    Configuration::init();
+} catch (BaseRuntimeException $e) {
+    sendResponse(500, 'Internal Server Error', $e->getMessage(), 'plaintext', null);
+}
+
+// init REST API
 RESTfulAPI::init();
 
-//init configuration
-Configuration::init();
-
 // get API settings
-$webapi_settings = RESTfulAPI::getSettings();
+$api = RESTfulAPI::getSettings();
+$parameters = $api->parameters();
+$versions = $api->versions();
 
 // merge $_GET and $_POST into $_GET with $_GET having the priority
 $_GET = array_merge($_POST, $_GET);
 
 // 0. verify the web-api current status
-if (!$webapi_settings["webapi-enabled"]) {
+if (!$api->enabled()) {
     // error : the web-api service is temporarily down
     sendResponse(503, 'Service Unavailable', 'The API service is temporary unavailable.', 'plaintext', null);
 }
 
 
 // 1. parse 'format' argument
-if (!isset($_GET['__format__']) || !is_string($_GET['__format__']) || strlen($_GET['__format__']) <= 0 || !in_array($_GET['__format__'], $webapi_settings['global']['parameters']['embedded']['format']['values'])) {
-    // error : not provided or unrecognized format
-    sendResponse(400, 'Bad Request', 'Unknown response format', 'plaintext', null);
+if (!isset($_GET['__format__']) || !is_string($_GET['__format__']) || strlen($_GET['__format__']) <= 0) {
+    // error : not provided format
+    sendResponse(400, 'Bad Request', 'Missing response format', 'plaintext', null);
 }
 $format = $_GET['__format__'];
-
+if (!in_array($format, $parameters['format']['enum'])) {
+    // error : unrecognized format
+    sendResponse(400, 'Bad Request', 'Unknown response format', 'plaintext', null);
+}
 
 // 2. parse 'apiversion' argument
-if (!isset($_GET['__apiversion__']) || !is_string($_GET['__apiversion__']) || strlen($_GET['__apiversion__']) <= 0 || !isset($webapi_settings['versions'][$_GET['__apiversion__']])) {
-    // error : not provided or unrecognized apiversion
+$version = null;
+if (!isset($_GET['__apiversion__']) || !is_string($_GET['__apiversion__']) || strlen($_GET['__apiversion__']) <= 0) {
+    // error : not provided apiversion
+    sendResponse(400, 'Bad Request', 'Missing API version', $format, null);
+}
+$version = $_GET['__apiversion__'];
+if (!isset($versions[$version])) {
+    // error : unrecognized apiversion
     sendResponse(400, 'Bad Request', 'Invalid API version', $format, null);
-} else {
-    $version = $_GET['__apiversion__'];
-    if (!$webapi_settings['versions'][$version]['enabled']) {
-        // the web-api-$version is too old and it has been deprecated, please upgrade your client
-        sendResponse(426, 'Upgrade Required', "The requested API is not supported anymore. Please upgrade your application and retry.", $format, null);
-    }
+}
+if (!$versions[$version]->enabled()) {
+    // the api version is too old and it has been deprecated, please upgrade your client
+    sendResponse(426, 'Upgrade Required', "The requested API version is not supported anymore. Please upgrade your application and retry.", $format, null);
 }
 
 
-// 3. load web-api specifications
-$webapi = RESTfulAPI::getConfiguration();
-$version = $_GET['__apiversion__'];
-$webapi = $webapi[$version];
+// 3. load api
+$api_endpoints = RESTfulAPI::getEndpoints();
 
 
 // 4. select authorization mode
@@ -119,32 +138,40 @@ if (($auth_mode == AUTH_MODE::API_APP) && (!isset($_GET['app_secret']) || !is_st
 
 
 // 6. check for requested service
-if (!isset($_GET['__service__']) || !is_string($_GET['__service__']) || strlen($_GET['__service__']) <= 0 || !array_key_exists(strtolower($_GET['__service__']), $webapi['services'])) {
+if (!isset($_GET['__service__']) || !is_string($_GET['__service__']) || strlen($_GET['__service__']) <= 0) {
     // error : unrecognized service
-    sendResponse(404, 'Not Found', "The service '" . $_GET['__service__'] . "' was not found", $format, null);
+    sendResponse(404, 'Not Found', "The API 'service' argument is missing", $format, null);
 }
 $serviceName = strtolower($_GET['__service__']);
-$service = $webapi['services'][$serviceName];
+if (!array_key_exists($serviceName, $api_endpoints[$version])) {
+    // error : unrecognized service
+    sendResponse(404, 'Not Found', "The service '$serviceName' was not found", $format, null);
+}
+$service = $api_endpoints[$version][$serviceName];
 
 
 // 7. check for service availability
-if (!$service['enabled']) {
+if (!$service->enabled()) {
     // error : the requested service is temporarily down
     sendResponse(503, 'Service Unavailable', "The requested service ('" . $serviceName . "') was disabled by the administrator", $format, null);
 }
 
 
 // 8. check for requested action
-if (!isset($_GET['__action__']) || !is_string($_GET['__action__']) || strlen($_GET['__action__']) <= 0 || !array_key_exists(strtolower($_GET['__action__']), $service['actions'])) {
+if (!isset($_GET['__action__']) || !is_string($_GET['__action__']) || strlen($_GET['__action__']) <= 0) {
     // error : unrecognized action
-    sendResponse(404, 'Not Found', "The action '" . $_GET['__action__'] . "' was not found", $format, null);
+    sendResponse(404, 'Not Found', "The API 'action' argument is missing", $format, null);
 }
 $actionName = strtolower($_GET['__action__']);
-$action = $service['actions'][$actionName];
+if (!$service->hasAction($actionName)) {
+    // error : unrecognized action
+    sendResponse(404, 'Not Found', "The service '$serviceName' has no action '$actionName'", $format, null);
+}
+$action = $service->getAction($actionName);
 
 
 // 9. check for action availability
-if (!$action['enabled']) {
+if (!$action->enabled()) {
     // error : the requested action is temporarily down
     sendResponse(503, 'Service Unavailable', "The requested action ('" . $actionName . "') was disabled by the administrator", $format, null);
 }
@@ -153,13 +180,15 @@ if (!$action['enabled']) {
 // 10. authorize call
 $authorized = false;
 // get access level info for the selected action
-$access_lvl = $action['access_level'];
+$action_cfg = $action->configuration();
+$access_lvl = $action_cfg->access_level();
+$access_auth = $action_cfg->authentication();
 $error_msg = 'Authentication error. Contact the administrator';
 // try to authorize the call
 switch ($auth_mode) {
     case AUTH_MODE::BROWSER_COOKIES:
         // make sure this action supports this authentication mode
-        if (!in_array('web', $action['authentication'])) {
+        if (!in_array('web', $access_auth)) {
             $error_msg = sprintf('The API end-point `%s/%s` cannot be used with authentication via Cookies', $serviceName, $actionName);
             break;
         }
@@ -202,7 +231,7 @@ switch ($auth_mode) {
         break;
     case AUTH_MODE::API_APP:
         // make sure this action supports this authentication mode
-        if (!in_array('app', $action['authentication'])) {
+        if (!in_array('app', $access_auth)) {
             $error_msg = sprintf('The API end-point `%s/%s` cannot be used with authentication via API Application', $serviceName, $actionName);
             break;
         }
@@ -249,9 +278,9 @@ foreach ($_GET as $key => $value) {
 }
 
 // <= LOAD INTERPRETER
-require_once sprintf("%s/api/%s/api-interpreter/APIinterpreter.php", $GLOBALS['__SYSTEM__DIR__'], $version);
+require_once sprintf("%s/api/%s/api-interpreter/APIInterpreter.php", $GLOBALS['__SYSTEM__DIR__'], $version);
 
-use system\api\apiinterpreter\APIinterpreter as Interpreter;
+use system\api\apiinterpreter\APIInterpreter as Interpreter;
 
 
 // 12. the api call is valid and authorized
@@ -277,13 +306,17 @@ function sendResponse($code, $status, $message, $format, $data) {
         'data' => $data ?? null
     ];
     // debug
-    if ($DEBUG) $container['debug'] = $GLOBALS['__API_DEBUG__'];
+    if ($DEBUG) {
+        $container['debug'] = $GLOBALS['__API_DEBUG__'];
+    }
     // import formatter
     require_once $GLOBALS['__SYSTEM__DIR__'] . '/api/formatter/' . $format . '_formatter.php';
     // format data
     $data = formatData($container);
     //
-    if (ob_get_length()) ob_clean();
+    if (ob_get_length()) {
+        ob_clean();
+    }
     //
     header('HTTP/1.x 200 OK');
     header('Connection: close');

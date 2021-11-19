@@ -197,7 +197,7 @@ function is_JSON($string): bool {
 
 function join_path(): string {
     $args = func_get_args();
-    $paths = array();
+    $paths = [];
     foreach ($args as $arg) {
         $paths = array_merge($paths, (array)$arg);
     }

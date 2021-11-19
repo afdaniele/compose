@@ -1,0 +1,37 @@
+{
+    "parameters": {
+        "format": {
+            "type": "string",
+            "description": "Output format",
+            "required": true,
+            "enum": [
+                "json",
+                "xml"
+            ]
+        },
+        "token": {
+            "type": "string",
+            "description": "Alphanumeric string used to authorize the API call within the current PHP session (Web Browser calls only)",
+            "required": false
+        },
+        "app_id": {
+            "type": "string",
+            "description": "API Application ID used to authorize this call",
+            "required": false
+        },
+        "app_secret": {
+            "type": "string",
+            "description": "API Application alphanumeric secret string used to authorize this call",
+            "required": false
+        }
+    },
+    "versions": {
+        "1.0": {
+            "enabled": false
+        },
+        "2.0": {
+            "enabled": true
+        }
+    },
+    "enabled": true
+}

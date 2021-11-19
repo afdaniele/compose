@@ -4,13 +4,17 @@
 # @Last modified by:   afdaniele
 
 
+$SYSTEM = $GLOBALS['__SYSTEM__DIR__'];
 
-require_once $GLOBALS['__SYSTEM__DIR__'].'/classes/Core.php';
-require_once $GLOBALS['__SYSTEM__DIR__'].'/classes/Cache.php';
+// TODO: these can probably go
+require_once join_path($SYSTEM, "classes", "Core.php");
+require_once join_path($SYSTEM, "classes", "Cache.php");
+
+use system\api\apiinterpreter\APIInterpreter;
 use system\classes\Core;
 use system\classes\CacheProxy;
 
-require_once $GLOBALS['__SYSTEM__DIR__'].'/api/1.0/utils/utils.php';
+require_once join_path($SYSTEM, "api", APIInterpreter::$API_VERSION, "utils", "utils.php");
 
 
 function execute($service, $actionName, &$arguments): APIResponse {
@@ -19,7 +23,7 @@ function execute($service, $actionName, &$arguments): APIResponse {
 	//
 	switch( $actionName ){
 		case 'status':
-			$is_enabled = Core::isPageEnabled( $arguments['package'], $arguments['id'] );
+			$is_enabled = Core::isPackageEnabled( $arguments['id'] );
 			$data = [
 				'package' => $arguments['id'],
 				'enabled' => $is_enabled
@@ -29,7 +33,7 @@ function execute($service, $actionName, &$arguments): APIResponse {
 			break;
 		//
 		case 'enable':
-			$res = Core::enablePage( $arguments['package'], $arguments['id'] );
+			$res = Core::enablePackage( $arguments['id'] );
 			if( !$res['success'] ){
 				return response400BadRequest( $res['data'] );
 			}
@@ -39,7 +43,7 @@ function execute($service, $actionName, &$arguments): APIResponse {
 			break;
 		//
 		case 'disable':
-			$res = Core::disablePage( $arguments['package'], $arguments['id'] );
+			$res = Core::disablePackage( $arguments['id'] );
 			if( !$res['success'] ){
 				return response400BadRequest( $res['data'] );
 			}

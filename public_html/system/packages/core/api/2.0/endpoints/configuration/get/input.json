@@ -1,0 +1,14 @@
+{
+    "type": "object",
+    "description": "input",
+    "properties": {
+        "package": {
+            "type": "string",
+            "description": "ID of the package the parameter to query belongs to"
+        },
+        "key": {
+            "type": "string",
+            "description": "Name of the parameter to query",
+        }
+    }
+}

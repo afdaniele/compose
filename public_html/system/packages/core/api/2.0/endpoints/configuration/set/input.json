@@ -1,0 +1,14 @@
+{
+    "type": "object",
+    "description": "input",
+    "properties": {
+        "package": {
+            "type": "string",
+            "details": "ID of the package the parameter(s) to set belong to"
+        },
+        "configuration": {
+            "type": "object",
+            "details": "Configuration to set"
+        }
+    }
+}

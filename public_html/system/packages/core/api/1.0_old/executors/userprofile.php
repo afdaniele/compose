@@ -4,7 +4,13 @@
 # @Last modified by:   afdaniele
 
 
-use system\classes\Core as Core;
+$SYSTEM = $GLOBALS['__SYSTEM__DIR__'];
+
+// TODO: these can probably go
+require_once join_path($SYSTEM, "classes", "Core.php");
+require_once join_path($SYSTEM, "classes", "Cache.php");
+
+use system\classes\Core;
 
 
 function execute($service, $actionName, &$arguments): APIResponse {

@@ -1,0 +1,36 @@
+{
+    "type": "object",
+    "description": "REST API action definition",
+    "properties": {
+        "description": {
+            "type": "string",
+            "description": "Description of the API action",
+            "minLength": 1
+        },
+        "access_level": {
+            "type": "array",
+            "description": "List of user roles that can access this API action",
+            "items": {
+                "type": "string",
+                "minLength": 1
+            }
+        },
+        "authentication": {
+            "type": "array",
+            "description": "List of user roles that can access this API action",
+            "items": {
+                "type": "string",
+                "enum": [
+                    "web",
+                    "app"
+                ]
+            }
+        }
+    },
+    "required": [
+        "description",
+        "access_level",
+        "authentication"
+    ],
+    "additionalProperties": false
+}

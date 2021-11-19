@@ -4,28 +4,52 @@
 
 namespace system\classes;
 
+require_once __DIR__ . '/api/services.php';
+require_once __DIR__ . '/api/actions.php';
+require_once __DIR__ . '/api/settings.php';
+
+use exceptions\APIActionNotFoundException;
 use exceptions\APIApplicationNotFoundException;
+use exceptions\APIServiceNotFoundException;
 use exceptions\DatabaseKeyNotFoundException;
-use system\classes\Core;
-use system\classes\jsonDB\JsonDB;
-use system\classes\Utils;
-use system\classes\Database;
+use exceptions\FileNotFoundException;
+use exceptions\GenericException;
+use exceptions\InvalidSchemaException;
+use exceptions\IOException;
+use exceptions\ModuleNotInitializedException;
+use exceptions\NotLoggedInException;
+use exceptions\SchemaViolationException;
+use JetBrains\PhpStorm\Pure;
+use system\classes\api\RESTfulAPIService;
+use system\classes\api\RESTfulAPISettings;
 use system\classes\enum\CacheTime;
 
 
+
 /** RESTfulAPI class: provides an interface for configuring the RESTfulAPI module.
+ *
+ * @package system\classes
  */
 class RESTfulAPI {
     
-    private static $initialized = false;
-    private static $settings = false;
-    private static $configuration = false;
-    private static $cache = null;
+    private static bool $initialized = false;
+    private static RESTfulAPISettings|null $settings = null;
+    private static CacheProxy|null $cache = null;
+    
+    /** This array has the shape:
+     *      [
+     *          "1.0": [
+     *                      "<service_id>" => <RESTfulAPIService>,
+     *                      ...
+     *          ],
+     *          ...
+     *      ]
+     */
+    private static array $endpoints = [];
     
     
     //Disable the constructor
-    private function __construct() {
-    }
+    private function __construct() {}
     
     
     
@@ -36,31 +60,21 @@ class RESTfulAPI {
     /** Initializes the Core module.
      *    It is the first function to call when using the Core module.
      *
-     * @retval array
-     *        a status array of the form
-     *    <pre><code class="php">[
-     *        "success" => boolean,    // whether the call succeded
-     *        "data" => mixed        // error message or NULL
-     *    ]</code></pre>
-     *        where, the `success` field indicates whether the call succeded.
-     *        The `data` field contains an error string when `success` is `FALSE`.
+     * @throws FileNotFoundException
+     * @throws IOException
+     * @throws InvalidSchemaException
+     * @throws SchemaViolationException
      */
     public static function init() {
         if (!self::$initialized) {
-            //
             // create cache proxy
             self::$cache = new CacheProxy('api');
-            //
             // load API settings
-            self::$settings = self::_load_API_settings();
-            //
+            self::$settings = self::loadAPISettings();
             // load API configuration
-            self::$configuration = self::_load_API_configuration();
-            //
+            self::$endpoints = self::loadAPIEndpoints();
+            // ---
             self::$initialized = true;
-            return array('success' => true, 'data' => null);
-        } else {
-            return array('success' => true, 'data' => "Module already initialized!");
         }
     }//init
     
@@ -70,41 +84,38 @@ class RESTfulAPI {
     
     /** Returns whether the RESTfulAPI module is initialized.
      *
-     * @retval boolean
+     * @return boolean
      *        whether the RESTfulAPI module is initialized;
      */
     public static function isInitialized() {
         return self::$initialized;
     }//isInitialized
     
-    /*	Returns the setup of the RESTfulAPI module. For more info about the settings
-     *  check the file `/system/api/web-api-settings.json`.
+    /** Screams when the RESTfulAPI module is not initialized.
+     * @param string|null $attribute
+     */
+    private static function assertInitialized(string $attribute = null) {
+        if (!self::isInitialized())
+            throw new ModuleNotInitializedException("RESTfulAPI", $attribute);
+    }//assertInitialized
+    
+    /**	Returns the setup of the RESTfulAPI module. For more info about the settings
+     *  check the file `/system/api/settings.json`.
+     *
     */
-    public static function getSettings() {
+    public static function getSettings(): RESTfulAPISettings {
+        self::assertInitialized("getSettings");
         return self::$settings;
     }//getConfiguration
     
     
-    /*	TODO @todo Returns the list of API services installed on the platform.
+    /** Returns a list of endpoints grouped by API version.
+    *   @return array
     */
-    public static function getConfiguration() {
-        return self::$configuration;
+    public static function getEndpoints(): array {
+        self::assertInitialized("getConfiguration");
+        return self::$endpoints;
     }//getConfiguration
-    
-    
-    /** Returns whether the RESTfulAPI module is enabled.
-     *
-     * @retval boolean
-     *        whether the RESTfulAPI module is enabled;
-     *
-     * @throws \Exception If the module is not initialized.
-     */
-    public static function webAPIenabled() {
-        if (!self::isInitialized()) {
-            throw new \Exception("Module not initialized", 1);
-        }
-        return self::$settings['webapi-enabled'];
-    }//webAPIenabled
     
     
     /** Returns whether the given API service is installed on the platform.
@@ -112,20 +123,15 @@ class RESTfulAPI {
      * @param string $api_version
      *        the version of the API the service to check belongs to;
      *
-     * @param string $service_name
+     * @param string $service
      *        the name of the API service to check;
      *
-     * @retval bool
-     * @return    bool
+     * @return bool
      *        whether the API service exists;
-     *
-     * @throws \Exception If the module is not initialized.
      */
-    public static function serviceExists($api_version, $service_name) {
-        if (self::isInitialized()) {
-            return isset(self::$configuration[$api_version]) && isset(self::$configuration[$api_version]['services'][$service_name]);
-        }
-        throw new \Exception("Module not initialized", 1);
+    public static function serviceExists(string $api_version, string $service): bool {
+        self::assertInitialized("serviceExists");
+        return isset(self::$endpoints[$api_version]) && isset(self::$endpoints[$api_version][$service]);
     }//serviceExists
     
     
@@ -136,28 +142,22 @@ class RESTfulAPI {
      * @param string $api_version
      *        the version of the API the service to check belongs to;
      *
-     * @param string $service_name
+     * @param string $service
      *        the name of the API service to check;
      *
-     * @retval bool
-     * @return bool
-     *        whether the API service exists and is enabled;
-     *
-     * @throws \Exception If the module is not initialized.
+     * @return bool whether the API service exists and is enabled.
      */
-    public static function isServiceEnabled($api_version, $service_name) {
-        if (!self::isInitialized()) {
-            throw new \Exception("Module not initialized", 1);
-        }
+    public static function isServiceEnabled(string $api_version, string $service): bool {
+        self::assertInitialized("isServiceEnabled");
         //
-        if (!self::serviceExists($api_version, $service_name)) {
+        if (!self::serviceExists($api_version, $service)) {
             return false;
         }
         // open API service status database
         $db_name = sprintf('api_%s_disabled_service', $api_version);
         $service_db = new Database('core', $db_name);
         // key exists == service is disabled
-        return !$service_db->key_exists($service_name);
+        return !$service_db->key_exists($service);
     }//isServiceEnabled
     
     
@@ -166,11 +166,10 @@ class RESTfulAPI {
      * @param string $api_version
      *        the version of the API the service to enable belongs to;
      *
-     * @param string $service_name
+     * @param string $service
      *        the name of the API service to enable;
      *
-     * @retval array
-     * @return array
+     * @return bool
      *        a status array of the form
      *    <pre><code class="php">[
      *        "success" => boolean,    // whether the call succeded
@@ -178,24 +177,20 @@ class RESTfulAPI {
      *    ]</code></pre>
      *        where, the `success` field indicates whether the call succeded.
      *        The `data` field contains an error string when `success` is `FALSE`.
-     *
-     * @throws \Exception If the module is not initialized.
      */
-    public static function enableService($api_version, $service_name) {
-        if (!self::isInitialized()) {
-            throw new \Exception("Module not initialized", 1);
-        }
+    public static function enableService(string $api_version, string $service): bool {
+        self::assertInitialized("enableService");
         // make sure that the service exists
-        if (!self::serviceExists($api_version, $service_name)) {
-            return ['success' => false, 'data' => sprintf('The API service "%s(v%s)" does not exist', $service_name, $api_version)];
+        if (!self::serviceExists($api_version, $service)) {
+            throw new APIServiceNotFoundException($service);
         }
         // open API service status database
         $db_name = sprintf('api_%s_disabled_service', $api_version);
         $service_db = new Database('core', $db_name);
-        if ($service_db->key_exists($service_name)) {
-            return $service_db->delete($service_name);
+        if ($service_db->key_exists($service)) {
+            return $service_db->delete($service);
         }
-        return ['success' => true, 'data' => null];
+        return true;
     }//enableService
     
     
@@ -204,37 +199,25 @@ class RESTfulAPI {
      * @param string $api_version
      *        the version of the API the service to disable belongs to;
      *
-     * @param string $service_name
+     * @param string $service
      *        the name of the API service to disable;
      *
-     * @retval array
-     * @return array
-     *        a status array of the form
-     *    <pre><code class="php">[
-     *        "success" => boolean,    // whether the call succeded
-     *        "data" => mixed        // error message or NULL
-     *    ]</code></pre>
-     *        where, the `success` field indicates whether the call succeded.
-     *        The `data` field contains an error string when `success` is `FALSE`.
-     *
-     * @throws \Exception If the module is not initialized.
+     * @return bool
      */
-    public static function disableService($api_version, $service_name) {
-        if (!self::isInitialized()) {
-            throw new \Exception("Module not initialized", 1);
-        }
+    public static function disableService(string $api_version, string $service): bool {
+        self::assertInitialized("disableService");
         // avoid disabling things that cannot be re-enabled
-        if ($service_name == 'api') {
-            return ['success' => false, 'data' => sprintf('The API service "%s" cannot be disabled', $service_name)];
+        if ($service == 'api') {
+            throw new GenericException("The API service '$service' cannot be disabled");
         }
         // make sure that the service exists
-        if (!self::serviceExists($api_version, $service_name)) {
-            return ['success' => false, 'data' => sprintf('The API service "%s(v%s)" does not exist', $service_name, $api_version)];
+        if (!self::serviceExists($api_version, $service)) {
+            throw new APIServiceNotFoundException($service);
         }
         // open API service status database
         $db_name = sprintf('api_%s_disabled_service', $api_version);
         $service_db = new Database('core', $db_name);
-        return $service_db->write($service_name, []);
+        return $service_db->write($service, []);
     }//disableService
     
     
@@ -243,27 +226,21 @@ class RESTfulAPI {
      * @param string $api_version
      *        the version of the API the action to check belongs to;
      *
-     * @param string $service_name
+     * @param string $service
      *        the name of the API service the action to check belongs to;
      *
-     * @param string $action_name
+     * @param string $action
      *        the name of the API action to check;
      *
-     * @retval bool
      * @return bool
      *        whether the API action exists;
-     *
-     * @throws \Exception If the module is not initialized.
      */
-    public static function actionExists($api_version, $service_name, $action_name) {
-        if (!self::isInitialized()) {
-            throw new \Exception("Module not initialized", 1);
-        }
-        //
-        $api_setup = self::getConfiguration();
-        return isset($api_setup[$api_version])
-            && isset($api_setup[$api_version]['services'][$service_name])
-            && isset($api_setup[$api_version]['services'][$service_name]['actions'][$action_name]);
+    public static function actionExists(string $api_version, string $service, string $action): bool {
+        self::assertInitialized("actionExists");
+        $epoints = self::getEndpoints();
+        return isset($epoints[$api_version])
+            && isset($epoints[$api_version][$service])
+            && $epoints[$api_version][$service]->hasAction($action);
     }//actionExists
     
     
@@ -274,31 +251,26 @@ class RESTfulAPI {
      * @param string $api_version
      *        the version of the API the action to check belongs to;
      *
-     * @param string $service_name
+     * @param string $service
      *        the name of the API service the action to check belongs to;
      *
-     * @param string $action_name
+     * @param string $action
      *        the name of the API action to check;
      *
-     * @retval bool
-     * @return    bool
+     * @return bool
      *        whether the API action exists and is enabled;
-     *
-     * @throws \Exception If the module is not initialized.
      */
-    public static function isActionEnabled($api_version, $service_name, $action_name) {
-        if (!self::isInitialized()) {
-            throw new \Exception("Module not initialized", 1);
-        }
+    public static function isActionEnabled(string $api_version, string $service, string $action): bool {
+        self::assertInitialized("isActionEnabled");
         // make sure that the service exists
-        if (!self::actionExists($api_version, $service_name, $action_name)) {
+        if (!self::actionExists($api_version, $service, $action)) {
             return false;
         }
         // open API action status database
         $db_name = sprintf('api_%s_disabled_action', $api_version);
         $action_db = new Database('core', $db_name);
         // key exists == action is disabled
-        $action_key = sprintf('%s_%s', $service_name, $action_name);
+        $action_key = sprintf('%s_%s', $service, $action);
         return !$action_db->key_exists($action_key);
     }//isActionEnabled
     
@@ -308,41 +280,29 @@ class RESTfulAPI {
      * @param string $api_version
      *        the version of the API the action to enable belongs to;
      *
-     * @param string $service_name
+     * @param string $service
      *        the name of the API service the action to enable belongs to;
      *
-     * @param string $action_name
+     * @param string $action
      *        the name of the API action to enable;
      *
-     * @retval array
-     * @return array
-     *        a status array of the form
-     *    <pre><code class="php">[
-     *        "success" => boolean,    // whether the call succeded
-     *        "data" => mixed        // error message or NULL
-     *    ]</code></pre>
-     *        where, the `success` field indicates whether the call succeded.
-     *        The `data` field contains an error string when `success` is `FALSE`.
-     *
-     * @throws \Exception If the module is not initialized.
+     * @return bool
      */
-    public static function enableAction($api_version, $service_name, $action_name) {
-        if (!self::isInitialized()) {
-            throw new \Exception("Module not initialized", 1);
-        }
+    public static function enableAction(string $api_version, string $service, string $action): bool {
+        self::assertInitialized("enableAction");
         // make sure that the service exists
-        if (!self::actionExists($api_version, $service_name, $action_name)) {
-            return ['success' => false, 'data' => sprintf('The API action "%s.%s(v%s)" does not exist', $service_name, $action_name, $api_version)];
+        if (!self::actionExists($api_version, $service, $action)) {
+            throw new APIActionNotFoundException($service, $action);
         }
         // open API action status database
         $db_name = sprintf('api_%s_disabled_action', $api_version);
         $action_db = new Database('core', $db_name);
         // remove key if it exists
-        $action_key = sprintf('%s_%s', $service_name, $action_name);
+        $action_key = sprintf('%s_%s', $service, $action);
         if ($action_db->key_exists($action_key)) {
             return $action_db->delete($action_key);
         }
-        return ['success' => true, 'data' => null];
+        return true;
     }//enableAction
     
     
@@ -351,41 +311,29 @@ class RESTfulAPI {
      * @param string $api_version
      *        the version of the API the action to disable belongs to;
      *
-     * @param string $service_name
+     * @param string $service
      *        the name of the API service the action to disable belongs to;
      *
-     * @param string $action_name
+     * @param string $action
      *        the name of the API action to disable;
      *
-     * @retval array
-     * @return array
-     *        a status array of the form
-     *    <pre><code class="php">[
-     *        "success" => boolean,    // whether the call succeded
-     *        "data" => mixed        // error message or NULL
-     *    ]</code></pre>
-     *        where, the `success` field indicates whether the call succeded.
-     *        The `data` field contains an error string when `success` is `FALSE`.
-     *
-     * @throws \Exception If the module is not initialized.
+     * @return bool
      */
-    public static function disableAction($api_version, $service_name, $action_name) {
-        if (!self::isInitialized()) {
-            throw new \Exception("Module not initialized", 1);
-        }
+    public static function disableAction(string $api_version, string $service, string $action): bool {
+        self::assertInitialized("disableAction");
         // avoid disabling things that cannot be re-enabled
-        if ($service_name == 'api' && in_array($action_name, ['service_enable', 'action_enable'])) {
-            return ['success' => false, 'data' => sprintf('The API action "%s.%s" cannot be disabled', $service_name, $action_name)];
+        if ($service == 'api' && in_array($action, ['service_enable', 'action_enable'])) {
+            throw new GenericException("The API action '$service.$action' cannot be disabled");
         }
         // make sure that the action exists
-        if (!self::actionExists($api_version, $service_name, $action_name)) {
-            return ['success' => false, 'data' => sprintf('The API action "%s.%s(v%s)" does not exist', $service_name, $action_name, $api_version)];
+        if (!self::actionExists($api_version, $service, $action)) {
+            throw new APIActionNotFoundException($service, $action);
         }
         // open API action status database
         $db_name = sprintf('api_%s_disabled_action', $api_version);
         $action_db = new Database('core', $db_name);
         // create key if it does not exist
-        $action_key = sprintf('%s_%s', $service_name, $action_name);
+        $action_key = sprintf('%s_%s', $service, $action);
         return $action_db->write($action_key, []);
     }//disableAction
     
@@ -393,45 +341,54 @@ class RESTfulAPI {
     // =======================================================================================================
     // User Applications management functions
     
-    /** TODO: Returns a list of applications with app_key...
+    /** Returns a list of applications for the given user.
+     *
+     * @param string $username      Username to get the applications for.
+     * @return array
      */
-    public static function getUserApplications($username) {
+    public static function getUserApplications(string $username) {
+        self::assertInitialized("getUserApplications");
         // open applications DB for the current/given user
         $apps_db = new Database('core', 'api_applications', self::_build_app_db_regex($username));
         // iterate through the apps
         $apps = [];
         foreach ($apps_db->list_keys() as $app_id) {
             $app = $apps_db->read($app_id);
-            if ($app['success']) {
-                array_push($apps, $app['data']);
-            } else {
-                return $app;
-            }
+            array_push($apps, $app);
         }
         // return list of apps
-        return ['success' => true, 'data' => $apps];
+        return $apps;
     }//getUserApplications
     
     
-    /** TODO:
+    /** Returns an API application.
+     *
      * @param $app_id
      * @return array
      * @throws APIApplicationNotFoundException
      */
     public static function getApplication(string $app_id): array {
+        self::assertInitialized("getApplication");
         // open applications DB
         $apps_db = new Database('core', 'api_applications');
         // retrieve the app
         try {
             return $apps_db->read($app_id);
         } catch (DatabaseKeyNotFoundException $e) {
-            throw new APIApplicationNotFoundException($app_id);
+            throw new APIApplicationNotFoundException($app_id, previous: $e);
         }
     }//getUserApplication
     
-    /** TODO: Creates a new app...
+    /** Creates a new API application.
+     *
+     * @param string $app_name
+     * @param array $endpoints
+     * @param bool $app_enabled
+     * @param string|null $username
+     * @return array|bool
      */
-    public static function createApplication($app_name, $endpoints, $app_enabled = true, $username = null) {
+    public static function createApplication(string $app_name, array $endpoints, bool $app_enabled = true, string $username = null) {
+        self::assertInitialized("createApplication");
         if (is_null($username)) {
             if (!Core::isUserLoggedIn()) {
                 return ['success' => false, 'data' => 'Only logged users are allowed to create API Applications'];
@@ -454,7 +411,7 @@ class RESTfulAPI {
         }
         $user = $res['data'];
         // make sure that the user does not gain powers s/he is not supposed to have
-        $endpoints = array_intersect($endpoints, self::_endpoints_per_role($user['role']));
+        $endpoints = array_intersect($endpoints, self::endpointsPerRole($user['role']));
         // create app
         $app_data = [
             'id' => $app_id,
@@ -471,6 +428,7 @@ class RESTfulAPI {
     /** TODO: Edits an app...
      */
     public static function updateApplication($app_id, $endpoints_up, $endpoints_dw, $app_enabled = null, $username = null) {
+        self::assertInitialized("updateApplication");
         if (is_null($username)) {
             if (!Core::isUserLoggedIn()) {
                 return ['success' => false, 'data' => 'Only logged users are allowed to update API Applications'];
@@ -501,7 +459,7 @@ class RESTfulAPI {
         }
         $user = $res['data'];
         // make sure that the user does not gain powers s/he is not supposed to have
-        $endpoints = array_intersect($endpoints, self::_endpoints_per_role($user['role']));
+        $endpoints = array_intersect($endpoints, self::endpointsPerRole($user['role']));
         // update app
         $app->set('endpoints', $endpoints);
         // maintain status if not passed
@@ -513,12 +471,19 @@ class RESTfulAPI {
     }//updateApplication
     
     
-    /** TODO: Deletes an app...
+    /** Deletes an existing API application.
+     *
+     * @param string $app_id ID of the application to delete.
+     * @param string|null $username Optional username of the user the app belongs to. Currently logged in user is used by default.
+     * @return bool                     Whether the operation succeded.
+     * @throws DatabaseKeyNotFoundException
+     * @throws NotLoggedInException
      */
-    public static function deleteApplication($app_id, $username = null) {
+    public static function deleteApplication(string $app_id, string $username = null): bool {
+        self::assertInitialized("deleteApplication");
         if (is_null($username)) {
             if (!Core::isUserLoggedIn()) {
-                return ['success' => false, 'data' => 'Only logged users are allowed to delete API Applications'];
+                throw new NotLoggedInException('Only logged users are allowed to delete API Applications');
             }
             // get user id
             $username = Core::getUserLogged('username');
@@ -536,7 +501,13 @@ class RESTfulAPI {
     //
     // Private functions
     
-    private static function _build_app_db_regex($username = null, $app_id = null) {
+    /** REGEX matching (possibly specified) a pair of (username, app_id).
+     *
+     * @param string|null $username        Optional username.
+     * @param string|null $app_id          Optional application id.
+     * @return string               REGEX.
+     */
+    #[Pure] private static function _build_app_db_regex(string $username = null, string $app_id = null): string {
         return sprintf(
             "/^%s_%s$/",
             is_null($username) ? '[0-9]{21}' : $username,
@@ -544,113 +515,117 @@ class RESTfulAPI {
         );
     }//_build_app_db_regex
     
-    private static function _endpoints_per_role($user_role, $app_auth_only = true) {
+    /** Returns all endpoints accessible by the given role.
+     *
+     * @param string $user_role     User role.
+     * @param bool $app_auth_only   Only endpoints accessible via App?
+     * @return array
+     */
+    private static function endpointsPerRole(string $user_role, bool $app_auth_only = true): array {
         $endpoints = [];
-        foreach (self::$configuration as $pkg_id => &$pkg_api) {
-            foreach ($pkg_api['services'] as $service_id => &$service_config) {
-                foreach ($service_config['actions'] as $action_id => &$action_config) {
-                    if ($app_auth_only && !in_array('app', $action_config['authentication'])) {
-                        continue;
-                    }
-                    if (in_array($user_role, $action_config['access_level'])) {
-                        $pair = sprintf('%s/%s', $service_id, $action_id);
-                        array_push($endpoints, $pair);
-                    }
+        foreach (self::$endpoints as $service_id => $service) {
+            foreach ($service->getActions() as $action_id => $action) {
+                $action_cfg = $action->configuration();
+                if ($app_auth_only && !in_array('app', $action_cfg->authentication())) {
+                    continue;
+                }
+                if (in_array($user_role, $action_cfg->access_level())) {
+                    $pair = sprintf('%s/%s', $service_id, $action_id);
+                    array_push($endpoints, $pair);
                 }
             }
         }
         return $endpoints;
-    }//_endpoints_per_role
+    }//endpointsPerRole
     
-    private static function _load_API_settings() {
+    /** Loads API settings from disk.
+     *
+     * @return RESTfulAPISettings
+     * @throws FileNotFoundException
+     * @throws IOException
+     * @throws InvalidSchemaException
+     * @throws SchemaViolationException
+     */
+    private static function loadAPISettings(): RESTfulAPISettings {
         // check if this object is cached
         $cache_key = "api_settings";
         if (self::$cache->has($cache_key)) {
             return self::$cache->get($cache_key);
         }
         // load global settings
-        $settings_file = sprintf("%s/api/web-api-settings.json", $GLOBALS['__SYSTEM__DIR__']);
-        $settings = json_decode(file_get_contents($settings_file), true);
+        $settings_file = join_path($GLOBALS['__SYSTEM__DIR__'], "api/settings.json");
+        $settings = RESTfulAPISettings::fromFile($settings_file);
         // cache object
         self::$cache->set($cache_key, $settings, CacheTime::HOURS_24);
-        //
+        // ---
         return $settings;
-    }//_load_API_settings
+    }//loadAPISettings
     
-    private static function _load_API_configuration() {
+    /** Loads API endpoints from disk.
+     *
+     * @return array
+     * @throws FileNotFoundException
+     * @throws IOException
+     * @throws InvalidSchemaException
+     * @throws SchemaViolationException
+     */
+    private static function loadAPIEndpoints(): array {
         // check if this object is cached
         $cache_key = "api_configuration";
         if (self::$cache->has($cache_key)) {
             return self::$cache->get($cache_key);
         }
+        
         // get list of packages
         $packages = Core::getPackagesList();
         $packages_ids = array_keys($packages);
+        
         // create resulting object
-        $api = [];
-        foreach (self::$settings['versions'] as $v => $v_specs) {
-            $api[$v] = [
-                'services' => [],
-                'global' => self::$settings['global'],
-                'enabled' => $v_specs['enabled']
-            ];
-        }
+        $api_endpoints = [];
+        
         // iterate over the API versions -> packages -> services -> actions
-        foreach ($api as $api_version => &$api_v_specs) {
-            $api_v_enabled = $api_v_specs['enabled'];
-            // open API service status database
-            $db_name_srv = sprintf('api_%s_disabled_service', $api_version);
-            $service_status_db = new Database('core', $db_name_srv);
-            // open API action status database
-            $db_name_act = sprintf('api_%s_disabled_action', $api_version);
-            $action_status_db = new Database('core', $db_name_act);
+        foreach (self::$settings->versions() as $api_version => $api_v_specs) {
+            $api_endpoints[$api_version] = [];
+            $api_v_enabled = $api_v_specs->enabled();
+            
             // iterate over the packages
             foreach ($packages_ids as $pkg_id) {
-                $api_services_descriptors = join_path(
-                    $packages[$pkg_id]['root'], 'modules', 'api', $api_version, 'api-services', 'specifications', '*.json'
-                );
-                $jsons = glob($api_services_descriptors);
+                $pkg_root = $packages[$pkg_id]['root'];
+                $package_enabled = $packages[$pkg_id]['enabled'];
+                // get location of API endpoints
+                $api_endpoints_dir = join_path($pkg_root, 'api', $api_version, 'endpoints');
+                $api_service_pattern = join_path($api_endpoints_dir, '*', 'service.json');
+                $api_service_matches = glob($api_service_pattern);
+                
                 // iterate over the API services
-                foreach ($jsons as $json) {
-                    $api_service_id = Utils::regex_extract_group($json, "/.*api\/(.+)\/api-services\/specifications\/(.+).json/", 2);
+                foreach ($api_service_matches as $api_service_match) {
                     // get service name
-                    $api_services_path_regex = sprintf("/(.+)\/specifications\/%s.json/", $api_service_id);
-                    $api_service_executor_path = sprintf(
-                        "%s/executors/%s.php",
-                        Utils::regex_extract_group($json, $api_services_path_regex, 1),
-                        $api_service_id
-                    );
-                    // load service settings
-                    $api_service = json_decode(file_get_contents($json), true);
-                    $api_service['package'] = $pkg_id;
-                    $api_service['id'] = $api_service_id;
-                    $api_service['executor'] = $api_service_executor_path;
+                    $api_service_dir = dirname($api_service_match);
+                    // load service
+                    $api_service = new RESTfulAPIService($api_version, $api_service_dir);
                     // check whether the service is enabled (key exists == service is disabled)
-                    $api_service['enabled'] = !$service_status_db->key_exists($api_service_id);
-                    $api_service['enabled'] = $api_v_enabled && $packages[$pkg_id]['enabled'] && $api_service['enabled'];
+                    $api_service_enabled = $api_v_enabled && $package_enabled && $api_service->enabled();
+                    $api_service->setEnabled($api_service_enabled);
+                    
                     // iterate over the API actions
-                    foreach ($api_service['actions'] as $api_action_id => &$api_action) {
-                        $action_key = sprintf('%s_%s', $api_service_id, $api_action_id);
-                        $api_action['enabled'] = !$action_status_db->key_exists($action_key);
-                        $api_action['enabled'] = $api_service['enabled'] && $api_action['enabled'];
-                        // collect user types
-                        foreach ($api_action['access_level'] as $lvl) {
-                            $parts = explode(':', $lvl);
-                            $package = (count($parts) == 1) ? 'core' : $parts[0];
-                            $role = (count($parts) == 1) ? $parts[0] : $parts[1];
-                            Core::registerNewUserRole($package, $role);
-                        }
+                    foreach ($api_service->getActions() as $api_action) {
+                        // action is enabled?
+                        $api_action_enabled = $api_v_enabled && $package_enabled && $api_service->enabled() && $api_action->enabled();
+                        $api_action->setEnabled($api_action_enabled);
                     }//for:action
-                    // attach service config to API specs object
-                    $api_v_specs['services'][$api_service_id] = $api_service;
+                    
+                    $api_endpoints[$api_version][$api_service->name()] = $api_service;
                 }//for:service
+                
             }//for:package
+            
         }//for:version
+        
         // cache object
-        self::$cache->set($cache_key, $api, CacheTime::HOURS_24);
+        self::$cache->set($cache_key, $api_endpoints, CacheTime::HOURS_24);
         // return api config object
-        return $api;
-    }//_load_API_configuration
+        return $api_endpoints;
+    }//loadAPIEndpoints
     
 }//RESTfulAPI
 

@@ -2,7 +2,9 @@
 
 namespace system\classes;
 
+use exceptions\FileNotFoundException;
 use exceptions\InvalidSchemaException;
+use exceptions\IOException;
 use exceptions\SchemaViolationException;
 use stdClass;
 use Swaggest\JsonSchema\Exception;
@@ -23,7 +25,7 @@ class Schema {
      */
     function __construct(string|array $schema) {
         if (is_string($schema)) {
-            $schema = json_decode($schema);
+            $schema = json_decode($schema, true);
         }
         $this->schema_array = $schema;
         $schema_obj = self::arrayToObj($this->schema_array);
@@ -100,5 +102,22 @@ class Schema {
         return is_array($a)? json_decode(json_encode($a)) : $a;
     }
     
+    //============================================================
+    // PUBLIC STATIC FUNCTIONS
+    //============================================================
+    
+    /** Loads a schema from the system/schemas/ directory.
+     *
+     * @param string $schema Name of the schema to load.
+     * @return Schema
+     * @throws FileNotFoundException
+     * @throws IOException
+     * @throws InvalidSchemaException
+     */
+    public static function load(string $schema): Schema {
+        $fpath = join_path(__DIR__, "..", "schemas", "$schema.json");
+        $content = Core::loadFile($fpath);
+        return new Schema($content);
+    }
     
 }
