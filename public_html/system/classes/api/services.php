@@ -77,8 +77,16 @@ class RESTfulAPIService {
         $info_fpath = join_path($this->path, "service.json");
         $this->configuration = RESTfulAPIServiceConfiguration::fromFile($info_fpath);
         // load actions
-        // TODO
-        $this->actions = [];
+        $action_pattern = join_path($this->path, '*', 'action.json');
+        $action_matches = glob($action_pattern);
+        // iterate over the API actions
+        foreach ($action_matches as $action_match) {
+            // get action name
+            $action_name = basename(dirname($action_match));
+            // load action
+            $action = new RESTfulAPIAction($version, $this, $action_name);
+            $this->actions[$action_name] = $action;
+        }
     }
     
     // Properties

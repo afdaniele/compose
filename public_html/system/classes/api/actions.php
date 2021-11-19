@@ -3,8 +3,8 @@
 namespace system\classes\api;
 
 
-use APIResponse;
 use exceptions\FileNotFoundException;
+use exceptions\GenericException;
 use exceptions\InvalidSchemaException;
 use exceptions\IOException;
 use exceptions\SchemaViolationException;
@@ -68,11 +68,26 @@ class RESTfulAPIActionConfiguration {
 }
 
 
+/** IAPIAction interface: provides an interface to a RESTfulAPI action.
+ * @package system\classes\api
+ */
+abstract class IAPIAction {
+    
+    /** Implementation of the action.
+     *
+     * @param RESTfulAPIAction $action  API action.
+     * @param array $input              The inputs.
+     * @return APIResponse              The outputs.
+     */
+    static abstract function execute(RESTfulAPIAction $action, array $input): APIResponse;
+    
+}
+
+
 /** RESTfulAPIAction class: provides an interface to a RESTfulAPI action.
  * @package system\classes\api
  */
-abstract class RESTfulAPIAction {
-    protected string $version;
+class RESTfulAPIAction {
     protected string $path;
     protected string $name;
     protected bool $enabled;
@@ -93,7 +108,6 @@ abstract class RESTfulAPIAction {
      * @throws SchemaViolationException
      */
     function __construct(string $version, RESTfulAPIService $service, string $action) {
-        $this->version = $version;
         $this->service = $service;
         $this->path = join_path($service->path(), $action);
         $this->name = basename($this->path);
@@ -123,7 +137,7 @@ abstract class RESTfulAPIAction {
     
     // Properties
     
-    public function version(): string {return $this->version;}
+    #[Pure] public function version(): string {return $this->service->version();}
     public function path(): string {return $this->path;}
     public function name(): string {return $this->name;}
     #[Pure] public function enabled(): bool {
@@ -132,28 +146,42 @@ abstract class RESTfulAPIAction {
     public function service(): RESTfulAPIService {return $this->service;}
     public function configuration(): RESTfulAPIActionConfiguration {return $this->configuration;}
     
-    // Abstract functions
-    
-    /** Implementation of the action.
-     *
-     * @param array $input      The inputs.
-     * @return APIResponse      The outputs.
-     */
-    protected abstract function execute(array $input): APIResponse;
-    
     
     // Public function
     
-    /** Runs the action.
+    /** Executes the action.
      *
      * @param array $input      The inputs.
-     * @return array            The outputs.
+     * @return APIResponse      The response.
      * @throws SchemaViolationException
      */
-    public function run(array $input): array {
-        $input = $this->_validate_input($input);
-        $output = $this->execute($input);
-        return $this->_validate_output($output);
+    public function execute(array $input): APIResponse {
+        // validate input
+        $input = $this->_sanitize_input($input);
+        // get the path to the action script
+        $action_fpath = join_path($this->path, "action.php");
+        // make sure the action file exists
+        if (!file_exists($action_fpath))
+            throw new FileNotFoundException($action_fpath);
+        // make sure no other actions are loaded
+        $classes = Core::getClasses(parent_class: '\system\classes\api\IAPIAction');
+        if (count($classes) > 0)
+            throw new GenericException("Multiple API actions loaded at once, this is wrong.");
+        // load the action
+        include_once $action_fpath;
+        // make sure the class is now loaded
+        $classes = Core::getClasses(parent_class: '\system\classes\api\IAPIAction');
+        if (count($classes) != 1)
+            throw new GenericException("API action file '$action_fpath' does not contain an 'APIAction' class.");
+        // execute action
+        /** @noinspection PhpUndefinedClassInspection */
+        $output = \system\classes\api\endpoints\APIAction::execute($this, $input);
+        // validate output
+        $output->data = $output->data ?? [];
+        if ($output->code == 200)
+            $output->data = $this->_sanitize_output($output->data);
+        // ---
+        return $output;
     }
     
     /** Sets whether the API service is enabled.
@@ -167,24 +195,22 @@ abstract class RESTfulAPIAction {
     
     
     // Protected functions
-
+    
     /** Validates inputs.
      *
-     * @param array $input      The inputs.
-     * @return mixed|void
-     * @throws SchemaViolationException
+     * @param array $input The inputs.
+     * @return mixed
      */
-    protected function _validate_input(array $input) {
-        return $this->input_schema->validate($input);
+    protected function _sanitize_input(array $input): mixed {
+        return $this->input_schema->sanitize($input);
     }
-
+    
     /** Validates outputs.
      *
-     * @param array $output      The outputs.
-     * @return mixed|void
-     * @throws SchemaViolationException
+     * @param array $output The outputs.
+     * @return mixed
      */
-    protected function _validate_output(array $output) {
-        return $this->output_schema->validate($output);
+    protected function _sanitize_output(array $output): mixed {
+        return $this->output_schema->sanitize($output);
     }
 }

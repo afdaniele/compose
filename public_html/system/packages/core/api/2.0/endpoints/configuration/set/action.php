@@ -4,29 +4,36 @@
 # @Last modified by:   afdaniele
 
 
+namespace system\classes\api\endpoints;
+
+
 use exceptions\ConfigurationException;
 use exceptions\GenericException;
 use exceptions\IOException;
 use exceptions\PackageNotFoundException;
 use exceptions\SchemaViolationException;
+use system\classes\api\APIResponse;
+use system\classes\api\IAPIAction;
+use system\classes\api\RESTfulAPIAction;
 use system\classes\CacheProxy;
 use system\classes\Core;
+use system\classes\api\APIUtils;
 
 
-class APIAction extends RESTfulAPIAction {
+class APIAction extends IAPIAction {
     
-    protected function execute(array $input): APIResponse {
+    static function execute(RESTfulAPIAction $action, array $input): APIResponse {
         $package_name = $input['package'];
         unset($input['package']);
         // open session to have access to login info
         Core::startSession();
         // handle first-setup case: the user is not logged in but the platform is not configured
         if (!Core::isUserLoggedIn() && Core::isComposeConfigured()) {
-            return response401Unauthorized();
+            return APIUtils::response401Unauthorized();
         }
         // make sure that the package exists
         if (!Core::packageExists($package_name)) {
-            return response400BadRequest(sprintf('The package "%s" does not exist', $package_name));
+            return APIUtils::response400BadRequest(sprintf('The package "%s" does not exist', $package_name));
         }
         // get editable settings for the package
         try {
@@ -37,7 +44,7 @@ class APIAction extends RESTfulAPIAction {
         // get configuration schema
         $schema = $setts->getSchema();
         // get new configuration
-        $pkg_cfg = &$input['configuration'];
+        $pkg_cfg = $input['configuration'] ?? [];
         // validate new configuration
         try {
             $schema->validate($pkg_cfg);
@@ -68,7 +75,7 @@ class APIAction extends RESTfulAPIAction {
             $api_cache->clear();
         }
         //
-        return response200OK();
+        return APIUtils::response200OK();
     }
     
 }

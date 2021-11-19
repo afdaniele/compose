@@ -7,6 +7,7 @@ namespace system\classes;
 require_once __DIR__ . '/api/services.php';
 require_once __DIR__ . '/api/actions.php';
 require_once __DIR__ . '/api/settings.php';
+require_once __DIR__ . '/api/response.php';
 
 use exceptions\APIActionNotFoundException;
 use exceptions\APIApplicationNotFoundException;

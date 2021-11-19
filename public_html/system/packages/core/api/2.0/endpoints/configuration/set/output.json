@@ -1,5 +1,4 @@
 {
     "type": "object",
-    "description": "output",
-    "properties": {}
+    "description": "output"
 }

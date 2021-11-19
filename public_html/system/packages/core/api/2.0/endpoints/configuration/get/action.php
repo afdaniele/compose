@@ -4,14 +4,21 @@
 # @Last modified by:   afdaniele
 
 
+namespace system\classes\api\endpoints;
+
+
 use exceptions\PackageNotFoundException;
 use exceptions\SchemaViolationException;
+use system\classes\api\APIResponse;
+use system\classes\api\APIUtils;
+use system\classes\api\IAPIAction;
+use system\classes\api\RESTfulAPIAction;
 use system\classes\Core;
 
 
-class APIAction extends RESTfulAPIAction {
+class APIAction extends IAPIAction {
     
-    protected function execute(array $input): APIResponse {
+    static function execute(RESTfulAPIAction $action, array $input): APIResponse {
         // get package settings
         try {
             $setts = Core::getPackageSettings($input['package']);
@@ -25,7 +32,7 @@ class APIAction extends RESTfulAPIAction {
             return APIResponse::fromException($e, 400);
         }
         //
-        return response200OK([
+        return APIUtils::response200OK([
             'package' => $input['package'],
             'key' => $input['key'],
             'value' => $value

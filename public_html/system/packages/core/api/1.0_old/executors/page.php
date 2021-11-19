@@ -6,15 +6,8 @@
 
 $SYSTEM = $GLOBALS['__SYSTEM__DIR__'];
 
-// TODO: these can probably go
-require_once join_path($SYSTEM, "classes", "Core.php");
-require_once join_path($SYSTEM, "classes", "Cache.php");
-
 use system\classes\Core;
 use system\classes\CacheProxy;
-use system\api\apiinterpreter\APIInterpreter;
-
-require_once join_path($SYSTEM, "api", APIInterpreter::$API_VERSION, "utils", "utils.php");
 
 
 function execute($service, $actionName, &$arguments): APIResponse {

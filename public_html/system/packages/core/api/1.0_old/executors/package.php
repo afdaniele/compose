@@ -10,11 +10,8 @@ $SYSTEM = $GLOBALS['__SYSTEM__DIR__'];
 require_once join_path($SYSTEM, "classes", "Core.php");
 require_once join_path($SYSTEM, "classes", "Cache.php");
 
-use system\api\apiinterpreter\APIInterpreter;
 use system\classes\Core;
 use system\classes\CacheProxy;
-
-require_once join_path($SYSTEM, "api", APIInterpreter::$API_VERSION, "utils", "utils.php");
 
 
 function execute($service, $actionName, &$arguments): APIResponse {

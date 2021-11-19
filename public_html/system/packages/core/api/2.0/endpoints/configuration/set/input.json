@@ -4,11 +4,11 @@
     "properties": {
         "package": {
             "type": "string",
-            "details": "ID of the package the parameter(s) to set belong to"
+            "description": "ID of the package the parameter(s) to set belong to"
         },
         "configuration": {
             "type": "object",
-            "details": "Configuration to set"
+            "description": "Configuration to set"
         }
     }
 }

@@ -24,6 +24,8 @@ const CONTENT_TYPE = [
 ];
 
 $GLOBALS['__API_DEBUG__'] = [];
+
+/** @noinspection PhpUnused */
 function API_DEBUG($key, $value) {
     $GLOBALS['__API_DEBUG__'][$key] = $value;
 }
@@ -43,8 +45,8 @@ require_once $GLOBALS['__SYSTEM__DIR__'] . '/classes/Configuration.php';
 require_once $GLOBALS['__SYSTEM__DIR__'] . '/classes/enum/StringType.php';
 require_once $GLOBALS['__SYSTEM__DIR__'] . '/utils/utils.php';
 
-use exceptions\BaseException;
 use exceptions\BaseRuntimeException;
+use JetBrains\PhpStorm\NoReturn;
 use system\classes\Core;
 use system\classes\RESTfulAPI;
 use system\classes\enum\StringType;
@@ -226,8 +228,8 @@ switch ($auth_mode) {
             $error_msg = 'The token provided is not correct';
             break;
         }
-        // an authorized user has the right bits to access the action and the right token
-        $authorized = boolval($token_success && $access_lvl_success);
+        // user is authorized
+        $authorized = true;
         break;
     case AUTH_MODE::API_APP:
         // make sure this action supports this authentication mode
@@ -278,17 +280,31 @@ foreach ($_GET as $key => $value) {
 }
 
 // <= LOAD INTERPRETER
-require_once sprintf("%s/api/%s/api-interpreter/APIInterpreter.php", $GLOBALS['__SYSTEM__DIR__'], $version);
-
-use system\api\apiinterpreter\APIInterpreter as Interpreter;
-
-
+//require_once sprintf("%s/api/%s/api-interpreter/APIInterpreter.php", $GLOBALS['__SYSTEM__DIR__'], $version);
+//
+//use system\api\apiinterpreter\APIInterpreter as Interpreter;
+//
+//
 // 12. the api call is valid and authorized
-$result = Interpreter::interpret($service, $actionName, $arguments, $format);
+//$result = Interpreter::interpret($service, $actionName, $arguments, $format);
+
+
+// 12a. clean up the arguments (very important)
+unset($arguments['__apiversion__']);
+unset($arguments['__service__']);
+unset($arguments['__action__']);
+unset($arguments['__format__']);
+unset($arguments['token']);
+
+// load API utils
+require_once $GLOBALS['__SYSTEM__DIR__'] . '/classes/api/utils.php';
+
+// 12b. execute the action
+$result = $action->execute($arguments);
 
 
 // 13. send back the api call result
-sendResponse($result['code'], $result['status'], $result['message'], $format, $result['data']);
+sendResponse($result->code, $result->status, $result->message, $format, $result->data);
 
 
 // ==================================================================================================================
@@ -296,13 +312,13 @@ sendResponse($result['code'], $result['status'], $result['message'], $format, $r
 // ==================================================================================================================
 
 
-function sendResponse($code, $status, $message, $format, $data) {
+#[NoReturn] function sendResponse(int $code, string $status, string $message, string $format, array $data) {
     global $DEBUG;
     // prepare data
     $container = [
         'code' => $code,
         'status' => $status,
-        'message' => $message ?? null,
+        'message' => $message,
         'data' => $data ?? null
     ];
     // debug
@@ -330,7 +346,6 @@ function sendResponse($code, $status, $message, $format, $data) {
     echo $data;
     //
     die();
-    exit;
 }//sendResponse
 
 ?>

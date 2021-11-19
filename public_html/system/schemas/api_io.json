@@ -1,0 +1,119 @@
+{
+    "type": "object",
+    "properties": {
+        "type": {
+            "type": "string",
+            "const": "object"
+        },
+        "description": {
+            "type": "string",
+            "minLength": 1
+        },
+        "properties": {
+            "type": "object",
+            "description": "REST API Input/Output",
+            "additionalProperties": {
+                "$ref": "#/definitions/def_object"
+            }
+        }
+    },
+    "definitions": {
+        "def_object": {
+            "type": "object",
+            "properties": {
+                "type": {
+                    "type": "string",
+                    "enum": [
+                        "string",
+                        "array",
+                        "boolean",
+                        "integer",
+                        "null",
+                        "number",
+                        "object"
+                    ]
+                },
+                "description": {
+                    "type": "string",
+                    "minLength": 1
+                }
+            },
+            "required": [
+                "description"
+            ],
+            "anyOf": [
+                {
+                    "if": {
+                        "properties": {
+                            "type": {
+                                "enum": [
+                                    "string",
+                                    "boolean",
+                                    "integer",
+                                    "number"
+                                ]
+                            }
+                        }
+                    },
+                    "then": {
+                        "properties": {
+                            "enum": {
+                                "type": "array",
+                                "minLength": 1
+                            }
+                        }
+                    }
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "type": {
+                                "const": "object"
+                            }
+                        }
+                    },
+                    "then": {
+                        "properties": {
+                            "properties": {
+                                "type": "object",
+                                "additionalProperties": {
+                                    "$ref": "#/definitions/def_object"
+                                }
+                            },
+                            "required": {
+                                "type": "array",
+                                "additionalProperties": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "required": [
+                            "description",
+                            "required"
+                        ]
+                    }
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "type": {
+                                "const": "array"
+                            }
+                        }
+                    },
+                    "then": {
+                        "properties": {
+                            "items": {
+                                "type": "object",
+                                "additionalProperties": {
+                                    "$ref": "#/definitions/def_object"
+                                }
+                            }
+                        }
+                    }
+                }
+            ]
+        }
+    }
+}
+

@@ -432,10 +432,13 @@ class Core {
     }//loadPackagesModules
     
     
-    public static function getClasses($parent_class = null): array {
+    public static function getClasses($parent_class = null, $parent_iface = null): array {
         $classes = [];
         foreach (get_declared_classes() as $class) {
             if (!is_null($parent_class) && !is_subclass_of($class, $parent_class)) {
+                continue;
+            }
+            if (!is_null($parent_iface) && !($class instanceof $parent_iface)) {
                 continue;
             }
             array_push($classes, $class);
@@ -2731,7 +2734,8 @@ class Core {
                 $pkg_core_file_path = join_path($pkg_root, $pkg_core_file_name . ".php");
                 if (file_exists($pkg_core_file_path)) {
                     $pkg['core'] = [
-                        'namespace' => $pkg_id, 'file' => $pkg_core_file_name . ".php",
+                        'namespace' => $pkg_id,
+                        'file' => "{$pkg_core_file_name}.php",
                         'class' => $pkg_core_file_name
                     ];
                 }
@@ -2771,8 +2775,7 @@ class Core {
         // discover user packages
         $user_pkgs = self::_load_available_packages_in_dir($GLOBALS['__USERDATA__PACKAGES__DIR__'], $core_only);
         // merge packages
-        $pkgs = array_merge($embed_pkgs, $user_pkgs);
-        return $pkgs;
+        return array_merge($embed_pkgs, $user_pkgs);
     }//_discover_packages
     
     

@@ -8,7 +8,7 @@
         },
         "key": {
             "type": "string",
-            "description": "Name of the parameter to query",
+            "description": "Name of the parameter to query"
         }
     }
 }
