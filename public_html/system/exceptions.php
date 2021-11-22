@@ -39,8 +39,9 @@ class PackageNotFoundException extends BaseRuntimeException {
 }
 
 class PageNotFoundException extends BaseRuntimeException {
-    public function __construct(string $package, string $page, $code = 0, Throwable $previous = null) {
-        parent::__construct("Page '$page' in package '$package' not found.", $code, $previous);
+    public function __construct(string $page, string $package = null, $code = 0, Throwable $previous = null) {
+        $extra = is_null($package)? "" : " in package '$package'";
+        parent::__construct("Page '$page'$extra not found.", $code, $previous);
     }
 }
 

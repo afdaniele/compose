@@ -15,11 +15,11 @@
             "default": false,
             "description": "Whether the platform is in developer mode"
         },
-        "website_name": {
-            "title": "Website Name",
+        "app_name": {
+            "title": "App Name",
             "type": "string",
             "default": "\\compose\\",
-            "description": "Name of your website"
+            "description": "Name of your application"
         },
         "navbar_title": {
             "title": "Navbar Title",
@@ -32,6 +32,15 @@
             "type": "string",
             "default": null,
             "description": "Text in the header of the navbar (below the title)"
+        },
+        "language": {
+            "title": "Language",
+            "type": "string",
+            "default": "en",
+            "description": "The language of the app",
+            "enum": [
+                "en"
+            ]
         },
         "timezone": {
             "title": "Timezone",

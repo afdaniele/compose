@@ -17,15 +17,7 @@ function settings_theme_tab($args, $settings_tab_id) {
     $theme = $theme_parts[1];
     
     // get theme configuration schema
-    try {
-        $theme_schema = Core::getThemeConfigurationSchema($theme, $package);
-    } catch (PackageNotFoundException $e) {
-        Core::throwException($e);
-        return;
-    } catch (ThemeNotFoundException $e) {
-        Core::throwException($e);
-        return;
-    }
+    $theme_schema = Core::getThemeConfigurationSchema($theme, $package);
     
     // not configurable themes
     if (count($theme_schema["properties"]) <= 0) {

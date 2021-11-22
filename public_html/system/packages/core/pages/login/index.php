@@ -63,7 +63,7 @@ use \system\classes\Core;
                 <legend style="margin-top:4px"></legend>
 
                 <p style="color:grey">
-                    <?php echo Core::getSiteName() ?> uses the <a
+                    <?php echo Core::getAppName() ?> uses the <a
                             href="https://developers.google.com/identity/">Google Sign-In API</a>
                     authentication service.
                 </p>
@@ -71,7 +71,7 @@ use \system\classes\Core;
         </div>
     </div>
     <p class="text-center muted" style="color:grey; margin-top:-10px">&copy;
-        Copyright <?php echo date("Y"); ?> - <?php echo Core::getSiteName() ?></p>
+        Copyright <?php echo date("Y"); ?> - <?php echo Core::getAppName() ?></p>
 </section>
 
 

@@ -21,6 +21,7 @@ class Configuration {
     // Fields
     public static $TIMEZONE;
     public static $GMT;
+    public static $LANG;
     public static $DEBUG = false;
     
     public static $BASE;
@@ -48,8 +49,9 @@ class Configuration {
         $configFile = __DIR__ . '/../config/configuration.php';
         //
         if (!self::$initialized) {
-            // containers
+            // default values
             $TIMEZONE = null;
+            $LANG = "en";
             $CACHE_SYSTEM = null;
             $WEBAPI_VERSION = null;
             $ASSETS_STORE_URL = null;
@@ -68,6 +70,7 @@ class Configuration {
             }
             //
             self::$TIMEZONE = $TIMEZONE;
+            self::$LANG = $LANG;
             //
             self::$CACHE_SYSTEM = $CACHE_SYSTEM;
             self::$WEBAPI_VERSION = $WEBAPI_VERSION;

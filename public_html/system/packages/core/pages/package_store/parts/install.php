@@ -5,6 +5,7 @@
 
 use \system\classes\Core;
 use \system\classes\Configuration;
+use system\classes\enum\AlertType;
 
 $errors = [];
 if (!isset($_GET['install']) && !isset($_GET['update']) && !isset($_GET['uninstall'])) {
@@ -176,7 +177,7 @@ if (count($in_out_conflicts) + count($up_out_conflicts) > 0) {
             sprintf('ERROR: The package "%s" is in the list of packages to update and uninstall', $package)
         );
     }
-    Core::openAlert('danger', implode('\n', $errors));
+    Core::openAlert(AlertType::ERROR, implode('\n', $errors));
 } else {
     if (isset($_GET['confirm']) && $_GET['confirm'] == '1') {
         // append version to packages
