@@ -39,6 +39,7 @@ require_once __DIR__ . '/json_schema/vendor/autoload.php';
 use Error;
 use exceptions\APIApplicationNotFoundException;
 use exceptions\BaseException;
+use exceptions\BaseRuntimeException;
 use exceptions\CircularDependencyException;
 use exceptions\DatabaseContentException;
 use exceptions\DatabaseKeyNotFoundException;
@@ -56,8 +57,8 @@ use exceptions\PageNotFoundException;
 use exceptions\ThemeNotFoundException;
 use exceptions\UserNotFoundException;
 use Google_Client;
-use Swaggest\JsonSchema\Exception;
-use Swaggest\JsonSchema\InvalidValue;
+use JetBrains\PhpStorm\ArrayShape;
+use JetBrains\PhpStorm\Pure;
 use system\classes\enum\EmailTemplates;
 use system\classes\enum\CacheTime;
 use system\classes\jsonDB\JsonDB;
@@ -76,14 +77,13 @@ class Core {
     private static Cache $cache;
     private static array $packages;
     private static array $pages;
-    private static bool $verbose = false;
     private static bool $debug = false;
     private static array $settings = [];
     private static array $debugger_data = [];
     private static bool $volatile_session = false;
     private static array $registered_css_stylesheets = [];
     
-    private static $registered_user_roles = [
+    private static array $registered_user_roles = [
         'core' => [
             'guest' => [
                 'default_page' => 'login',
@@ -104,7 +104,7 @@ class Core {
         ]
     ];
     
-    private static $DEVELOPER_USER_INFO = [
+    private static array $DEVELOPER_USER_INFO = [
         "username" => '_compose_developer',
         "name" => 'Developer',
         "email" => null,
@@ -184,7 +184,7 @@ class Core {
             // load theme configuration
             try {
                 Configuration::$THEME_CONFIG = self::getThemeConfiguration($theme_name, $theme_pkg);
-            } catch (BaseException $e) {
+            } catch (BaseRuntimeException $e) {
                 Core::requestAlert(
                     'WARNING',
                     sprintf("An error occurred while loading the theme [%s]%s. ",
@@ -373,7 +373,7 @@ class Core {
     }//getAPIurl
     
     
-    public static function getPackagesModules(string $module_family = null, string $package = null, bool $include_disabled = false): array {
+    public static function getPackagesModules(string $family = null, string $package = null, bool $include_disabled = false): array {
         $modules = [];
         foreach (self::$packages as $pkg) {
             if ((!$include_disabled && !$pkg['enabled']) || (!is_null($package) && $package != $pkg['id'])) {
@@ -382,7 +382,7 @@ class Core {
             $modules[$pkg['id']] = [];
             // collect package modules
             foreach ($pkg['modules'] as $module_fam => $module_scripts) {
-                if (!is_null($module_family) && $module_family != $module_fam) {
+                if (!is_null($family) && $family != $module_fam) {
                     continue;
                 }
                 $modules[$pkg['id']][$module_fam] = $module_scripts;
@@ -392,15 +392,15 @@ class Core {
         $out = $modules;
         if (!is_null($package)) {
             $out = $modules[$package];
-            if (!is_null($module_family) && isset($out[$module_family])) {
-                $out = $out[$module_family];
+            if (!is_null($family) && isset($out[$family])) {
+                $out = $out[$family];
             }
         } else {
-            if (!is_null($module_family)) {
+            if (!is_null($family)) {
                 $out = [];
                 foreach ($modules as $pkg => $mods) {
-                    if (isset($mods[$module_family]) && count($mods[$module_family]) > 0) {
-                        $out[$pkg] = $mods[$module_family];
+                    if (isset($mods[$family]) && count($mods[$family]) > 0) {
+                        $out[$pkg] = $mods[$family];
                     }
                 }
             }
@@ -409,25 +409,25 @@ class Core {
     }//getPackagesModules
     
     
-    public static function loadPackagesModules(string $module_family = null, string $package = null) {
+    public static function loadPackagesModules(string $family = null, string $package = null) {
         foreach (self::$packages as $pkg) {
             if (!$pkg['enabled'] || (!is_null($package) && $package != $pkg['id'])) {
                 continue;
             }
             // load package modules
             foreach ($pkg['modules'] as $module_fam => $module_scripts) {
-                if (!is_null($module_family) && $module_family != $module_fam) {
+                if (!is_null($family) && $family != $module_fam) {
                     continue;
                 }
                 foreach ($module_scripts as $module_script) {
                     // check file
                     if (!file_exists($module_script)) {
-                        self::collectDebugInfo($pkg['id'], sprintf('Load module script %s of type %s', $module_script, $module_family), false, Formatter::BOOLEAN);
+                        self::collectDebugInfo($pkg['id'], sprintf('Load module script %s of type %s', $module_script, $family), false, Formatter::BOOLEAN);
                         continue;
                     }
                     // load module
                     require_once($module_script);
-                    self::collectDebugInfo($pkg['id'], sprintf('Load module %s of type %s', $module_script, $module_family), true, Formatter::BOOLEAN);
+                    self::collectDebugInfo($pkg['id'], sprintf('Load module %s of type %s', $module_script, $family), true, Formatter::BOOLEAN);
                 }
             }
         }
@@ -606,7 +606,7 @@ class Core {
      * @throws InvalidAuthenticationException
      * @throws UserNotFoundException
      */
-    public static function authorizeUserWithAPIapp(string $app_id, string $app_secret): array {
+    #[ArrayShape(['user' => "array", 'app' => "array"])] public static function authorizeUserWithAPIapp(string $app_id, string $app_secret): array {
         RESTfulAPI::init();
         // check if the app exists
         $app = RESTfulAPI::getApplication($app_id);
@@ -1623,6 +1623,7 @@ class Core {
     // =======================================================================================================
     // Pages management functions
     
+    // TODO: $order should be an ENUM instead of a string
     public static function getPagesList(string $order = null): array {
         if (is_null($order) || !isset(self::$pages[$order])) {
             return self::$pages;
@@ -1631,7 +1632,8 @@ class Core {
         }
     }//getPagesList
     
-    public static function getFilteredPagesList($order = 'list', $enabledOnly = false, $accessibleBy = null) {
+    // TODO: $order should be an ENUM instead of a string
+    public static function getFilteredPagesList(string $order = 'list', bool $enabledOnly = false, string $accessibleBy = null) {
         $pages = [];
         $pages_collection = self::getPagesList($order);
         $accessibleBy = is_null($accessibleBy) ? null : (is_array($accessibleBy) ? $accessibleBy : [$accessibleBy]);
@@ -1648,7 +1650,6 @@ class Core {
                     //
                     $pages[$key] = $page;
                 }
-                return $pages;
             } else {
                 // collection in which pages are organized in sub-categories
                 foreach ($pages_collection as $group_id => $pages_per_group) {
@@ -1665,7 +1666,6 @@ class Core {
                     }
                     $pages[$group_id] = $pages_this_group;
                 }
-                return $pages;
             }
         } else {
             // collection in which pages are arranged in a sequence, no keys
@@ -1679,7 +1679,6 @@ class Core {
                 //
                 array_push($pages, $page);
             }
-            return $pages;
         }
         return $pages;
     }//getFilteredPagesList
@@ -1687,10 +1686,10 @@ class Core {
     
     /** Returns information for a given page as an associative array;
      *
-     * @param string $page_id
+     * @param string $page
      *        the ID of the page to retrieve the info for.
      *
-     * @param string $attribute
+     * @param string|null $attribute
      *        (optional) the key of the attribute to fetch from the info array.
      *
      * @return mixed
@@ -1700,37 +1699,42 @@ class Core {
      *    If the parameter $attribute is NOT passed, it returns an associative array
      *    where keys are attribute names and values their value.
      */
-    public static function getPageDetails($page_id, $attribute = null) {
+    public static function getPageDetails(string $page, string $attribute = null): mixed {
+        self::assertPageExists($page);
+        // get pages
         $pages = self::getPagesList('by-id');
-        $page_details = $pages[$page_id];
+        if (!array_key_exists($page, $pages)) {
+            throw new PageNotFoundException($page);
+        }
+        $page_details = $pages[$page];
         if (is_null($attribute)) {
             return $page_details;
         } else {
-            if (is_array($page_details)) {
-                return $page_details[$attribute];
-            }
-            return null;
+            return $page_details[$attribute];
         }
     }//getPageDetails
     
     
     /** Returns whether the page specified is installed on the platform as part of the package specified.
      *
-     * @param string $package_id
-     *        ID of the package the page to check belongs to.
      * @param string $page
      *        the name of the page to check.
+     * @param string|null $package
+     *        ID of the package the page to check belongs to.
      *
      * @return boolean
      *        whether the page exists.
      */
-    public static function pageExists($package_id, $page) {
-        if (!self::packageExists($package_id)) {
-            return false;
+    public static function pageExists(string $page, string $package = null): bool {
+        if (!is_null($package)) {
+            self::assertPackageExists($package);
+            $pkg_root = self::getPackageDetails($package, 'root');
+            $page_meta = join_path($pkg_root, 'pages', $page, 'metadata.json');
+            return file_exists($page_meta);
+        } else {
+            $pages = self::getPagesList('by-id');
+            return array_key_exists($page, $pages);
         }
-        $pkg_root = self::getPackageDetails($package_id, 'root');
-        $page_meta = join_path($pkg_root, 'pages', $page, 'metadata.json');
-        return file_exists($page_meta);
     }//pageExists
     
     
@@ -1746,13 +1750,9 @@ class Core {
      * @return boolean
      *        whether the page is enabled.
      */
-    public static function isPageEnabled($package, $page) {
-        if (!self::pageExists($package, $page)) {
-            return [
-                'success' => false,
-                'data' => sprintf('The page "%s/%s" does not exist', $package, $page)
-            ];
-        }
+    public static function isPageEnabled(string $package, string $page): bool {
+        self::assertPackageExists($package);
+        self::assertPageExists($page, $package);
         // open page status database
         $pages_db = new Database('core', 'disabled_pages');
         // disabled if the key exists
@@ -1770,7 +1770,7 @@ class Core {
      * @param string $page
      *        the name of the page to enable.
      *
-     * @return array
+     * @return bool
      *        a status array of the form
      *    <pre><code class="php">[
      *        "success" => boolean,    // whether the call succeded
@@ -1779,13 +1779,9 @@ class Core {
      *        where, the `success` field indicates whether the call succeded.
      *        The `data` field contains an error string when `success` is `false`.
      */
-    public static function enablePage($package, $page) {
-        if (!self::pageExists($package, $page)) {
-            return [
-                'success' => false,
-                'data' => sprintf('The page "%s/%s" does not exist', $package, $page)
-            ];
-        }
+    public static function enablePage(string $package, string $page) {
+        self::assertPackageExists($package);
+        self::assertPageExists($page, $package);
         // open page status database
         $pages_db = new Database('core', 'disabled_pages');
         // remove key if it exists
@@ -1793,7 +1789,7 @@ class Core {
         if ($pages_db->key_exists($page_db_key)) {
             return $pages_db->delete($page_db_key);
         }
-        return ['success' => true, 'data' => null];
+        return true;
     }//enablePage
     
     
@@ -1806,24 +1802,14 @@ class Core {
      * @param string $page
      *        the name of the page to disable.
      *
-     * @return array
-     *        a status array of the form
-     *    <pre><code class="php">[
-     *        "success" => boolean,    // whether the call succeded
-     *        "data" => mixed        // error message or null
-     *    ]</code></pre>
-     *        where, the `success` field indicates whether the call succeded.
-     *        The `data` field contains an error string when `success` is `false`.
+     * @return bool
      */
-    public static function disablePage($package, $page) {
+    public static function disablePage(string $package, string $page): bool {
+        self::assertPackageExists($package);
+        self::assertPageExists($page, $package);
+        // cannot disable core pages
         if ($package == 'core') {
-            return ['success' => false, 'data' => 'Core pages cannot be disabled'];
-        }
-        if (!self::pageExists($package, $page)) {
-            return [
-                'success' => false,
-                'data' => sprintf('The page "%s/%s" does not exist', $package, $page)
-            ];
+            throw new GenericException('Core pages cannot be disabled');
         }
         // open page status database
         $pages_db = new Database('core', 'disabled_pages');
@@ -1832,27 +1818,36 @@ class Core {
         return $pages_db->write($page_db_key, []);
     }//disablePage
     
-    
-    public static function getFactoryDefaultPagePerRole($user_role) {
+    /** Returns the factory default page for a given user role.
+     *
+     * @param string $role      Role to get the default page for.
+     * @return string           Name of the default page.
+     */
+    #[Pure] public static function getFactoryDefaultPagePerRole(string $role): string {
         $no_default = 'NO_DEFAULT_PAGE';
-        if (!array_key_exists($user_role, self::$registered_user_roles['core'])) {
+        if (!array_key_exists($role, self::$registered_user_roles['core'])) {
             return $no_default;
         }
         // return default page
-        return self::$registered_user_roles['core'][$user_role]['factory_default_page'];
+        return self::$registered_user_roles['core'][$role]['factory_default_page'];
     }//getFactoryDefaultPagePerRole
     
-    
-    public static function getDefaultPagePerRole($user_role, $package = 'core') {
+    /** Returns the current default page for a given user role.
+     *
+     * @param string $role      Role to get the default page for.
+     * @param string $package   (Optional) Role from a specific package, 'core' by default.
+     * @return string           Name of the default page.
+     */
+    #[Pure] public static function getDefaultPagePerRole(string $role, string $package = 'core'): string {
         $no_default = 'NO_DEFAULT_PAGE';
         if (!array_key_exists($package, self::$registered_user_roles)) {
             return $no_default;
         }
-        if (!array_key_exists($user_role, self::$registered_user_roles[$package])) {
+        if (!array_key_exists($role, self::$registered_user_roles[$package])) {
             return $no_default;
         }
         // return default page
-        return self::$registered_user_roles[$package][$user_role]['default_page'];
+        return self::$registered_user_roles[$package][$role]['default_page'];
     }//getDefaultPagePerRole
     
     
@@ -1868,9 +1863,8 @@ class Core {
      *         whether the module exists.
      */
     public static function moduleExists(string $package, string $module): bool {
-        if (!self::packageExists($package)) {
-            return false;
-        }
+        self::assertPackageExists($package);
+        // look for the module entrypoint
         $pkg_root = self::getPackageDetails($package, 'root');
         $module_index = join_path($pkg_root, 'modules', $module, 'index.php');
         return file_exists($module_index);
@@ -1896,24 +1890,13 @@ class Core {
     // =======================================================================================================
     // Utility functions
     
-    public static function getStatistics() {
-        $statistics = [];
-        //
-        
-        // TODO: Configuration::$CACHE_ENABLED is no longer available
-        // Configuration::$CACHE_ENABLED = (self::$cache !== null && self::$cache instanceof phpFastCache);
-        // // cache stats
-        // $statistics['STATS_TOTAL_SELECT_REQS'] = ((Configuration::$CACHE_ENABLED && self::$cache->isExisting('STATS_TOTAL_SELECT_REQS'))? self::$cache->get('STATS_TOTAL_SELECT_REQS' ) : 1);
-        // $statistics['STATS_CACHED_SELECT_REQS'] = ((Configuration::$CACHE_ENABLED && self::$cache->isExisting('STATS_CACHED_SELECT_REQS'))? self::$cache->get('STATS_CACHED_SELECT_REQS' ) : 1);
-        
-        //
-        return $statistics;
-    }//getStatistics
-    
-    
-    public static function getSiteName() {
-        return self::getSetting('website_name', 'core');
-    }//getSiteName
+    /** Returns the website name as set in the Settings of the core package.
+     *
+     * @return string   Name of the website.
+     */
+    public static function getAppName(): string {
+        return self::getSetting('app_name');
+    }//getAppName
     
     
     /** Returns the hash identifying the version of the <b>\\compose\\</b> codebase.
@@ -1934,7 +1917,7 @@ class Core {
     /** Returns the hash identifying the version of a package's codebase.
      *    This corresponds to the commit ID on git.
      *
-     * @param string $package_id
+     * @param string $package
      *        ID of the package for which to retrieve the git hash.
      *
      * @param boolean $long_hash
@@ -1944,14 +1927,14 @@ class Core {
      * @return string
      *        alphanumeric hash of the commit currently fetched on the server
      */
-    public static function getPackageCodebaseHash($package_id, $long_hash = false) {
+    public static function getPackageCodebaseHash(string $package, $long_hash = false): string {
         // check if this object is cached
-        $cache_key = sprintf("pkg_%s_codebase_hash_%s", $package_id, $long_hash ? 'long' : 'short');
+        $cache_key = sprintf("pkg_%s_codebase_hash_%s", $package, $long_hash ? 'long' : 'short');
         if (self::$cache->has($cache_key)) {
             return self::$cache->get($cache_key);
         }
         // hash not present in cache, get it from git
-        $pkg_root = self::getPackageDetails($package_id, 'root');
+        $pkg_root = self::getPackageDetails($package, 'root');
         $hash = self::getGitRepositoryHash($pkg_root, $long_hash);
         // cache hash
         self::$cache->set($cache_key, $hash, CacheTime::HOURS_24);
@@ -1973,7 +1956,7 @@ class Core {
      * @return string
      *        alphanumeric hash of the commit currently fetched on the server
      */
-    public static function getGitRepositoryHash($git_repo_path, $long_hash = false) {
+    public static function getGitRepositoryHash(string $git_repo_path, $long_hash = false): string {
         exec(sprintf('git -C "%s" log -1', $git_repo_path) . ' --format="%H"', $info, $exit_code);
         if ($exit_code != 0) {
             $hash = 'ND';
@@ -1990,28 +1973,28 @@ class Core {
      *        See Core::getGitRepositoryInfo().
      *
      */
-    public static function getCodebaseInfo() {
+    public static function getCodebaseInfo(): array {
         return self::getPackageCodebaseInfo('core');
     }//getCodebaseInfo
     
     
     /** Returns information about a package's codebase.
      *
-     * @param string $package_id
+     * @param string $package
      *        ID of the package for which to retrieve the codebase info.
      *
      * @return array
      *        See Core::getGitRepositoryInfo().
      *
      */
-    public static function getPackageCodebaseInfo($package_id) {
+    public static function getPackageCodebaseInfo(string $package): array {
         // check if this object is cached
-        $cache_key = sprintf("pkg_%s_codebase_info", $package_id);
+        $cache_key = sprintf("pkg_%s_codebase_info", $package);
         if (self::$cache->has($cache_key)) {
             return self::$cache->get($cache_key);
         }
         // hash not present in cache, get it from git
-        $pkg_root = self::getPackageDetails($package_id, 'root');
+        $pkg_root = self::getPackageDetails($package, 'root');
         $codebase_info = self::getGitRepositoryInfo($pkg_root);
         // cache object
         self::$cache->set($cache_key, $codebase_info, CacheTime::HOURS_24);
@@ -2022,29 +2005,28 @@ class Core {
     
     /** Returns path to theme entrypoint.
      *
-     * @param string $theme_name
+     * @param string $theme
      *        Name of the theme.
      *
-     * @param string $package_id
+     * @param string $package
      *        ID of the package the theme belongs to.
      *
-     * @return string
      * @return string
      *        Path to the theme entrypoint file or null if the theme does not exist.
      *
      * @throws PackageNotFoundException
      * @throws ThemeNotFoundException
      */
-    public static function getThemeFile($theme_name, $package_id = 'core') {
+    public static function getThemeFile(string $theme, string $package = 'core'): string {
         // check if the package exists
-        if (!self::packageExists($package_id)) {
-            throw new PackageNotFoundException("Package '$package_id' not found.");
+        if (!self::packageExists($package)) {
+            throw new PackageNotFoundException("Package '$package' not found.");
         }
         // check if the theme exists
         $theme_file = join_path(
-            self::getPackageRootDir($package_id), 'modules', 'theme', $theme_name, 'index.php');
+            self::getPackageRootDir($package), 'modules', 'theme', $theme, 'index.php');
         if (!file_exists($theme_file)) {
-            throw new ThemeNotFoundException("Theme '$theme_name' not found.");
+            throw new ThemeNotFoundException($package, $theme);
         }
         // everything looks ok
         return $theme_file;
@@ -2053,48 +2035,38 @@ class Core {
     
     /** Returns theme configuration schema.
      *
-     * @param string $theme_name
+     * @param string $theme
      *        Name of the theme.
      *
-     * @param string $package_id
+     * @param string $package
      *        ID of the package the theme belongs to.
      *
-     * @return array
-     *        a status array of the form
-     *    <pre><code class="php">[
-     *        "success" => boolean,    // whether the call succeded
-     *        "data" => mixed          // error message or null
-     *    ]</code></pre>
-     *        where, the `success` field indicates whether the call succeded.
-     *        The `data` field contains an error string when `success` is `false`,
-     *        an associative array containing the theme configuration schema otherwise.
+     * @return Schema
      *
      * @return array
      * @throws ThemeNotFoundException
      * @throws PackageNotFoundException
      */
-    public static function getThemeConfigurationSchema(string $theme_name, $package_id = 'core') {
+    public static function getThemeConfigurationSchema(string $theme, $package = 'core'): Schema {
         // check if both the package and the theme exist
-        self::getThemeFile($theme_name, $package_id);
+        self::getThemeFile($theme, $package);
         // read theme default configuration
-        $theme_cfg_schema = [];
         $theme_cfg_file = join_path(
-            self::getPackageRootDir($package_id), 'modules', 'theme', $theme_name, 'configuration.json'
+            self::getPackageRootDir($package), 'modules', 'theme', $theme, 'schema.json'
         );
-        if (file_exists($theme_cfg_file)) {
-            $theme_cfg_schema = json_decode(file_get_contents($theme_cfg_file), true);
-        }
+        if (!file_exists($theme_cfg_file))
+            throw new FileNotFoundException($theme_cfg_file);
         // ---
-        return $theme_cfg_schema;
+        return new Schema(file_get_contents($theme_cfg_file));
     }//getThemeConfigurationSchema
     
     
     /** Returns theme configuration.
      *
-     * @param string $theme_name
+     * @param string $theme
      *        Name of the theme.
      *
-     * @param string $package_id
+     * @param string $package
      *        ID of the package the theme belongs to.
      *
      * @return array
@@ -2111,61 +2083,50 @@ class Core {
      * @throws ThemeNotFoundException
      * @throws PackageNotFoundException
      */
-    public static function getThemeConfiguration(string $theme_name, string $package_id = 'core') {
+    public static function getThemeConfiguration(string $theme, string $package = 'core'): array {
         // get configuration schema
-        $cfg_schema = self::getThemeConfigurationSchema($theme_name, $package_id);
+        $cfg_schema = self::getThemeConfigurationSchema($theme, $package);
         // read theme default configuration
-        // TODO: this used to call ->defaults() on Schema, implement the defaults function
-        $cfg_defaults = [];
+        $cfg_defaults = $cfg_schema->defaults();
         // open the database
         $db_name = 'theme_configuration';
         if (!Database::database_exists('core', $db_name)) {
             return $cfg_defaults;
         }
         $db = new Database('core', $db_name);
-        $entry_key = sprintf('%s__%s', $package_id, $theme_name);
+        $entry_key = sprintf('%s__%s', $package, $theme);
         if (!$db->key_exists($entry_key)) {
             return $cfg_defaults;
         }
-        //TODO: make sure this screams
         $values = $db->read($entry_key);
         // merge configs
-        return Utils::arrayMergeAssocRecursive($cfg_defaults, $values, false);
+        return $cfg_schema->sanitize($values);
     }//getThemeConfiguration
     
     
     /** Sets theme configuration.
      *
-     * @param string $theme_name
+     * @param string $theme
      *        Name of the theme.
      *
      * @param array $configuration
      *        Theme configuration to set.
      *
-     * @param string $package_id
+     * @param string $package
      *        ID of the package the theme belongs to.
      *
-     * @return array
-     * @return array
-     *        a status array of the form
-     *    <pre><code class="php">[
-     *        "success" => boolean,    // whether the call succeded
-     *        "data" => mixed          // error message or null
-     *    ]</code></pre>
-     *        where, the `success` field indicates whether the call succeded.
-     *        The `data` field contains an error string when `success` is `false`.
-     *
+     * @return bool
      */
-    public static function setThemeConfiguration($theme_name, $configuration, $package_id = 'core') {
+    public static function setThemeConfiguration(string $theme, array $configuration, string $package = 'core'): bool {
         // read current configuration
-        $current_cfg = self::getThemeConfiguration($theme_name, $package_id);
+        $current_cfg = self::getThemeConfiguration($theme, $package);
         // open the database
         $db_name = 'theme_configuration';
         $db = new Database('core', $db_name);
         // merge current and given configuration
         $cfg = Utils::arrayMergeAssocRecursive($current_cfg, $configuration, false);
         // store configuration
-        $entry_key = sprintf('%s__%s', $package_id, $theme_name);
+        $entry_key = sprintf('%s__%s', $package, $theme);
         return $db->write($entry_key, $cfg);
     }//setThemeConfiguration
     
@@ -2267,17 +2228,16 @@ class Core {
      *        \system\classes\Formatter.
      *
      */
-    public static function getDebugInfo() {
+    public static function getDebugInfo(): array {
         return self::$debugger_data;
     }//getDebugInfo
     
     
     /** Updates \\compose\\ to the latest version.
      *
-     * @throws NoVCSFoundException
-     *
+     * @param string|null $version      Version to update to.
      */
-    public static function updateBase($version = null) {
+    public static function updateBase(string $version = null) {
         $branch = 'stable';
         if (is_null($version)) {
             $version = 'devel';
@@ -2315,7 +2275,7 @@ class Core {
      * @param $resource       string Resource to redirect to.
      * @param $append_qs      bool   Append the current REQUEST_URI to the resource URL as querystring
      */
-    public static function redirectTo($resource, $append_qs = false) {
+    public static function redirectTo(string $resource, bool $append_qs = false) {
         $qs = '';
         $uri = ltrim(trim($_SERVER['REQUEST_URI']), '/');
         if ($append_qs && strlen($uri) > 0) {
@@ -2323,15 +2283,11 @@ class Core {
         }
         $dry_run = isset($_GET['__NR']) ? '//' : '';
         $resource = strlen(trim($resource)) == 0 ? './' : $resource;
-        printf('
-            <script type="text/javascript" data-tag="__compose__redirect__">
-                %swindow.open("%s%s%s", "_top");
-            </script>',
-            $dry_run,
-            (substr($resource, 0, 4) == 'http') ? '' : Configuration::$BASE,
-            $resource,
-            $qs
-        );
+        $proto = (substr($resource, 0, 4) == 'http') ? '' : Configuration::$BASE;
+        // drop some JS
+        echo `<script type="text/javascript" data-tag="__compose__redirect__">
+                {$dry_run}window.open("{$proto}{$resource}{$qs}", "_top");
+            </script>`;
         if (!$dry_run) {
             die();
         }
@@ -2342,7 +2298,7 @@ class Core {
      *
      * @return null|string  Hostname extracted from the browser hostname
      */
-    public static function getBrowserHostname() {
+    #[Pure] public static function getBrowserHostname(): null|string {
         $res = strstr($_SERVER['HTTP_HOST'] . ':' . $_SERVER['SERVER_PORT'], ':', true);
         if ($res === false) {
             return null;
@@ -2354,10 +2310,10 @@ class Core {
     /** Drops Javascript code that opens an alert of a given $type and with a given $message
      * once executed by the browser.
      *
-     * @param $type     string Type of alert, options are 'INFO', 'ERROR', 'WARNING'
+     * @param $type     string Type of alert, options are stored in the class AlertType.
      * @param $message  string Message to show in the alert
      */
-    public static function openAlert($type, $message) {
+    public static function openAlert(string $type, string $message) {
         echo sprintf("<script type=\"application/javascript\">
       	$(document).ready(function() {
       		openAlert('%s', \"%s\");
@@ -2369,26 +2325,20 @@ class Core {
     /** Requests an alert that will appear at the next page loaded. Unlike `openAlert`, this
      * code drop the alert directly in the HTML instead of relying on Javascript.
      *
-     * @param $type     string Type of alert, options are 'INFO', 'ERROR', 'WARNING'
+     * @param $type     string Type of alert, options are stored in the class AlertType.
      * @param $message  string Message to show in the alert
      */
-    public static function requestAlert($type, $message) {
-        if (!in_array($type, ['INFO', 'ERROR', 'WARNING'])) {
-            self::throwErrorF('Unknown alert type "%s". Allowed values are ["%s"]', $type, implode('", "', [
-                'INFO',
-                'ERROR',
-                'WARNING'
-            ]));
-        }
+    public static function requestAlert(string $type, string $message) {
         $alert_key = sprintf('_ALERT_%s', $type);
         $_SESSION[$alert_key] = $message;
     }//requestAlert
     
     
+    /** @noinspection PhpUnused */
     public static function throwException(BaseException $e) {
         $_SESSION['_ERROR_PAGE_MESSAGE'] = sprintf("%s<br/><br/>Error: %s", $e->getTraceAsString(), $e->getMessage());
         self::redirectTo('error');
-    }//throwError
+    }//throwException
     
     
     public static function throwError($errorMsg) {
@@ -2397,6 +2347,7 @@ class Core {
     }//throwError
     
     
+    /** @noinspection PhpUnused */
     public static function throwErrorF(...$args) {
         $_SESSION['_ERROR_PAGE_MESSAGE'] = call_user_func_array('sprintf', $args);
         self::redirectTo('error');
@@ -2411,7 +2362,7 @@ class Core {
     }//getErrorRecordsList
     
     
-    public static function getErrorRecord($error_id) {
+    public static function getErrorRecord(string $error_id) {
         // open errors DB
         $errors_db = new Database('core', 'errors');
         // get item
@@ -2419,7 +2370,7 @@ class Core {
     }//getErrorRecord
     
     
-    public static function collectErrorInfo($error_msg) {
+    public static function collectErrorInfo(string $error_msg) {
         // open errors DB
         $errors_db = new Database('core', 'errors');
         // get user info
@@ -2430,14 +2381,17 @@ class Core {
         // create error record
         $error_id = strtotime("now");
         $error = [
-            'id' => $error_id, 'datetime' => gmdate("Y-m-d H:i:s", $error_id),
-            'message' => $error_msg, 'user' => $user
+            'id' => $error_id,
+            'datetime' => gmdate("Y-m-d H:i:s", $error_id),
+            'message' => $error_msg,
+            'user' => $user
         ];
         // push error to DB
         $errors_db->write($error_id, $error);
     }//collectErrorInfo
     
     
+    /** @noinspection PhpUnused */
     public static function deleteErrorRecord($error_id) {
         // open errors DB
         $errors_db = new Database('core', 'errors');
@@ -2457,26 +2411,18 @@ class Core {
         self::$debugger_data[$package][$test_id] = [$test_value, $test_type];
     }//collectDebugInfo
     
-    /** Set verbose mode.
-     *
-     * @param bool $verbose_flag Verbose flag.
-     */
-    public static function verbose($verbose_flag = true) {
-        self::$verbose = $verbose_flag;
-    }//verbose
-    
     /** Set debug mode.
      *
-     * @param bool $debug_flag Debug mode.
+     * @param bool $debug Debug mode.
      */
-    public static function debug($debug_flag = true) {
-        self::$debug = $debug_flag;
+    public static function debug($debug = true) {
+        self::$debug = $debug;
     }//debug
     
     
-    public static function log($type, $message, ...$args) {
+    public static function log(string $type, string $message, ...$args) {
         if (self::$debug) {
-            echo vsprintf($message, $args);
+            echo strtoupper($type) . ": " . vsprintf($message, $args);
             echo '<br>';
         }
     }//log
@@ -2502,7 +2448,7 @@ class Core {
      *
      * @param $umask    integer Umask.
      */
-    private static function _set_umask($umask) {
+    private static function _set_umask(int $umask) {
         /*
         The umask defines what privileges can be assigned to newly created files and directories.
 
@@ -2538,7 +2484,7 @@ class Core {
      * @return array
      * @throws CircularDependencyException
      */
-    private static function _dep_solve_dependencies_graph($item, array $items, array $resolved, array $unresolved) {
+    private static function _dep_solve_dependencies_graph(string $item, array $items, array $resolved, array $unresolved): array {
         array_push($unresolved, $item);
         if (!array_key_exists($item, $items)) {
             return [$resolved, $unresolved];
@@ -2573,7 +2519,7 @@ class Core {
      * @return array        Graph solution.
      * @throws CircularDependencyException
      */
-    private static function _solve_dependencies_graph($graph) {
+    private static function _solve_dependencies_graph(array $graph): array {
         $resolved = [];
         $unresolved = [];
         // resolve dependencies for each node
@@ -2592,7 +2538,7 @@ class Core {
      * @throws GenericException
      * @throws InvalidSchemaException
      */
-    private static function _load_packages_settings($core_only = false): array {
+    private static function _load_packages_settings(bool $core_only = false): array {
         // check if this object is cached
         $cache_key = sprintf("packages_settings%s", $core_only ? '_core_only' : '');
         if (self::$cache->has($cache_key)) {
@@ -2772,12 +2718,15 @@ class Core {
     }//_discover_packages
     
     
-    private static function _load_package_modules_list(&$pkg_root, &$package_descriptor) {
+    private static function _load_package_modules_list($pkg_root, &$package_descriptor) {
         $package_descriptor['modules'] = [];
         $modules_entrypoint = [
-            'renderers/blocks' => '*.php', 'background/global' => '*.php',
-            'background/local' => '*.php', 'login' => 'index.php',
-            'setup' => 'index.php', 'profile' => 'index.php',
+            'renderers/blocks' => '*.php',
+            'background/global' => '*.php',
+            'background/local' => '*.php',
+            'login' => 'index.php',
+            'setup' => 'index.php',
+            'profile' => 'index.php',
             'theme' => '*/index.php'
         ];
         // load modules
@@ -2803,13 +2752,12 @@ class Core {
     
     /** Makes sure that a page exists, screams otherwise.
      *
-     * @param string $package ID of the package the page belongs to.
      * @param string $page ID of the page to check for.
-     * @throws PageNotFoundException
+     * @param string|null $package (Optional) ID of the package the page belongs to.
      */
-    private static function assertPageExists(string $package, string $page) {
-        if (!self::pageExists($package, $page)) {
-            throw new PageNotFoundException($package, $page);
+    private static function assertPageExists(string $page, string $package = null) {
+        if (!self::pageExists($page, $package)) {
+            throw new PageNotFoundException($page, $package);
         }
     }
     
@@ -2838,5 +2786,3 @@ class Core {
     }
     
 }//Core
-
-?>

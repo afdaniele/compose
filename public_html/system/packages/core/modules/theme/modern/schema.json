@@ -1,0 +1,90 @@
+{
+    "description": "Theme configuration",
+    "type": "object",
+    "properties": {
+        "dimensions": {
+            "description": "Components dimensions",
+            "type": "object",
+            "properties": {
+                "sidebar_full_width": {
+                    "description": "Width of the sidebar (full mode, in pixels)",
+                    "type": "integer",
+                    "default": 280
+                },
+                "sidebar_small_width": {
+                    "description": "Width of the sidebar (compact mode, in pixels)",
+                    "type": "integer",
+                    "default": 90
+                },
+                "topbar_height": {
+                    "description": "Height of the top bar (in pixels)",
+                    "type": "integer",
+                    "default": 80
+                },
+                "page_padding": {
+                    "description": "Space between the page and the browser window (in pixels)",
+                    "type": "integer",
+                    "default": 0
+                },
+                "page_radius": {
+                    "description": "Radius of the page corners (in pixels)",
+                    "type": "integer",
+                    "default": 0
+                },
+                "footer_height": {
+                    "description": "Height of the footer bar (in pixels)",
+                    "type": "integer",
+                    "default": 175
+                }
+            }
+        },
+        "colors": {
+            "description": "Theme colors",
+            "type": "object",
+            "properties": {
+                "primary": {
+                    "description": "Primary colors",
+                    "type": "object",
+                    "properties": {
+                        "background": {
+                            "description": "Primary background color",
+                            "type": "string",
+                            "pattern": "^#(?:[0-9a-fA-F]{3}){1,2}$",
+                            "default": "#2c5686"
+                        },
+                        "foreground": {
+                            "description": "Primary foreground color",
+                            "type": "string",
+                            "pattern": "^#(?:[0-9a-fA-F]{3}){1,2}$",
+                            "default": "#1e1e1e"
+                        }
+                    }
+                },
+                "secondary": {
+                    "description": "Secondary colors",
+                    "type": "object",
+                    "properties": {
+                        "background": {
+                            "description": "Secondary background color",
+                            "type": "string",
+                            "pattern": "^#(?:[0-9a-fA-F]{3}){1,2}$",
+                            "default": "#ffc611"
+                        },
+                        "foreground": {
+                            "description": "Secondary foreground color",
+                            "type": "string",
+                            "pattern": "^#(?:[0-9a-fA-F]{3}){1,2}$",
+                            "default": "#1e1e1e"
+                        }
+                    }
+                },
+                "tertiary": {
+                    "description": "Tertiary background color",
+                    "type": "string",
+                    "pattern": "^#(?:[0-9a-fA-F]{3}){1,2}$",
+                    "default": "#646464"
+                }
+            }
+        }
+    }
+}

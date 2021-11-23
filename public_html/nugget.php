@@ -162,7 +162,7 @@ Core::startSession();
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
     <link rel="icon" href="<?php echo $favicon ?>">
 
-    <title><?php echo Core::getSiteName() . ' - ' . Core::getPageDetails(Configuration::$PAGE, 'name') ?></title>
+    <title><?php echo Core::getAppName() . ' - ' . Core::getPageDetails(Configuration::$PAGE, 'name') ?></title>
 
     <script type="text/javascript">
         window.COMPOSE_BASE = "<?php echo Configuration::$BASE ?>";

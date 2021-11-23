@@ -1,0 +1,29 @@
+{
+    "type": "object",
+    "properties": {
+        "username": {
+            "type": "string",
+            "description": "Google (numeric) user ID"
+        },
+        "name": {
+            "type": "string",
+            "description": "Full name of the user"
+        },
+        "email": {
+            "type": "string",
+            "description": "Email address"
+        },
+        "picture": {
+            "type": "string",
+            "description": "Link to google account picture (provided by Google Sign-In)"
+        },
+        "role": {
+            "type": "string",
+            "description": "Access level of the user"
+        },
+        "active": {
+            "type": "boolean",
+            "description": "Whether the user is allowed to login and use the platform"
+        }
+    }
+}

@@ -14,7 +14,7 @@ require_once 'system/classes/Configuration.php';
 require_once 'system/packages/core/modules/error_handler.php';
 
 // simplify namespaces
-use exceptions\BaseException;
+use exceptions\BaseRuntimeException;
 use exceptions\URLRewriteException;
 use system\classes\Core;
 use system\classes\Configuration;
@@ -53,11 +53,14 @@ try {
 } catch (FileNotFoundException $e) {
     array_push($errors, $e);
 }
+
+// TODO: load core/settings database and get language out
+Configuration::$LANG = "en";
 ?>
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
         "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="<?php echo Configuration::$LANG ?>">
 <head>
     <?php
     // load core libraries
@@ -80,7 +83,7 @@ try {
     $safe_mode = in_array($requested_page, ['error', 'maintenance']);
     try {
         Core::init($safe_mode);
-    } catch (BaseException $e) {
+    } catch (BaseRuntimeException $e) {
         // collect error
         array_push($errors, $e);
         throw $e;
@@ -165,15 +168,15 @@ try {
     $theme_file = null;
     try {
         $theme_file = Core::getThemeFile($theme_name, $theme_package);
-    } catch (BaseException $e) {
+    } catch (BaseRuntimeException $e) {
         array_push($errors, $e);
-        array_push($errors, new BaseException("Falling back to 'default' theme."));
+        array_push($errors, new BaseRuntimeException("Falling back to 'default' theme."));
     }
     if (is_null($theme_file)) {
         try {
             $theme_file = Core::getThemeFile('default');
-        } catch (BaseException $e) {
-            array_push($errors, new BaseException("Failed to load 'default' theme."));
+        } catch (BaseRuntimeException $e) {
+            array_push($errors, new BaseRuntimeException("Failed to load 'default' theme."));
         }
     }
     
@@ -197,7 +200,7 @@ try {
     <link rel="icon" href="<?php echo $favicon ?>">
     
     <?php
-    $site_name = Core::getSiteName();
+    $site_name = Core::getAppName();
     $page_name = Core::getPageDetails(Configuration::$PAGE, 'name');
     $title = "{$site_name} - {$page_name}";
     ?>
