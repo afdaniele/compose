@@ -20,17 +20,9 @@ class APIAction extends IAPIAction {
     
     static function execute(RESTfulAPIAction $action, array $input): APIResponse {
         // get package settings
-        try {
-            $setts = Core::getPackageSettings($input['package']);
-        } catch (PackageNotFoundException $e) {
-            return APIResponse::fromException($e, 400);
-        }
+        $setts = Core::getPackageSettings($input['package']);
         // get value
-        try {
-            $value = $setts->get($input['key']);
-        } catch (SchemaViolationException $e) {
-            return APIResponse::fromException($e, 400);
-        }
+        $value = $setts->get($input['key']);
         //
         return APIUtils::response200OK([
             'package' => $input['package'],

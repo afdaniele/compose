@@ -36,35 +36,21 @@ class APIAction extends IAPIAction {
             return APIUtils::response400BadRequest(sprintf('The package "%s" does not exist', $package_name));
         }
         // get editable settings for the package
-        try {
-            $setts = Core::getPackageSettings($package_name);
-        } catch (PackageNotFoundException $e) {
-            return APIResponse::fromException($e, 400);
-        }
+        $setts = Core::getPackageSettings($package_name);
         // get configuration schema
         $schema = $setts->getSchema();
         // get new configuration
         $pkg_cfg = $input['configuration'] ?? [];
         // validate new configuration
-        try {
-            $schema->validate($pkg_cfg);
-        } catch (SchemaViolationException $e) {
-            return APIResponse::fromException($e, 400);
-        }
+        $schema->validate($pkg_cfg);
         // go through the arguments and try to store them in the configuration
         foreach ($pkg_cfg as $key => $value) {
-            try {
-                $setts->set($key, $value);
-            } catch (ConfigurationException $e) {
-                return APIResponse::fromException($e, 500);
-            }
+            $setts->set($key, $value);
         }
         // commit changes to disk
-        try {
-            $setts->commit();
-        } catch (GenericException | IOException $e) {
-            return APIResponse::fromException($e, 500);
-        }
+        $success = $setts->commit();
+        if (!$success)
+            return APIUtils::response400BadRequest("Generic error, configuration could not be saved.");
         // clear both package-specific and core cache
         $pkg_cache = new CacheProxy($package_name);
         $pkg_cache->clear();

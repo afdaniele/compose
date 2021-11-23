@@ -45,8 +45,10 @@ require_once $GLOBALS['__SYSTEM__DIR__'] . '/classes/Configuration.php';
 require_once $GLOBALS['__SYSTEM__DIR__'] . '/classes/enum/StringType.php';
 require_once $GLOBALS['__SYSTEM__DIR__'] . '/utils/utils.php';
 
+use exceptions\BaseException;
 use exceptions\BaseRuntimeException;
 use JetBrains\PhpStorm\NoReturn;
+use system\classes\api\APIResponse;
 use system\classes\Core;
 use system\classes\RESTfulAPI;
 use system\classes\enum\StringType;
@@ -300,7 +302,11 @@ unset($arguments['token']);
 require_once $GLOBALS['__SYSTEM__DIR__'] . '/classes/api/utils.php';
 
 // 12b. execute the action
-$result = $action->execute($arguments);
+try {
+    $result = $action->execute($arguments);
+} catch (BaseRuntimeException | BaseException $e) {
+    $result = APIResponse::fromException($e, 400);
+}
 
 
 // 13. send back the api call result
@@ -312,7 +318,7 @@ sendResponse($result->code, $result->status, $result->message, $format, $result-
 // ==================================================================================================================
 
 
-#[NoReturn] function sendResponse(int $code, string $status, string $message, string $format, array $data) {
+#[NoReturn] function sendResponse(int $code, string $status, string $message, string $format, array|null $data) {
     global $DEBUG;
     // prepare data
     $container = [
@@ -328,7 +334,7 @@ sendResponse($result->code, $result->status, $result->message, $format, $result-
     // import formatter
     require_once $GLOBALS['__SYSTEM__DIR__'] . '/api/formatter/' . $format . '_formatter.php';
     // format data
-    $data = formatData($container);
+    $content = formatData($container);
     //
     if (ob_get_length()) {
         ob_clean();
@@ -341,9 +347,9 @@ sendResponse($result->code, $result->status, $result->message, $format, $result-
     header('Expires: 0');
     header('Access-Control-Allow-Origin: *');
     header('Content-Type: ' . CONTENT_TYPE[$format] . '; charset=UTF-8');
-    header("Content-Length: " . strlen($data));
+    header("Content-Length: " . strlen($content));
     //
-    echo $data;
+    echo $content;
     //
     die();
 }//sendResponse

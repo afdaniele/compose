@@ -29,6 +29,8 @@ class APIResponse {
     
     public static function fromException(Throwable $e, int $code): APIResponse {
         $status =  array_key_exists($code, self::$statuses)? self::$statuses[$code] : "Error";
-        return APIUtils::createAPIResponse($code, $status, $e->getMessage(), null);
+        $exception_name = get_class($e);
+        $message = "{$exception_name}: {$e->getMessage()}";
+        return APIUtils::createAPIResponse($code, $status, $message, null);
     }
 }

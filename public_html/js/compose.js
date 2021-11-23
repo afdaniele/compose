@@ -270,7 +270,7 @@ function developerLogIn() {
     let apiversion = Configuration.get('core', 'WEBAPI_VERSION');
     let token = Configuration.get('core', 'TOKEN');
     // compile URI
-    var uri = "web-api/" + apiversion + "/userprofile/login_as_developer/json?token=" + token;
+    var uri = "web-api/" + apiversion + "/userprofile/login_developer/json?token=" + token;
     // compile URL
     var url = base + encodeURI(uri);
     // call the API

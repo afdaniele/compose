@@ -3,7 +3,7 @@ use \system\classes\Core;
 use \system\classes\Configuration;
 
 if (!Core::isUserLoggedIn() || Core::getLoginSystem() == '__GOOGLE_SIGNIN__') {
-  include('google_signin.php');
+  include(__DIR__ . '/google_signin.php');
 }
 ?>
 
@@ -13,7 +13,7 @@ if (!Core::isUserLoggedIn() || Core::getLoginSystem() == '__GOOGLE_SIGNIN__') {
     userLogOut(
       '<?php echo Configuration::$BASE ?>',
       '<?php echo Configuration::$WEBAPI_VERSION ?>',
-      '<?php echo $_SESSION['TOKEN'] ?>',
+      '<?php echo Configuration::$TOKEN ?>',
       function(){ /* successFcn: on success function */
         $(window).trigger('COMPOSE_LOGGED_OUT');
       }
@@ -27,7 +27,7 @@ if (!Core::isUserLoggedIn() || Core::getLoginSystem() == '__GOOGLE_SIGNIN__') {
     if(Core::getLoginSystem() == '__GOOGLE_SIGNIN__'){
       ?>
       // Sign-out from Google
-      var auth2 = gapi.auth2.getAuthInstance();
+      const auth2 = gapi.auth2.getAuthInstance();
       auth2.signOut().then(function(){
         $(window).trigger('GOOGLE_LOGGED_OUT');
         hidePleaseWait();

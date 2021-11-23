@@ -47,7 +47,6 @@ use \system\classes\Core;
                         if (count($login_addon_files_per_pkg) > 0) {
                             echo '<legend style="width: 100px; margin: 20px auto"></legend>';
                         }
-                        echoArray($login_addon_files_per_pkg);
                         // render add-ons
                         foreach ($login_addon_files_per_pkg as $pkg_id => $login_addon_files) {
                             require_once($login_addon_files[0]);

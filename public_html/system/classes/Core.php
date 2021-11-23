@@ -139,6 +139,8 @@ class Core {
      */
     public static function init($safe_mode = false): bool {
         if (!self::$initialized) {
+            // initialize empty local (fake) session container
+//            $_SESSION = [];
             // set encoding
             mb_internal_encoding("UTF-8");
             // configure umask
@@ -563,7 +565,7 @@ class Core {
      * @throws GenericException
      */
     public static function logInAsDeveloper(): bool {
-        if ($_SESSION['USER_LOGGED']) {
+        if ($_SESSION['USER_LOGGED'] ?? false) {
             return true;
         }
         if (!self::getSetting('developer_mode')) {
@@ -706,23 +708,16 @@ class Core {
     /** Logs out the user from the platform.
      *    If the user is not logged in yet, the call will return an error status.
      *
-     * @return array
-     *        a status array of the form
-     *    <pre><code class="php">[
-     *        "success" => boolean,    // whether the call succeded
-     *        "data" => mixed        // error message or null
-     *    ]</code></pre>
-     *        where, the `success` field indicates whether the call succeded.
-     *        The `data` field contains an error string when `success` is `false`.
+     * @return bool
      */
-    public static function logOutUser() {
+    public static function logOutUser(): bool {
         if (!$_SESSION['USER_LOGGED']) {
-            return ['success' => false, 'data' => 'User not logged in yet!'];
+            throw new GenericException('User not logged in yet!');
         }
         // destroy session
         session_destroy();
-        //
-        return ['success' => true, 'data' => null];
+        // ---
+        return true;
     }//logOutUser
     
     
@@ -997,22 +992,19 @@ class Core {
      * @param $username string     Username of the user to list the groups for
      * @return array               List of group keys the user belongs to
      */
-    public static function getUserGroups($username) {
+    public static function getUserGroups(string $username): array {
         // check if the user exists
         if (!self::userExists($username)) {
-            return ['success' => false, 'data' => sprintf("The user with key '%s' does not exists.", $username)];
+            throw new UserNotFoundException($username);
         }
         // open user groupings database with limited scope
         $scope = sprintf("/^(.+)__%s$/", $username);
         $db = new Database('core', 'user_grouping', $scope);
         // read keys
         $keys = $db->list_keys();
-        return [
-            'success' => true,
-            'data' => array_map(function ($k) use ($scope) {
-                return Utils::regex_extract_group($k, $scope, 1);
-            }, $keys)
-        ];
+        return array_map(function ($k) use ($scope) {
+            return Utils::regex_extract_group($k, $scope, 1);
+        }, $keys);
     }//getUserGroups
     
     
@@ -2494,7 +2486,8 @@ class Core {
      * @param false $delete_old_session Whether data from the current session should be deleted.
      */
     public static function regenerateSessionID($delete_old_session = false) {
-        session_regenerate_id($delete_old_session);
+        if (session_status() != PHP_SESSION_NONE)
+            session_regenerate_id($delete_old_session);
     }//regenerateSessionID
     
     
