@@ -53,7 +53,10 @@ $mains = [
     foreach ($mains as $mkey => $mdata) {
         $type = ($main == $mkey || is_null($mdata)) ? 'span' : 'a';
         $class = ($main == $mkey) ? 'text-bold' : '';
-        printf($title_fmt, $type, $mdata['url'], $class, $mdata['position'], ucfirst($mkey), $type);
+        $url = $mdata['url'] ?? "";
+        $position = $mdata['position'] ?? "";
+        $key = ucfirst($mkey);
+        printf($title_fmt, $type, $url, $class, $position, $key, $type);
     }
     ?>
 </h2>

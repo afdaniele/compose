@@ -10,7 +10,7 @@ class BaseException extends Exception {
     public function __construct(string $message = "", int $code = 0, Throwable|null $previous = null) {
         parent::__construct($message, $code, $previous);
         if (!is_null($previous)) {
-            $this->message .= " Previous exception returned the message: {$previous->getMessage()}";
+            $this->message .= $previous->getMessage();
             $this->code = $previous->getCode();
         }
     }
@@ -20,7 +20,7 @@ class BaseRuntimeException extends RuntimeException {
     public function __construct(string $message = "", int $code = 0, Throwable|null $previous = null) {
         parent::__construct($message, $code, $previous);
         if (!is_null($previous)) {
-            $this->message .= " Previous exception returned the message: {$previous->getMessage()}";
+            $this->message .= $previous->getMessage();
             $this->code = $previous->getCode();
         }
     }
@@ -72,6 +72,12 @@ class FileNotFoundException extends BaseRuntimeException {
 class UserNotFoundException extends BaseRuntimeException {
     public function __construct($user, $code = 0, Throwable $previous = null) {
         parent::__construct("User '$user' not found.", $code, $previous);
+    }
+}
+
+class GroupNotFoundException extends BaseRuntimeException {
+    public function __construct($group, $code = 0, Throwable $previous = null) {
+        parent::__construct("Group '$group' not found.", $code, $previous);
     }
 }
 

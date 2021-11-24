@@ -21,6 +21,7 @@ use system\classes\Core;
 class APIAction extends IAPIAction {
     
     static function execute(RESTfulAPIAction $action, array $input): APIResponse {
+        Core::startSession();
         if (Core::isUserLoggedIn()) {
             // error
             return APIUtils::response412PreconditionFailed('You are already logged in');

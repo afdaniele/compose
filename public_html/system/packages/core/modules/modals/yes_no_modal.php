@@ -66,7 +66,7 @@
                         if (showPleaseWaitModal) {
                             hidePleaseWait()
                         }
-                        showSuccessDialog(2000, function () {
+                        showSuccessModal(2000, function () {
                             window.location.reload();
                         });
                     } else {

@@ -787,7 +787,7 @@ class MissionControlConfiguration {
                             ];
                             if ($opt['type'] == 'enum') {
                                 $layout_desc['placeholder_id'] = $opt['enum_values'];
-                                $layout_desc['placeholder'] = array_map(ucfirst, $opt['enum_values']);
+                                $layout_desc['placeholder'] = array_map("ucfirst", $opt['enum_values']);
                             }
                             // add item to the layout
                             $layout[$layout_key] = $layout_desc;

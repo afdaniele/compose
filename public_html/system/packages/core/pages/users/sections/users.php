@@ -331,7 +331,7 @@ if ($mode == '/') {
         'role' => [
             'name' => 'Role',
             'type' => 'enum',
-            'placeholder' => array_map(ucfirst, $roles),
+            'placeholder' => array_map("ucfirst", $roles),
             'placeholder_id' => $roles,
             'editable' => true
         ]

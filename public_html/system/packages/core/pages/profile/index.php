@@ -6,6 +6,7 @@
 
 use \system\classes\Core;
 use \system\classes\Configuration;
+
 ?>
 
 <h2 class="page-title"></h2>
@@ -31,50 +32,54 @@ foreach ($packages as $package) {
         array_push($fieldValue, $role);
     }
 }
+
+$user_name = $user['name'];
+$roles = ["{$user['role']}"];
+foreach ($user['pkg_role'] as $pkg => $role) {
+    array_push($roles, "{$role} ($pkg)");
+}
+$user_roles = implode(", ", $roles);
 ?>
 
-<h4>Personal Information</h4>
-<nav class="navbar navbar-default" role="navigation" style="margin-bottom:36px">
-    <div class="container-fluid" style="padding-left:0; padding-right:0">
-
-        <div class="collapse navbar-collapse navbar-left" style="padding:0; width:100%">
-
-            <table style="width:100%">
-                <tr>
-                    <td class="col-md-3 text-center" style="border-right:1px solid lightgray">
-                        <h3 style="margin:0">
-                            <div class="text-center col-md-12" id="profile_page_avatar">
-                                <?php
-                                $picture_url = $user['picture'];
-                                if (preg_match('#^https?://#i', $picture_url) !== 1) {
-                                    $picture_url = sanitize_url(sprintf(
-                                        "%s%s", Configuration::$BASE, $picture_url
-                                    ));
-                                }
-                                ?>
-                                <img src="<?php echo $picture_url; ?>" id="avatar">
-                            </div>
-                        </h3>
-                    </td>
-                    <td class="col-md-9" style="padding:20px">
-                        <?php
-                        generateView($labelName, $fieldValue, 'md-3', 'md-9');
-                        ?>
-                    </td>
-                </tr>
-            </table>
+<div class="card" style="width: 100%">
+    <div class="card-body">
+        <h5 class="card-title"><?php echo $user_name ?></h5>
+        <h6 class="card-subtitle mb-2 text-muted"><?php echo $user_roles ?></h6>
+        <hr/>
+        
+        <div class="container">
+            <div class="row">
+                <div class="col-2">
+                    <?php
+                    $picture_url = $user['picture'];
+                    if (preg_match('#^https?://#i', $picture_url) !== 1) {
+                        $picture_url = sanitize_url(sprintf(
+                            "%s%s", Configuration::$BASE, $picture_url
+                        ));
+                    }
+                    ?>
+                    <img class="img-fluid" src="<?php echo $picture_url; ?>" id="avatar" alt="">
+                </div>
+                <div class="col-1"></div>
+                <div class="col-9" style="margin: auto">
+                    <?php
+                    generateView($labelName, $fieldValue, 3, 9);
+                    ?>
+                </div>
+            </div>
         </div>
+
     </div>
-</nav>
+</div>
 
 <?php
 // get list of profile plugins files
 $profile_addon_files_per_pkg = Core::getPackagesModules('profile');
 
 // render separator
-$num_addons = array_sum(array_map(count, array_values($profile_addon_files_per_pkg)));
+$num_addons = array_sum(array_map("count", array_values($profile_addon_files_per_pkg)));
 if ($num_addons > 0) {
-    echo '<legend style="width: 100px; margin: 20px auto"></legend>';
+    echo '<hr/>';
 }
 
 // render add-ons

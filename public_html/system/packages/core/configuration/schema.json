@@ -605,5 +605,6 @@
                 "enum_filler_args": ["administrator"]
             }
         }
-    }
+    },
+    "additionalProperties": false
 }

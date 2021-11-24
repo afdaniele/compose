@@ -42,7 +42,11 @@ class APIAction extends IAPIAction {
         // get new configuration
         $pkg_cfg = $input['configuration'] ?? [];
         // validate new configuration
-        $schema->validate($pkg_cfg);
+        try {
+            $schema->validate($pkg_cfg);
+        } catch (SchemaViolationException $e) {
+            return APIResponse::fromException($e, 400);
+        }
         // go through the arguments and try to store them in the configuration
         foreach ($pkg_cfg as $key => $value) {
             $setts->set($key, $value);

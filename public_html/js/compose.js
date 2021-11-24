@@ -94,7 +94,7 @@ function range(start, end, step) {
 // open popover after 'showDelay' ms and keep it visible for 'duration' ms
 function openPop(targetID, title, content, placement, showDelay, duration, fixed, closeOthers) {
     if (typeof (fixed) === 'undefined') fixed = false;
-    if (closeOthers == undefined) closeOthers = false;
+    if (closeOthers === undefined) closeOthers = false;
     //
     if (closeOthers)
         closeAllPops();
@@ -127,7 +127,7 @@ function closeAllPops() {
 
 // enable popover on hover event
 function enablePopOnHover(targetID, title, content, placement, hideCloseButton) {
-    if (hideCloseButton == undefined) hideCloseButton = false;
+    if (hideCloseButton === undefined) hideCloseButton = false;
     //
     var target = $('#' + targetID);
     target.popover({
@@ -208,8 +208,8 @@ function closeAlert() {
 
 function centerModal() {
     $(this).css('display', 'block');
-    var $dialog = $(this).find(".modal-dialog");
-    var offset = ($(window).height() - $dialog.height()) / 2;
+    let $dialog = $(this).find(".modal-dialog");
+    let offset = ($(window).height() - $dialog.height()) / 2;
     // Center modal vertically in window
     $dialog.css("margin-top", offset);
 }
@@ -227,7 +227,7 @@ function hidePleaseWait() {
 
 
 function userLogInWithGoogle(baseurl, apiversion, token, id_token, successFcn) {
-    if (successFcn == undefined) successFcn = function () {
+    if (successFcn === undefined) successFcn = function () {
         window.location.reload();
     };
     showPleaseWait();
@@ -242,7 +242,7 @@ function userLogInWithGoogle(baseurl, apiversion, token, id_token, successFcn) {
         dataType: 'json',
         data: {'id_token': id_token},
         success: function (result) {
-            if (result.code == 200) {
+            if (result.code === 200) {
                 // success, reload page
                 hidePleaseWait();
                 successFcn();
@@ -266,19 +266,19 @@ function userLogInWithGoogle(baseurl, apiversion, token, id_token, successFcn) {
 
 function developerLogIn() {
     showPleaseWait();
-    let base = Configuration.get('core', 'BASE');
-    let apiversion = Configuration.get('core', 'WEBAPI_VERSION');
-    let token = Configuration.get('core', 'TOKEN');
+    const base = Configuration.get('core', 'BASE');
+    const apiversion = Configuration.get('core', 'WEBAPI_VERSION');
+    const token = Configuration.get('core', 'TOKEN');
     // compile URI
-    var uri = "web-api/" + apiversion + "/userprofile/login_developer/json?token=" + token;
+    const uri = "web-api/" + apiversion + "/userprofile/login_developer/json?token=" + token;
     // compile URL
-    var url = base + encodeURI(uri);
+    const url = base + encodeURI(uri);
     // call the API
     callAPI(url, false, true);
 }
 
 function userLogOut(baseurl, apiversion, token, successFcn) {
-    if (successFcn == undefined) successFcn = function (res) { /* do nothing! */
+    if (successFcn === undefined) successFcn = function (res) { /* do nothing! */
     };
     showPleaseWait();
     //
@@ -288,7 +288,7 @@ function userLogOut(baseurl, apiversion, token, successFcn) {
     // call the API
     $.ajax({
         type: 'GET', url: url, dataType: 'json', success: function (result) {
-            if (result.code == 200) {
+            if (result.code === 200) {
                 // success, redirect
                 successFcn();
             } else {
@@ -302,8 +302,7 @@ function userLogOut(baseurl, apiversion, token, successFcn) {
     });
 }
 
-function showSuccessDialog(duration, funct) {
-    // TODO: rename successDialog to successModal
+function showSuccessModal(duration, funct) {
     let successModal = new bootstrap.Modal(document.getElementById('successDialog'));
     successModal.show();
     setTimeout(function () {
@@ -321,7 +320,7 @@ function printElement(elem) {
 }
 
 function popup(data) {
-    var mywindow = window.open('', 'Print', 'height=400,width=600');
+    const mywindow = window.open('', 'Print', 'height=400,width=600');
     mywindow.document.write('<html><head><title>Print</title>');
     mywindow.document.write('</head><body >');
     mywindow.document.write('</body></html>');
@@ -400,11 +399,13 @@ function smartAPI(service, action, args) {
         args['on_error'] || function () {
         },
         args['method'] || 'GET',
-        args['data'] || {}
+        args['data'] || {},
+        args['dataType'] || "json",
+        args['headers'] || {},
     );
 }//smartAPI
 
-function callAPI(url, successDialog, reload, funct, silentMode, suppressErrors, errorFcn, transportType, bodyData) {
+function callAPI(url, successDialog, reload, funct, silentMode, suppressErrors, errorFcn, transportType, bodyData, resultDataType, customHeaders) {
     if (successDialog === undefined) successDialog = false;
     if (reload === undefined) reload = false;
     if (funct === undefined) funct = function (res) { /* do nothing! */ };
@@ -436,80 +437,20 @@ function callAPI(url, successDialog, reload, funct, silentMode, suppressErrors, 
     $.ajax({
         type: transportType,
         url: url,
-        dataType: 'json',
-        data: postData,
-        success: function (result) {
-            if (result.code === 200) {
-                // success
-                // call the callback function
-                funct(result);
-                //
-                hidePleaseWait();
-                //
-                if (successDialog) {
-                    showSuccessDialog(2000, ((reload) ? function () {
-                        window.location.reload();
-                    } : function () {
-                    }));
-                } else {
-                    if (reload) {
-                        window.location.reload();
-                    }
-                }
-            } else {
-                // error
-                // call the callback function
-                errorFcn(result);
-                //open an alert
-                hidePleaseWait();
-                if (!suppressErrors) {
-                    openAlert('danger', result.message);
-                }
-            }
-        },
-        error: function (jqXHR, textStatus, errorThrown) {
-            // error
-            // call the callback function
-            errorFcn(errorThrown);
-            // open an alert
-            hidePleaseWait();
-            if (!suppressErrors) {
-                openAlert('danger', 'An error occurred while trying to communicate with the server. Details: ' + errorThrown);
-            }
-        }
-    });
-}
-
-
-function callExternalAPI(url, callType, resultDataType, successDialog, reload, funct, silentMode, suppressErrors, errorFcn, errorArgs, customHeaders) {
-    if (successDialog === undefined) successDialog = false;
-    if (reload === undefined) reload = false;
-    if (funct === undefined) funct = function (res) { /* do nothing! */ };
-    if (silentMode === undefined) silentMode = false;
-    if (suppressErrors === undefined) suppressErrors = false;
-    if (errorFcn === undefined) errorFcn = function (res) { /* do nothing! */ };
-    if (customHeaders === undefined) customHeaders = {};
-    //
-    url = encodeURI(url);
-    //
-    if (!silentMode) {
-        showPleaseWait();
-    }
-    //
-    $.ajax({
-        type: callType,
-        url: url,
         dataType: resultDataType,
+        data: postData,
         headers: customHeaders,
         success: function (result, status, xhr) {
             // success
             // call the callback function
             funct(result, status, xhr);
             //
-            hidePleaseWait();
+            if (!silentMode) {
+                hidePleaseWait();
+            }
             //
             if (successDialog) {
-                showSuccessDialog(2000, ((reload) ? function () {
+                showSuccessModal(2000, ((reload) ? function () {
                     window.location.reload();
                 } : function () {
                 }));
@@ -524,13 +465,67 @@ function callExternalAPI(url, callType, resultDataType, successDialog, reload, f
             // call the callback function
             errorFcn(errorThrown);
             // open an alert
-            hidePleaseWait();
+            if (!silentMode) {
+                hidePleaseWait();
+            }
             if (!suppressErrors) {
-                openAlert('danger', 'An error occurred while trying to communicate with the server. Details: `{0}`'.format(errorThrown));
+                openAlert('danger', 'An error occurred while trying to communicate with the server. Details: ' + errorThrown);
             }
         }
     });
 }
+
+
+// function callExternalAPI(url, callType, resultDataType, successDialog, reload, funct, silentMode, suppressErrors, errorFcn, errorArgs, customHeaders) {
+//     if (successDialog === undefined) successDialog = false;
+//     if (reload === undefined) reload = false;
+//     if (funct === undefined) funct = function (res) { /* do nothing! */ };
+//     if (silentMode === undefined) silentMode = false;
+//     if (suppressErrors === undefined) suppressErrors = false;
+//     if (errorFcn === undefined) errorFcn = function (res) { /* do nothing! */ };
+//     if (customHeaders === undefined) customHeaders = {};
+//     //
+//     url = encodeURI(url);
+//     //
+//     if (!silentMode) {
+//         showPleaseWait();
+//     }
+//     //
+//     $.ajax({
+//         type: callType,
+//         url: url,
+//         dataType: resultDataType,
+//         headers: customHeaders,
+//         success: function (result, status, xhr) {
+//             // success
+//             // call the callback function
+//             funct(result, status, xhr);
+//             //
+//             hidePleaseWait();
+//             //
+//             if (successDialog) {
+//                 showSuccessModal(2000, ((reload) ? function () {
+//                     window.location.reload();
+//                 } : function () {
+//                 }));
+//             } else {
+//                 if (reload) {
+//                     window.location.reload();
+//                 }
+//             }
+//         },
+//         error: function (jqXHR, textStatus, errorThrown) {
+//             // error
+//             // call the callback function
+//             errorFcn(errorThrown);
+//             // open an alert
+//             hidePleaseWait();
+//             if (!suppressErrors) {
+//                 openAlert('danger', 'An error occurred while trying to communicate with the server. Details: `{0}`'.format(errorThrown));
+//             }
+//         }
+//     });
+// }
 
 function serializeForm(formID, excludeDisabled) {
     if (excludeDisabled == undefined) excludeDisabled = false;
@@ -766,7 +761,19 @@ function checkForUpdates(git_provider, git_owner, git_repo, git_local_head, allo
             }
         }
 
-        callExternalAPI(url_compare_commits, 'GET', 'json', false, false, fmt_fcn1, true, true, on_error_fcn, [], headers['compare']);
+        callAPI(
+            url_compare_commits,
+            false,
+            false,
+            fmt_fcn1,
+            true,
+            true,
+            on_error_fcn,
+            'GET',
+            {},
+            'json',
+            headers['compare']
+        );
     }
 
     // ---
@@ -796,7 +803,19 @@ function checkForUpdates(git_provider, git_owner, git_repo, git_local_head, allo
             }
         }
 
-        callExternalAPI(url_tags_list, 'GET', 'json', false, false, fmt_fcn2, true, true, on_error_fcn, [], headers['release']);
+        callAPI(
+            url_tags_list,
+            false,
+            false,
+            fmt_fcn2,
+            true,
+            true,
+            on_error_fcn,
+            'GET',
+            {},
+            'json',
+            headers['release']
+        );
     }
 }//checkForUpdates
 

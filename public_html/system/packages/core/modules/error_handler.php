@@ -102,14 +102,20 @@ function _error_handler_generic_error_function($errno, $errstr, $errfile, $errli
 // set error handler functions
 register_shutdown_function('_error_handler_shutdown_function');
 
+function print_exception_plain(Throwable $e) {
+    $e_class = get_class($e);
+    $stack_trace = Utils::formatStacktrace($e);
+    $msg = "
+<strong>Exception</strong>: {$e_class}<br/>
+<strong>Error</strong>: {$e->getMessage()}<br/>
+<strong>Stack Trace</strong>:<pre>{$stack_trace}</pre>
+";
+    echo $msg;
+}
 
 set_error_handler(function ($code, $message) {
     // convert error to ErrorException
     throw new ErrorException($message, $code);
 });
 
-set_exception_handler(function (Throwable $e) {
-    $stack_trace = Utils::formatStacktrace($e);
-    $msg = "Error: {$e->getMessage()}<br/><br/>Stack Trace:<br/><pre>{$stack_trace}</pre>";
-    echo $msg;
-});
+set_exception_handler("print_exception_plain");

@@ -8,6 +8,7 @@ use exceptions\IOException;
 use exceptions\SchemaViolationException;
 use stdClass;
 use Swaggest\JsonSchema\Exception;
+use Swaggest\JsonSchema\Exception\ObjectException;
 use Swaggest\JsonSchema\Exception\TypeException;
 use Swaggest\JsonSchema\InvalidValue;
 use Swaggest\JsonSchema\Schema as JSONSchema;
@@ -59,7 +60,7 @@ class Schema {
         $data = self::arrayToObj($data);
         try {
             $this->schema->in($data);
-        } catch (InvalidValue | Exception $e) {
+        } catch (InvalidValue | Exception | ObjectException $e) {
             throw new SchemaViolationException(previous: $e);
         }
     }
@@ -70,7 +71,11 @@ class Schema {
      */
     public function sanitize(array|stdClass $data): array {
         $data = self::arrayToObj($data);
-        $data = $this->schema->in($data);
+        try {
+            $data = $this->schema->in($data);
+        } catch (InvalidValue | Exception | ObjectException $e) {
+            throw new SchemaViolationException(previous: $e);
+        }
         return self::objectItemToArray($data);
     }
     

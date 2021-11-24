@@ -19,9 +19,9 @@ require_once __DIR__ . '/Utils.php';
 require_once __DIR__ . '/Formatter.php';
 require_once __DIR__ . '/Cache.php';
 require_once __DIR__ . '/Schema.php';
-require_once __DIR__ . '/enum/StringType.php';
-require_once __DIR__ . '/enum/EmailTemplates.php';
 require_once __DIR__ . '/enum/CacheTime.php';
+require_once __DIR__ . '/enum/Misc.php';
+require_once __DIR__ . '/enum/StringType.php';
 
 require_once __DIR__ . '/yaml/Spyc.php';
 
@@ -42,15 +42,16 @@ use exceptions\BaseException;
 use exceptions\BaseRuntimeException;
 use exceptions\CircularDependencyException;
 use exceptions\DatabaseContentException;
-use exceptions\DatabaseKeyNotFoundException;
 use exceptions\FileNotFoundException;
 use exceptions\GenericException;
+use exceptions\GroupNotFoundException;
 use exceptions\InactiveUserException;
 use exceptions\InvalidAuthenticationException;
 use exceptions\InvalidSchemaException;
 use exceptions\InvalidTokenException;
 use exceptions\IOException;
 use exceptions\ModuleNotFoundException;
+use exceptions\NotLoggedInException;
 use exceptions\NoVCSFoundException;
 use exceptions\PackageNotFoundException;
 use exceptions\PageNotFoundException;
@@ -59,8 +60,8 @@ use exceptions\UserNotFoundException;
 use Google_Client;
 use JetBrains\PhpStorm\ArrayShape;
 use JetBrains\PhpStorm\Pure;
-use system\classes\enum\EmailTemplates;
 use system\classes\enum\CacheTime;
+use system\classes\enum\PageOrder;
 use system\classes\jsonDB\JsonDB;
 
 
@@ -200,9 +201,6 @@ class Core {
                 self::$initialized = true;
                 return true;
             }
-            //
-            // load email templates
-            EmailTemplates::init();
             //
             // create dependencies graph for the packages
             $dep_graph = [];
@@ -653,12 +651,8 @@ class Core {
             throw new GenericException("The user '$user_id' already exists");
         }
         // validate user info
-        $mandatory_fields = array_keys(self::$USER_ACCOUNT_TEMPLATE);
-        foreach ($mandatory_fields as $field) {
-            if (!isset($user_info[$field])) {
-                throw new GenericException("The field '$field' is required in a user account");
-            }
-        }
+        $schema = Schema::load("user_profile");
+        $schema->validate($user_info);
         // open users DB
         $users_db = new Database('core', 'users');
         // create administrator if this is the first user
@@ -666,9 +660,7 @@ class Core {
             $user_info['role'] = 'administrator';
             // disable the developer mode (if it is enabled)
             if (self::getSetting('developer_mode')) {
-                try {
-                    self::setSetting('core', 'developer_mode', false);
-                } catch (PackageNotFoundException $e) {}
+                self::setSetting('core', 'developer_mode', false);
                 // warn the user of what happened
                 self::requestAlert('INFO', 'Administrator account created! The Developer Mode
                 was disabled automatically.');
@@ -729,7 +721,7 @@ class Core {
      * @return boolean
      *        whether a user account with the specified user id exists;
      */
-    public static function userExists($user_id) {
+    public static function userExists(string $user_id) {
         // open users DB
         $users_db = new Database('core', 'users');
         // return whether the user exists
@@ -751,11 +743,7 @@ class Core {
         // open users DB
         $users_db = new Database('core', 'users');
         // load user info
-        try {
-            return $users_db->get_entry($user_id);
-        } catch (DatabaseKeyNotFoundException $e) {
-            throw new UserNotFoundException($user_id);
-        }
+        return $users_db->get_entry($user_id);
     }//openUserInfo
     
     
@@ -775,22 +763,22 @@ class Core {
     
     /** Returns the user account record of the user currently logged in.
      *
-     * @param string $field
+     * @param string|null $field
      *        (optional) name of the field to retrieve from the user account. It can be any of the
      *        keys specified in $USER_ACCOUNT_TEMPLATE;
      *
      * @return mixed
-     *        If no user is currently logged in, returns `null`;
      *        If `$field`=`null`, returns associative array containing the information about the
      *        user currently logged in (similar to getUserInfo()); If a value for `$field` is
      *        passed, only the value of the field specified is returned (e.g., name).
+     *        If the user is currently not logged in, an exception is thrown.
      */
-    public static function getUserLogged($field = null) {
+    public static function getUserLogged(string|null $field = null): mixed {
         if (!isset($_SESSION['USER_RECORD']) || is_null($_SESSION['USER_RECORD'])) {
-            return null;
+            throw new NotLoggedInException();
         }
         $user_record = $_SESSION['USER_RECORD'];
-        return ($field == null) ? $user_record : $user_record[$field];
+        return is_null($field) ? $user_record : $user_record[$field];
     }//getUserLogged
     
     
@@ -800,13 +788,13 @@ class Core {
      *        (optional) package with respect to which we want to obtain the current role; Default
      *        is 'core';
      *
-     * @return string
+     * @return string|null
      *        role of the user that is currently using the platform. It can be any of the default
      *        roles defined by <b>\\compose\\</b> or any other role registered by third-party
      *        packages. A list of all the user roles registered can be retrieved using the
      *        function getAllRegisteredUserRoles();
      */
-    public static function getUserRole($package = 'core') {
+    public static function getUserRole(string $package = 'core'): string|null {
         // not logged => guest
         if (!self::isUserLoggedIn()) {
             return 'guest';
@@ -829,7 +817,7 @@ class Core {
      *    NOTE: this function does not update the user account of the current user permanently.
      *    This change will be lost once the session is closed.
      *
-     * @param string $user_role
+     * @param string $role
      *        role to assign to the current user;
      *
      * @param string $package
@@ -837,17 +825,17 @@ class Core {
      *
      * @return void
      */
-    public static function setUserRole($user_role, $package = 'core') {
+    public static function setUserRole(string $role, string $package = 'core') {
         if (!isset($_SESSION['USER_RECORD'])) {
             return;
         }
-        //TODO: make sure that the give <pkg,role> pair was previously registered
+        //TODO: make sure that the given <pkg,role> pair was previously registered
         if ($package == 'core') {
-            if (in_array($user_role, ['guest', 'user', 'supervisor', 'administrator'])) {
-                $_SESSION['USER_RECORD']['role'] = $user_role;
+            if (in_array($role, ['guest', 'user', 'supervisor', 'administrator'])) {
+                $_SESSION['USER_RECORD']['role'] = $role;
             }
         } else {
-            $_SESSION['USER_RECORD']['pkg_role'][$package] = $user_role;
+            $_SESSION['USER_RECORD']['pkg_role'][$package] = $role;
         }
     }//setUserRole
     
@@ -863,7 +851,7 @@ class Core {
      */
     public static function getUserRolesList(): array {
         $roles = [self::getUserRole()];
-        $pkg_roles = self::getUserLogged('pkg_role') ?? [];
+        $pkg_roles = self::isUserLoggedIn()? self::getUserLogged('pkg_role') : [];
         foreach ($pkg_roles as $pkg_id => $pkg_role) {
             $role = sprintf('%s:%s', $pkg_id, $pkg_role);
             array_push($roles, $role);
@@ -877,21 +865,14 @@ class Core {
      *
      * @param $name string          name of the group to create
      * @param $description string   description of the group to create
-     * @return array                a status array of the form
-     *    <pre><code class="php">[
-     *        "success" => boolean,    // whether the call succeded
-     *        "data" => mixed          // error message or null
-     *    ]</code></pre>
-     *        where, the `success` field indicates whether the call succeded.
-     *        The `data` field contains an error string when `success` is `false`,
-     *        otherwise it will contain null.
+     * @return bool
      */
-    public static function createUserGroup($name, $description) {
+    public static function createUserGroup(string $name, string $description): bool {
         $db = new Database('core', 'groups');
         $group_key = Utils::string_to_valid_filename($name);
         // check if the group already exists
         if ($db->key_exists($group_key)) {
-            return ['success' => false, 'data' => sprintf("A group with key '%s' already exists.", $group_key)];
+            throw new GenericException("A group with key '$group_key' already exists.");
         }
         // create group
         return $db->write($group_key, [
@@ -909,7 +890,7 @@ class Core {
      * @param $group string         key of the group to check
      * @return boolean              whether the group exists
      */
-    public static function groupExists($group) {
+    public static function groupExists(string $group): bool {
         $db = new Database('core', 'groups');
         return $db->key_exists($group);
     }//groupExists
@@ -920,7 +901,7 @@ class Core {
      *
      * @return array      List of group keys, one for each existing group
      */
-    public static function getGroupsList() {
+    public static function getGroupsList(): array {
         $db = new Database('core', 'groups');
         return $db->list_keys();
     }//getGroupsList
@@ -930,28 +911,14 @@ class Core {
      *  Returns information about a group.
      *
      * @param $group string     Key of the group to list members for
-     * @return array            A status array of the form
-     *    <pre><code class="php">[
-     *        "success" => boolean,    // whether the call succeded
-     *        "data" => mixed          // error message or null
-     *    ]</code></pre>
-     *        where, the `success` field indicates whether the call succeded.
-     *        The `data` field contains an error string when `success` is `false`,
-     *        otherwise it will contain a list of usernames, members of the group.
+     * @return array            Group info
      */
-    public static function getGroupInfo($group) {
-        // check if the group exists
-        if (!self::groupExists($group)) {
-            return ['success' => false, 'data' => sprintf("The group with key '%s' does not exists.", $group)];
-        }
+    public static function getGroupInfo(string $group): array {
+        self::assertGroupExists($group);
         // open groups database
         $db = new Database('core', 'groups');
         // read group info
-        $res = $db->read($group);
-        if (!$res['success']) {
-            return $res;
-        }
-        return ['success' => true, 'data' => $res['data']];
+        return $db->read($group);
     }//getGroupInfo
     
     
@@ -959,30 +926,18 @@ class Core {
      *  Returns the list of members of a group.
      *
      * @param $group string     Key of the group to list members for
-     * @return array            A status array of the form
-     *    <pre><code class="php">[
-     *        "success" => boolean,    // whether the call succeded
-     *        "data" => mixed          // error message or null
-     *    ]</code></pre>
-     *        where, the `success` field indicates whether the call succeded.
-     *        The `data` field contains an error string when `success` is `false`,
-     *        otherwise it will contain a list of usernames, members of the group.
+     * @return array            List of user IDs of users belonging to the group.
      */
-    public static function getGroupMembers($group) {
-        // check if the group exists
-        if (!self::groupExists($group)) {
-            return ['success' => false, 'data' => sprintf("The group with key '%s' does not exists.", $group)];
-        }
+    public static function getGroupMembers(string $group): array {
+        self::assertGroupExists($group);
         // open user groupings database with limited scope
         $scope = sprintf("/^%s__(.*)$/", $group);
         $db = new Database('core', 'user_grouping', $scope);
         // read keys
         $keys = $db->list_keys();
-        return [
-            'success' => true,
-            'data' => array_map(function ($k) use ($scope) {
-                return Utils::regex_extract_group($k, $scope, 1);
-            }, $keys)];
+        return array_map(function ($k) use ($scope) {
+            return Utils::regex_extract_group($k, $scope, 1);
+        }, $keys);
     }//getGroupMembers
     
     
@@ -993,10 +948,7 @@ class Core {
      * @return array               List of group keys the user belongs to
      */
     public static function getUserGroups(string $username): array {
-        // check if the user exists
-        if (!self::userExists($username)) {
-            throw new UserNotFoundException($username);
-        }
+        self::assertUserExists($username);
         // open user groupings database with limited scope
         $scope = sprintf("/^(.+)__%s$/", $username);
         $db = new Database('core', 'user_grouping', $scope);
@@ -1012,28 +964,15 @@ class Core {
      *  Deletes a user group.
      *
      * @param $group string           key of the group to delete
-     * @return array                a status array of the form
-     *    <pre><code class="php">[
-     *        "success" => boolean,    // whether the call succeded
-     *        "data" => mixed        // error message or null
-     *    ]</code></pre>
-     *        where, the `success` field indicates whether the call succeded.
-     *        The `data` field contains an error string when `success` is `false`,
-     *        otherwise it will contain null.
+     * @return bool
      */
-    public static function deleteUserGroup($group) {
-        // check if the group exists
-        if (!self::groupExists($group)) {
-            return ['success' => false, 'data' => sprintf("The group with key '%s' does not exists.", $group)];
-        }
+    public static function deleteUserGroup(string $group): bool {
+        self::assertGroupExists($group);
         // delete all user groupings associated to this group
         $scope = sprintf("/^%s__(.*)$/", $group);
         $db = new Database('core', 'user_grouping', $scope);
         foreach ($db->list_keys() as $key) {
-            $res = $db->delete($key);
-            if (!$res['success']) {
-                return $res;
-            }
+            return $db->delete($key);
         }
         // open groups database
         $db = new Database('core', 'groups');
@@ -1047,24 +986,11 @@ class Core {
      *
      * @param $username string      username of the user to add to the group
      * @param $group string         key of the group to add the user to
-     * @return array                a status array of the form
-     *    <pre><code class="php">[
-     *        "success" => boolean,    // whether the call succeded
-     *        "data" => mixed        // error message or null
-     *    ]</code></pre>
-     *        where, the `success` field indicates whether the call succeded.
-     *        The `data` field contains an error string when `success` is `false`,
-     *        otherwise it will contain null.
+     * @return bool
      */
-    public static function addUserToGroup($username, $group) {
-        // check if the user exists
-        if (!self::userExists($username)) {
-            return ['success' => false, 'data' => sprintf("The user with key '%s' does not exists.", $username)];
-        }
-        // check if the group exists
-        if (!self::groupExists($group)) {
-            return ['success' => false, 'data' => sprintf("The group with key '%s' does not exists.", $group)];
-        }
+    public static function addUserToGroup(string $username, string $group): bool {
+        self::assertUserExists($username);
+        self::assertGroupExists($group);
         // open user grouping database
         $db = new Database('core', 'user_grouping');
         $key = sprintf('%s__%s', $group, $username);
@@ -1078,24 +1004,11 @@ class Core {
      *
      * @param $username string      username of the user to remove from the group
      * @param $group string         key of the group to remove the user from
-     * @return array                a status array of the form
-     *    <pre><code class="php">[
-     *        "success" => boolean,    // whether the call succeded
-     *        "data" => mixed        // error message or null
-     *    ]</code></pre>
-     *        where, the `success` field indicates whether the call succeded.
-     *        The `data` field contains an error string when `success` is `false`,
-     *        otherwise it will contain null.
+     * @return bool
      */
-    public static function removeUserFromGroup($username, $group) {
-        // check if the user exists
-        if (!self::userExists($username)) {
-            return ['success' => false, 'data' => sprintf("The user with key '%s' does not exists.", $username)];
-        }
-        // check if the group exists
-        if (!self::groupExists($group)) {
-            return ['success' => false, 'data' => sprintf("The group with key '%s' does not exists.", $group)];
-        }
+    public static function removeUserFromGroup(string $username, string $group) {
+        self::assertUserExists($username);
+        self::assertGroupExists($group);
         // open user grouping database
         $db = new Database('core', 'user_grouping');
         $key = sprintf('%s__%s', $group, $username);
@@ -1112,10 +1025,8 @@ class Core {
      *
      * @return array
      *        list of unique strings. Each string represents a different user role;
-     * @return array
-     *          list of unique strings. Each string represents a different user role;
      */
-    public static function getPackageRegisteredUserRoles($package = 'core') {
+    #[Pure] public static function getPackageRegisteredUserRoles(string $package = 'core'): array {
         if (array_key_exists($package, self::$registered_user_roles)) {
             return array_keys(self::$registered_user_roles[$package]);
         }
@@ -1128,8 +1039,9 @@ class Core {
      *
      * @return array
      *        list of unique strings. Each string represents a different user role;
+     * @noinspection PhpUnused
      */
-    public static function getAllRegisteredUserRoles() {
+    public static function getAllRegisteredUserRoles(): array {
         $roles = [];
         foreach (array_keys(self::getPackagesList()) as $pkg_id) {
             $prefix = boolval($pkg_id == 'core') ? '' : sprintf('%s:', $pkg_id);
@@ -1147,7 +1059,7 @@ class Core {
      * @param string $package
      *        package registering the new user role;
      *
-     * @param string $user_role
+     * @param string $role
      *        ID of the user_role to register;
      *
      * @param string $default_page
@@ -1155,20 +1067,20 @@ class Core {
      *
      * @return void
      */
-    public static function registerNewUserRole($package, $user_role, $default_page = 'NO_DEFAULT_PAGE') {
+    public static function registerNewUserRole(string $package, string $role, string $default_page = 'NO_DEFAULT_PAGE') {
         if (!array_key_exists($package, self::$registered_user_roles)) {
             self::$registered_user_roles[$package] = [];
         }
         // add the user role if not present
-        if (!array_key_exists($user_role, self::$registered_user_roles[$package])) {
-            self::$registered_user_roles[$package][$user_role] = [
+        if (!array_key_exists($role, self::$registered_user_roles[$package])) {
+            self::$registered_user_roles[$package][$role] = [
                 'default_page' => 'NO_DEFAULT_PAGE',
                 'factory_default_page' => 'NO_DEFAULT_PAGE'
             ];
         }
         // update default page
         if ($default_page != 'NO_DEFAULT_PAGE') {
-            self::$registered_user_roles[$package][$user_role]['default_page'] = $default_page;
+            self::$registered_user_roles[$package][$role]['default_page'] = $default_page;
         }
     }//registerNewUserRole
     
@@ -1180,7 +1092,7 @@ class Core {
      *
      * @return void
      */
-    public static function setLoginSystem($login_system) {
+    public static function setLoginSystem(string $login_system) {
         $_SESSION['LOGIN_SYSTEM'] = $login_system;
     }//setLoginSystem
     
@@ -1227,7 +1139,7 @@ class Core {
      *        ...                                // other packages
      *    ]</code></pre>
      */
-    public static function getPackagesList() {
+    public static function getPackagesList(): array {
         return self::$packages;
     }//getPackagesList
     
@@ -1240,7 +1152,7 @@ class Core {
      * @return boolean
      *        whether the package exists.
      */
-    public static function packageExists($package) {
+    #[Pure] public static function packageExists(string $package): bool {
         return array_key_exists($package, self::$packages);
     }//packageExists
     
@@ -1255,7 +1167,7 @@ class Core {
      * @return boolean
      *        whether the package is enabled.
      */
-    public static function isPackageEnabled($package) {
+    public static function isPackageEnabled(string $package): bool {
         // open package status database
         $packages_db = new Database('core', 'disabled_packages');
         // disabled if the key exists
@@ -1263,22 +1175,25 @@ class Core {
     }//isPackageEnabled
     
     
-    public static function installPackage($package) {
+    /** @noinspection PhpUnused */
+    public static function installPackage(string $package): bool {
         return self::packageManagerBatch([$package], [], []);
     }//installPackage
     
     
-    public static function updatePackage($package) {
+    /** @noinspection PhpUnused */
+    public static function updatePackage(string $package): bool {
         return self::packageManagerBatch([], [$package], []);
     }//updatePackage
     
     
-    public static function removePackage($package) {
+    /** @noinspection PhpUnused */
+    public static function removePackage(string $package): bool {
         return self::packageManagerBatch([], [], [$package]);
     }//removePackage
     
     
-    public static function packageManagerBatch($to_install, $to_update, $to_remove) {
+    public static function packageManagerBatch(array $to_install, array $to_update, array $to_remove): bool {
         $to_remove = array_diff($to_remove, ['core']);
         $package_manager_py = sprintf('%s/lib/python/compose/package_manager.py', $GLOBALS['__SYSTEM__DIR__']);
         $install_arg = '--install ' . implode(' ', $to_install);
@@ -1292,16 +1207,17 @@ class Core {
         // invalidate cache
         self::$cache->clear();
         // ---
-        if ($success) {
-            return ['success' => true, 'data' => null];
+        if (!$success) {
+            // parse error (remove comments)
+            $output = array_values(array_filter(array_values($output), function ($e) {
+                return substr(ltrim($e), 0, 1) !== '#';
+            }));
+            $err_data = json_decode($output[0], true);
+            /** @noinspection PhpUndefinedConstantInspection */
+            $error = implode('\n', array_map(htmlspecialchars, explode('\n', $err_data['message'])));
+            throw new GenericException($error);
         }
-        // parse error (remove comments)
-        $output = array_values(array_filter(array_values($output), function ($e) {
-            return substr(ltrim($e), 0, 1) !== '#';
-        }));
-        $err_data = json_decode($output[0], true);
-        $err_data = array_map(htmlspecialchars, explode('\n', $err_data['message']));
-        return ['success' => false, 'data' => $err_data];
+        return true;
     }//packageManagerBatch
     
     
@@ -1312,29 +1228,17 @@ class Core {
      * @param string $package
      *        the name of the package to enable.
      *
-     * @return array
-     *        a status array of the form
-     *    <pre><code class="php">[
-     *        "success" => boolean,    // whether the call succeded
-     *        "data" => mixed        // error message or null
-     *    ]</code></pre>
-     *        where, the `success` field indicates whether the call succeded.
-     *        The `data` field contains an error string when `success` is `false`.
+     * @return bool
      */
-    public static function enablePackage($package) {
-        if (!self::packageExists($package)) {
-            return [
-                'success' => false,
-                'data' => sprintf('The package "%s" does not exist', $package)
-            ];
-        }
+    public static function enablePackage(string $package): bool {
+        self::assertPackageExists($package);
         // open package status database
         $packages_db = new Database('core', 'disabled_packages');
         // remove key if it exists
         if ($packages_db->key_exists($package)) {
             return $packages_db->delete($package);
         }
-        return ['success' => true, 'data' => null];
+        return true;
     }//enablePackage
     
     
@@ -1345,24 +1249,13 @@ class Core {
      * @param string $package
      *        the name of the package to disable.
      *
-     * @return array
-     *        a status array of the form
-     *    <pre><code class="php">[
-     *        "success" => boolean,    // whether the call succeded
-     *        "data" => mixed        // error message or null
-     *    ]</code></pre>
-     *        where, the `success` field indicates whether the call succeded.
-     *        The `data` field contains an error string when `success` is `false`.
+     * @return bool
      */
-    public static function disablePackage($package) {
+    public static function disablePackage(string $package): bool {
+        self::assertPackageExists($package);
+        // cannot disable core
         if ($package == 'core') {
-            return ['success' => false, 'data' => 'The Core package cannot be disabled'];
-        }
-        if (!self::packageExists($package)) {
-            return [
-                'success' => false,
-                'data' => sprintf('The package "%s" does not exist', $package)
-            ];
+            throw new GenericException('The Core package cannot be disabled');
         }
         // open package status database
         $packages_db = new Database('core', 'disabled_packages');
@@ -1387,10 +1280,10 @@ class Core {
     
     /** Returns information for a given package as an associative array;
      *
-     * @param string $package_name
+     * @param string $package
      *        the ID of the package to retrieve the info for.
      *
-     * @param string $attribute
+     * @param string|null $attribute
      *        (optional) the key of the attribute to fetch from the info array.
      *
      * @return mixed
@@ -1400,17 +1293,15 @@ class Core {
      *    If the parameter $attribute is NOT passed, it returns an associative array
      *    where keys are attribute names and values their value.
      */
-    public static function getPackageDetails($package_name, $attribute = null) {
-        
+    public static function getPackageDetails(string $package, string|null $attribute = null): mixed {
+        self::assertPackageExists($package);
+        // get all packages
         $pkgs = self::getPackagesList();
-        $pkg_details = $pkgs[$package_name];
+        $pkg_details = $pkgs[$package];
         if (is_null($attribute)) {
             return $pkg_details;
         } else {
-            if (is_array($pkg_details)) {
-                return $pkg_details[$attribute];
-            }
-            return null;
+            return $pkg_details[$attribute];
         }
     }//getPackageDetails
     
@@ -1418,7 +1309,7 @@ class Core {
     /** Returns the root directory of the given package. If the package is not installed
      *  it returns the directory where the package would be placed if installed.
      *
-     * @param string $package_name
+     * @param string $package
      *        the ID of the package to get the root for.
      *
      * @return string
@@ -1428,18 +1319,20 @@ class Core {
      *    If the package is not installed the directory where the package would be placed
      *  if installed is returned.
      */
-    public static function getPackageRootDir($package_name) {
-        if (self::packageExists($package_name)) {
-            return self::getPackageDetails($package_name, 'root');
+    public static function getPackageRootDir(string $package): string {
+        self::assertPackageExists($package);
+        // ---
+        if (self::packageExists($package)) {
+            return self::getPackageDetails($package, 'root');
         } else {
-            return join_path($GLOBALS['__USERDATA__PACKAGES__DIR__'], $package_name);
+            return join_path($GLOBALS['__USERDATA__PACKAGES__DIR__'], $package);
         }
     }//getPackageRootDir
     
     
     /** Returns the settings for a given package as an associative array.
      *
-     * @param string $package_name
+     * @param string $package
      *        the ID of the package to retrieve the settings for.
      *
      * @return mixed
@@ -1453,12 +1346,11 @@ class Core {
      *        If the package is not installed, the function returns `null`.
      *        If an error occurred while reading the configuration of the given
      *        package, a `string` containing the error is returned.
+     * @noinspection PhpUnused
      */
-    public static function getPackageSettingsAsArray($package_name) {
-        if (key_exists($package_name, self::$settings)) {
-            return self::$settings[$package_name]->asArray();
-        }
-        return null;
+    public static function getPackageSettingsAsArray(string $package): array {
+        self::assertPackageExists($package);
+        return self::$settings[$package]->asArray();
     }//getPackageSettingsAsArray
     
     
@@ -1477,11 +1369,10 @@ class Core {
      * @return mixed
      */
     public static function getSetting(string $key, string $package = 'core', $default_value = null): mixed {
-        if (key_exists($package, self::$settings)) {
-            $cfg = self::$settings[$package];
-            return $cfg->get($key, $default_value);
-        }
-        return $default_value;
+        self::assertPackageExists($package);
+        // ---
+        $cfg = self::$settings[$package];
+        return $cfg->get($key, $default_value);
     }//getSetting
     
     
@@ -1528,18 +1419,18 @@ class Core {
      * @param string $image_file_with_extension
      *        Filename of the image (including extension);
      *
-     * @param string $package_name
+     * @param string $package
      *        (optional) Name of the package the requested image belongs to. Default is 'core';
      *
      * @return string
      *        URL to the requested image.
      */
-    public static function getImageURL($image_file_with_extension, $package_name = "core") {
-        if ($package_name == "core") {
+    #[Pure] public static function getImageURL(string $image_file_with_extension, string $package = "core") {
+        if ($package == "core") {
             // TODO: return placeholder if the image does not exist (only for core case, image.php does the same)
             return sprintf("%simages/%s", Configuration::$BASE, $image_file_with_extension);
         } else {
-            return sprintf("%simage.php?package=%s&image=%s", Configuration::$BASE, $package_name, $image_file_with_extension);
+            return sprintf("%simage.php?package=%s&image=%s", Configuration::$BASE, $package, $image_file_with_extension);
         }
     }//getImageURL
     
@@ -1550,18 +1441,18 @@ class Core {
      * @param string $js_file_with_extension
      *        Filename of the Java-Script file (including extension);
      *
-     * @param string $package_name
+     * @param string $package
      *        (optional) Name of the package the requested Java-Script file belongs to. Default is
      *        'core';
      *
      * @return string
      *        URL to the requested Java-Script file.
      */
-    public static function getJSscriptURL($js_file_with_extension, $package_name = "core") {
-        if ($package_name == "core") {
+    #[Pure] public static function getJSscriptURL(string $js_file_with_extension, string $package = "core") {
+        if ($package == "core") {
             return sprintf("%sjs/%s", Configuration::$BASE, $js_file_with_extension);
         } else {
-            return sprintf("%sjs.php?package=%s&script=%s", Configuration::$BASE, $package_name, $js_file_with_extension);
+            return sprintf("%sjs.php?package=%s&script=%s", Configuration::$BASE, $package, $js_file_with_extension);
         }
     }//getJSscriptURL
     
@@ -1572,21 +1463,22 @@ class Core {
      * @param string $css_file_with_extension
      *        Filename of the CSS file (including extension);
      *
-     * @param string $package_name
+     * @param string $package
      *        (optional) Name of the package the requested CSS file belongs to. Default is 'core';
      *
      * @return string
      *        URL to the requested CSS file.
      */
-    public static function getCSSstylesheetURL($css_file_with_extension, $package_name = "core") {
-        if ($package_name == "core") {
+    #[Pure] public static function getCSSstylesheetURL(string $css_file_with_extension, string $package = "core") {
+        if ($package == "core") {
             return sprintf("%scss/%s", Configuration::$BASE, $css_file_with_extension);
         } else {
-            return sprintf("%scss.php?package=%s&stylesheet=%s", Configuration::$BASE, $package_name, $css_file_with_extension);
+            return sprintf("%scss.php?package=%s&stylesheet=%s", Configuration::$BASE, $package, $css_file_with_extension);
         }
     }//getCSSstylesheetURL
     
     
+    /** @noinspection PhpUnused */
     public static function registerCSSstylesheet($css_file_with_extension, $package_id) {
         if (!self::packageExists($package_id)) {
             return ['success' => false, 'data' => null];
@@ -1605,46 +1497,48 @@ class Core {
     /** Returns the URL to a package-specific PHP Script file.
      *    The PHP script file must in the directory `/scripts` of the package.
      *
-     * @param string $script_name
+     * @param string $script
      *        Filename of the PHP Script file (excluding extension);
      *
-     * @param string $package_name
+     * @param string $package
      *        (optional) Name of the package the requested PHP script file belongs to. Default is
      *        'core';
      *
      * @return string
      *        URL to the requested PHP script file.
+     * @noinspection PhpUnused
      */
-    public static function getPackageScriptURL($script_name, $package_name = "core") {
-        return sprintf("%sscript.php?package=%s&script=%s", Configuration::$BASE, $package_name, $script_name);
+    #[Pure] public static function getPackageScriptURL(string $script, string $package = "core") {
+        return sprintf("%sscript.php?package=%s&script=%s", Configuration::$BASE, $package, $script);
     }//getPackageScriptURL
     
     
     // =======================================================================================================
     // Pages management functions
     
-    // TODO: $order should be an ENUM instead of a string
     public static function getPagesList(string $order = null): array {
-        if (is_null($order) || !isset(self::$pages[$order])) {
+        if (!is_null($order) && !isset(self::$pages[$order]))
+            throw new GenericException("Page order '$order' not recognized.");
+        // ---
+        if (is_null($order)) {
             return self::$pages;
         } else {
             return self::$pages[$order];
         }
     }//getPagesList
     
-    // TODO: $order should be an ENUM instead of a string
-    public static function getFilteredPagesList(string $order = 'list', bool $enabledOnly = false, string $accessibleBy = null) {
+    public static function getFilteredPagesList(string $order = PageOrder::LIST, bool $enabled_only = false, string|array $roles = null) {
         $pages = [];
         $pages_collection = self::getPagesList($order);
-        $accessibleBy = is_null($accessibleBy) ? null : (is_array($accessibleBy) ? $accessibleBy : [$accessibleBy]);
+        $roles = is_null($roles) ? null : (is_array($roles) ? $roles : [$roles]);
         if (is_assoc($pages_collection)) {
-            if ($order == 'by-id') {
+            if ($order == PageOrder::ID) {
                 // collection in which pages are organized in an associative array by-id
                 foreach ($pages_collection as $key => $page) {
-                    if ($enabledOnly && !$page['enabled']) {
+                    if ($enabled_only && !$page['enabled']) {
                         continue;
                     }
-                    if (!is_null($accessibleBy) && count(array_intersect($accessibleBy, $page['access_level'])) == 0) {
+                    if (!is_null($roles) && count(array_intersect($roles, $page['access_level'])) == 0) {
                         continue;
                     }
                     //
@@ -1655,10 +1549,10 @@ class Core {
                 foreach ($pages_collection as $group_id => $pages_per_group) {
                     $pages_this_group = [];
                     foreach ($pages_per_group as $page) {
-                        if ($enabledOnly && !$page['enabled']) {
+                        if ($enabled_only && !$page['enabled']) {
                             continue;
                         }
-                        if (!is_null($accessibleBy) && count(array_intersect($accessibleBy, $page['access_level'])) == 0) {
+                        if (!is_null($roles) && count(array_intersect($roles, $page['access_level'])) == 0) {
                             continue;
                         }
                         //
@@ -1670,10 +1564,10 @@ class Core {
         } else {
             // collection in which pages are arranged in a sequence, no keys
             foreach ($pages_collection as $page) {
-                if ($enabledOnly && !$page['enabled']) {
+                if ($enabled_only && !$page['enabled']) {
                     continue;
                 }
-                if (!is_null($accessibleBy) && count(array_intersect($accessibleBy, $page['access_level'])) == 0) {
+                if (!is_null($roles) && count(array_intersect($roles, $page['access_level'])) == 0) {
                     continue;
                 }
                 //
@@ -1823,7 +1717,7 @@ class Core {
      * @param string $role      Role to get the default page for.
      * @return string           Name of the default page.
      */
-    #[Pure] public static function getFactoryDefaultPagePerRole(string $role): string {
+    public static function getFactoryDefaultPagePerRole(string $role): string {
         $no_default = 'NO_DEFAULT_PAGE';
         if (!array_key_exists($role, self::$registered_user_roles['core'])) {
             return $no_default;
@@ -1838,7 +1732,7 @@ class Core {
      * @param string $package   (Optional) Role from a specific package, 'core' by default.
      * @return string           Name of the default page.
      */
-    #[Pure] public static function getDefaultPagePerRole(string $role, string $package = 'core'): string {
+    public static function getDefaultPagePerRole(string $role, string $package = 'core'): string {
         $no_default = 'NO_DEFAULT_PAGE';
         if (!array_key_exists($package, self::$registered_user_roles)) {
             return $no_default;
@@ -2285,9 +2179,9 @@ class Core {
         $resource = strlen(trim($resource)) == 0 ? './' : $resource;
         $proto = (substr($resource, 0, 4) == 'http') ? '' : Configuration::$BASE;
         // drop some JS
-        echo `<script type="text/javascript" data-tag="__compose__redirect__">
-                {$dry_run}window.open("{$proto}{$resource}{$qs}", "_top");
-            </script>`;
+        echo "<script type=\"text/javascript\" data-tag=\"__compose__redirect__\">
+                {$dry_run}window.open(\"{$proto}{$resource}{$qs}\", \"_top\");
+            </script>";
         if (!$dry_run) {
             die();
         }
@@ -2766,6 +2660,7 @@ class Core {
      * @param string $package ID of the package the page belongs to.
      * @param string $module ID of the module to check for.
      * @throws ModuleNotFoundException
+     * @noinspection PhpUnusedPrivateMethodInspection
      */
     private static function assertModuleExists(string $package, string $module) {
         if (!self::moduleExists($package, $module)) {
@@ -2778,10 +2673,33 @@ class Core {
      * @param string $package ID of the package the page belongs to.
      * @param string $theme ID of the theme to check for.
      * @throws ThemeNotFoundException
+     * @noinspection PhpUnusedPrivateMethodInspection
      */
     private static function assertThemeExists(string $package, string $theme) {
         if (!self::themeExists($package, $theme)) {
             throw new ThemeNotFoundException($package, $theme);
+        }
+    }
+    
+    /** Makes sure that a user exists, screams otherwise.
+     *
+     * @param string $user_id       ID of the user to test.
+     * @throws UserNotFoundException
+     */
+    private static function assertUserExists(string $user_id) {
+        if (!self::userExists($user_id)) {
+            throw new UserNotFoundException($user_id);
+        }
+    }
+    
+    /** Makes sure that a group exists, screams otherwise.
+     *
+     * @param string $group_id       ID of the group to test.
+     * @throws UserNotFoundException
+     */
+    private static function assertGroupExists(string $group_id) {
+        if (!self::groupExists($group_id)) {
+            throw new GroupNotFoundException($group_id);
         }
     }
     

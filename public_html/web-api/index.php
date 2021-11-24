@@ -244,12 +244,8 @@ switch ($auth_mode) {
         $app_secret = urldecode($_GET['app_secret']);
         // authorize using the app
         $res = Core::authorizeUserWithAPIapp($app_id, $app_secret);
-        if (!$res['success']) {
-            $error_msg = $res['data'];
-            break;
-        }
-        $user = $res['data']['user'];
-        $app = $res['data']['app'];
+        $user = $res['user'];
+        $app = $res['app'];
         // check if the app has access to the requested service/action pair
         $requested_pair = sprintf("%s/%s", $serviceName, $actionName);
         if (!in_array($requested_pair, $app['endpoints'])) {
@@ -322,8 +318,6 @@ sendResponse($result->code, $result->status, $result->message, $format, $result-
     global $DEBUG;
     // prepare data
     $container = [
-        'code' => $code,
-        'status' => $status,
         'message' => $message,
         'data' => $data ?? null
     ];
@@ -340,7 +334,7 @@ sendResponse($result->code, $result->status, $result->message, $format, $result-
         ob_clean();
     }
     //
-    header('HTTP/1.x 200 OK');
+    header("HTTP/1.x $code $status");
     header('Connection: close');
     header('Cache-Control: no-cache, no-store, must-revalidate');
     header('Pragma: no-cache');

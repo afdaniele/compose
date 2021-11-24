@@ -1,20 +1,38 @@
 <?php
 
-function generateView($labelName, $fieldValue, $labelCol, $valueCol) {
-    echo '<table style="width:100%"><tr><td>';
-    for ($i = 0; $i < sizeof($labelName); $i++) {
-    	?>
-		<div style="margin-bottom:4px">
-			<label class="col-<?php echo (is_array($labelCol)) ? $labelCol[$i] : $labelCol ?> text-right">
-				<?php echo $labelName[$i] ?>
-			</label>
-			<p class="col-<?php echo (is_array($valueCol)) ? $valueCol[$i] : $valueCol ?>">
-				<?php echo (strlen($fieldValue[$i]) > 0) ? $fieldValue[$i] : '&nbsp;' ?>
-			</p>
-		</div>
-		<?php
-    }
-    echo '</td></tr></table>';
+function generateView($labelName, $fieldValue, $labelColumn, $valueColumn) {
+    ?>
+    <dl class="row">
+        <?php
+        for ($i = 0; $i < sizeof($labelName); $i++) {
+        $label_col = (is_array($labelColumn)) ? $labelColumn[$i] : $labelColumn;
+        $value_col = (is_array($valueColumn)) ? $valueColumn[$i] : $valueColumn;
+        $label = $labelName[$i];
+        $value = (strlen($fieldValue[$i]) > 0) ? $fieldValue[$i] : '&nbsp;';
+        ?>
+        <dt class="col-sm-<?php echo $label_col ?>"><?php echo $label ?></dt>
+        <dd class="col-sm-<?php echo $value_col ?>"><?php echo $value ?></dd>
+        <?php
+        }
+        ?>
+    </dl>
+    
+    
+    <?php
+//    echo '<table style="width:100%"><tr><td>';
+//    for ($i = 0; $i < sizeof($labelName); $i++) {
+//        ?>
+<!--        <div style="margin-bottom:4px">-->
+<!--            <label class="col---><?php //echo (is_array($labelCol)) ? $labelCol[$i] : $labelCol ?><!-- text-right">-->
+<!--                --><?php //echo $labelName[$i] ?>
+<!--            </label>-->
+<!--            <p class="col---><?php //echo (is_array($valueColumn)) ? $valueColumn[$i] : $valueColumn ?><!--">-->
+<!--                --><?php //echo (strlen($fieldValue[$i]) > 0) ? $fieldValue[$i] : '&nbsp;' ?>
+<!--            </p>-->
+<!--        </div>-->
+<!--        --><?php
+//    }
+//    echo '</td></tr></table>';
 }//generateView
 
 

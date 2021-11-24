@@ -231,7 +231,7 @@ class BlockRenderer {
                                     ];
                                     if ($desc['type'] == 'enum') {
                                         $layout_desc['placeholder_id'] = $desc['enum_values'];
-                                        $layout_desc['placeholder'] = array_map(ucfirst, $desc['enum_values']);
+                                        $layout_desc['placeholder'] = array_map("ucfirst", $desc['enum_values']);
                                     }
                                     // add item to the layout
                                     $layout[$layout_key] = $layout_desc;
