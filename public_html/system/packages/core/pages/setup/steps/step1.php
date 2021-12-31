@@ -101,8 +101,8 @@ Core::setSetting('developer_mode', 'core', true);
         </div>
 
         <div style="float: right; margin-top: 20px">
-            <a role="button" class="btn btn-default" onclick="_first_setup_skip_step1()">
-                <span class="bi bi-fast-forward" aria-hidden="true"></span>
+            <a role="button" class="btn btn-secondary" onclick="_first_setup_skip_step1()">
+                <span class="bi bi-skip-forward" aria-hidden="true"></span>
                 &nbsp;
                 Skip
             </a>

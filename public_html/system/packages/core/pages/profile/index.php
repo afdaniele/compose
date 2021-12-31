@@ -63,7 +63,7 @@ $user_roles = implode(", ", $roles);
                 <div class="col-1"></div>
                 <div class="col-9" style="margin: auto">
                     <?php
-                    generateView($labelName, $fieldValue, 3, 9);
+                    generateDescriptionListView($labelName, $fieldValue, 3, 9);
                     ?>
                 </div>
             </div>

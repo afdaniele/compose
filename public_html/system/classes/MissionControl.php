@@ -116,7 +116,7 @@ class MissionControl {
                 let block = $('#{0}'.format(block_id));
                 grid.packery('remove', block).packery();
                 // highlight the Save button in the menu
-                $('#mission-control-side-menu-save-button').removeClass('btn-default');
+                $('#mission-control-side-menu-save-button').removeClass('btn-primary');
                 $('#mission-control-side-menu-save-button').addClass('btn-warning');
             }//mission_control_dispose_block
 
@@ -368,7 +368,7 @@ class MissionControlMenu {
 
         <div class="btn-group-vertical mission-control-side-menu" id="mission-control-side-menu"
              role="group" aria-label="...">
-            <button type="button" class="btn btn-default mission-control-side-menu-button"
+            <button type="button" class="btn btn-primary mission-control-side-menu-button"
                     onclick="mission_control_new_mission_fcn()">
                 <div>
                     <span class="glyphicon glyphicon-asterisk" aria-hidden="true"></span>
@@ -377,7 +377,7 @@ class MissionControlMenu {
                     New
                 </div>
             </button>
-            <button type="button" class="btn btn-default mission-control-side-menu-button"
+            <button type="button" class="btn btn-primary mission-control-side-menu-button"
                     data-toggle="modal" data-target="#mission-control-load-modal">
                 <div>
                     <span class="glyphicon glyphicon-folder-open" aria-hidden="true"></span>
@@ -389,7 +389,7 @@ class MissionControlMenu {
             <button
                     type="button"
                     id="mission-control-side-menu-save-button"
-                    class="btn btn-default mission-control-side-menu-button <?php echo ($is_mission_loaded) ? '' : 'disabled' ?>"
+                    class="btn btn-primary mission-control-side-menu-button <?php echo ($is_mission_loaded) ? '' : 'disabled' ?>"
                 <?php echo ($is_mission_loaded) ? 'onclick="mission_control_save_fcn()"' : '' ?>
             >
                 <div>
@@ -399,7 +399,7 @@ class MissionControlMenu {
                     Save
                 </div>
             </button>
-            <button type="button" class="btn btn-default mission-control-side-menu-button"
+            <button type="button" class="btn btn-primary mission-control-side-menu-button"
                     onclick="mission_control_save_as_fcn()">
                 <div>
                     <span class="glyphicon glyphicon-floppy-save" aria-hidden="true"></span>
@@ -413,7 +413,7 @@ class MissionControlMenu {
 
             <button
                     type="button"
-                    class="btn btn-default mission-control-side-menu-button <?php echo ($is_mission_loaded) ? '' : 'disabled' ?>"
+                    class="btn btn-primary mission-control-side-menu-button <?php echo ($is_mission_loaded) ? '' : 'disabled' ?>"
                     data-toggle="modal"
                 <?php echo ($is_mission_loaded) ? 'data-target="#mission-control-add-block-modal"' : '' ?>
             >
@@ -563,7 +563,7 @@ class MissionControlMenu {
                                     <td class="text-center"><?php echo $i ?></td>
                                     <td><?php echo $mission ?></td>
                                     <td class="text-center">
-                                        <a class="btn btn-default btn-sm"
+                                        <a class="btn btn-primary btn-sm"
                                            onclick="mission_control_load_fcn('<?php echo $mission ?>')"
                                            role="button">
                                             <span class="glyphicon glyphicon-download-alt"
@@ -586,7 +586,7 @@ class MissionControlMenu {
                         </table>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-default" data-dismiss="modal">Close
+                        <button type="button" class="btn btn-primary" data-dismiss="modal">Close
                         </button>
                     </div>
                 </div><!-- /.modal-content -->
@@ -629,7 +629,7 @@ class MissionControlMenu {
                                     <td class="text-center"><?php echo $i ?></td>
                                     <td><?php echo $renderer ?></td>
                                     <td class="text-center">
-                                        <a class="btn btn-default btn-sm"
+                                        <a class="btn btn-primary btn-sm"
                                            onclick="mission_control_add_block_fcn('<?php echo $mission_name ?>', '<?php echo $default_json ?>')"
                                            role="button">
                                             <i class="bi bi-plus" aria-hidden="true"></i>
@@ -644,7 +644,7 @@ class MissionControlMenu {
                         </table>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-default" data-dismiss="modal">Close
+                        <button type="button" class="btn btn-primary" data-dismiss="modal">Close
                         </button>
                     </div>
                 </div><!-- /.modal-content -->
@@ -801,7 +801,7 @@ class MissionControlConfiguration {
                     </div>
 
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-default" data-dismiss="modal">Close
+                        <button type="button" class="btn btn-primary" data-dismiss="modal">Close
                         </button>
                         <button type="button" class="btn btn-success" id="save-button">Save
                         </button>

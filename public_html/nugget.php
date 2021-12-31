@@ -36,9 +36,8 @@ Core::startSession();
     require_once 'system/utils/utils.php';
     require_once 'system/utils/URLrewrite.php';
     // TODO: remove what is not needed
-    require_once 'system/templates/forms/forms.php';
-    require_once 'system/templates/sections/sections.php';
-    require_once 'system/templates/paginators/paginators.php';
+//    require_once 'system/templates/sections/sections.php';
+//    require_once 'system/templates/paginators/paginators.php';
     
     // simplify namespaces
     use system\utils\URLrewrite;
@@ -195,9 +194,6 @@ Core::startSession();
     <!-- OLD Bootstrap Select v1.13.9 by developer.snapappointments.com/bootstrap-select/ -->
 <!--    <link rel="stylesheet" href="--><?php //echo Configuration::$BASE ?><!--css/bootstrap-select.min.css">-->
 
-    <!-- OLD Compose Form CSS -->
-<!--    <link href="--><?php //echo Configuration::$BASE ?><!--css/compose_form.css" rel="stylesheet" media="all">-->
-
     <!-- OLD Custom CSS -->
     <link href="<?php echo Configuration::$BASE ?>css/compose.css" rel="stylesheet" media="all">
 
@@ -223,7 +219,6 @@ Core::startSession();
 
     <!-- Custom JS -->
     <script src="<?php echo Configuration::$BASE ?>js/compose.js"></script>
-    <script src="<?php echo Configuration::$BASE ?>js/compose_form.js"></script>
     <script src="<?php echo Configuration::$BASE ?>js/compose_colors.js"></script>
 
     <!-- Utility JS -->

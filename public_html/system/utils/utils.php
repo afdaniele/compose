@@ -4,6 +4,7 @@
 # @Last modified by:   afdaniele
 
 
+use system\classes\Configuration;
 use \system\classes\enum\StringType;
 
 function validate($values, $types, $mandatory = null, $keys = null) {
@@ -105,7 +106,7 @@ function format($val, $type) {
         case 'money':
             return toMoneyString($val, true);
         case 'boolean':
-            return ((booleanval($val)) ? '<span class="glyphicon glyphicon-ok-sign" aria-hidden="true" style="color:green; margin-top:2px" data-toggle="tooltip" data-placement="right" title="On"></span>' : '<span class="glyphicon glyphicon-remove-sign" aria-hidden="true" style="color:red; margin-top:2px" data-toggle="tooltip" data-placement="right" title="Off"></span>');
+            return ((booleanval($val)) ? '<i class="bi bi-check-circle-fill" style="color:green; margin-top:2px" data-toggle="tooltip" data-placement="right" title="On"></i>' : '<i class="bi bi-x-circle-fill" style="color:red; margin-top:2px" data-toggle="tooltip" data-placement="right" title="Off"></i>');
         case 'date':
             return date_format(date_create($val), 'd-m-Y');
         case 'datetime':
@@ -114,14 +115,11 @@ function format($val, $type) {
             return (($val >= 1000) ? number_format($val / 1000, 1, ',', '') : number_format($val, 0, '', '')) . (($val >= 1000) ? ' Km' : ' m');
         case 'color':
         case 'colour':
-            return (($val == null) ? '<span class="glyphicon glyphicon-eye-close" aria-hidden="true"></span>' : '<span class="glyphicon glyphicon-bookmark" aria-hidden="true" style="color:' . $val . '"></span>');
+            return (($val == null) ? '<i class="bi bi-eye-slash"></i>' : '<i class="bi bi-bookmark-fill" style="color:' . $val . '"></i>');
         case 'percentage':
             return $val . ' %';
-        case 'message-status':
-            return ((booleanval($val)) ? '<span class="glyphicon glyphicon-eye-open" aria-hidden="true" style="color:#626262; margin-top:5px" data-toggle="tooltip" data-placement="bottom" title="Read"></span>' : '<span class="glyphicon glyphicon-fire" aria-hidden="true" style="color:#ff9818; margin-top:5px" data-toggle="tooltip" data-placement="bottom" title="Unread"></span>');
-            break;
         case 'placeholder':
-            return '<div id="_format_placeholder_' . $val . '"><img src="' . \system\classes\Configuration::$BASE . 'images/loading_blue.gif" style="width:22px; height:22px;"></div>';
+            return '<div id="_format_placeholder_' . $val . '"><img src="' . Configuration::$BASE . 'images/loading_blue.gif" style="width:22px; height:22px;"></div>';
             break;
         case 'avatar_image_small':
             return sprintf('<img src="%s" class="formatted-avatar formatted-avatar-small">', $val);

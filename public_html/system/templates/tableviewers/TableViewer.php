@@ -19,11 +19,11 @@ use system\classes\Core;
 use system\classes\enum\StringType;
 use system\classes\Utils;
 
+
 class TableViewer {
     
-    
-    public static function parseFeatures(&$features, &$values) {
-        $features['_valid'] = array();
+    public static function parseFeatures(&$features, $values) {
+        $features['_valid'] = [];
         //
         foreach ($features as $key => $feature) {
             if ($key == '_valid') {
@@ -138,13 +138,11 @@ class TableViewer {
         $res_count = $res['size'];
         $data = $res['data'];
         //
-        $tagfilter_in_use = (isset($features['tag']) && $features_values['tag'] != null);
-        $keywordsfilter_in_use = (isset($features['keywords']) && $features_values['keywords'] != null);
-        $filter_in_use = ($tagfilter_in_use || $keywordsfilter_in_use);
+        $filter_in_use = (isset($features['keywords']) && $features_values['keywords'] != null);
         //
-        $filter_enabled = (isset($features['tag']) || isset($features['keywords']));
+        $filter_enabled = isset($features['keywords']);
         //
-        $order_enabled = (isset($features['order']));
+        $order_enabled = isset($features['order']);
         //
         $available_pages = ceil($total_count / $result_per_page);
         //
@@ -154,7 +152,7 @@ class TableViewer {
         } else {
             if ($current_page > $available_pages) {
                 // Invalid page number, redirect to the last possible one
-                \system\classes\Core::redirectTo($querystrings['page'] . 'page=' . $available_pages);
+                Core::redirectTo($querystrings['page'] . 'page=' . $available_pages);
                 echo $querystrings['page'] . 'page=' . $available_pages;
             }
         }
@@ -162,234 +160,116 @@ class TableViewer {
         $table_viewer_unique_id = Utils::generateRandomString(4);
         
         ?>
+
+        <style>
+            .btn-table-viewer-action {
+                padding-top: 2px;
+                padding-bottom: 2px;
+            }
+        </style>
+
         <div class="col-md-12" style="padding:0">
             
             <?php
             if (count($features) > 0) {
                 ?>
                 <!-- === Begin Results Bar ================================================================================= -->
-                <nav class="navbar navbar-default" role="navigation" style="margin-bottom:6px">
-                    <div class="container-fluid" style="padding-left:0; padding-right:0">
-
-                        <div class="collapse navbar-collapse navbar-left"
-                             style="padding-left:10px; padding-right:0">
-
-                            <ul class="nav navbar-nav navbar-left">
-                                <li>
-                                    <a style="padding-right:0; padding-left:5px">
-                                        <strong>Results:</strong>
-                                    </a>
-                                </li>
-                            </ul>
 
 
-                            <ul class="nav navbar-nav navbar-left">
-                                
-                                <?php
-                                if ($pagination) {
-                                    ?>
-                                    <li class="dropdown">
-                                        <a href="#" class="dropdown-toggle" data-toggle="dropdown"
-                                           role="button" aria-expanded="false"
-                                           id="results_options_dropdown">
-                                            <?php echo '( ' . ($offset + (($res_count > 0) ? 1 : 0)) . '-' . ($offset + $res_count) . ' )&nbsp; |&nbsp; ' . $total_count . ' total' ?>
-                                            <span class="caret"></span>
-                                        </a>
-                                        <ul class="dropdown-menu" role="menu" style="width:200px">
-                                            <div style="padding:6px 8px 0 8px">
-                                                <div class="text-left">
-                                                    <strong>Results per page:</strong>
-                                                </div>
-                                                <div style="padding-left:22px">
-                                                    <form method="get"
-                                                          action="<?php echo Configuration::$BASE . $baseurl ?>">
-                                                        <?php
-                                                        $options = array(5, 10, 20, 30);
-                                                        foreach ($options as $qty) {
-                                                            ?>
-                                                            <div class="radio">
-                                                                <label>
-                                                                    <input type="radio"
-                                                                           name="results"
-                                                                           id="option_<?php echo $qty ?>"
-                                                                           value="<?php echo $qty ?>" <?php echo(($result_per_page == $qty) ? 'checked' : '') ?>
-                                                                           onclick="this.form.submit();">
-                                                                    <label for="option_<?php echo $qty ?>"
-                                                                           style="padding-left:4px"><?php echo $qty ?>
-                                                                        results</label>
-                                                                </label>
-                                                            </div>
-                                                            <?php
-                                                        }
-                                                        //
-                                                        if (!in_array($result_per_page, $options)) {
-                                                            // add an extra row
-                                                            ?>
-                                                            <li role="presentation"
-                                                                class="divider"></li>
-                                                            <li role="presentation"
-                                                                class="dropdown-header">Custom:
-                                                            </li>
-                                                            <input type="radio" id="option_custom"
-                                                                   checked>
-                                                            <label for="option_custom"
-                                                                   style="padding-left:4px"><?php echo $result_per_page ?>
-                                                                results</label>
-                                                            <?php
-                                                        }
-                                                        //
-                                                        foreach ($filtered_features['results'] as $param) {
-                                                            if (isset($features['_valid'][$param])) {
-                                                                echo "<input type=\"hidden\" name=\"$param\" value=\"$features_values[$param]\"/>";
-                                                            }
-                                                        }
-                                                        ?>
-                                                    </form>
-                                                </div>
-                                            </div>
-                                        </ul>
-                                    </li>
-                                    <?php
-                                } else {
-                                    ?>
-                                    <li>
-                                        <a style="padding-right:0">
-                                            <?php
-                                            $s = $offset + (($res_count > 0) ? 1 : 0);
-                                            $e = $offset + $res_count;
-                                            echo "( $s-$e )&nbsp; |&nbsp; $total_count Total" ?>
-                                        </a>
-                                    </li>
-                                    <?php
-                                }
-                                ?>
-                            </ul>
+                <div class="card-group">
+                    <div class="card">
+                        <div class="card-body">
+                            <strong>Results:</strong>
+                            
+                            <div class="dropdown d-inline">
+                                <a class="dropdown-toggle" href="#" id="results_options_dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <?php echo '( ' . ($offset + (($res_count > 0) ? 1 : 0)) . '-' . ($offset + $res_count) . ' )&nbsp; |&nbsp; ' . $total_count . ' total' ?>
+                                    <span class="caret"></span>
+                                </a>
 
-                        </div>
-                        
-                        
-                        <?php
-                        if ($filter_enabled) {
-                            ?>
-                            <div class="collapse navbar-collapse navbar-right"
-                                 style="padding-right:0; padding-left:5px">
-
-                                <ul class="nav navbar-nav navbar-left">
-                                    <li style="border-left:1px solid #ddd"><a
-                                                style="padding-right:5px"><strong>Filter:</strong></a>
-                                    </li>
-                                </ul>
-                                
-                                <?php
-                                if (array_key_exists('tag', $features)) {
-                                    ?>
-                                    <ul class="nav navbar-nav navbar-left">
-                                        <li>
-                                            <a style="padding-right:0">
-                                                <span class="glyphicon glyphicon-filter"
-                                                      aria-hidden="true"></span>
-                                                <strong><?php echo $features['tag']['translation'] ?>
-                                                    :</strong>
-                                            </a>
-                                        </li>
-                                    </ul>
-
-                                    <ul class="nav navbar-nav">
-                                        <li class="dropdown">
-
-                                            <a href="#" class="dropdown-toggle"
-                                               data-toggle="dropdown" role="button"
-                                               aria-expanded="false" style="color:#337ab7"
-                                               id="tag_selector_dropdown">
-                                                choose...
-                                                <span class="caret"></span>
-                                            </a>
-                                            
-                                            <?php
-                                            $tags4 = array();
-                                            //
-                                            for ($i = 0; $i < min(4, sizeof($features['tag']['values'])); $i++) {
-                                                $tags4[$i] = $features['tag']['values'][$i];
-                                            }
-                                            ?>
-
-                                            <ul class="dropdown-menu" role="menu">
-                                                <?php
-                                                if (sizeof($tags4) > 0) {
-                                                    for ($i = 0; $i < sizeof($tags4); $i++) {
-                                                        ?>
-                                                        <li>
-                                                            <a href="<?php echo $querystrings['tag'] . 'tag=' . $tags4[$i] ?>"><?php echo ucfirst($tags4[$i]) ?></a>
-                                                        </li>
-                                                        <?php
-                                                    }
-                                                    if (sizeof($features['tag']['values']) > 4) {
-                                                        ?>
-                                                        <li class="divider"></li>
-                                                        <li><a href="#" data-toggle="modal"
-                                                               class="tags_modal_button"
-                                                               data-target="#table-viewer-tag-selector-modal-<?php echo $table_viewer_unique_id ?>">Show
-                                                                all...</a></li>
-                                                        <?php
-                                                    }
-                                                } else {
-                                                    echo '<a class="text-center">Nothing</a>';
-                                                }
-                                                ?>
-                                            </ul>
-
-                                        </li>
-                                    </ul>
-                                    <?php
-                                }
-                                
-                                if (array_key_exists('keywords', $features)) {
-                                    ?>
-                                    <ul class="nav navbar-nav navbar-left">
-                                        <li>
-                                            <a style="padding-right:0">
-                                                <span class="glyphicon glyphicon-search"
-                                                      aria-hidden="true"></span>
-                                                <strong>Search:</strong>
-                                            </a>
-                                        </li>
-                                    </ul>
-
-                                    <form class="navbar-form navbar-left" role="search"
-                                          method="get"
-                                          action="<?php echo Configuration::$BASE . $baseurl ?>"
-                                          style="padding-right:10px">
+                                <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink" style="width:200px">
+                                    <li><a class="dropdown-item disabled" href="#" tabindex="-1" aria-disabled="true"><strong>Results per page:</strong></a></li>
+                                    <form method="get" action="<?php echo Configuration::$BASE . $baseurl ?>" style="padding-left: 20px">
                                         <?php
-                                        ?>
-                                        <div class="form-group">
-                                            <?php
-                                            foreach ($filtered_features['keywords'] as $param) {
-                                                if (isset($features['_valid'][$param])) {
-                                                    echo "<input type=\"hidden\" name=\"$param\" value=\"$features_values[$param]\"/>";
-                                                }
-                                            }
+                                        $options = [5, 10, 20, 50];
+                                        foreach ($options as $qty) {
                                             ?>
-                                            <input type="text" class="form-control"
-                                                   placeholder="<?php echo $features['keywords']['placeholder'] ?>"
-                                                   name="keywords" style="width:160px"
-                                                   id="keywords_input"/>
-                                        </div>
-                                        <button type="submit" class="btn btn-default" style="margin-left:10px">
-                                            Go
-                                        </button>
+                                            <li>
+                                                <div class="radio">
+                                                    <label>
+                                                        <input type="radio"
+                                                               name="results"
+                                                               id="option_<?php echo $qty ?>"
+                                                               value="<?php echo $qty ?>" <?php echo(($result_per_page == $qty) ? 'checked' : '') ?>
+                                                               onclick="this.form.submit();">
+                                                        <label for="option_<?php echo $qty ?>"
+                                                               style="padding-left:4px"><?php echo $qty ?>
+                                                            results</label>
+                                                    </label>
+                                                </div>
+                                            </li>
+                                            <?php
+                                        }
+                                        //
+                                        if (!in_array($result_per_page, $options)) {
+                                            // add an extra row
+                                            ?>
+                                            <li role="presentation"
+                                                class="divider"></li>
+                                            <li role="presentation"
+                                                class="dropdown-header">Custom:
+                                            </li>
+                                            <input type="radio" id="option_custom"
+                                                   checked>
+                                            <label for="option_custom"
+                                                   style="padding-left:4px"><?php echo $result_per_page ?>
+                                                results</label>
+                                            <?php
+                                        }
+                                        //
+                                        foreach ($filtered_features['results'] as $param) {
+                                            if (isset($features['_valid'][$param])) {
+                                                echo "<input type=\"hidden\" name=\"$param\" value=\"$features_values[$param]\"/>";
+                                            }
+                                        }
+                                        ?>
                                     </form>
-                                    
-                                    <?php
-                                }
-                                ?>
-
+                                </ul>
                             </div>
-                            <?php
-                        }
-                        ?>
-
+                        </div>
                     </div>
-                </nav>
+                    <div class="card">
+                        <div class="card-body">
+                            <form class="navbar-form navbar-left" role="search"
+                                  method="get"
+                                  action="<?php echo Configuration::$BASE . $baseurl ?>"
+                                  style="padding-right:10px">
+                                <?php
+                                ?>
+                                <div class="form-group">
+                                    <?php
+                                    foreach ($filtered_features['keywords'] as $param) {
+                                        if (isset($features['_valid'][$param])) {
+                                            echo "<input type=\"hidden\" name=\"$param\" value=\"$features_values[$param]\"/>";
+                                        }
+                                    }
+                                    ?>
+                                </div>
+                                <div class="input-group input-group-sm">
+                                    <span class="input-group-text" id="table-viewer-search-label">Search</span>
+                                    <input type="text"
+                                           class="form-control"
+                                           name="keywords"
+                                           placeholder="<?php echo $features['keywords']['placeholder'] ?>"
+                                           aria-label="<?php echo $features['keywords']['placeholder'] ?>"
+                                           aria-describedby="table-viewer-search-btn">
+                                    <button class="btn btn-outline-secondary" type="submit" id="table-viewer-search-btn">Go</button>
+                                </div>
+                            </form>
+                            
+                        </div>
+                    </div>
+                </div>
 
                 <div class="col-md-12" style="border-bottom:1px solid #efefef">
                     <table style="float:right">
@@ -397,15 +277,16 @@ class TableViewer {
                             <td>
                                 <?php
                                 if ($filter_in_use) {
-                                    $tag_queryString = $querystrings['tag'];
                                     $keywords_queryString = $querystrings['keywords'];
-                                    //
-                                    echo 'Active filters:' .
-                                        (($tagfilter_in_use) ? '&nbsp; <span class="glyphicon glyphicon-filter" aria-hidden="true"></span><a href="#"> ' . ucfirst($features_values['tag']) . '</a> (<a href="' . $tag_queryString . '" style="color:red"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></a>)' : '') .
-                                        (($tagfilter_in_use && $keywordsfilter_in_use) ? ' , &nbsp;' : '&nbsp; ') .
-                                        (($keywordsfilter_in_use) ? '<span class="glyphicon glyphicon-search" aria-hidden="true"></span><a href="#"> "' . $features_values['keywords'] . '"</a> (<a href="' . $keywords_queryString . '" style="color:red"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></a>)' : '');
+                                    ?>
+                                    Filters:
+                                    <a href="#">"<?php echo $features_values['keywords']; ?>"</a>
+                                    (<a href="<?php echo $keywords_queryString; ?>" style="color:red">
+                                        <i class="bi bi-backspace"></i>
+                                    </a>)
+                                    <?php
                                 }
-                                echo(($order_enabled) ? ((($filter_in_use) ? ', S' : 'Results s') . 'orted by:') : '');
+                                echo(($order_enabled) ? (($filter_in_use ? ', S' : 'Results s') . 'orted by:') : '');
                                 ?>
                             </td>
                             <?php
@@ -440,6 +321,7 @@ class TableViewer {
             ?>
 
 
+            <br/>
             <br/>
 
 
@@ -490,9 +372,7 @@ class TableViewer {
                         // filter the record
                         $record = array_intersect_key($record_raw, array_flip(array_keys($table['layout'])));
                         ?>
-
                         <tr>
-                            
                             <?php
                             if ($counter_column_enabled) {
                                 ?>
@@ -507,7 +387,7 @@ class TableViewer {
                                     continue;
                                 }
                                 ?>
-                                <td class="text-<?php echo $column['align']; ?>">
+                                <td class="align-middle text-<?php echo $column['align']; ?>">
                                     <?php
                                     $red_color = (isset($column['red-color-limit']) && $record[$key] >= $column['red-color-limit']);
                                     if ($red_color) {
@@ -537,71 +417,107 @@ class TableViewer {
                                             if (is_string($action)) {
                                                 continue;
                                             }
-                                            if ($action['type'] == 'separator') {
+                                            // action properties
+                                            $action_type = $action["type"] ?? null;
+                                            $action_has_condition = isset($action["condition"]);
+                                            $action_condition = $action["condition"] ?? null;
+                                            $action_has_tooltip = isset($action['tooltip']);
+                                            $action_tooltip = $action["tooltip"] ?? null;
+                                            $action_icon = $action["icon"] ?? null;
+                                            $action_color = $action["color"] ?? null;
+                                            $action_text = $action["text"] ?? null;
+                                            $action_condition_html_class = $action_has_condition ? (!in_array($record[$action_condition['field']], $action_condition['values']) ? 'disabled' : '') : '';
+                                            // ---
+                                            if ($action_type == 'separator') {
                                                 ?>
                                                 <span>&nbsp;|&nbsp;</span>
                                                 <?php
                                                 continue;
                                             }
-                                            //
-                                            $tooltip_enabled = isset($action['tooltip']);
-                                            $modal_toggle_enabled = ($action['function']['type'] == '_toggle_modal');
-                                            $attach_record = (isset($action['function']['static_data']['modal-mode']) && $action['function']['static_data']['modal-mode'] === 'edit');
-                                            $url_data = (isset($action['function']['API_resource']) && isset($action['function']['API_action']));
-                                            //
-                                            $toggle_param = (($tooltip_enabled) ? 'tooltip ' : '');
-                                            $toggle_param .= (($modal_toggle_enabled) ? 'dialog' : '');
-                                            
+                                            // function properties
+                                            $function = $action['function'] ?? [];
+                                            $function_type = $function["type"] ?? null;
+                                            $function_target = $function["target"] ?? null;
+                                            $function_custom_html = $function["custom_html"] ?? "";
+                                            $function_static_data = $function["static_data"] ?? [];
+                                            $function_arguments = $function["arguments"] ?? [];
+                                            $function_has_url = isset($function['API_resource']) && isset($function['API_action']);
+                                            $function_has_record = ($function_static_data["modal-mode"] ?? null) == "edit";
+                                            $function_toggle_modal = $function_type == '_toggle_modal';
+                                            $function_arguments_override = $function['arguments_override'] ?? [];
+                                            // data-toggle
+                                            $toggle_param = (($action_has_tooltip) ? 'tooltip' : '');
+                                            // modal
+                                            $function_modal_html = "";
+                                            if ($function_toggle_modal) {
+                                                // target
+                                                $function_target_id = $function_target;
+                                                if ($function_target == 'record-editor-modal') {
+                                                    $function_target_id .= "-$formID";
+                                                }
+                                                $function_modal_html = "data-bs-toggle=\"modal\" data-bs-target=\"#$function_target_id\"";
+                                            }
+                                            // tooltip
+                                            $action_toggle_html = ($action_has_tooltip || $function_toggle_modal) ? "data-toggle=\"$toggle_param\" " : '';
+                                            $action_tooltip_html = ($action_has_tooltip) ? ' data-placement="bottom" title="' . $action_tooltip . '" ' : '';
+                                            // data-{key}={value}
+                                            $action_custom_data_html = "";
+                                            foreach ($function_arguments as $argument) {
+                                                $val = addslashes($record[$argument]);
+                                                $action_custom_data_html .= " data-$argument=\"$val\"";
+                                            }
+                                            // static data-{key}={value}
+                                            foreach ($function_static_data as $argument => $value) {
+                                                $val = addslashes($value);
+                                                $action_custom_data_html .= " data-$argument=\"$val\"";
+                                            }
+                                            // function URL
+                                            $function_url_html = "";
+                                            if ($function_has_url) {
+                                                $api_resource = $function['API_resource'];
+                                                $api_action = $function['API_action'];
+                                                $function_url = sprintf(
+                                                    "%sweb-api/%s/%s/%s/json?token=%s&%s&%s",
+                                                    Configuration::$BASE,
+                                                    Configuration::$WEBAPI_VERSION,
+                                                    $api_resource,
+                                                    $api_action,
+                                                    $_SESSION['TOKEN'],
+                                                    toQueryString($function_arguments, $record),
+                                                    toQueryString(array_keys($function_arguments_override), $function_arguments_override)
+                                                );
+                                                $function_url_html = " data-url=\"$function_url\" ";
+                                            }
+                                            // function record
+                                            $function_record_html = "";
+                                            if ($function_has_record) {
+                                                $function_record = json_encode($record_raw, JSON_HEX_APOS);
+                                                $function_record_html = ' data-record=\'' . $function_record . '\' ';
+                                            }
                                             ?>
                                             <button
-                                                    class="btn btn-<?php echo $action['type'] ?> <?php echo((isset($action['condition'])) ? ((!in_array($record[$action['condition']['field']], $action['condition']['values'])) ? 'disabled' : '') : '') ?>"
+                                                    class="btn btn-sm btn-table-viewer-action btn-<?php echo $action_type ?> <?php echo $action_condition_html_class ?>"
                                                     type="button"
-                                                <?php echo(($tooltip_enabled || $modal_toggle_enabled) ? 'data-toggle="' . $toggle_param . '" ' : '') ?>
-                                                <?php echo(($tooltip_enabled) ? ' data-placement="bottom" title="' . $action['tooltip'] . '" ' : '') ?>
                                                 <?php
-                                                foreach ($action['function']['arguments'] as $argument) {
-                                                    echo ' data-' . $argument . '="' . addslashes($record[$argument]) . '" ';
-                                                }
-                                                if (isset($action['function']['static_data']) && is_array($action['function']['static_data'])) {
-                                                    foreach ($action['function']['static_data'] as $argument => $value) {
-                                                        echo ' data-' . $argument . '="' . addslashes($value) . '" ';
-                                                    }
-                                                }
-                                                if ($modal_toggle_enabled) {
-                                                    if ($action['function']['class'] == 'yes-no-modal') {
-                                                        echo ' data-target="#yes-no-modal" ';
-                                                    } elseif ($action['function']['class'] == 'record-editor-modal') {
-                                                        echo ' data-target="#record-editor-modal-' . $formID . '" ';
-                                                    } else {
-                                                        echo ' data-target="#' . $action['function']['class'] . '" ';
-                                                    }
-                                                }
-                                                if ($url_data) {
-                                                    echo ' data-url="' . Configuration::$BASE . 'web-api/' . Configuration::$WEBAPI_VERSION . '/' . $action['function']['API_resource'] . '/' . $action['function']['API_action'] . '/json?token=' . $_SESSION['TOKEN'] . '&' . toQueryString($action['function']['arguments'], $record) . '&' . toQueryString(array_keys($action['function']['arguments_override']), $action['function']['arguments_override']) . '" ';
-                                                }
-                                                if ($attach_record) {
-                                                    echo ' data-record=\'' . json_encode($record_raw, JSON_HEX_APOS) . '\' ';
-                                                }
-                                                //
-                                                if (isset($action['function']['custom_html'])) {
-                                                    echo $action['function']['custom_html'];
-                                                }
+                                                echo $action_toggle_html;
+                                                echo $action_tooltip_html;
+                                                echo $function_url_html;
+                                                echo $function_record_html;
+                                                echo $function_custom_html;
+                                                echo $action_custom_data_html;
+                                                echo $function_modal_html;
                                                 ?>
-                                                    style="height: 24px; padding-top: 2px;
-                                                    <?php
-                                                    if (isset($action['condition']) && !in_array($record[$action['condition']['field']], $action['condition']['values'])) {
+                                                    style="<?php
+                                                    if ($action_has_condition && !in_array($record[$action_condition['field']], $action_condition['values'])) {
                                                         echo "background-image:none; background-color:rgb(189, 188, 188); border:1px solid; ";
                                                     }
                                                     ?>
                                                             "
                                             >
-											<span
-                                                    class="glyphicon glyphicon-<?php echo $action['glyphicon'] ?>"
-                                                    aria-hidden="true"
-												<?php echo((isset($action['color'])) ? 'style="color:' . $action['color'] . '"' : '') ?>
-												>
-											</span>
-                                                <?php echo((isset($action['text'])) ? '&nbsp;' . $action['text'] : '') ?>
+                                                <i class="bi bi-<?php echo $action_icon ?>"
+                                                    <?php echo is_null($action_color) ? "" : "style=\"color:$action_color\"" ?>
+                                                ></i>
+                                                <?php echo is_null($action_text) ? "" : "&nbsp;$action_text" ?>
                                             </button>
                                             <?php
                                         }
@@ -611,36 +527,22 @@ class TableViewer {
                                 <?php
                             }
                             ?>
-
                         </tr>
-                        
                         <?php
                     }
-                    
                     ?>
                     </tbody>
 
                 </table>
 
                 <br/>
+                <br/>
                 
                 <?php
                 if ($pagination) {
-                    ?>
-                    <nav class="text-center">
-                        <ul class="pagination">
-                            
-                            <?php
-                            buildPaginator($querystrings['page'], $available_pages, $current_page);
-                            ?>
-
-                        </ul>
-                    </nav>
-                    <?php
+                    include_once $GLOBALS['__SYSTEM__DIR__'] . "/templates/paginators/default.php";
+                    renderPaginator($querystrings['page'], $available_pages, $current_page);
                 }
-                ?>
-                
-                <?php
             } else {
                 ?>
                 <br/>
@@ -649,141 +551,11 @@ class TableViewer {
                 <?php
             }
             ?>
-
         </div>
 
         <!-- === End Results Table + Paginator ===================================================================== -->
-        
-        
         <?php
-        
-        if (array_key_exists('tag', $features) && sizeof($features['tag']['values']) > 4) {
-            // Tag selector modal
-            ?>
-
-            <!-- Tags Modal Dialog -->
-            <div class="modal fade"
-                 id="table-viewer-tag-selector-modal-<?php echo $table_viewer_unique_id ?>"
-                 tabindex="-1" role="dialog" aria-hidden="true">
-                <div class="modal-dialog">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <button type="button" class="close" data-dismiss="modal"
-                                    aria-hidden="true">×
-                            </button>
-                            <h4 class="modal-title">
-                                Choose <?php echo $features['tag']['translation'] ?></h4>
-                        </div>
-
-
-                        <form method="get"
-                              action="<?php echo \system\classes\Configuration::$BASE . $baseurl ?>">
-                            <div class="modal-body">
-                                <div class="checkboxes-div"
-                                     style="padding-left:25px; height:200px; overflow:auto">
-                                    <?php
-                                    $tags = $features['tag']['values'];
-                                    for ($i = 0; $i < sizeof($tags); $i++) {
-                                        ?>
-                                        <div class="radio">
-                                            <label>
-                                                <input type="radio" name="tag"
-                                                       id="<?php echo $tags[$i] ?>"
-                                                       value="<?php echo $tags[$i] ?>" <?php echo((isset($_GET['tag']) && strcasecmp($_GET['tag'], $tags[$i]) == 0) ? 'checked' : '') ?>>
-                                                <?php echo ucfirst($tags[$i]) ?>
-                                            </label>
-                                        </div>
-                                        <?php
-                                    }
-                                    ?>
-                                </div>
-
-
-                                <!-- <table style="width:100%">
-									<tr>
-
-										<td style="width:45%">
-											<div class="checkboxes-div" style="padding-left:25px; height:200px; overflow:auto">
-												<?php
-                                
-                                $tags = $features['tag']['values'];
-                                
-                                for ($i = 0; $i < sizeof($tags); $i++) {
-                                    ?>
-													<div class="radio">
-														<label>
-															<input type="radio" name="tag" id="<?php echo $tags[$i] ?>" value="<?php echo $tags[$i] ?>" <?php echo((isset($_GET['tag']) && strcasecmp($_GET['tag'], $tags[$i]) == 0) ? 'checked' : '') ?>>
-															<?php echo ucfirst($tags[$i]) ?>
-														</label>
-													</div>
-												<?php
-                                }
-                                ?>
-											</div>
-										</td>
-
-										<td style="width:5%"></td>
-										<td style="border-left:1px solid #ddd; width:5%"></td>
-
-										<td style="width:40%">
-											<div style="vertical-align:top;">
-												<form role="form">
-													<div class="form-group">
-														<label>Tags available:</label>
-														<div class="input-group">
-															<div class="input-group-addon">Filter: </div>
-															<input type="text" class="form-control" id="tag-filter-input" placeholder="">
-														</div>
-													</div>
-												</form>
-											</div>
-										</td>
-
-										<td style="width:5%"></td>
-
-									</tr>
-								</table> -->
-
-                            </div>
-                            
-                            <?php
-                            foreach ($filtered_features['tag'] as $param) {
-                                if (isset($features['_valid'][$param])) {
-                                    echo '<input type="hidden" name="' . $param . '" value="' . $features_values[$param] . '"></input>';
-                                }
-                            }
-                            ?>
-
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-default" data-dismiss="modal">
-                                    Close
-                                </button>
-                                <button type="submit" class="btn btn-primary">Apply</button>
-                            </div>
-
-                        </form>
-
-                    </div><!-- /.modal-content -->
-                </div><!-- /.modal-dialog -->
-            </div><!-- /.modal -->
-
-
-            <script type="text/javascript">
-
-                $('#table-viewer-tag-selector-modal-<?php echo $table_viewer_unique_id ?> #tag-filter-input').on("keyup", function () {
-                    var keywords = $(this).val().toLowerCase();
-                    filterCheckboxList("table-viewer-tag-selector-modal-<?php echo $table_viewer_unique_id ?>", null, keywords);
-                });
-
-            </script>
-            
-            
-            <?php
-        }
-        
     }
-    
 }
-
 
 ?>

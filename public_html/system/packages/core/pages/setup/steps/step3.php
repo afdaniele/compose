@@ -7,7 +7,6 @@ use \system\classes\Core;
 use \system\classes\Database;
 use system\classes\Utils;
 
-require_once $GLOBALS['__SYSTEM__DIR__'] . 'templates/forms/SmartForm.php';
 
 $step_no = 3;
 

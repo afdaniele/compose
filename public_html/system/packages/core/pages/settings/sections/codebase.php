@@ -26,7 +26,7 @@ function settings_codebase_tab(){
         </a>
       </div>
       <span class="input-group-btn" style="width:180px">
-        <a class="btn btn-default" type="button" style="width:100%; text-align:left"
+        <a class="btn btn-primary" type="button" style="width:100%; text-align:left"
           href="<?php echo $codebase_info['git_remote_url']; ?>"
           target="_blank">
           <i class="bi bi-external-link" aria-hidden="true"></i>
@@ -62,7 +62,7 @@ function settings_codebase_tab(){
         )
       </div>
       <span class="input-group-btn" style="width:180px">
-        <a class="btn btn-default" type="button"
+        <a class="btn btn-primary" type="button"
           style="width:100%; text-align:left"
           href="<?php
           echo sprintf( '%s/tree/%s',

@@ -250,7 +250,7 @@ var fileDisplayTemplate = '<div class="_jsonform-preview">' +
   '<a href="<%= value.url %>"><%= value.name %></a> (<%= Math.ceil(value.size/1024) %>kB)' +
   '<% } %>' +
   '</div>' +
-  '<a href="#" class="btn btn-default _jsonform-delete"><i class="glyphicon glyphicon-remove" title="Remove"></i></a> ';
+  '<a href="#" class="btn btn-primary _jsonform-delete"><i class="glyphicon glyphicon-remove" title="Remove"></i></a> ';
 
 var inputFieldTemplate = function (type) {
   return {
@@ -482,13 +482,15 @@ jsonform.elementTypes = {
     }
   },
   'checkbox':{
-    'template': '<div class="checkbox"><label><input type="checkbox" id="<%= id %>" ' +
-      '<%= (fieldHtmlClass ? " class=\'" + fieldHtmlClass + "\'": "") %>' +
-      'name="<%= node.name %>" value="1" <% if (value) {%>checked<% } %>' +
-      '<%= (node.disabled? " disabled" : "")%>' +
-      '<%= (node.schemaElement && node.schemaElement.required && (node.schemaElement.type !== "boolean") ? " required=\'required\'" : "") %>' +
-      ' /><%= node.inlinetitle || "" %>' +
-      '</label></div>',
+    'template': '' +
+        '<div class="form-check form-switch btn-lg"><label>' +
+        '<input type="checkbox" style="margin-left:0px" class="form-check-input ' +
+        '<%= (fieldHtmlClass ? fieldHtmlClass : "") %>" id="<%= id %>" ' +
+        'name="<%= node.name %>" value="1" <% if (value) {%>checked<% } %>' +
+        '<%= (node.disabled? " disabled" : "")%>' +
+        '<%= (node.schemaElement && node.schemaElement.required && (node.schemaElement.type !== "boolean") ? " required=\'required\'" : "") %>' +
+        ' /><%= node.inlinetitle || "" %>' +
+        '</label></div>',
     'fieldtemplate': true,
     'inputfield': true,
     'getElement': function (el) {
@@ -671,14 +673,14 @@ jsonform.elementTypes = {
     'template': '<div>' +
       '<input type="hidden" name="<%= node.name %>" id="<%= node.id %>" value="<%= value %>" />' +
       '<div class="dropdown">' +
-      '<a class="btn<% if (buttonClass && node.value) { %> <%= buttonClass %><% } else { %> btn-default<% } %>" data-toggle="dropdown" href="#"<% if (node.value) { %> style="max-width:<%= width %>px;max-height:<%= height %>px"<% } %>>' +
+      '<a class="btn<% if (buttonClass && node.value) { %> <%= buttonClass %><% } else { %> btn-primary<% } %>" data-toggle="dropdown" href="#"<% if (node.value) { %> style="max-width:<%= width %>px;max-height:<%= height %>px"<% } %>>' +
         '<% if (node.value) { %><img src="<% if (!node.value.match(/^https?:/)) { %><%= prefix %><% } %><%= node.value %><%= suffix %>" alt="" /><% } else { %><%= buttonTitle %><% } %>' +
       '</a>' +
       '<div class="dropdown-menu navbar" id="<%= node.id %>_dropdown">' +
         '<div>' +
-        '<% _.each(node.options, function(key, idx) { if ((idx > 0) && ((idx % columns) === 0)) { %></div><div><% } %><a class="btn<% if (buttonClass) { %> <%= buttonClass %><% } else { %> btn-default<% } %>" style="max-width:<%= width %>px;max-height:<%= height %>px"><% if (key instanceof Object) { %><img src="<% if (!key.value.match(/^https?:/)) { %><%= prefix %><% } %><%= key.value %><%= suffix %>" alt="<%= key.title %>" /></a><% } else { %><img src="<% if (!key.match(/^https?:/)) { %><%= prefix %><% } %><%= key %><%= suffix %>" alt="" /><% } %></a> <% }); %>' +
+        '<% _.each(node.options, function(key, idx) { if ((idx > 0) && ((idx % columns) === 0)) { %></div><div><% } %><a class="btn<% if (buttonClass) { %> <%= buttonClass %><% } else { %> btn-primary<% } %>" style="max-width:<%= width %>px;max-height:<%= height %>px"><% if (key instanceof Object) { %><img src="<% if (!key.value.match(/^https?:/)) { %><%= prefix %><% } %><%= key.value %><%= suffix %>" alt="<%= key.title %>" /></a><% } else { %><img src="<% if (!key.match(/^https?:/)) { %><%= prefix %><% } %><%= key %><%= suffix %>" alt="" /><% } %></a> <% }); %>' +
         '</div>' +
-        '<div class="pagination-right"><a class="btn btn-default">Reset</a></div>' +
+        '<div class="pagination-right"><a class="btn btn-primary">Reset</a></div>' +
       '</div>' +
       '</div>' +
       '</div>',
@@ -809,7 +811,7 @@ jsonform.elementTypes = {
   'radiobuttons': {
     'template': '<div id="<%= node.id %>">' +
       '<% _.each(node.options, function(key, val) { %>' +
-        '<label class="btn btn-default <% if (((key instanceof Object) && (value === key.value)) || (value === key)) { %>active btn-success<% } %>">' +
+        '<label class="btn btn-primary <% if (((key instanceof Object) && (value === key.value)) || (value === key)) { %>active btn-success<% } %>">' +
         '<input<%= (fieldHtmlClass ? " class=\'" + fieldHtmlClass + "\'": "") %> type="radio" style="position:absolute;left:-9999px;" ' +
         '<% if (((key instanceof Object) && (value === key.value)) || (value === key)) { %> checked="checked" <% } %> name="<%= node.name %>" value="<%= (key instanceof Object ? key.value : key) %>" />' +
         '<span><%= (key instanceof Object ? key.title : key) %></span></label> ' +
@@ -868,8 +870,8 @@ jsonform.elementTypes = {
   'array': {
     'template': '<div id="<%= id %>"><ul class="_jsonform-array-ul" style="list-style-type:none;"><%= children %></ul>' +
       '<span class="_jsonform-array-buttons">' +
-        '<a href="#" class="btn btn-default _jsonform-array-addmore"><i class="glyphicon glyphicon-plus-sign" title="Add new"></i></a> ' +
-        '<a href="#" class="btn btn-default _jsonform-array-deletelast"><i class="glyphicon glyphicon-minus-sign" title="Delete last"></i></a>' +
+        '<a href="#" class="btn btn-primary _jsonform-array-addmore"><i class="glyphicon glyphicon-plus-sign" title="Add new"></i></a> ' +
+        '<a href="#" class="btn btn-primary _jsonform-array-deletelast"><i class="glyphicon glyphicon-minus-sign" title="Delete last"></i></a>' +
       '</span>' +
       '</div>',
     'fieldtemplate': true,
@@ -1014,8 +1016,8 @@ jsonform.elementTypes = {
         '<%= children %>' +
       '</div>' +
       '</div>' +
-      '<a href="#" class="btn btn-default _jsonform-array-addmore"><i class="glyphicon glyphicon-plus-sign" title="Add new"></i></a> ' +
-      '<a href="#" class="btn btn-default _jsonform-array-deleteitem"><i class="glyphicon glyphicon-minus-sign" title="Delete item"></i></a></div>',
+      '<a href="#" class="btn btn-primary _jsonform-array-addmore"><i class="glyphicon glyphicon-plus-sign" title="Add new"></i></a> ' +
+      '<a href="#" class="btn btn-primary _jsonform-array-deleteitem"><i class="glyphicon glyphicon-minus-sign" title="Delete item"></i></a></div>',
     'fieldtemplate': true,
     'array': true,
     'childTemplate': function (inner) {
@@ -1241,7 +1243,7 @@ jsonform.elementTypes = {
     'template':'<input type="submit" <% if (id) { %> id="<%= id %>" <% } %> class="btn btn-primary <%= elt.htmlClass?elt.htmlClass:"" %>" value="<%= value || node.title %>"<%= (node.disabled? " disabled" : "")%>/>'
   },
   'button':{
-    'template':' <button type="button" <% if (id) { %> id="<%= id %>" <% } %> class="btn btn-default <%= elt.htmlClass?elt.htmlClass:"" %>"><%= node.title %></button> '
+    'template':' <button type="button" <% if (id) { %> id="<%= id %>" <% } %> class="btn btn-primary <%= elt.htmlClass?elt.htmlClass:"" %>"><%= node.title %></button> '
   },
   'actions':{
     'template':'<div class="<%= elt.htmlClass?elt.htmlClass:"" %>"><%= children %></div>'
@@ -1462,7 +1464,7 @@ jsonform.elementTypes = {
    * schema key.
    */
   'question': {
-    'template': '<div id="<%= node.id %>"><% _.each(node.options, function(key, val) { %><label class="<%= (node.formElement.optionsType === "radiobuttons") ? "btn btn-default" : "" %><%= ((key instanceof Object && key.htmlClass) ? " " + key.htmlClass : "") %>"><input type="radio" <% if (node.formElement.optionsType === "radiobuttons") { %> style="position:absolute;left:-9999px;" <% } %>name="<%= node.id %>" value="<%= val %>"<%= (node.disabled? " disabled" : "")%>/><span><%= (key instanceof Object ? key.title : key) %></span></label> <% }); %></div>',
+    'template': '<div id="<%= node.id %>"><% _.each(node.options, function(key, val) { %><label class="<%= (node.formElement.optionsType === "radiobuttons") ? "btn btn-primary" : "" %><%= ((key instanceof Object && key.htmlClass) ? " " + key.htmlClass : "") %>"><input type="radio" <% if (node.formElement.optionsType === "radiobuttons") { %> style="position:absolute;left:-9999px;" <% } %>name="<%= node.id %>" value="<%= val %>"<%= (node.disabled? " disabled" : "")%>/><span><%= (key instanceof Object ? key.title : key) %></span></label> <% }); %></div>',
     'fieldtemplate': true,
     'onInsert': function (evt, node) {
       var activeClass = 'active';

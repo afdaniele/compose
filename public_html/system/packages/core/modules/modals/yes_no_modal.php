@@ -11,7 +11,7 @@
                 <p style="width:100%" id="question-p"></p>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-bs-dismiss="modal">
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">
                     No
                 </button>
                 <button type="button" class="btn btn-success" id="yes-button">

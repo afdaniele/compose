@@ -109,7 +109,7 @@ class BlockRenderer {
                                                             ?>
                                                             <td class="text-center"
                                                                 style="width:<?php echo 100 / $num_cols ?>%">
-                                                                <label class="btn btn-default <?php echo $is_active ? 'active' : '' ?>"
+                                                                <label class="btn btn-primary <?php echo $is_active ? 'active' : '' ?>"
                                                                        style="width:<?php echo $figure_max_size_px + 20 ?>px; padding:5px; margin:4px auto"
                                                                        onclick="mission_control_switch_shape('<?php echo $id ?>', '<?php echo $option[0] ?>', '<?php echo $option[1] ?>' );">
 
@@ -245,7 +245,7 @@ class BlockRenderer {
                             </div>
 
                             <div class="modal-footer">
-                                <button type="button" class="btn btn-default" data-dismiss="modal">
+                                <button type="button" class="btn btn-primary" data-dismiss="modal">
                                     Close
                                 </button>
                                 <button type="button" class="btn btn-success" id="save-button">

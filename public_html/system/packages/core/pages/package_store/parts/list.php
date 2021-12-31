@@ -214,7 +214,7 @@ if (is_null($compose_version)) {
     `;
 
     let source_action = `
-      <a class="btn btn-default" href="{0}" role="button" target="_blank">
+      <a class="btn btn-primary" href="{0}" role="button" target="_blank">
         <i class="bi bi-code" aria-hidden="true"></i>&nbsp;
         Code
       </a>`;

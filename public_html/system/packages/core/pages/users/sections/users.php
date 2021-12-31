@@ -3,11 +3,13 @@
 # @Email:  afdaniele@ttic.edu
 # @Last modified by:   afdaniele
 
+use JetBrains\PhpStorm\Pure;
 use \system\classes\Core;
 use \system\classes\Configuration;
 
 // load libraries
 require_once $GLOBALS['__SYSTEM__DIR__'] . 'templates/tableviewers/TableViewer.php';
+
 use \system\templates\tableviewers\TableViewer;
 
 
@@ -33,7 +35,7 @@ $modes = [
 ];
 
 // define utility functions
-function _avatar_url($path) {
+#[Pure] function _avatar_url($path) {
     return startsWith($path, 'http') ? $path : Configuration::$BASE . $path;
 }
 
@@ -44,13 +46,8 @@ $group_info = null;
 if (Configuration::$ACTION == 'groups' && in_array(Configuration::$ARG1, ['link', 'members'])) {
     $group = Configuration::$ARG2;
     // try to load info about given group
-    $res = Core::getGroupInfo($group);
-    if (!$res['success']) {
-        Core::throwError($res['data']);
-        return;
-    }
+    $group_info = Core::getGroupInfo($group);
     $mode = sprintf('%s/%s', Configuration::$ACTION, Configuration::$ARG1);
-    $group_info = $res['data'];
 }
 $current_resource = sprintf($modes[$mode]['resource'], $group);
 
@@ -63,7 +60,7 @@ if (!is_null($group)) {
             &larr; Back to Groups
         </a>
     </p>
-    
+
     <p style="margin:40px 0;">
         <?php printf($modes[$mode]['description'], $group_info['name'], $group) ?>
     </p>
@@ -74,13 +71,13 @@ if (!is_null($group)) {
 $mode_to_actions = [
     "/" => [
         'edit' => [
-            'type' => 'default',
-            'glyphicon' => 'pencil',
+            'type' => 'primary',
+            'icon' => 'pencil',
             'tooltip' => 'Edit user account',
             'text' => 'Edit',
             'function' => [
                 'type' => '_toggle_modal',
-                'class' => 'record-editor-modal',
+                'target' => 'record-editor-modal',
                 'static_data' => ['modal-mode' => 'edit'],
                 'API_resource' => 'userprofile',
                 'API_action' => 'edit',
@@ -90,8 +87,8 @@ $mode_to_actions = [
             ]
         ],
         'groups' => [
-            'type' => 'default',
-            'glyphicon' => 'list-alt',
+            'type' => 'secondary',
+            'icon' => 'list',
             'tooltip' => 'Groups this user is a member of',
             'text' => 'Groups',
             'function' => [
@@ -106,12 +103,12 @@ $mode_to_actions = [
     "groups/link" => [
         'link' => [
             'type' => 'success',
-            'glyphicon' => 'plus',
+            'icon' => 'plus',
             'tooltip' => 'Add user to group',
             'text' => 'Add to group',
             'function' => [
                 'type' => '_toggle_modal',
-                'class' => 'yes-no-modal',
+                'target' => 'yes-no-modal',
                 'API_resource' => 'usergroup',
                 'API_action' => 'link',
                 'arguments' => [
@@ -127,7 +124,7 @@ $mode_to_actions = [
     "groups/members" => [
         'unlink' => [
             'type' => 'danger',
-            'glyphicon' => 'minus',
+            'icon' => 'dash',
             'tooltip' => 'Remove user from group',
             'text' => 'Remove from group',
             'function' => [
@@ -148,85 +145,85 @@ $mode_to_actions = [
 ];
 
 // define table features
-$features = array(
-    'page' => array(
+$features = [
+    'page' => [
         'type' => 'integer',
         'default' => 1,
         'values' => null,
         'minvalue' => 1,
         'maxvalue' => PHP_INT_MAX
-    ),
-    'results' => array(
+    ],
+    'results' => [
         'type' => 'integer',
         'default' => 10,
         'values' => null,
         'minvalue' => 1,
         'maxvalue' => PHP_INT_MAX
-    ),
-    'keywords' => array(
+    ],
+    'keywords' => [
         'type' => 'text',
         'default' => null,
         'placeholder' => 'e.g., Andrea'
-    )
-);
+    ]
+];
 
-$table = array(
+$table = [
     'style' => 'table-striped table-hover',
-    'layout' => array(
-        'group' => array(
+    'layout' => [
+        'group' => [
             'type' => 'text',
             'show' => false
-        ),
-        'user' => array(
+        ],
+        'user' => [
             'type' => 'text',
             'show' => false
-        ),
-        'avatar' => array(
+        ],
+        'avatar' => [
             'type' => 'avatar_image_small',
             'show' => true,
             'width' => 'md-1',
             'align' => 'center',
             'translation' => '',
             'editable' => false
-        ),
-        'name' => array(
+        ],
+        'name' => [
             'type' => 'text',
             'show' => true,
             'width' => 'md-4',
             'align' => 'left',
             'translation' => 'Name',
             'editable' => false
-        ),
-        'shown_role' => array(
+        ],
+        'shown_role' => [
             'type' => 'text',
             'show' => true,
             'width' => 'md-2',
             'align' => 'center',
             'translation' => 'Role',
             'editable' => false
-        ),
-        'role' => array(
+        ],
+        'role' => [
             'type' => 'text',
             'show' => false,
             'editable' => true
-        ),
-        'active' => array(
+        ],
+        'active' => [
             'type' => 'boolean',
             'show' => true,
             'width' => 'md-1',
             'align' => 'center',
             'translation' => 'Enabled',
             'editable' => true
-        )
-    ),
+        ]
+    ],
     'actions' => array_merge([
         '_width' => 'md-3',
     ], $mode_to_actions[$mode]),
-    'features' => array(
+    'features' => [
         '_counter_column',
         (Core::getUserLogged('role') == 'administrator') ? '_actions_column' : ''
-    )
-);
+    ]
+];
 
 // parse the arguments
 TableViewer::parseFeatures($features, $_GET);
@@ -239,34 +236,21 @@ switch ($mode) {
     case 'groups/link':
         $users = Core::getUsersList();
         // get group members
-        $res = Core::getGroupMembers($group);
-        if (!$res['success']) {
-            Core::throwError($res['data']);
-            return;
-        }
+        $members = Core::getGroupMembers($group);
         // retain only users that are not members yet
-        $users = array_diff($users, $res['data']);
+        $users = array_diff($users, $members);
         break;
     case 'groups/members':
         // get group members
-        $res = Core::getGroupMembers($group);
-        if (!$res['success']) {
-            Core::throwError($res['data']);
-            return;
-        }
-        $users = $res['data'];
+        $users = Core::getGroupMembers($group);
         break;
 }
 
 
 $tmp = [];
 foreach ($users as $user_id) {
-    $res = Core::getUserInfo($user_id);
-    if (!$res['success']) {
-        Core::throwError($res['data']);
-    }
-    $user_info = $res['data'];
-    //
+    $user_info = Core::getUserInfo($user_id);
+    // compile user record
     $user_record = [
         'user' => $user_id,
         'avatar' => _avatar_url($user_info['picture']),
@@ -276,7 +260,7 @@ foreach ($users as $user_id) {
         'active' => $user_info['active'],
         'group' => $group
     ];
-    array_push($tmp, $user_record);
+    $tmp[] = $user_record;
 }
 $users = $tmp;
 
@@ -284,8 +268,8 @@ $users = $tmp;
 if ($features['keywords']['value'] != null) {
     $tmp = array();
     foreach ($users as $user) {
-        if (strpos(strtolower($user['name']), strtolower($features['keywords']['value'])) !== false) {
-            array_push($tmp, $user);
+        if (str_contains(strtolower($user['name']), strtolower($features['keywords']['value']))) {
+            $tmp[] = $user;
         }
     }
     $users = $tmp;
@@ -302,11 +286,11 @@ $users = array_slice(
 );
 
 // prepare data for the table viewer
-$res = array(
+$res = [
     'size' => sizeof($users),
     'total' => $total_users,
     'data' => $users
-);
+];
 
 // <== Here is the Magic Call!
 TableViewer::generateTableViewer($current_resource, $res, $features, $table);
@@ -317,36 +301,49 @@ if ($mode == '/') {
     require_once join_path(Core::getPackageDetails('core', 'root'), 'modules', 'modals', 'record_editor_modal.php');
     // ---
     $roles = array_values(array_diff(Core::getPackageRegisteredUserRoles(), ['guest']));
-    $user_edit_form = [
+    $user_edit_form_schema = [
         'name' => [
-            'name' => 'Name',
-            'type' => 'text',
-            'editable' => false
+            'description' => 'Full name of the user',
+            'type' => 'text'
         ],
         'active' => [
-            'name' => 'Enabled',
-            'type' => 'boolean',
-            'editable' => true
+            'description' => 'Whether the user is enabled',
+            'type' => 'boolean'
         ],
         'role' => [
-            'name' => 'Role',
-            'type' => 'enum',
-            'placeholder' => array_map("ucfirst", $roles),
-            'placeholder_id' => $roles,
-            'editable' => true
+            'description' => 'User\'s role',
+            'type' => 'text',
+            'enum' => $roles
         ]
     ];
-    generateRecordEditorModal($user_edit_form, $formID='the-form', $method='POST');
+    $user_edit_form_ui = [
+        [
+            'key' => 'name',
+            'title' => 'Name',
+            'readOnly' => true
+        ],
+        [
+            'key' => 'active',
+            'title' => 'Active',
+        ],
+        [
+            'key' => 'role',
+            'title' => 'Role',
+            "titleMap" => array_combine($roles, array_map("ucfirst", $roles))
+        ]
+    ];
+    // generate modal
+    generateRecordEditorModal($user_edit_form_schema, method: 'POST', ui: $user_edit_form_ui);
 }
 ?>
 
 <script type="text/javascript">
-	let args = "<?php echo base64_encode(toQueryString(array_keys($features), $_GET)) ?>";
+    let args = "<?php echo base64_encode(toQueryString(array_keys($features), $_GET)) ?>";
+    let url = "<?php echo Core::getURL('users', 'groups', 'user', '{0}', ['lst' => '{1}']) ?>";
 
-	function _open_groups(target){
-		let user = $(target).data('user');
-		// open groups
-        let url = "<?php echo Core::getURL('users', 'groups', 'user', '{0}', ['lst' => '{1}']) ?>".format(user, args);
-		location.href = url;
-	}
+    function _open_groups(target) {
+        let user = $(target).data('user');
+        // open groups
+        location.href = url.format(user, args);
+    }
 </script>

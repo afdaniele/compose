@@ -677,9 +677,9 @@ $(function () {
 });
 
 // disable popover on click
-$(document).on("click", "a", function () {
-    $(this).popover('hide');
-});
+// $(document).on("click", "a", function () {
+//     $(this).popover('hide');
+// });
 
 // close all popovers when opening a modal dialog
 $(document).on("show.bs.modal", '.modal', function () {

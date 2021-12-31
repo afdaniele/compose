@@ -1,12 +1,16 @@
 <!-- Record Editor Modal -->
 
 <?php
-function generateRecordEditorModal(&$layout, $formID = null, $method = null, $action = null, &$values = array(), $size = 'lg') {
-    $formID = (($formID != null) ? $formID : 'the-form');
+function generateRecordEditorModal($schema, $id = null, $method = null, $action = null, &$data = [], &$ui = ["*"], $size = 'lg') {
+    $id = (($id != null) ? $id : 'the-form');
+    $modal_id = "record-editor-modal-$id";
+    $form_id = "$modal_id-form";
     ?>
 
-    <style type="text/css">
-        #record-editor-modal-<?php echo $formID ?> #custom-body {
+    <style>
+        #
+        <?php echo $modal_id ?>
+        .modal-body {
             overflow: scroll;
             max-height: 500px;
             overflow-y: visible;
@@ -14,25 +18,19 @@ function generateRecordEditorModal(&$layout, $formID = null, $method = null, $ac
         }
     </style>
 
-    <div class="modal fade" id="record-editor-modal-<?php echo $formID ?>" tabindex="-1"
-         role="dialog" aria-hidden="true">
+    <div class="modal fade" id="<?php echo $modal_id ?>" tabindex="-1">
         <div class="modal-dialog modal-<?php echo $size ?>">
             <div class="modal-content">
                 <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal"><span
-                                aria-hidden="true">&times;</span><span class="sr-only">Close</span>
-                    </button>
                     <h4 class="modal-title"></h4>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                            aria-label="Close"></button>
                 </div>
-
-                <div class="modal-body" id="custom-body">
-                    <?php
-                    generateFormByLayout($layout, $formID, null, $method, $action, $values);
-                    ?>
+                <div class="modal-body">
+                    <form id="<?php echo $form_id ?>"></form>
                 </div>
-
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Close
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close
                     </button>
                     <button type="button" class="btn btn-success" id="save-button">Save</button>
                 </div>
@@ -42,80 +40,56 @@ function generateRecordEditorModal(&$layout, $formID = null, $method = null, $ac
 
 
     <script type="text/javascript">
+        let _RECORD_EDITOR_FORM_SCHEMA = <?php print json_encode($schema) ?>;
+        let _RECORD_EDITOR_FORM_DATA = <?php print json_encode($data) ?>;
+        let _RECORD_EDITOR_FORM_UI = <?php print json_encode($ui) ?>;
+        let _RECORD_EDITOR_FORM_URL = '';
+        let modal = $('#<?php echo $modal_id ?>');
 
-        var data = null;
-        var url = '';
 
-        $('#record-editor-modal-<?php echo $formID ?>').on('show.bs.modal', function (e) {
-            var mode = $(e.relatedTarget).data('modal-mode');
+        modal.on('show.bs.modal', function (e) {
+            let mode = $(e.relatedTarget).data('modal-mode');
             //
-            if (mode == 'edit') {
-                $('#record-editor-modal-<?php echo $formID ?> .modal-title').html('Modify:');
+            if (mode === 'edit') {
+                $('#<?php echo $modal_id ?> .modal-title').html('Modify:');
             } else {
-                $('#record-editor-modal-<?php echo $formID ?> .modal-title').html('Insert:');
+                $('#<?php echo $modal_id ?> .modal-title').html('Insert:');
             }
-            // load the data
-            var jsonobj = $(e.relatedTarget).data('record');
-            data = jsonobj;
-            //
-            for (var key in jsonobj) {
-                var field = $('#record-editor-modal-<?php echo $formID ?> #<?php echo $formID ?> #' + key);
-                //
-                if (jsonobj['_lock_' + key] != undefined && jsonobj['_lock_' + key] == 1) {
-                    field.attr('disabled', true);
-                } else {
-                    field.attr('disabled', false);
-                }
-                //
-                switch (field.attr('type')) {
-                    case 'hidden':
-                        field.val(jsonobj[key]);
-                        $('#record-editor-modal-<?php echo $formID ?> #<?php echo $formID ?> #' + key + '_p').html(jsonobj[key]);
-                        break;
-                    case 'checkbox':
-                        field.prop('checked', jsonobj[key] == 1).change();
-                        break;
-                    case 'select':
-                        field.val(jsonobj[key]).change();
-                        break;
-                    default:
-                        field.val(jsonobj[key]);
-                        break;
-                }
-            }
-            //
-            url = $(e.relatedTarget).data('url');
+            // get URL
+            _RECORD_EDITOR_FORM_URL = $(e.relatedTarget).data('url');
+            // load the schema (if any)
+            let jsonobj = $(e.relatedTarget).data('schema');
+            if (jsonobj !== undefined)
+                _RECORD_EDITOR_FORM_SCHEMA = jsonobj;
+            // load the data (if any)
+            jsonobj = $(e.relatedTarget).data('record');
+            if (jsonobj !== undefined)
+                _RECORD_EDITOR_FORM_DATA = jsonobj;
+            // load the UI (if any)
+            jsonobj = $(e.relatedTarget).data('ui');
+            if (jsonobj !== undefined)
+                _RECORD_EDITOR_FORM_UI = jsonobj;
+
+            console.log(_RECORD_EDITOR_FORM_UI);
+
+            // make form
+            $('#<?php echo $form_id ?>').jsonForm({
+                schema: _RECORD_EDITOR_FORM_SCHEMA,
+                value: _RECORD_EDITOR_FORM_DATA,
+                form: _RECORD_EDITOR_FORM_UI
+            });
         });
 
-        $('#record-editor-modal-<?php echo $formID ?>').on('hide.bs.modal', function (e) {
+        modal.on('hide.bs.modal', function (e) {
             // clear the form
-            if (data != null) {
-                for (var key in data) {
-                    var field = $('#record-editor-modal-<?php echo $formID ?> #<?php echo $formID ?> #' + key);
-                    switch (field.attr('type')) {
-                        case 'hidden':
-                            field.val('');
-                            $('#record-editor-modal-<?php echo $formID ?> #<?php echo $formID ?> #' + key + '_p').html('');
-                            break;
-                        case 'checkbox':
-                            field.bootstrapToggle('off');
-                            break;
-                        case 'select':
-                            //TODO: Boh!
-                            break;
-                        default:
-                            field.val('');
-                            break;
-                    }
-                }
-            }
+            $('#<?php echo $form_id ?>').empty();
         });
 
-        $('#record-editor-modal-<?php echo $formID ?> #save-button').on('click', function () {
+        modal.find("#save-button").on('click', function () {
             showPleaseWait();
             //
-            let qs = serializeForm('#<?php echo $formID ?>', true);
-            url = url + qs;
+            let qs = serializeForm('#<?php echo $form_id ?>', true);
+            let url = _RECORD_EDITOR_FORM_DATA + qs;
             //
             const successDialog = true;
             const reload = true;
@@ -125,13 +99,8 @@ function generateRecordEditorModal(&$layout, $formID = null, $method = null, $ac
             const errorFcn = undefined;
             const transportType = 'POST';
             callAPI(url, successDialog, reload, funct, silentMode, suppressErrors, errorFcn, transportType);
-            // hide modal
-            let modal = new bootstrap.Modal(document.getElementById('record-editor-modal-<?php echo $formID ?>'));
-            modal.hide();
         });
-
     </script>
-    
     <?php
 }
 

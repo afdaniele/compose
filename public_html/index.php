@@ -63,8 +63,7 @@ try {
     <html xmlns="http://www.w3.org/1999/xhtml" lang="<?php echo Configuration::$LANG ?>">
     <head>
         <?php
-        // TODO: generateView is used from this
-        require_once 'system/templates/forms/forms.php';
+        require_once 'system/templates/tableviewers/commons.php';
         
     //    require_once 'system/utils/URLrewrite.php';
     //    require_once 'system/classes/Database.php';
@@ -72,7 +71,6 @@ try {
     //    require_once 'system/classes/MissionControl.php';
         // TODO: remove what is not needed
     //    require_once 'system/templates/sections/sections.php';
-    //    require_once 'system/templates/paginators/paginators.php';
         
         // simplify namespaces
 //        use system\classes\Utils;
@@ -199,12 +197,12 @@ try {
               type="text/css">
     
         <!-- OLD Bootstrap v3.3.1 by getbootstrap.com -->
-        <link href="<?php echo Configuration::$BASE ?>css/bootstrap-toggle.min.css" rel="stylesheet"
-              type="text/css">
-        <link href="<?php echo Configuration::$BASE ?>css/bootstrap-theme.min.css" rel="stylesheet"
-              type="text/css">
-        <link href="<?php echo Configuration::$BASE ?>css/bootstrap-callout.css" rel="stylesheet"
-              type="text/css">
+<!--        <link href="--><?php //echo Configuration::$BASE ?><!--css/bootstrap-toggle.min.css" rel="stylesheet"-->
+<!--              type="text/css">-->
+<!--        <link href="--><?php //echo Configuration::$BASE ?><!--css/bootstrap-theme.min.css" rel="stylesheet"-->
+<!--              type="text/css">-->
+<!--        <link href="--><?php //echo Configuration::$BASE ?><!--css/bootstrap-callout.css" rel="stylesheet"-->
+<!--              type="text/css">-->
     
         <!-- Bootstrap Icons v1.7.0 by getbootstrap.com -->
         <link rel="stylesheet"
@@ -222,13 +220,17 @@ try {
         <!--    <link rel="stylesheet" href="-->
         <?php //echo Configuration::$BASE ?><!--css/bootstrap-select.min.css">-->
     
-        <!-- OLD Compose Form CSS -->
-        <!--    <link href="-->
-        <?php //echo Configuration::$BASE ?><!--css/compose_form.css" rel="stylesheet" media="all">-->
-    
         <!-- OLD Custom CSS -->
         <link href="<?php echo Configuration::$BASE ?>css/compose.css" rel="stylesheet" media="all">
-    
+
+        <?php
+        if ($theme_package == "core") {
+            ?>
+            <!-- Theme CSS -->
+            <link href="<?php echo Configuration::$BASE ?>css/themes/<?php echo $theme_name ?>.css" rel="stylesheet" media="all">
+            <?php
+        }
+        ?>
     
         <!-- JQuery v3.6.0 by Google -->
         <script src="<?php echo Configuration::$BASE ?>js/jquery-3.6.0.min.js" type="application/javascript"></script>
@@ -237,21 +239,13 @@ try {
         <script src="<?php echo Configuration::$BASE ?>js/Chart.min.js" type="application/javascript"></script>
         <script src="<?php echo Configuration::$BASE ?>js/Chart.plugins.js" type="application/javascript"></script>
     
-        <!-- Bootstrap Select v1.13.9 by developer.snapappointments.com/bootstrap-select/ -->
-        <script src="<?php echo Configuration::$BASE ?>js/bootstrap-select.min.js" type="application/javascript"></script>
-    
         <!-- JSONForm v2.2.5 by https://github.com/jsonform/jsonform -->
         <script src="<?php echo Configuration::$BASE ?>js/jsonform/deps/underscore.js" type="application/javascript"></script>
         <script src="<?php echo Configuration::$BASE ?>js/jsonform/deps/opt/jsv.js" type="application/javascript"></script>
         <script src="<?php echo Configuration::$BASE ?>js/jsonform/jsonform.js" type="application/javascript"></script>
     
-        <!--    <script type="text/javascript">-->
-        <!--        $.fn.selectpicker.Constructor.BootstrapVersion = '3';-->
-        <!--    </script>-->
-    
         <!-- Custom JS -->
         <script src="<?php echo Configuration::$BASE ?>js/compose.js" type="application/javascript"></script>
-        <script src="<?php echo Configuration::$BASE ?>js/compose_form.js" type="application/javascript"></script>
         <script src="<?php echo Configuration::$BASE ?>js/compose_colors.js" type="application/javascript"></script>
     
         <!-- Utility JS -->
@@ -334,9 +328,6 @@ try {
     
     <!-- Bootstrap v5.1.3 by getbootstrap.com -->
     <script src="<?php echo Configuration::$BASE ?>js/bootstrap.5.1.3.bundle.min.js" type="application/javascript"></script>
-    
-    <!-- OLD Bootstrap v3.3.1 by getbootstrap.com -->
-    <script src="<?php echo Configuration::$BASE ?>js/bootstrap-toggle.min.js" type="application/javascript"></script>
     
     <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
     <script src="<?php echo Configuration::$BASE ?>js/ie10-viewport-bug-workaround.js" type="application/javascript"></script>
