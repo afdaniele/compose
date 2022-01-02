@@ -42,12 +42,7 @@ $successfully_updated = array_diff($to_update, $failed_to_install);
 $successfully_uninstalled = array_diff($to_uninstall, $failed_to_uninstall);
 ?>
 
-<style type="text/css">
-    .panel > .panel-heading a {
-        color: inherit;
-        text-decoration: none;
-    }
-
+<style>
     select.form-control {
         height: 26px !important;
     }
@@ -99,41 +94,37 @@ $tasks = [
 foreach ($tasks as $task) {
     if (count($task['data']) > 0) {
         ?>
-        <div class="panel panel-default">
-            <div class="panel-heading" role="tab">
-                <a aria-expanded="true" aria-controls="">
-                    <h4 class="panel-title">
-                        <span class="bi bi-<?php echo $task['icon'] ?>"
-                              style="color:<?php echo $task['color'] ?>" aria-hidden="true"></span>
-                        &nbsp;
-                        <strong><?php echo $task['name'] ?>:</strong>
-                    </h4>
-                </a>
+        <div class="card">
+            <div class="card-header">
+                <span class="bi bi-<?php echo $task['icon'] ?>"
+                      style="color:<?php echo $task['color'] ?>" aria-hidden="true"></span>
+                &nbsp;
+                <strong><?php echo $task['name'] ?>:</strong>
             </div>
-            <div class="panel-collapse collapse in" role="tabpanel" aria-labelledby="">
-                <div class="panel-body">
-                    <?php
-                    foreach ($task['data'] as $package_id) {
-                        $package_metadata = $installed_packages[$package_id];
-                        $package_name = isset($package_metadata['name']) ? $package_metadata['name'] : 'Package';
-                        echo sprintf(
-                            '<h5>&bullet; %s (<span class="mono" style="color:grey">%s, %s</span>)</h5>',
-                            $package_name,
-                            $package_id,
-                            sprintf(
-                                '<span class="bi bi-tag" style="color:black" aria-hidden="true"></span> %s',
-                                $package_metadata['codebase']['head_tag']
-                            )
-                        );
-                    }
-                    ?>
-                </div>
+            <div class="card-body">
+                <?php
+                foreach ($task['data'] as $package_id) {
+                    $package_metadata = $installed_packages[$package_id];
+                    $package_name = $package_metadata['name'] ?? 'Package';
+                    echo sprintf(
+                        '&bullet; %s (<span class="mono" style="color:grey">%s, %s</span>)',
+                        $package_name,
+                        $package_id,
+                        sprintf(
+                            '<span class="bi bi-tag" style="color:black" aria-hidden="true"></span> %s',
+                            $package_metadata['codebase']['head_tag']
+                        )
+                    );
+                }
+                ?>
             </div>
         </div>
         <?php
     }
 }
 ?>
+
+<br/>
 
 <a class="btn btn-success" role="button" style="float:right"
    href="<?php echo Configuration::$BASE ?>">

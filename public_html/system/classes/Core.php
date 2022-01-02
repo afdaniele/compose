@@ -1203,14 +1203,14 @@ class Core {
         $output = [];
         $exit_code = 0;
         exec($cmd, $output, $exit_code);
-        $success = boolval($exit_code == 0);
+        $success = $exit_code == 0;
         // invalidate cache
         self::$cache->clear();
         // ---
         if (!$success) {
             // parse error (remove comments)
             $output = array_values(array_filter(array_values($output), function ($e) {
-                return substr(ltrim($e), 0, 1) !== '#';
+                return !str_starts_with(ltrim($e), '#');
             }));
             $err_data = json_decode($output[0], true);
             /** @noinspection PhpUndefinedConstantInspection */

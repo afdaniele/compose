@@ -50,16 +50,16 @@ class EditableConfiguration {
             $schema_file = sprintf("%s%s/configuration/schema.json", $GLOBALS['__USERDATA__PACKAGES__DIR__'], $package);
         }
         // ---
-        // load configuration schema. This file must be always present.
-        if (!file_exists($schema_file)) {
-            throw new FileNotFoundException($schema_file);
-        }
-        try {
-            $schema_array = json_decode(file_get_contents($schema_file), true);
-        } catch (Exception $e) {
-            $msg = "The configuration schema for the package '$package' is corrupted.
-                The error reads:<br/> {$e->getMessage()}";
-            throw new GenericException($msg);
+        // load configuration schema (if present)
+        $schema_array = [];
+        if (file_exists($schema_file)) {
+            try {
+                $schema_array = json_decode(file_get_contents($schema_file), true);
+            } catch (Exception $e) {
+                $msg = "The configuration schema for the package '$package' is corrupted.
+                    The error reads:<br/> {$e->getMessage()}";
+                throw new GenericException($msg);
+            }
         }
         // make a Schema object
         $this->schema = new Schema($schema_array);

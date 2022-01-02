@@ -13,7 +13,7 @@ $installed_packages = Core::getPackagesList();
 <!-- Semver (lite) v0.0.6 by https://github.com/worktile/semver-lite -->
 <script src="<?php echo Configuration::$BASE ?>js/semver.js"></script>
 
-<style type="text/css">
+<style>
     #packages-table > thead > tr {
         font-weight: bold;
     }
@@ -86,11 +86,11 @@ $installed_packages = Core::getPackagesList();
 
 <h2 class="page-title"></h2>
 
-<div class="col-md-12" style="margin-bottom: 20px; padding: 0">
-    <a id="apply_changes_btn" class="btn btn-success btn-sm" role="button"
+<div class="col-md-12 mb-3" style="height: 32px">
+    <button type="button" class="btn btn-success btn-sm"
        style="float:right" onclick="apply_changes()" href="javascript:void(0);">
         Apply changes
-    </a>
+    </button>
     <span id="status_label"
           style="font-size:12pt; float:right; padding-top:4px; font-weight:normal;"></span>
 </div>
@@ -107,7 +107,7 @@ $assets_index_url = sanitize_url(
 // get info about \compose\'s codebase
 $codebase_info = Core::getCodebaseInfo();
 $compose_version =
-    ($codebase_info['latest_tag'] == 'ND')? null : explode('-', $codebase_info['latest_tag'])[0];
+    ($codebase_info['latest_tag'] == 'ND') ? null : explode('-', $codebase_info['latest_tag'])[0];
 
 // show warning if the version of compose cannot be detected
 if (is_null($compose_version)) {
@@ -119,9 +119,8 @@ if (is_null($compose_version)) {
 }
 ?>
 
-<div class="input-group" style="margin-top:28px">
-    <span class="input-group-addon" id="packages-search-addon">Search package</span>
-    <label for="packages-search-field"></label>
+<div class="input-group mb-3">
+    <span class="input-group-text" id="packages-search-addon">Filter packages</span>
     <input type="text" class="form-control" id="packages-search-field" style="height:42px" aria-describedby="packages-search-addon">
 </div>
 
@@ -145,6 +144,20 @@ if (is_null($compose_version)) {
     </tbody>
 </table>
 
+<?php
+// prepare JS data
+// keep only codebase.headtag
+$installed_packages_versions = [];
+foreach ($installed_packages as $pkgid => $pkg) {
+    $installed_packages_versions[$pkgid] = $pkg['codebase']['head_tag'];
+}
+// this fixes nested quotes
+$installed_packages_json = str_replace(
+        "\u0022",
+        "\\\\\"",
+        json_encode($installed_packages_versions, JSON_HEX_QUOT)
+);
+?>
 
 <script type="text/javascript">
 
@@ -152,6 +165,8 @@ if (is_null($compose_version)) {
     let packages_to_update = [];
     let packages_to_uninstall = [];
     let packages_to_version = {};
+    
+    let installed_packages_json = '<?php echo $installed_packages_json ?>';
 
     let providers = {
         'github.com': 'https://raw.githubusercontent.com/{0}/{1}/{2}',
@@ -168,16 +183,7 @@ if (is_null($compose_version)) {
         'bitbucket.org': 'https://bitbucket.org/{0}/{1}/src/{2}'
     };
     
-    <?php
-    // keep only codebase.headtag
-    $installed_packages_versions = [];
-    foreach ($installed_packages as $pkgid => $pkg) {
-        $installed_packages_versions[$pkgid] = $pkg['codebase']['head_tag'];
-    }
-    // this fixes nested quotes
-    $json_str = str_replace("\u0022", "\\\\\"", json_encode($installed_packages_versions, JSON_HEX_QUOT));
-    ?>
-    let installed_packages_htags = JSON.parse('<?php echo $json_str ?>');
+    let installed_packages_htags = JSON.parse(installed_packages_json);
 
     let installed_packages_ids = Object.keys(installed_packages_htags);
 
@@ -214,35 +220,35 @@ if (is_null($compose_version)) {
     `;
 
     let source_action = `
-      <a class="btn btn-primary" href="{0}" role="button" target="_blank">
+      <a class="btn btn-sm btn-primary" href="{0}" role="button" target="_blank">
         <i class="bi bi-code" aria-hidden="true"></i>&nbsp;
         Code
       </a>`;
     let install_action = `
-      <a role="button" class="btn btn-success main-button action-button {2}" onclick="mark_to_install('{0}', '{1}')" href="javascript:void(0);">
+      <a role="button" class="btn btn-sm btn-success main-button action-button {2}" onclick="mark_to_install('{0}', '{1}')" href="javascript:void(0);">
         <i class="bi bi-download" aria-hidden="true"></i>&nbsp;
         Install
       </a>
-      <a role="button" class="btn btn-warning main-button undo-button" style="display:none" onclick="mark_to_uninstall('{0}', '{1}')" href="javascript:void(0);">
-        <i class="bi bi-times" aria-hidden="true"></i>&nbsp;
+      <a role="button" class="btn btn-sm btn-warning main-button undo-button" style="display:none" onclick="mark_to_uninstall('{0}', '{1}')" href="javascript:void(0);">
+        <i class="bi bi-x-lg" aria-hidden="true"></i>&nbsp;
         Cancel
       </a>`;
     let uninstall_action = `
-      <a role="button" class="btn btn-danger main-button action-button {2}" onclick="mark_to_uninstall('{0}', '{1}')" href="javascript:void(0);">
+      <a role="button" class="btn btn-sm btn-danger main-button action-button {2}" onclick="mark_to_uninstall('{0}', '{1}')" href="javascript:void(0);">
         <i class="bi bi-trash" aria-hidden="true"></i>&nbsp;
         Uninstall
       </a>
-      <a role="button" class="btn btn-warning main-button undo-button" style="display:none" onclick="mark_to_install('{0}', '{1}')" href="javascript:void(0);">
-        <i class="bi bi-times" aria-hidden="true"></i>&nbsp;
+      <a role="button" class="btn btn-sm btn-warning main-button undo-button" style="display:none" onclick="mark_to_install('{0}', '{1}')" href="javascript:void(0);">
+        <i class="bi bi-x-lg" aria-hidden="true"></i>&nbsp;
         Cancel
       </a>`;
     let update_action = `
-      <a role="button" class="btn btn-info update-button action-button {2}" onclick="mark_to_update('{0}', '{1}')" href="javascript:void(0);">
+      <a role="button" class="btn btn-sm btn-info update-button action-button {2}" onclick="mark_to_update('{0}', '{1}')" href="javascript:void(0);">
         <i class="bi bi-cloud-download" aria-hidden="true"></i>&nbsp;
         Update
       </a>
-      <a role="button" class="btn btn-warning update-button undo-button" style="display:none" onclick="mark_to_install('{0}', '{1}')" href="javascript:void(0);">
-        <i class="bi bi-times" aria-hidden="true"></i>&nbsp;
+      <a role="button" class="btn btn-sm btn-warning update-button undo-button" style="display:none" onclick="mark_to_install('{0}', '{1}')" href="javascript:void(0);">
+        <i class="bi bi-x-lg" aria-hidden="true"></i>&nbsp;
         Cancel
       </a>`;
 
@@ -464,10 +470,16 @@ if (is_null($compose_version)) {
             )
         )
     }
-    
-    function compute_latest_pkg_version (pkg) {
-        let compose_version = <?php echo
-            is_null($compose_version)? 'null' : sprintf('"%s"', $compose_version) ?>;
+
+    function compute_latest_pkg_version(pkg) {
+        let compose_version;
+        <?php
+        if (!is_null($compose_version)){
+        ?>
+        compose_version = "<?php echo $compose_version ?>";
+        <?php
+        }
+        ?>
         let latest = null;
         for (const [version, info] of Object.entries(pkg.versions)) {
             let compatibility = info['compatibility']['compose'];
@@ -475,7 +487,7 @@ if (is_null($compose_version)) {
             if (compose_version !== null &&
                 (semverLite.lt(compose_version, compatibility['minimum']) ||
                     semverLite.gt(compose_version, compatibility['maximum']))
-                ){
+            ) {
                 // not compatible
                 continue;
             }
@@ -491,8 +503,7 @@ if (is_null($compose_version)) {
         return latest;
     }
 
-    function fetch_package_list_success_fcn(result) {
-        let index = JSON.parse(result);
+    function fetch_package_list_success_fcn(index) {
         // add packages to the list
         ProgressBar.set(100);
         let i = 1;
@@ -518,14 +529,17 @@ if (is_null($compose_version)) {
         ProgressBar.set(10);
         // ---
         let url = "<?php echo $assets_index_url ?>";
-        callExternalAPI(
+        callAPI(
             url,
-            'GET',
-            'text',
             false,
             false,
             fetch_package_list_success_fcn,
-            true
+            true,
+            false,
+            undefined,
+            undefined,
+            undefined,
+            "json"
         );
         // ---
         render_changes();

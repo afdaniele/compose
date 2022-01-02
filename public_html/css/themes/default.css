@@ -2,3 +2,11 @@ a {
     text-decoration: none;
     color: cornflowerblue;
 }
+
+html {
+    font-size: 15px;
+}
+
+body {
+    font-family: sans-serif;
+}

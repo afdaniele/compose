@@ -414,6 +414,7 @@ function callAPI(url, successDialog, reload, funct, silentMode, suppressErrors, 
     if (errorFcn === undefined) errorFcn = function (res) { /* do nothing! */ };
     if (transportType === undefined) transportType = 'GET';
     if (bodyData === undefined) bodyData = {};
+    if (resultDataType === undefined) resultDataType = null;
     //
     let postData = "";
     if (transportType === 'POST' && bodyData === {}) {
