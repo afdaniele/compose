@@ -42,12 +42,6 @@ $successfully_updated = array_diff($to_update, $failed_to_install);
 $successfully_uninstalled = array_diff($to_uninstall, $failed_to_uninstall);
 ?>
 
-<style>
-    select.form-control {
-        height: 26px !important;
-    }
-</style>
-
 
 <h2 class="page-title"></h2>
 

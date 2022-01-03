@@ -209,12 +209,6 @@ if (count($in_out_conflicts) + count($up_out_conflicts) > 0) {
 }
 ?>
 
-<style>
-    select.form-control {
-        height: 26px !important;
-    }
-</style>
-
 
 <h2 class="page-title"></h2>
 
