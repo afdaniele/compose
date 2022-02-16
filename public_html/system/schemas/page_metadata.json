@@ -1,0 +1,58 @@
+
+//
+//    public static $PAGE_METADATA_TEMPLATE = [
+//        "name"         => ["string", "Name of the page"],
+//        "package"      => [
+//            "string",
+//            "ID of the package the page belongs to"
+//        ],
+//        "menu_entry"   => [
+//            "__type"        => "associative_array",
+//            "__nullable"    => TRUE,
+//            "__details"     => "Associative array containing info about the menu entry for the page",
+//            "order"         => [
+//                "float",
+//                "The order of the page on the top menu bar (smallest number = leftmost entry)"
+//            ],
+//            "icon"          => [
+//                "__type"    => "associative_array",
+//                "__details" => "Associative array containing info about the menu entry for the page",
+//                "class"     => [
+//                    "string",
+//                    "Class of the icon (e.g., glyphicon)"
+//                ],
+//                "name"      => [
+//                    "string",
+//                    "ID of the icon to use (e.g., car)"
+//                ]
+//            ],
+//            "responsive"    => [
+//                "__type"    => "associative_array",
+//                "__details" => "Associative array containing info about how the responsiveness of the menu entry for small devices",
+//                "priority"  => [
+//                    "float",
+//                    "Priority with which the menu entry will be contracted (highest number = contracted first)"
+//                ]
+//            ],
+//            "exclude_roles" => [
+//                "__type"    => "array",
+//                "__details" => "List of user roles for which this page icon should be hidden"
+//            ]
+//        ],
+//        "child_pages"  => [
+//            "__type"        => "array",
+//            "__details"     => "The menu entry of the page will be highlighted if the current page matches the `name` of this class or any ID in this list",
+//            "__sample_item" => [
+//                "string",
+//                "ID of a child page"
+//            ]
+//        ],
+//        "access_level" => [
+//            "__type"        => "array",
+//            "__details"     => "List of user roles for which this page is accessible",
+//            "__sample_item" => [
+//                "string",
+//                "User role to grand access to"
+//            ]
+//        ]
+//    ];

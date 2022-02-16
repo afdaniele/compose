@@ -11,7 +11,8 @@
         },
         "email": {
             "type": "string",
-            "description": "Email address"
+            "description": "Email address",
+            "format": "email"
         },
         "picture": {
             "type": "string",
@@ -25,5 +26,6 @@
             "type": "boolean",
             "description": "Whether the user is allowed to login and use the platform"
         }
-    }
+    },
+    "additionalProperties": false
 }

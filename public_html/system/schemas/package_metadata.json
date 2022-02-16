@@ -1,0 +1,83 @@
+{
+    "type": "object",
+    "properties": {
+        "name": {
+            "type": "string",
+            "description": "Name of the package"
+        },
+        "description": {
+            "type": "string",
+            "description": "Description of the package"
+        },
+        "core": {
+            "type": "object",
+            "description": "Package's core module",
+            "properties": {
+                "namespace": {
+                    "type": "string",
+                    "description": "Namespace under which the core module is declared. The string '/system/classes/' will be prepended"
+                },
+                "file": {
+                    "type": "string",
+                    "description": "Path to the PHP file (extension included) containing the core class to load. The path must be relative to the PACKAGE_ROOT directory"
+                },
+                "class": {
+                    "type": "string",
+                    "description": "Name of the class as defined in the core file specified above"
+                }
+            },
+            "additionalProperties": false
+        },
+        "dependencies": {
+            "type": "object",
+            "description": "Package dependencies",
+            "properties": {
+                "system": {
+                    "type": "array",
+                    "description": "List of system packages required by the package",
+                    "items": {
+                        "type": "string",
+                        "description": "Name of the package"
+                    }
+                },
+                "packages": {
+                    "type": "array",
+                    "description": "List of \\compose\\ packages required by the package",
+                    "items": {
+                        "type": "string",
+                        "description": "Name of the package"
+                    }
+                }
+                
+            },
+            "additionalProperties": false
+        },
+        "compatibility": {
+            "type": "object",
+            "properties": {
+                "compose": {
+                    "type": "object",
+                    "properties": {
+                        "minimum": {
+                            "type": "string",
+                            "description": "Minimum version of \\compose\\",
+                            "pattern": "^v[0-9]+\\.[0-9]+\\.[0-9]+$"
+                        },
+                        "maximum": {
+                            "type":  "string",
+                            "description": "Maximum version of \\compose\\",
+                            "pattern": "^v[0-9]+\\.[0-9]+\\.[0-9]+$"
+                        }
+                    },
+                    "additionalProperties": false
+                }
+            },
+            "additionalProperties": false
+        }
+    },
+    "required": [
+        "name",
+        "description"
+    ],
+    "additionalProperties": false
+}
