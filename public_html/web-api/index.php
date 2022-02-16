@@ -79,6 +79,13 @@ $versions = $api->versions();
 // merge $_GET and $_POST into $_GET with $_GET having the priority
 $_GET = array_merge($_POST, $_GET);
 
+// json body?
+$contentType = $_SERVER["CONTENT_TYPE"] ?? null;
+if ($contentType === "application/json") {
+    $body = json_decode(file_get_contents('php://input'), true) ?? [];
+    $_GET = array_merge($body, $_GET);
+}
+
 // 0. verify the web-api current status
 if (!$api->enabled()) {
     // error : the web-api service is temporarily down

@@ -103,7 +103,7 @@ function openPop(targetID, title, content, placement, showDelay, duration, fixed
     target.popover({
         animation: true,
         html: true,
-        title: '<span class="text-danger">' + title + '</span>&nbsp;&nbsp;&nbsp;' +
+        title: '<span>' + title + '</span>&nbsp;&nbsp;&nbsp;' +
             '<button type="button" id="close" class="close" onclick="$(&quot;#' + targetID + '&quot;).popover(&quot;hide&quot;);">&times;</button>',
         content: content,
         container: 'body',
@@ -417,6 +417,7 @@ function callAPI(url, successDialog, reload, funct, silentMode, suppressErrors, 
     if (resultDataType === undefined) resultDataType = null;
     //
     let postData = "";
+    let contentType = null;
     if (transportType === 'POST' && bodyData === {}) {
         let dataIndex = url.indexOf('?');
         if (dataIndex !== -1) {
@@ -424,7 +425,12 @@ function callAPI(url, successDialog, reload, funct, silentMode, suppressErrors, 
             url = url.substr(0, dataIndex);
         }
     } else {
-        postData = bodyData;
+        try {
+            postData = JSON.stringify(bodyData);
+            contentType = "application/json";
+        } catch (e) {
+            postData = bodyData;
+        }
     }
     //
     // sanitize url
@@ -440,6 +446,7 @@ function callAPI(url, successDialog, reload, funct, silentMode, suppressErrors, 
         url: url,
         dataType: resultDataType,
         data: postData,
+        contentType: contentType,
         headers: customHeaders,
         success: function (result, status, xhr) {
             // success
