@@ -4,8 +4,8 @@
     "menu_entry" : {
         "order" : 3,
         "icon" : {
-            "class" : "fa",
-            "name" : "group"
+            "class" : "bi",
+            "name" : "people"
         },
         "responsive" : {
             "priority" : 35

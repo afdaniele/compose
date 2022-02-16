@@ -6,30 +6,32 @@
 use system\classes\Core;
 use system\classes\Configuration;
 
+$CORE_PKG_DIR = $GLOBALS['__CORE__PACKAGE__DIR__'];
+
 ?>
 
-<style type="text/css">
+<style>
     ._ctheme_page ._ctheme_top_bar {
         position: absolute;
         top: 0;
-        left: <?php echo Configuration::$THEME_CONFIG['dimensions']['sidebar_full_width'] ?>px;
+        left: <?php echo $THEME_DIM_SIDEBAR_FULL_WIDTH ?>px;
         right: 0;
-        height: <?php echo Configuration::$THEME_CONFIG['dimensions']['topbar_height'] ?>px;
+        height: <?php echo $THEME_DIM_TOPBAR_HEIGHT ?>px;
         border-left: 1px solid black;
-        color: <?php echo Configuration::$THEME_CONFIG['colors']['primary']['foreground'] ?>;
+        color: <?php echo $THEME_FG_COLOR_1 ?>;
         padding: 10px 10px 10px 30px;
         font-size: x-large;
         border-left: 1px solid lightgrey;
 
-        box-shadow: inset -20px 20px 20px 0 <?php echo $_THEME_COLOR_1->get_hex() ?>, 20px 3px 20px 0 #989898;
+        box-shadow: inset -20px 20px 20px 0 <?php echo $THEME_COLOR_1->get_hex() ?>, 20px 3px 20px 0 #989898;
 
         <?php
-        echo _get_gradient_color($_THEME_COLOR_1->darken(0.3), $_THEME_COLOR_1, 22)
+        echo get_gradient_color($THEME_COLOR_1->darken(0.3), $THEME_COLOR_1, 22)
         ?>
     }
 
     ._ctheme_page ._ctheme_top_bar a {
-        color: <?php echo Configuration::$THEME_CONFIG['colors']['primary']['foreground'] ?>;
+        color: <?php echo $THEME_FG_COLOR_1 ?>;
     }
 
     ._ctheme_page a:hover {
@@ -38,7 +40,7 @@ use system\classes\Configuration;
     
     ._ctheme_page ._ctheme_top_bar ._ctheme_side_bar_btn {
         width: 13px;
-        height: <?php echo Configuration::$THEME_CONFIG['dimensions']['topbar_height'] - 1 ?>px;
+        height: <?php echo $THEME_DIM_TOPBAR_HEIGHT - 1 ?>px;
         position: absolute;
         top: 0;
         left: 1px;
@@ -48,7 +50,7 @@ use system\classes\Configuration;
     
     ._ctheme_page ._ctheme_top_bar ._ctheme_side_bar_btn a {
         color: #565656;
-        line-height: <?php echo Configuration::$THEME_CONFIG['dimensions']['topbar_height'] - 1 ?>px;
+        line-height: <?php echo $THEME_DIM_TOPBAR_HEIGHT - 1 ?>px;
         font-size: small;
         text-decoration: none;
     }

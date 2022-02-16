@@ -4,8 +4,8 @@
     "menu_entry" : {
         "order" : 4,
         "icon" : {
-            "class" : "fa",
-            "name" : "shopping-bag"
+            "class" : "bi",
+            "name" : "bag-plus"
         },
         "responsive" : {
             "priority" : 30

@@ -4,8 +4,8 @@
     "menu_entry" : {
         "order" : -1,
         "icon" : {
-            "class" : "glyphicon",
-            "name" : "log-in"
+            "class" : "bi",
+            "name" : "door-open"
         },
         "responsive" : {
             "priority" : 0

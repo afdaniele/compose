@@ -4,8 +4,8 @@
     "menu_entry" : {
         "order" : 6,
         "icon" : {
-            "class" : "fa",
-            "name" : "code"
+            "class" : "bi",
+            "name" : "code-slash"
         },
         "responsive" : {
             "priority" : 50

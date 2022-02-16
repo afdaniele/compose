@@ -12,7 +12,7 @@ $CORE_PKG_DIR = $GLOBALS['__CORE__PACKAGE__DIR__'];
 ?>
 
 
-<style type="text/css">
+<style>
     body {
         margin-bottom: 0;
     }
@@ -94,7 +94,7 @@ $CORE_PKG_DIR = $GLOBALS['__CORE__PACKAGE__DIR__'];
                         // page CSS
                         if (file_exists($css_index)) {
                             ?>
-                            <style type="text/css">
+                            <style>
                                 <?php include_once($css_index) ?>
                             </style>
                             <?php

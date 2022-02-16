@@ -4,8 +4,8 @@
     "menu_entry" : {
         "order" : 4,
         "icon" : {
-            "class" : "glyphicon",
-            "name" : "align-justify"
+            "class" : "bi",
+            "name" : "justify"
         },
         "responsive" : {
             "priority" : 40

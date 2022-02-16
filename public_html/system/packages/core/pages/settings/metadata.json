@@ -4,8 +4,8 @@
     "menu_entry" : {
         "order" : 5,
         "icon" : {
-            "class" : "glyphicon",
-            "name" : "cog"
+            "class" : "bi",
+            "name" : "gear"
         },
         "responsive" : {
             "priority" : 30

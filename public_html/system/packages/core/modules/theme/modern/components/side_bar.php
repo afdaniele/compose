@@ -32,7 +32,7 @@ if (!Core::isComposeConfigured()) {
 }
 
 // remove login if the functionality is not enabled
-$login_enabled = Core::getSetting('login_enabled', 'core');
+$login_enabled = Core::getSetting('login_enabled');
 ?>
 
 <style type="text/css">
@@ -45,28 +45,28 @@ $login_enabled = Core::getSetting('login_enabled', 'core');
         font-size: x-large;
         overflow-x: hidden;
         
-        box-shadow: inset 20px 20px 20px 0 <?php echo $_THEME_COLOR_2->get_hex() ?>,
+        box-shadow: inset 20px 20px 20px 0 <?php echo $THEME_COLOR_2->get_hex() ?>,
             1px 1px 20px 0 #989898;
         
-        width: <?php echo Configuration::$THEME_CONFIG['dimensions']['sidebar_full_width'] ?>px;
+        width: <?php echo $THEME_DIM_SIDEBAR_FULL_WIDTH ?>px;
 
         <?php
-        echo _get_gradient_color($_THEME_COLOR_2->darken(0.1), $_THEME_COLOR_2, 143)
+        echo get_gradient_color($THEME_COLOR_2->darken(0.1), $THEME_COLOR_2, 143)
         ?>
     }
     
     ._ctheme_page ._ctheme_side_bar a,
     ._ctheme_page ._ctheme_side_bar .btn {
-        color: <?php echo $_THEME_FG_COLOR_2->get_hex() ?>;
+        color: <?php echo $THEME_FG_COLOR_2->get_hex() ?>;
     }
     
     ._ctheme_page ._ctheme_side_bar hr {
-        border-color: <?php echo $_THEME_FG_COLOR_2->get_hex() ?>;
+        border-color: <?php echo $THEME_FG_COLOR_2->get_hex() ?>;
     }
     
     ._ctheme_page ._ctheme_side_bar hr._ctheme_logo_hr {
         position: absolute;
-        top: <?php echo Configuration::$THEME_CONFIG['dimensions']['topbar_height'] ?>px;
+        top: <?php echo $THEME_DIM_TOPBAR_HEIGHT ?>px;
         left: 10%;
         right: 10%;
         margin: 0;
@@ -107,8 +107,8 @@ $login_enabled = Core::getSetting('login_enabled', 'core');
         margin: 10px 0;
         padding: 0 6px 0 0;
         position: absolute;
-        top: <?php echo Configuration::$THEME_CONFIG['dimensions']['topbar_height'] ?>px;
-        bottom: <?php echo Configuration::$THEME_CONFIG['dimensions']['footer_height'] ?>px;
+        top: <?php echo $THEME_DIM_TOPBAR_HEIGHT ?>px;
+        bottom: <?php echo $THEME_DIM_FOOTER_HEIGHT ?>px;
         left: 0;
         right: 0;
     }
@@ -131,7 +131,7 @@ $login_enabled = Core::getSetting('login_enabled', 'core');
     
     ._ctheme_side_bar_buttons_group .btn:hover {
         text-decoration: none;
-        background-color: <?php echo $_THEME_COLOR_2->darken(0.2)->get_hex() ?>;
+        background-color: <?php echo $THEME_COLOR_2->darken(0.2)->get_hex() ?>;
     }
     
     ._ctheme_side_bar_buttons_group .btn.active {
@@ -147,7 +147,7 @@ $login_enabled = Core::getSetting('login_enabled', 'core');
     
     ._ctheme_page ._ctheme_side_bar hr._ctheme_footer_hr {
         position: absolute;
-        bottom: <?php echo Configuration::$THEME_CONFIG['dimensions']['footer_height'] ?>px;
+        bottom: <?php echo $THEME_DIM_FOOTER_HEIGHT ?>px;
         left: 10%;
         right: 10%;
         margin: 0;
@@ -191,7 +191,7 @@ $login_enabled = Core::getSetting('login_enabled', 'core');
     
     ._ctheme_footer ._ctheme_footer_credits {
         height: 75px;
-        color: <?php echo Configuration::$THEME_CONFIG['colors']['secondary']['foreground'] ?>;
+        color: <?php echo $THEME_FG_COLOR_2 ?>;
     }
     
     ._ctheme_footer ._ctheme_footer_credits td {
@@ -405,13 +405,13 @@ $login_enabled = Core::getSetting('login_enabled', 'core');
         let chevron = '';
         if (status === 'small') {
             chevron = 'right';
-            size = '<?php echo Configuration::$THEME_CONFIG['dimensions']['sidebar_small_width'] ?>px';
+            size = '<?php echo $THEME_DIM_SIDEBAR_SMALL_WIDTH ?>px';
             $('._ctheme_side_bar_off').css('display', 'none');
             $('._ctheme_side_bar_on').css('display', '');
             $('._sidebar_page_btn').css('text-align', 'center');
         } else {
             chevron = 'left';
-            size = '<?php echo Configuration::$THEME_CONFIG['dimensions']['sidebar_full_width'] ?>px';
+            size = '<?php echo $THEME_DIM_SIDEBAR_FULL_WIDTH ?>px';
             $('._ctheme_side_bar_off').css('display', '');
             $('._ctheme_side_bar_on').css('display', 'none');
             $('._sidebar_page_btn').css('text-align', 'left');
