@@ -209,7 +209,7 @@ class Core {
                     continue;
                 }
                 // collect dependencies
-                $dep_graph[$pkg_id] = $pkg['dependencies']['packages'];
+                $dep_graph[$pkg_id] = (($pkg['dependencies'] ?? [])['packages']) ?? [];
             }
             // solve the dependencies graph
             $package_order = self::_solve_dependencies_graph($dep_graph);

@@ -145,6 +145,7 @@ class RESTfulAPIAction {
     }
     public function service(): RESTfulAPIService {return $this->service;}
     public function configuration(): RESTfulAPIActionConfiguration {return $this->configuration;}
+    public function description(): string {return $this->configuration->description();}
     
     
     // Public function
@@ -174,7 +175,7 @@ class RESTfulAPIAction {
         if (count($classes) != 1)
             throw new GenericException("API action file '$action_fpath' does not contain an 'APIAction' class.");
         // execute action
-        /** @noinspection PhpUndefinedClassInspection */
+        /** @noinspection PhpMultipleClassDeclarationsInspection */
         $output = \system\classes\api\endpoints\APIAction::execute($this, $input);
         // validate output
         $output->data = $output->data ?? [];

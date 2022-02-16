@@ -3,11 +3,10 @@
 # @Email:  afdaniele@ttic.edu
 # @Last modified by:   afdaniele
 
-use \system\classes\Core;
+use system\classes\Core;
 
-function settings_user_roles_tab(){
-?>
-
+function settings_user_roles_tab() {
+    ?>
     <p>
         The following table shows all the user roles registered on the platform.
     </p>
@@ -20,13 +19,13 @@ function settings_user_roles_tab(){
                 <td class="col-md-4">Default page</td>
             </tr>
             <?php
-            $packages = array_keys( Core::getPackagesList() );
+            $packages = array_keys(Core::getPackagesList());
             sort($packages);
-
+            
             $i = 1;
-            foreach($packages as $package) {
-                $roles = Core::getPackageRegisteredUserRoles( $package );
-                foreach($roles as $role) {
+            foreach ($packages as $package) {
+                $roles = Core::getPackageRegisteredUserRoles($package);
+                foreach ($roles as $role) {
                     $default_page = Core::getDefaultPagePerRole($role, $package);
                     ?>
                     <tr>
@@ -42,7 +41,7 @@ function settings_user_roles_tab(){
             ?>
         </table>
     </div>
-
-<?php
+    <?php
 }
+
 ?>

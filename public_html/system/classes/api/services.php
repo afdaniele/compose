@@ -23,6 +23,8 @@ class RESTfulAPIServiceConfiguration {
         $this->description = $description;
     }
     
+    public function description(): bool {return $this->description;}
+    
     /** Loads an API action configuration from disk.
      *
      * @param string $fpath Configuration file to load.
@@ -50,6 +52,7 @@ class RESTfulAPIServiceConfiguration {
 class RESTfulAPIService {
     protected string $version;
     protected string $path;
+    protected string $package;
     protected string $name;
     protected array $actions;
     protected RESTfulAPIServiceConfiguration $configuration;
@@ -59,14 +62,16 @@ class RESTfulAPIService {
      * RESTfulAPIService constructor.
      *
      * @param string $version               Version of the API this action belongs to.
+     * @param string $package               Package containing the service.
      * @param string $path                  Path to directory containing the service.
      * @throws FileNotFoundException
      * @throws IOException
      * @throws InvalidSchemaException
      * @throws SchemaViolationException
      */
-    function __construct(string $version, string $path) {
+    function __construct(string $version, string $package, string $path) {
         $this->version = $version;
+        $this->package = $package;
         $this->path = $path;
         $this->name = basename($path);
         // read API service status from database
@@ -93,8 +98,10 @@ class RESTfulAPIService {
     
     public function version(): string {return $this->version;}
     public function path(): string {return $this->path;}
+    public function package(): string {return $this->package;}
     public function name(): string {return $this->name;}
     public function enabled(): bool {return $this->enabled;}
+    public function description(): string {return $this->configuration->description();}
 
     
     // Public function

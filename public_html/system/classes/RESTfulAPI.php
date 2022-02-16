@@ -603,7 +603,7 @@ class RESTfulAPI {
                     // get service name
                     $api_service_dir = dirname($api_service_match);
                     // load service
-                    $api_service = new RESTfulAPIService($api_version, $api_service_dir);
+                    $api_service = new RESTfulAPIService($api_version, $pkg_id, $api_service_dir);
                     // check whether the service is enabled (key exists == service is disabled)
                     $api_service_enabled = $api_v_enabled && $package_enabled && $api_service->enabled();
                     $api_service->setEnabled($api_service_enabled);

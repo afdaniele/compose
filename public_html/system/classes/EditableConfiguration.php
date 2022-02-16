@@ -18,6 +18,7 @@ use exceptions\GenericException;
 use exceptions\InvalidSchemaException;
 use exceptions\IOException;
 use exceptions\SchemaViolationException;
+use JetBrains\PhpStorm\Pure;
 
 
 class EditableConfiguration {
@@ -96,7 +97,7 @@ class EditableConfiguration {
      *
      * @return array
      */
-    public function getSchemaAsArray(): array {
+    #[Pure] public function getSchemaAsArray(): array {
         return $this->schema->asArray();
     }//getSchema
     

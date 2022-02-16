@@ -3,9 +3,8 @@
 # @Email:  afdaniele@ttic.edu
 # @Last modified by:   afdaniele
 
-use \system\classes\Core;
-use \system\classes\Database;
-use system\classes\Utils;
+use system\classes\Core;
+use system\classes\Database;
 
 
 $step_no = 3;

@@ -7,10 +7,10 @@ require_once $GLOBALS['__SYSTEM__DIR__'].'/classes/Core.php';
 use system\classes\Core;
 
 // init Core
-$res = Core::init();
-if (!$res['success']){
-    echo $res['data'];
-    die($res['data']);
+$success = Core::init();
+if (!$success){
+    echo "FATAL";
+    die();
 }
 
 // create a Session
@@ -18,7 +18,8 @@ Core::startSession();
 
 // only admin can see this
 if (Core::isUserLoggedIn() && Core::getUserLogged('role') == "administrator") {
-    ob_clean();
+    if (ob_get_length() > 0)
+        ob_clean();
     phpinfo();
     die();
 }

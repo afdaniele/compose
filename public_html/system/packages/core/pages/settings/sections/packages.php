@@ -4,10 +4,8 @@
 # @Last modified by:   afdaniele
 
 
-
-function settings_packages_tab(){
-?>
-
+function settings_packages_tab() {
+    ?>
     <p>
         The following table shows all the packages installed on the platform.
     </p>
@@ -23,37 +21,41 @@ function settings_packages_tab(){
             </tr>
             <?php
             $packages = \system\classes\Core::getPackagesList();
-            $packages_ids = array_keys( $packages );
-
+            $packages_ids = array_keys($packages);
+            
             sort($packages_ids);
-
+            
             $i = 1;
-            foreach($packages_ids as $pkg_id) {
+            foreach ($packages_ids as $pkg_id) {
                 $pkg = $packages[$pkg_id];
                 ?>
                 <tr>
                     <td><?php echo $i ?></td>
                     <td><?php echo $pkg_id ?></td>
                     <td><?php echo $pkg['name'] ?></td>
-                    <td><?php echo ($pkg['codebase']['head_tag'] == 'ND')? 'devel' : $pkg['codebase']['head_tag'] ?></td>
+                    <td><?php echo ($pkg['codebase']['head_tag'] == 'ND') ? 'devel' : $pkg['codebase']['head_tag'] ?></td>
                     <td><?php echo format($pkg['enabled'], 'boolean') ?></td>
-                    <td>
+                    <td style="padding: 0.3rem">
                         <?php
-                        if( $pkg_id !== 'core' ){
-                            if( $pkg['enabled'] ){
+                        if ($pkg_id !== 'core') {
+                            if ($pkg['enabled']) {
                                 ?>
-                                <button type="button" class="btn btn-sm btn-warning package-disable-button" data-package="<?php echo $pkg_id ?>">
-                                    <span class="glyphicon glyphicon-pause" aria-hidden="true"></span>&nbsp;Disable
+                                <button type="button"
+                                        class="btn btn-sm btn-warning package-disable-button"
+                                        data-package="<?php echo $pkg_id ?>">
+                                    <i class="bi bi-pause-fill" aria-hidden="true"></i>&nbsp;Disable
                                 </button>
                                 <?php
-                            }else{
+                            } else {
                                 ?>
-                                <button type="button" class="btn btn-sm btn-success package-enable-button" data-package="<?php echo $pkg_id ?>">
-                                    <span class="glyphicon glyphicon-play" aria-hidden="true"></span>&nbsp;Enable
+                                <button type="button"
+                                        class="btn btn-sm btn-success package-enable-button"
+                                        data-package="<?php echo $pkg_id ?>">
+                                    <i class="bi bi-play-fill" aria-hidden="true"></i>&nbsp;Enable
                                 </button>
                                 <?php
                             }
-                        }else{
+                        } else {
                             echo '<span class="glyphicon glyphicon-ban-circle" aria-hidden="true" style="margin-top:2px; color:grey;"></span>';
                         }
                         ?>
@@ -69,24 +71,25 @@ function settings_packages_tab(){
 
     <script type="text/javascript">
 
-    	$('.package-disable-button').on('click', function(){
-    		var pkg_id = $(this).data('package');
-    		//
-    		var url = "<?php echo \system\classes\Configuration::$BASE ?>web-api/<?php echo \system\classes\Configuration::$WEBAPI_VERSION ?>/package/disable/json?id="+pkg_id+"&token=<?php echo $_SESSION["TOKEN"] ?>";
-    		//
-    		callAPI( url, true, true );
-    	});
+        $('.package-disable-button').on('click', function () {
+            var pkg_id = $(this).data('package');
+            //
+            var url = "<?php echo \system\classes\Configuration::$BASE ?>web-api/<?php echo \system\classes\Configuration::$WEBAPI_VERSION ?>/package/disable/json?id=" + pkg_id + "&token=<?php echo $_SESSION["TOKEN"] ?>";
+            //
+            callAPI(url, true, true);
+        });
 
-    	$('.package-enable-button').on('click', function(){
-    		var pkg_id = $(this).data('package');
-    		//
-    		var url = "<?php echo \system\classes\Configuration::$BASE ?>web-api/<?php echo \system\classes\Configuration::$WEBAPI_VERSION ?>/package/enable/json?id="+pkg_id+"&token=<?php echo $_SESSION["TOKEN"] ?>";
-    		//
-    		callAPI( url, true, true );
-    	});
+        $('.package-enable-button').on('click', function () {
+            var pkg_id = $(this).data('package');
+            //
+            var url = "<?php echo \system\classes\Configuration::$BASE ?>web-api/<?php echo \system\classes\Configuration::$WEBAPI_VERSION ?>/package/enable/json?id=" + pkg_id + "&token=<?php echo $_SESSION["TOKEN"] ?>";
+            //
+            callAPI(url, true, true);
+        });
 
     </script>
-
-<?php
+    
+    <?php
 }
+
 ?>

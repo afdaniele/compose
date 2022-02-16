@@ -4,8 +4,11 @@
 # @Last modified by:   afdaniele
 
 
-function settings_pages_tab(){
-?>
+use system\classes\Configuration;
+use system\classes\Core;
+
+function settings_pages_tab() {
+    ?>
 
     <p>
         The following table reports all the pages available on the platform.
@@ -21,39 +24,45 @@ function settings_pages_tab(){
                 <td class="col-md-2">Actions</td>
             </tr>
             <?php
-            $pages = \system\classes\Core::getPagesList('by-package');
-
-            $packages = array_keys( $pages );
+            $pages = Core::getPagesList('by-package');
+            
+            $packages = array_keys($pages);
             sort($packages);
-
+            
             $i = 1;
-            foreach($packages as $package) {
-                foreach($pages[$package] as $page) {
+            foreach ($packages as $package) {
+                foreach ($pages[$package] as $page) {
                     ?>
                     <tr>
                         <td class="col-md-1"><?php echo $i ?></td>
                         <td class="col-md-2"><?php echo $page['id'] ?></td>
                         <td class="col-md-3"><?php echo $page['name'] ?></td>
                         <td class="col-md-3"><?php echo $package ?></td>
-                        <td class="col-md-1"><?php echo format($page['enabled'], 'boolean') ?></td>
-                        <td class="col-md-2">
+                        <td class="col-md-1" style="padding: 0.7rem"><?php echo format($page['enabled'], 'boolean') ?></td>
+                        <td class="col-md-2" style="padding: 0.3rem">
                             <?php
-                            if( $package !== 'core' ){
-                                if( $page['enabled'] ){
+                            if ($package !== 'core') {
+                                if ($page['enabled']) {
                                     ?>
-                                    <button type="button" class="btn btn-sm btn-warning page-disable-button" data-package="<?php echo $package ?>" data-page="<?php echo $page['id'] ?>">
-                                        <span class="glyphicon glyphicon-pause" aria-hidden="true"></span>&nbsp;Disable
+                                    <button type="button"
+                                            class="btn btn-sm btn-warning page-disable-button"
+                                            data-package="<?php echo $package ?>"
+                                            data-page="<?php echo $page['id'] ?>">
+                                        <i class="bi bi-pause-fill"></i>&nbsp;Disable
                                     </button>
                                     <?php
-                                }else{
+                                } else {
                                     ?>
-                                    <button type="button" class="btn btn-sm btn-success page-enable-button" data-package="<?php echo $package ?>" data-page="<?php echo $page['id'] ?>">
-                                        <span class="glyphicon glyphicon-play" aria-hidden="true"></span>&nbsp;Enable
+                                    <button type="button"
+                                            class="btn btn-sm btn-success page-enable-button"
+                                            data-package="<?php echo $package ?>"
+                                            data-page="<?php echo $page['id'] ?>">
+                                        <i class="bi bi-play-fill"></i>&nbsp;Enable
                                     </button>
                                     <?php
                                 }
-                            }else{
-                                echo '<span class="glyphicon glyphicon-ban-circle" aria-hidden="true" style="margin-top:2px; color:grey;"></span>';
+                            } else {
+                                echo '<i class="bi bi-slash-circle" style="margin-top:2px; color:grey;"></i>';
                             }
                             ?>
                         </td>
@@ -69,26 +78,27 @@ function settings_pages_tab(){
 
     <script type="text/javascript">
 
-    	$('.page-disable-button').on('click', function(){
-    		var pkg_id = $(this).data('package');
-    		var page_id = $(this).data('page');
-    		//
-    		var url = "<?php echo \system\classes\Configuration::$BASE ?>web-api/<?php echo \system\classes\Configuration::$WEBAPI_VERSION ?>/page/disable/json?package="+pkg_id+"&id="+page_id+"&token=<?php echo $_SESSION["TOKEN"] ?>";
-    		//
-    		callAPI( url, true, true );
-    	});
+        $('.page-disable-button').on('click', function () {
+            let pkg_id = $(this).data('package');
+            let page_id = $(this).data('page');
+            //
+            let url = "<?php echo Configuration::$BASE ?>web-api/<?php echo Configuration::$WEBAPI_VERSION ?>/page/disable/json?package=" + pkg_id + "&id=" + page_id + "&token=<?php echo $_SESSION["TOKEN"] ?>";
+            //
+            callAPI(url, true, true);
+        });
 
-    	$('.page-enable-button').on('click', function(){
-    		var pkg_id = $(this).data('package');
-    		var page_id = $(this).data('page');
-    		//
-    		var url = "<?php echo \system\classes\Configuration::$BASE ?>web-api/<?php echo \system\classes\Configuration::$WEBAPI_VERSION ?>/page/enable/json?package="+pkg_id+"&id="+page_id+"&token=<?php echo $_SESSION["TOKEN"] ?>";
-    		//
-    		callAPI( url, true, true );
-    	});
+        $('.page-enable-button').on('click', function () {
+            let pkg_id = $(this).data('package');
+            let page_id = $(this).data('page');
+            //
+            let url = "<?php echo Configuration::$BASE ?>web-api/<?php echo Configuration::$WEBAPI_VERSION ?>/page/enable/json?package=" + pkg_id + "&id=" + page_id + "&token=<?php echo $_SESSION["TOKEN"] ?>";
+            //
+            callAPI(url, true, true);
+        });
 
     </script>
-
-<?php
+    
+    <?php
 }
+
 ?>

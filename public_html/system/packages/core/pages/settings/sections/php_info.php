@@ -9,7 +9,7 @@ use system\classes\Core;
 function settings_phpinfo_tab(){
     $php_info = Core::getURL('script.php', null, null, null, ['script' => 'php_info']);
     ?>
-    <style type="text/css">
+    <style>
         #_compose_settings_phpinfo_tab_iframe{
             min-height: 200px;
             width: 100%;
@@ -22,7 +22,7 @@ function settings_phpinfo_tab(){
     
     <script type="application/javascript">
         let iframe = $("#_compose_settings_phpinfo_tab_iframe");
-        iframe.closest(".panel-body").css("padding", "0");
+        iframe.closest(".accordion-body").css("padding", "0");
         
         function _on_phpinfo_iframe_ready() {
             let dom = iframe.get()[0];
@@ -31,7 +31,6 @@ function settings_phpinfo_tab(){
             dom.style.height = "{0}px".format(content_h);
         }
         
-        iframe.load(_on_phpinfo_iframe_ready);
         $("#php_collapse").on('shown.bs.collapse', _on_phpinfo_iframe_ready);
     </script>
     <?php

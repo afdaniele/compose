@@ -498,3 +498,8 @@ input[type=color]:hover {
 .text-left {
     text-align: left;
 }
+
+.btn-xs {
+    height: 20px;
+    padding: 0.02rem 0.5rem;
+}

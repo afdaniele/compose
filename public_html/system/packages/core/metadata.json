@@ -2,7 +2,7 @@
     "name" : "Core",
     "description" : "Provides the core functionalities of the platform",
     "dependencies" : {
-        "system-packages" : [],
+        "system" : [],
         "packages" : []
     }
 }
