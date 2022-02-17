@@ -1,18 +1,14 @@
 {
     "name" : "Users",
-    "package" : "core",
+    "icon" : {
+        "name" : "people"
+    },
     "menu_entry" : {
         "order" : 3,
-        "icon" : {
-            "class" : "bi",
-            "name" : "people"
-        },
         "responsive" : {
             "priority" : 35
-        },
-        "exclude_roles" : []
+        }
     },
-    "child_pages" : [],
     "access_level" : [
         "administrator",
         "supervisor"

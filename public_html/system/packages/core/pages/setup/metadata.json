@@ -1,18 +1,14 @@
 {
     "name" : "Setup",
-    "package" : "core",
+    "icon" : {
+        "name" : "wrench"
+    },
     "menu_entry" : {
         "order" : 1,
-        "icon" : {
-            "class" : "bi",
-            "name" : "wrench"
-        },
         "responsive" : {
             "priority" : 30
-        },
-        "exclude_roles" : []
+        }
     },
-    "child_pages" : [],
     "access_level" : [
         "guest",
         "administrator"

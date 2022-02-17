@@ -79,6 +79,7 @@ class Core {
     private static array $packages;
     private static array $pages;
     private static bool $debug = false;
+    private static array $schemas = [];
     private static array $settings = [];
     private static array $debugger_data = [];
     private static bool $volatile_session = false;
@@ -170,6 +171,10 @@ class Core {
             if (self::getSetting('cache_enabled')) {
                 Cache::init();
             }
+            //
+            // load schemas
+            self::$schemas["page_metadata"] = Schema::load("page_metadata");
+            self::$schemas["package_metadata"] = Schema::load("package_metadata");
             //
             // load list of available packages
             self::$packages = self::_discover_packages($safe_mode);
@@ -2490,6 +2495,9 @@ class Core {
                 $page_id = Utils::regex_extract_group($json, "/.*pages\/(.+)\/metadata.json/", 1);
                 $page_path = Utils::regex_extract_group($json, "/(.+)\/metadata.json/", 1);
                 $page = json_decode(file_get_contents($json), true);
+                // verify
+                $page = self::$schemas["page_metadata"]->sanitize($page);
+                //
                 $page['package'] = $pkg_id;
                 $page['id'] = $page_id;
                 $page['path'] = $page_path;

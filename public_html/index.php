@@ -206,7 +206,7 @@ try {
     
         <!-- Bootstrap Icons v1.7.0 by getbootstrap.com -->
         <link rel="stylesheet"
-              href="<?php echo Configuration::$BASE ?>css/bootstrap-icons.1.7.0.css">
+              href="<?php echo Configuration::$BASE ?>css/bootstrap-icons.1.8.1.css">
     
         <!-- JQuery UI v1.13.0 by Google -->
         <link rel="stylesheet"

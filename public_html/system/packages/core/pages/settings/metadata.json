@@ -1,19 +1,12 @@
 {
     "name" : "Settings",
-    "package" : "core",
+    "icon" : {
+        "name" : "gear"
+    },
     "menu_entry" : {
         "order" : 5,
-        "icon" : {
-            "class" : "bi",
-            "name" : "gear"
-        },
         "responsive" : {
             "priority" : 30
-        },
-        "exclude_roles" : []
-    },
-    "child_pages" : [],
-    "access_level" : [
-        "administrator"
-    ]
+        }
+    }
 }

@@ -1,18 +1,11 @@
 {
     "name" : "Login",
-    "package" : "core",
-    "menu_entry" : {
-        "order" : -1,
-        "icon" : {
-            "class" : "bi",
-            "name" : "door-open"
-        },
-        "responsive" : {
-            "priority" : 0
-        },
-        "exclude_roles" : []
+    "icon" : {
+        "name" : "door-open"
     },
-    "child_pages" : [],
+    "menu_entry" : {
+        "order" : -1
+    },
     "access_level" : [
         "guest"
     ]

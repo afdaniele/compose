@@ -1,19 +1,15 @@
 {
-    "name" : "RESTful API",
-    "package" : "core",
-    "menu_entry" : {
-        "order" : 6,
-        "icon" : {
-            "class" : "bi",
-            "name" : "code-slash"
-        },
-        "responsive" : {
-            "priority" : 50
-        },
-        "exclude_roles" : []
+    "name": "RESTful API",
+    "icon": {
+        "name": "code-slash"
     },
-    "child_pages" : [],
-    "access_level" : [
+    "menu_entry": {
+        "order": 6,
+        "responsive": {
+            "priority": 50
+        }
+    },
+    "access_level": [
         "administrator",
         "supervisor",
         "user"

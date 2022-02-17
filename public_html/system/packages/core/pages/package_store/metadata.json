@@ -1,19 +1,12 @@
 {
     "name" : "Package Store",
-    "package" : "core",
+    "icon" : {
+        "name" : "bag-plus"
+    },
     "menu_entry" : {
         "order" : 4,
-        "icon" : {
-            "class" : "bi",
-            "name" : "bag-plus"
-        },
         "responsive" : {
             "priority" : 30
-        },
-        "exclude_roles" : []
-    },
-    "child_pages" : [],
-    "access_level" : [
-      "administrator"
-    ]
+        }
+    }
 }

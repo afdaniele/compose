@@ -1,18 +1,14 @@
 {
     "name" : "Profile",
-    "package" : "core",
+    "icon" : {
+        "name" : "justify"
+    },
     "menu_entry" : {
         "order" : 4,
-        "icon" : {
-            "class" : "bi",
-            "name" : "justify"
-        },
         "responsive" : {
             "priority" : 40
-        },
-        "exclude_roles" : []
+        }
     },
-    "child_pages" : [],
     "access_level" : [
         "administrator",
         "supervisor",

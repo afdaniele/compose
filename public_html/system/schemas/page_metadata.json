@@ -5,28 +5,31 @@
             "type": "string",
             "description": "Name of the page"
         },
-        "menu_entry": {
+        "icon": {
             "type": "object",
+            "description": "The page's icon",
+            "properties": {
+                "class": {
+                    "type": "string",
+                    "description": "Class of icon",
+                    "default": "bi"
+                },
+                "name": {
+                    "type": "string",
+                    "description": "Name of the icon"
+                }
+            },
+            "default": null,
+            "additionalProperties": false
+        },
+        "menu_entry": {
+            "type": ["null", "object"],
             "description": "Information about the menu entry for the page",
             "properties": {
                 "order": {
                     "type": "number",
-                    "description": "The order of the page on the top menu bar (smallest number = leftmost entry)"
-                },
-                "icon": {
-                    "type": "object",
-                    "description": "The page's icon",
-                    "properties": {
-                        "class": {
-                            "type": "string",
-                            "description": "Class of icon"
-                        },
-                        "name": {
-                            "type": "string",
-                            "description": "Name of the icon"
-                        }
-                    },
-                    "additionalProperties": false
+                    "description": "The order of the page on the top menu bar (smallest number = leftmost entry)",
+                    "default": 0
                 },
                 "responsive": {
                     "type": "object",
@@ -34,8 +37,12 @@
                     "properties": {
                         "priority": {
                             "type": "number",
-                            "description": "Priority with which the menu entry will be contracted (highest number = contracted first)"
+                            "description": "Priority with which the menu entry will be contracted (highest number = contracted first)",
+                            "default": 0
                         }
+                    },
+                    "default": {
+                        "priority": 0
                     },
                     "additionalProperties": false
                 },
@@ -46,8 +53,16 @@
                         "type": "string",
                         "description": "Fully resolved role to exclude"
                     },
+                    "default": [],
                     "additionalItems": false
                 }
+            },
+            "default": {
+                "order": 0,
+                "responsive": {
+                    "priority": 0
+                },
+                "exclude_roles": []
             },
             "additionalProperties": false
         },
@@ -58,6 +73,7 @@
                 "type": "string",
                 "description": "ID of a child page"
             },
+            "default": [],
             "additionalItems": false
         },
         "access_level": {
@@ -67,12 +83,41 @@
                 "type": "string",
                 "description": "User role to grand access to"
             },
+            "default": [
+                "administrator"
+            ],
             "additionalItems": false
         }
     },
     "required": [
-        "name",
-        "access_level"
+        "name"
+    ],
+    "allOf": [
+        {
+            "description": "If menu_entry is given and it is an object, icon is required",
+            "if": {
+                "properties": {
+                    "menu_entry": {
+                        "type": "object"
+                    }
+                },
+                "required": ["menu_entry"]
+            },
+            "then": {
+                "required": ["icon"]
+            }
+        },
+        {
+            "description": "If menu_entry is not given, icon is required",
+            "if": {
+                "not": {
+                    "required": ["menu_entry"]
+                }
+            },
+            "then": {
+                "required": ["icon"]
+            }
+        }
     ],
     "additionalProperties": false
 }
