@@ -82,7 +82,7 @@ $CORE_PKG_DIR = $GLOBALS['__CORE__PACKAGE__DIR__'];
 
             <div class="_ctheme_content">
                 <!-- Begin page content -->
-                <div id="page_container" class="container">
+                <div id="page_container" class="page-container">
                     <?php include(join_path($CORE_PKG_DIR, 'modules/alerts.php')); ?>
 
                     <!-- Main Container -->

@@ -105,30 +105,28 @@ $CORE_PKG_DIR = $GLOBALS['__CORE__PACKAGE__DIR__'];
 
             <div class="_ctheme_content">
                 <!-- Begin page content -->
-                <div id="page_container" class="container">
-                    <div id="page_container" class="container">
-                        <?php include(join_path($CORE_PKG_DIR, 'modules/alerts.php')); ?>
+                <div id="page_container" class="page-container">
+                    <?php include(join_path($CORE_PKG_DIR, 'modules/alerts.php')); ?>
 
-                        <!-- Main Container -->
-                        <div id="page_canvas">
-                            <?php
-                            $page_dir = Core::getPageDetails(Configuration::$PAGE, 'path');
-                            $php_index = join_path($page_dir, "index.php");
-                            $css_index = join_path($page_dir, "index.css");
-                            // page CSS
-                            if (file_exists($css_index)) {
-                                ?>
-                                <style>
-                                    <?php include_once($css_index) ?>
-                                </style>
-                                <?php
-                            }
-                            // page source
-                            include($php_index);
+                    <!-- Main Container -->
+                    <div id="page_canvas">
+                        <?php
+                        $page_dir = Core::getPageDetails(Configuration::$PAGE, 'path');
+                        $php_index = join_path($page_dir, "index.php");
+                        $css_index = join_path($page_dir, "index.css");
+                        // page CSS
+                        if (file_exists($css_index)) {
                             ?>
-                        </div>
-                        <!-- Main Container End -->
+                            <style>
+                                <?php include_once($css_index) ?>
+                            </style>
+                            <?php
+                        }
+                        // page source
+                        include($php_index);
+                        ?>
                     </div>
+                    <!-- Main Container End -->
                 </div>
             </div>
         </div>
