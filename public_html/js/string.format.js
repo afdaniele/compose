@@ -1,10 +1,10 @@
 String.prototype.format = function () {
     "use strict";
-    var str = this.toString();
+    let str = this.toString();
     if (arguments.length) {
-        var t = typeof arguments[0];
-        var key;
-        var args = ("string" === t || "number" === t) ?
+        let t = typeof arguments[0];
+        let key;
+        let args = ("string" === t || "number" === t) ?
             Array.prototype.slice.call(arguments)
             : arguments[0];
 
