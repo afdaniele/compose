@@ -255,6 +255,7 @@ try {
         <script src="<?php echo Configuration::$BASE ?>js/string.format.js" type="application/javascript"></script>
         <script src="<?php echo Configuration::$BASE ?>js/string.capitalize.js" type="application/javascript"></script>
         <script src="<?php echo Configuration::$BASE ?>js/string.strip.js" type="application/javascript"></script>
+        <script src="<?php echo Configuration::$BASE ?>js/semaphore.js" type="application/javascript"></script>
     
         <!-- Google API Library -->
         <script src="https://apis.google.com/js/platform.js" async defer type="application/javascript"></script>
