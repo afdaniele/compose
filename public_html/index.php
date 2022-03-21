@@ -17,9 +17,7 @@ require_once 'system/classes/Configuration.php';
 // simplify namespaces
 use system\classes\Configuration;
 use system\classes\Core;
-use exceptions\BaseRuntimeException;
 use exceptions\FileNotFoundException;
-use system\classes\Utils;
 
 
 try {
