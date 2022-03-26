@@ -202,7 +202,7 @@ try {
 <!--        <link href="--><?php //echo Configuration::$BASE ?><!--css/bootstrap-callout.css" rel="stylesheet"-->
 <!--              type="text/css">-->
     
-        <!-- Bootstrap Icons v1.7.0 by getbootstrap.com -->
+        <!-- Bootstrap Icons v1.8.1 by getbootstrap.com -->
         <link rel="stylesheet"
               href="<?php echo Configuration::$BASE ?>css/bootstrap-icons.1.8.1.css">
     
