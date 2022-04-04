@@ -863,6 +863,17 @@ function toHumanReadableSize(fileSizeInBytes) {
     return Math.max(fileSizeInBytes, 0.1).toFixed(1) + byteUnits[i];
 }//toHumanReadableSize
 
+/**
+ * @param {String} html HTML representing a single element
+ * @return {Element}
+ */
+function htmlToElement(html) {
+    let template = document.createElement('template');
+    html = html.trim(); // Never return a text node of whitespace as the result
+    template.innerHTML = html;
+    return template.content.firstChild;
+}
+
 function clearCache() {
     let url = "{0}script.php?script=clearcache".format(Configuration.get('core', 'BASE'));
     let successDialog = true;
