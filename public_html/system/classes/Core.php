@@ -197,7 +197,7 @@ class Core {
                         $theme_pkg, $theme_name) . "We reverted to the default theme." .
                     sprintf("The error reads:<br/>%s", $e->getMessage())
                 );
-                self::setSetting('core', 'theme', 'core:default');
+                self::setSetting('theme', 'core', 'core:default');
                 self::redirectTo('');
             }
             //
@@ -665,7 +665,7 @@ class Core {
             $user_info['role'] = 'administrator';
             // disable the developer mode (if it is enabled)
             if (self::getSetting('developer_mode')) {
-                self::setSetting('core', 'developer_mode', false);
+                self::setSetting('developer_mode', 'core', false);
                 // warn the user of what happened
                 self::requestAlert('INFO', 'Administrator account created! The Developer Mode
                 was disabled automatically.');
@@ -1383,11 +1383,11 @@ class Core {
     
     /** Sets the value for the given setting key of the given package.
      *
-     * @param string $key
-     *        the setting key to set the value for;
-     *
      * @param string $package
      *        the ID of the package the setting key belongs to;
+     *
+     * @param string $key
+     *        the setting key to set the value for;
      *
      * @param string $value
      *        the new value to store in the package's settings;
