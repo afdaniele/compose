@@ -5,7 +5,7 @@
         "order" : 6,
         "icon" : {
             "class" : "fa",
-            "name" : "code"
+            "name" : "sitemap"
         },
         "responsive" : {
             "priority" : 50
