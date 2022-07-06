@@ -373,7 +373,9 @@ $login_enabled = Core::getSetting('login_enabled', 'core');
 
 <script type="text/javascript">
     $(document).ready(function(){
-        $('._sidebar_page_btn.active')[0].scrollIntoView();
+        let sidebar_btn = $('._sidebar_page_btn.active')[0];
+        if (sidebar_btn != undefined)
+            sidebar_btn.scrollIntoView();
         _ctheme_side_bar_set(localStorage.getItem('_CTHEME_SIDEBAR_STATUS'));
     });
     
