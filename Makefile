@@ -17,6 +17,7 @@ VERSION=$(shell [ "${HEAD_NAME}" = "HEAD" ] && echo "${JENKINS_BRANCH}" || echo 
 TAG=$(shell [ "${HEAD_TAG}" = "${LATEST_TAG}" ] && echo "latest" || echo "${VERSION}")
 EXTRA_TAG=$(shell [ "${ARCH}" = "${DEFAULT_ARCH}" ] && echo "-t ${IMAGE}:${TAG}" || echo "")
 IMAGE_SHA=$(shell docker -H=${H} inspect --format="{{index .Id}}" "${IMAGE}:${VERSION}-${ARCH}" 2> /dev/null || :)
+GIT_SHA=$(shell git rev-parse HEAD || :)
 DOCKERFILE=Dockerfile
 COMPOSE_VERSION=${VERSION}
 
@@ -40,6 +41,7 @@ build:
 		--build-arg ARCH=${ARCH} \
 		--build-arg COMPOSE_VERSION=${COMPOSE_VERSION} \
 		--build-arg GIT_REF=${GIT_REF} \
+		--build-arg GIT_SHA=${GIT_SHA} \
 		--build-arg BASE_VERSION=${BASE_VERSION} \
 		./
 
