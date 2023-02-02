@@ -41,10 +41,13 @@ RUN apt-get update \
     $(awk -F: '/^[^#]/ { print $1 }' /tmp/dependencies-apt.txt | uniq) \
   && rm -rf /var/lib/apt/lists/*
 
+# upgrade pip
+RUN pip3 install -U "pip<21.0.0"
+
 # install python dependencies
 RUN pip3 install \
   run-and-retry \
-  compose-cms>=1.0.4
+  compose-cms>=1.0.5
 
 # install apcu
 RUN pecl channel-update pecl.php.net \

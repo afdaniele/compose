@@ -55,6 +55,12 @@ push:
 pull:
 	docker -H=${H} pull "${IMAGE}:${VERSION}-${ARCH}" || :
 
+run:
+	docker -H=${H} run -it --rm "${IMAGE}:${VERSION}-${ARCH}"
+
+run-bash:
+	docker -H=${H} run -it --rm --entrypoint bash "${IMAGE}:${VERSION}-${ARCH}"
+
 clean:
 	docker -H=${H} rmi -f "${IMAGE_SHA}" || :
 
