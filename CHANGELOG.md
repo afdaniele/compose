@@ -1,3 +1,9 @@
+## 1.1.9 (February 02, 2023)
+  - bumped python library, added more Make targets
+  - Merge branch 'stable' into devel
+  - bumped python library
+  - removed old files
+
 ## 1.1.8 (July 06, 2022)
   - fixed issue with git ref sha not available anymore in new versions of git
   - bug fix in side_bar
