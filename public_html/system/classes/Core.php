@@ -47,6 +47,19 @@ define('ERROR', 2);
  */
 class Core {
     
+    const RESERVED_PAGES = [
+        '404',
+        'api',
+        'error',
+        'login',
+        'maintenance',
+        'package_store',
+        'profile',
+        'settings',
+        'setup',
+        'users'
+    ];
+    
     private static $initialized = FALSE;
     private static $cache = NULL;
     private static $packages = NULL;
@@ -81,12 +94,6 @@ class Core {
                 'factory_default_page' => 'profile'
             ]
         ]
-    ];
-    
-    private static $RESERVED_PAGES = [
-        'api', 'data', 'error', 'login',
-        'maintenance', 'package_store', 'profile', 'settings',
-        'setup', 'users'
     ];
     
     private static $USER_ACCOUNT_TEMPLATE = [

@@ -913,3 +913,7 @@ $(document).ready(function () {
     // refit right now
     _compose_vertical_fit();
 });
+
+function seconds_since_epoch(){
+    return Date.now() / 1000;
+}

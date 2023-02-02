@@ -1,3 +1,14 @@
+## 1.1.8 (July 06, 2022)
+  - fixed issue with git ref sha not available anymore in new versions of git
+  - bug fix in side_bar
+  - added utility JS function `seconds_since_epoch`
+  - minor
+
+## 1.1.7 (July 11, 2021)
+  - added sandbox
+  - entrypoint.sh: now chmodding g+rw the COMPOSE_USERDATA_DIR
+  - added Core::RESERVED_PAGES array
+
 ## 1.1.6 (April 05, 2021)
   - Merge branch 'devel' into stable
   - package_store/list: now using a smaller JSON string to pass data from PHP to JS
