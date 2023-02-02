@@ -1,3 +1,6 @@
+## 1.1.10 (February 02, 2023)
+  - removed old files
+
 ## 1.1.9 (February 02, 2023)
   - bumped python library, added more Make targets
   - Merge branch 'stable' into devel
