@@ -2270,8 +2270,8 @@ class Core {
         // check if both the package and the theme exist
         if (is_null(self::getThemeFile($theme_name, $package_id))) {
             return [
-                'success' => false, 'data' =>
-                sprintf('Either package(%s) or theme(%s) not found', $package_id, $theme_name)
+                'success' => false,
+                'data' => sprintf('Either package(%s) or theme(%s) not found', $package_id, $theme_name)
             ];
         }
         // read theme default configuration
