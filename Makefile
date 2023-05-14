@@ -33,7 +33,7 @@ debug-build:
 		EXTRA_TAG=
 
 build:
-	docker -H=${H} build \
+	docker -H=${H} buildx build \
 		-t "${IMAGE}:${VERSION}-${ARCH}" \
 		-t "${IMAGE}:${TAG}-${ARCH}" \
 		${EXTRA_TAG} \

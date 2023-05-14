@@ -84,13 +84,8 @@ trap compose_terminate SIGINT
 trap compose_terminate SIGTERM
 
 # launch daemon process (inherited from the PHP image)
-echo "Launching Apache..."
-apache2-foreground &
+echo "Launching PHP-FPM..."
+/etc/init.d/php7.0-fpm start
 
-# wait for the process to die or be killed
-set +e
-wait &> /dev/null
-set -e
-
-# done
-echo "Bye bye!"
+echo "Launching NGINX..."
+nginx -g 'daemon off;'

@@ -33,7 +33,7 @@
     use system\utils\URLrewrite;
     
     // compute how far this page is from the root
-    $__arg__ = strtolower($_GET['__arg__']);
+    $__arg__ = ltrim(strtolower($_GET['__arg__']), "/");
     $depth = substr_count($__arg__, '/');
     $to_root = implode('/', array_fill(0, $depth, '..'));
     $to_root .= strlen($to_root) ? '/' : '';

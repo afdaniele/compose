@@ -1,10 +1,11 @@
 ARG ARCH=amd64
-ARG PHP_VERSION=7.0.31
-ARG OS_DISTRO=stretch
+ARG PHP_VERSION=7.0
+ARG OS_FAMILY=ubuntu
+ARG OS_DISTRO=focal
 ARG COMPOSE_VERSION=stable
 ARG GIT_REF=heads
 
-FROM ${ARCH}/php:${PHP_VERSION}-apache-${OS_DISTRO}
+FROM ${ARCH}/${OS_FAMILY}:${OS_DISTRO}
 
 # recover arguments
 ARG ARCH
@@ -15,9 +16,9 @@ ARG GIT_SHA
 ARG COMPOSE_VERSION
 
 # configure environment: system & libraries
-ENV ARCH=${ARCH}
-ENV PHP_VERSION=${PHP_VERSION}
-ENV OS_DISTRO=${OS_DISTRO}
+ENV ARCH=${ARCH} \
+    PHP_VERSION=${PHP_VERSION} \
+    OS_DISTRO=${OS_DISTRO}
 
 # configure environment: \compose\
 ENV APP_DIR="/var/www"
@@ -29,7 +30,8 @@ ENV COMPOSE_DIR="${APP_DIR}/html" \
     HTTPS_PORT=443 \
     SSL_CERTFILE="${SSL_DIR}/certfile.pem" \
     SSL_KEYFILE="${SSL_DIR}/privkey.pem" \
-    QEMU_EXECVE=1
+    QEMU_EXECVE=1 \
+    DEBIAN_FRONTEND=noninteractive
 
 # copy QEMU
 COPY ./assets/qemu/${ARCH}/ /usr/bin/
@@ -41,17 +43,36 @@ RUN apt-get update \
     $(awk -F: '/^[^#]/ { print $1 }' /tmp/dependencies-apt.txt | uniq) \
   && rm -rf /var/lib/apt/lists/*
 
-# upgrade pip
-RUN pip3 install -U "pip<21.0.0"
+# PHP modules (TODO: this should be cleaned up)
+RUN add-apt-repository -y ppa:ondrej/php && \
+    add-apt-repository -y ppa:nginx/stable && \
+    apt-get install --no-install-recommends --yes \
+        nginx \
+        php7.0-apcu \
+        php7.0-cli \
+        php7.0-fpm \
+        php7.0-mysql \
+        php7.0-curl \
+        php7.0-redis \
+        php7.0-memcached \
+        php7.0-gd \
+        php7.0-mcrypt \
+        php7.0-intl \
+        php7.0-tidy \
+        php7.0-bcmath \
+        php7.0-zip \
+        php7.0-xml \
+        php7.0-soap \
+        php7.0-mbstring
+
+# configure php-fpm
+RUN sed -i 's/\;date\.timezone\ =/date\.timezone\ =\ America\/New_York/g' /etc/php/7.0/fpm/php.ini && \
+    sed -i 's/\;error_log\ =\ syslog/error_log\ =\ syslog/g' /etc/php/7.0/fpm/php.ini
 
 # install python dependencies
 RUN pip3 install \
   run-and-retry \
   compose-cms>=1.0.5
-
-# install apcu
-RUN pecl channel-update pecl.php.net \
-  && pecl install apcu
 
 # install composer
 RUN cd /tmp/ && \
@@ -67,27 +88,12 @@ COPY assets/usr/local/etc/php/conf.d/apcu.ini /usr/local/etc/php/conf.d/
 COPY assets/usr/local/etc/php/conf.d/log_errors.ini /usr/local/etc/php/conf.d/
 
 # remove pre-installed app
-RUN rm -rf "${APP_DIR}"
-RUN mkdir -p "${COMPOSE_DIR}"
-RUN mkdir -p "${COMPOSE_USERDATA_DIR}"
-RUN chown -R www-data:www-data "${APP_DIR}"
-RUN chown -R www-data:www-data "${COMPOSE_USERDATA_DIR}"
+RUN rm -rf "${APP_DIR}" && \
+    mkdir -p "${COMPOSE_DIR}" "${COMPOSE_USERDATA_DIR}" && \
+    chown -R www-data:www-data "${APP_DIR}" "${COMPOSE_USERDATA_DIR}"
 
-# enable mod rewrite
-RUN a2enmod rewrite
-
-# enable mod ssl
-RUN a2enmod ssl
-
-# update website configuration file
-COPY assets/etc/apache2/sites-available/000-default.conf /etc/apache2/sites-available/000-default.conf
-COPY assets/etc/apache2/sites-available/000-default-ssl.conf /etc/apache2/sites-available/000-default-ssl.conf
-
-# enable HTTP website
-RUN a2ensite 000-default
-
-# disable (default) HTTPS website
-RUN a2dissite 000-default-ssl
+# copy nginx configuration file
+ADD assets/etc/nginx/default /etc/nginx/sites-available/default
 
 # copy SHA of the current commit. This has two effects:
 # - stores the SHA of the commit from which the image was built
@@ -110,8 +116,8 @@ RUN rretry \
     git clone -b stable "${COMPOSE_URL}" "${COMPOSE_DIR}"
 
 # fetch tags and checkout the wanted version
-RUN git -C "${COMPOSE_DIR}" fetch --tags
-RUN git -C "${COMPOSE_DIR}" checkout "${COMPOSE_VERSION}"
+RUN git -C "${COMPOSE_DIR}" fetch --tags && \
+    git -C "${COMPOSE_DIR}" checkout "${COMPOSE_VERSION}"
 
 # switch back to root
 USER root
