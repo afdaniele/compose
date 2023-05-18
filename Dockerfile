@@ -43,7 +43,7 @@ RUN apt-get update \
     $(awk -F: '/^[^#]/ { print $1 }' /tmp/dependencies-apt.txt | uniq) \
   && rm -rf /var/lib/apt/lists/*
 
-# PHP modules (TODO: this should be cleaned up)
+# PHP modules
 RUN add-apt-repository -y ppa:ondrej/php && \
     add-apt-repository -y ppa:nginx/stable && \
     apt-get install --no-install-recommends --yes \
@@ -53,11 +53,9 @@ RUN add-apt-repository -y ppa:ondrej/php && \
         php7.0-fpm \
         php7.0-mysql \
         php7.0-curl \
-        php7.0-redis \
         php7.0-memcached \
         php7.0-gd \
         php7.0-mcrypt \
-        php7.0-intl \
         php7.0-tidy \
         php7.0-bcmath \
         php7.0-zip \
