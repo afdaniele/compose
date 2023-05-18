@@ -1,3 +1,13 @@
+## 1.2.0-rc3 (May 18, 2023)
+  - cleaned up modules
+  - bug fix with FPM clearing ENV
+  - removed support for arm32v7 images, fixed a few bugs
+  - BREAKING: dropped Apache, moved to Nginx
+  - bumped python library, added more Make targets
+  - Merge branch 'stable' into devel
+  - bumped python library
+  - removed old files
+
 ## 1.1.8 (July 06, 2022)
   - fixed issue with git ref sha not available anymore in new versions of git
   - bug fix in side_bar
