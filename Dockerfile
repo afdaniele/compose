@@ -67,7 +67,8 @@ RUN add-apt-repository -y ppa:ondrej/php && \
 
 # configure php-fpm
 RUN sed -i 's/\;date\.timezone\ =/date\.timezone\ =\ America\/New_York/g' /etc/php/7.0/fpm/php.ini && \
-    sed -i 's/\;error_log\ =\ syslog/error_log\ =\ syslog/g' /etc/php/7.0/fpm/php.ini
+    sed -i 's/\;error_log\ =\ syslog/error_log\ =\ syslog/g' /etc/php/7.0/fpm/php.ini && \
+    sed -i 's/\;clear_env\ =\ no/clear_env\ =\ no/g' /etc/php/7.0/fpm/pool.d/www.conf
 
 # install python dependencies
 RUN pip3 install \
