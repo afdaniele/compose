@@ -43,13 +43,13 @@ chmod -R g+w "${COMPOSE_USERDATA_DIR}"
 # check if a custom HTTP_PORT was given
 if [ "${HTTP_PORT}" != "${DEFAULT_HTTP_PORT}" ]; then
   echo "Configuring \\compose\\ to be served on custom HTTP port ${HTTP_PORT}."
-  sed -i "s/listen ${DEFAULT_HTTP_PORT}/listen ${HTTP_PORT}/g" /etc/nginx/sites-available/default
+  sed -i "s/listen ${DEFAULT_HTTP_PORT} default_server/listen ${HTTP_PORT} default_server/g" /etc/nginx/sites-available/default
 fi
 
 # check if a custom HTTPS_PORT was given
 if [ "${HTTPS_PORT}" != "${DEFAULT_HTTPS_PORT}" ]; then
   echo "Configuring \\compose\\ to be served on custom HTTPS port ${HTTPS_PORT}."
-  sed -i "s/listen ${DEFAULT_HTTPS_PORT}/listen ${HTTPS_PORT}/g" /etc/nginx/sites-available/default
+  sed -i "s/listen ${DEFAULT_HTTPS_PORT} default_server/listen ${HTTPS_PORT} default_server/g" /etc/nginx/sites-available/default
 fi
 
 # check if SSL is enabled and the keys are provided
