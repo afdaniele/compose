@@ -1,3 +1,6 @@
+## 1.2.0-rc4 (May 29, 2023)
+  - bug fix with HTTP(S) port replaced in nginx config file at runtime
+
 ## 1.2.0-rc3 (May 18, 2023)
   - cleaned up modules
   - bug fix with FPM clearing ENV
