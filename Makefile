@@ -49,8 +49,8 @@ push:
 	docker -H=${H} push "${IMAGE}:${VERSION}-${ARCH}"
 	docker -H=${H} push "${IMAGE}:${TAG}-${ARCH}"
 	@if [ "${ARCH}" = "${DEFAULT_ARCH}" ]; then \
-    docker -H=${H} push "${IMAGE}:${TAG}"; \
-  fi
+    	docker -H=${H} push "${IMAGE}:${TAG}"; \
+  	fi
 
 pull:
 	docker -H=${H} pull "${IMAGE}:${VERSION}-${ARCH}" || :
