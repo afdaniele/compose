@@ -1,3 +1,11 @@
+## 1.2.0 (June 20, 2023)
+  - Merge branch 'devel' into stable
+  - minor
+  - minor
+  - Bump version to 1.1.10.
+  - removed old files
+  - Bump version to 1.1.9.
+
 ## 1.2.0-rc4 (May 29, 2023)
   - bug fix with HTTP(S) port replaced in nginx config file at runtime
 
