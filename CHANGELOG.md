@@ -1,3 +1,16 @@
+## 1.2.0-rc4 (May 29, 2023)
+  - bug fix with HTTP(S) port replaced in nginx config file at runtime
+
+## 1.2.0-rc3 (May 18, 2023)
+  - cleaned up modules
+  - bug fix with FPM clearing ENV
+  - removed support for arm32v7 images, fixed a few bugs
+  - BREAKING: dropped Apache, moved to Nginx
+  - bumped python library, added more Make targets
+  - Merge branch 'stable' into devel
+  - bumped python library
+  - removed old files
+
 ## 1.1.10 (February 02, 2023)
   - removed old files
 

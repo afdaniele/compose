@@ -33,7 +33,7 @@ debug-build:
 		EXTRA_TAG=
 
 build:
-	docker -H=${H} build \
+	docker -H=${H} buildx build \
 		-t "${IMAGE}:${VERSION}-${ARCH}" \
 		-t "${IMAGE}:${TAG}-${ARCH}" \
 		${EXTRA_TAG} \
@@ -49,7 +49,7 @@ push:
 	docker -H=${H} push "${IMAGE}:${VERSION}-${ARCH}"
 	docker -H=${H} push "${IMAGE}:${TAG}-${ARCH}"
 	@if [ "${ARCH}" = "${DEFAULT_ARCH}" ]; then \
-    	docker -H=${H} push "${IMAGE}:${TAG}"; \
+		docker -H=${H} push "${IMAGE}:${TAG}"; \
   	fi
 
 pull:
@@ -70,7 +70,7 @@ bump:
 build_all_arch:
 	set -e; \
 	brun \
-	  -f arch:list:amd64,arm32v7,arm64v8 \
+	  -f arch:list:amd64,arm64v8 \
 	  -p \
 	  -- \
 	    make \
@@ -80,7 +80,7 @@ build_all_arch:
 push_all_arch:
 	set -e; \
 	brun \
-	  -f arch:list:amd64,arm32v7,arm64v8 \
+	  -f arch:list:amd64,arm64v8 \
 	  -p \
 	  -- \
 	    make \
@@ -93,7 +93,7 @@ _build_all:
 	TAGS=$${TAGS::-1}; \
 	brun \
 	  -f tag:list:$${TAGS} \
-	  -f arch:list:amd64,arm32v7 \
+	  -f arch:list:amd64,arm64v8 \
 	  -- \
 	    make \
 	      build \
@@ -107,7 +107,7 @@ _clean_all:
 	TAGS=$${TAGS::-1}; \
 	brun \
 	  -f tag:list:$${TAGS} \
-	  -f arch:list:amd64,arm32v7 \
+	  -f arch:list:amd64,arm64v8 \
 	  -- \
 	    make \
 	      clean \

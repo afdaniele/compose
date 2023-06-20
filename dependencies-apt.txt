@@ -1,7 +1,6 @@
 # system utilities (used by user)
 nano
 wget
-python3
 
 # system utilities (used by compose)
 git
@@ -10,6 +9,10 @@ net-tools
 # system utilities (used by composer)
 zip
 unzip
+
+# system utilities (dependencies)
+build-essential
+software-properties-common
 
 # python libraries
 python3-requests

@@ -1,0 +1,58 @@
+server {
+    listen 80 default_server;
+    server_name localhost;
+
+    root /var/www/html/public_html;
+    index index.php;
+
+    error_log /dev/stdout info;
+    access_log /dev/stdout;
+
+    charset utf-8;
+
+    #disable checking of client request body size
+    client_max_body_size 0;
+
+    location = /favicon.ico { log_not_found off; access_log off; }
+    location = /robots.txt  { access_log off; log_not_found off; }
+
+    error_page 404 /index.php;
+
+    location /web-api/ {
+      rewrite ^/web-api/(.+)/(.+)/(.+)/(.+)$ /web-api/index.php?__apiversion__=$1&__service__=$2&__action__=$3&__format__=$4 last;
+      rewrite ^/web-api/(.+)/(.+)/(.+)$ /web-api/index.php?__error__=1 break;
+      rewrite ^/web-api/(.+)/(.+)$ /web-api/index.php?__error__=1 break;
+      rewrite ^/web-api/(.+)/$ /web-api/index.php?__error__=1 break;
+    }
+
+    location = /image.php {
+      rewrite ^(.*)$ /scripts/image.php last;
+    }
+
+    location = /css.php {
+      rewrite ^(.*)$ /scripts/css.php last;
+    }
+
+    location = /js.php {
+      rewrite ^(.*)$ /scripts/js.php last;
+    }
+
+    location = /script.php {
+      rewrite ^(.*)$ /scripts/script.php last;
+    }
+
+    location / {
+        if (!-e $request_filename){
+            rewrite ^(.*)$ /index.php?__arg__=$1 last;
+        }
+    }
+
+    location ~ \.php$ {
+        fastcgi_pass unix:/run/php/php7.0-fpm.sock;
+        fastcgi_index index.php;
+        include fastcgi_params;
+        include fastcgi.conf;
+        fastcgi_read_timeout 3600;
+    }
+
+}

@@ -43,15 +43,13 @@ chmod -R g+w "${COMPOSE_USERDATA_DIR}"
 # check if a custom HTTP_PORT was given
 if [ "${HTTP_PORT}" != "${DEFAULT_HTTP_PORT}" ]; then
   echo "Configuring \\compose\\ to be served on custom HTTP port ${HTTP_PORT}."
-  sed -i "s/*:${DEFAULT_HTTP_PORT}>/*:${HTTP_PORT}>/" /etc/apache2/sites-available/000-default.conf
-  sed -i "s/Listen ${DEFAULT_HTTP_PORT}$/Listen ${HTTP_PORT}/" /etc/apache2/ports.conf
+  sed -i "s/listen ${DEFAULT_HTTP_PORT} default_server/listen ${HTTP_PORT} default_server/g" /etc/nginx/sites-available/default
 fi
 
 # check if a custom HTTPS_PORT was given
 if [ "${HTTPS_PORT}" != "${DEFAULT_HTTPS_PORT}" ]; then
   echo "Configuring \\compose\\ to be served on custom HTTPS port ${HTTPS_PORT}."
-  sed -i "s/*:${DEFAULT_HTTPS_PORT}>/*:${HTTPS_PORT}>/" /etc/apache2/sites-available/000-default-ssl.conf
-  sed -i "s/Listen ${DEFAULT_HTTPS_PORT}$/Listen ${HTTPS_PORT}/" /etc/apache2/ports.conf
+  sed -i "s/listen ${DEFAULT_HTTPS_PORT} default_server/listen ${HTTPS_PORT} default_server/g" /etc/nginx/sites-available/default
 fi
 
 # check if SSL is enabled and the keys are provided
@@ -84,13 +82,8 @@ trap compose_terminate SIGINT
 trap compose_terminate SIGTERM
 
 # launch daemon process (inherited from the PHP image)
-echo "Launching Apache..."
-apache2-foreground &
+echo "Launching PHP-FPM..."
+/etc/init.d/php7.0-fpm start
 
-# wait for the process to die or be killed
-set +e
-wait &> /dev/null
-set -e
-
-# done
-echo "Bye bye!"
+echo "Launching NGINX..."
+nginx -g 'daemon off;'
