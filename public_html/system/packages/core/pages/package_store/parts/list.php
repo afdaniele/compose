@@ -82,6 +82,12 @@ $installed_packages = Core::getPackagesList();
     #packages-table > tbody .compose-package.to-be-uninstalled {
         background-color: rgba(255, 0, 0, 0.1);
     }
+
+    .disabled-link {
+        pointer-events: none;
+        cursor: not-allowed;
+        opacity: 0.5;
+    }
 </style>
 
 <h2 class="page-title"></h2>
@@ -257,6 +263,13 @@ if (is_null($compose_version)) {
             uninstall
         ];
         // show/hide apply changes button
+        let number_of_changes = packages_to_install.length + packages_to_update.length + packages_to_uninstall.length;
+        if (number_of_changes === 0) {
+            $('#apply_changes_btn').addClass('disabled-link');
+        } else {
+            $('#apply_changes_btn').removeClass('disabled-link');
+        }
+        // update the label text
         $('#status_label').html(labels.join(', ') + '&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;');
         // colorize the choices
         $('#packages-table > tbody .compose-package').each(function (index) {
