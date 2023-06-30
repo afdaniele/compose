@@ -1,3 +1,9 @@
+## 1.2.1 (June 30, 2023)
+  - Merge branch 'devel' into stable
+  - minor
+  - Merge pull request #29 from afnet/devel
+  - disable Apply Changes button, when no changes marked
+
 ## 1.2.0 (June 20, 2023)
   - Merge branch 'devel' into stable
   - minor
