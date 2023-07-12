@@ -2,7 +2,6 @@ ARG ARCH=amd64
 ARG PHP_VERSION=8.1.1
 ARG OS_DISTRO=bullseye
 ARG COMPOSE_VERSION=stable
-ARG GIT_REF=heads
 
 FROM ${ARCH}/php:${PHP_VERSION}-apache-${OS_DISTRO}
 
@@ -10,25 +9,24 @@ FROM ${ARCH}/php:${PHP_VERSION}-apache-${OS_DISTRO}
 ARG ARCH
 ARG PHP_VERSION
 ARG OS_DISTRO
-ARG GIT_REF
 ARG COMPOSE_VERSION
 
 # configure environment: system & libraries
-ENV ARCH=${ARCH}
-ENV PHP_VERSION=${PHP_VERSION}
-ENV OS_DISTRO=${OS_DISTRO}
+ENV ARCH=${ARCH} \
+    PHP_VERSION=${PHP_VERSION} \
+    OS_DISTRO=${OS_DISTRO} \
+    QEMU_EXECVE=1
 
 # configure environment: \compose\
-ENV APP_DIR "/var/www"
-ENV COMPOSE_DIR "${APP_DIR}/html"
-ENV COMPOSE_URL "https://github.com/afdaniele/compose.git"
-ENV COMPOSE_USERDATA_DIR "/user-data"
-ENV HTTP_PORT 80
-ENV HTTPS_PORT 443
-ENV SSL_DIR "${APP_DIR}/ssl"
-ENV SSL_CERTFILE "${SSL_DIR}/certfile.pem"
-ENV SSL_KEYFILE "${SSL_DIR}/privkey.pem"
-ENV QEMU_EXECVE 1
+ENV APP_DIR="/var/www"
+ENV SSL_DIR="${APP_DIR}/ssl"
+ENV COMPOSE_DIR="${APP_DIR}/html" \
+    COMPOSE_URL="https://github.com/afdaniele/compose" \
+    COMPOSE_USERDATA_DIR="/user-data" \
+    HTTP_PORT=80 \
+    HTTPS_PORT=443 \
+    SSL_CERTFILE="${SSL_DIR}/certfile.pem" \
+    SSL_KEYFILE="${SSL_DIR}/privkey.pem"
 
 # copy QEMU
 COPY ./assets/qemu/${ARCH}/ /usr/bin/
@@ -39,11 +37,6 @@ RUN apt-get update \
   && apt-get install -y --no-install-recommends \
     $(awk -F: '/^[^#]/ { print $1 }' /tmp/dependencies-apt.txt | uniq) \
   && rm -rf /var/lib/apt/lists/*
-
-# install python dependencies
-RUN pip3 install \
-  run-and-retry \
-  compose-cms==1.0.3
 
 # install apcu
 RUN pecl channel-update pecl.php.net \
@@ -63,49 +56,37 @@ COPY assets/usr/local/etc/php/conf.d/apcu.ini /usr/local/etc/php/conf.d/
 COPY assets/usr/local/etc/php/conf.d/log_errors.ini /usr/local/etc/php/conf.d/
 
 # remove pre-installed app
-RUN rm -rf "${APP_DIR}"
-RUN mkdir -p "${COMPOSE_DIR}"
-RUN mkdir -p "${COMPOSE_USERDATA_DIR}"
-RUN chown -R www-data:www-data "${APP_DIR}"
-RUN chown -R www-data:www-data "${COMPOSE_USERDATA_DIR}"
+RUN rm -rf "${APP_DIR}" && \
+    mkdir -p "${COMPOSE_DIR}" && \
+    mkdir -p "${COMPOSE_USERDATA_DIR}" && \
+    chown -R www-data:www-data "${APP_DIR}" && \
+    chown -R www-data:www-data "${COMPOSE_USERDATA_DIR}"
 
-# enable mod rewrite
-RUN a2enmod rewrite
-
-# enable mod ssl
-RUN a2enmod ssl
+# enable modules: rewrite, ssl
+RUN a2enmod rewrite && \
+    a2enmod ssl
 
 # update website configuration file
 COPY assets/etc/apache2/sites-available/000-default.conf /etc/apache2/sites-available/000-default.conf
 COPY assets/etc/apache2/sites-available/000-default-ssl.conf /etc/apache2/sites-available/000-default-ssl.conf
 
-# enable HTTP website
-RUN a2ensite 000-default
-
-# disable (default) HTTPS website
-RUN a2dissite 000-default-ssl
+# by default, we enable HTTP website and disable HTTPS
+RUN a2ensite 000-default && \
+    a2dissite 000-default-ssl
 
 # switch to simple user
 USER www-data
 
-# copy SHA of the current commit. This has two effects:
-# - stores the SHA of the commit from which the image was built
-# - correct the issue with docker cache due to git clone command below
-COPY .git/refs/${GIT_REF}/${COMPOSE_VERSION} /compose.builder.version.sha
+# install python library
+RUN pip3 install compose-cms==1.0.5
 
 # install \compose\
-RUN rretry \
-  --min 40 \
-  --max 120 \
-  --tries 3 \
-  --on-retry "rm -rf ${COMPOSE_DIR}" \
-  --verbose \
-  -- \
-    git clone -b stable "${COMPOSE_URL}" "${COMPOSE_DIR}"
+ADD --chown=www-data:www-data . "${COMPOSE_DIR}"
 
 # fetch tags and checkout the wanted version
-RUN git -C "${COMPOSE_DIR}" fetch --tags
-RUN git -C "${COMPOSE_DIR}" checkout "${COMPOSE_VERSION}"
+RUN git -C "${COMPOSE_DIR}" remote set-url origin "${COMPOSE_URL}" && \
+    git -C "${COMPOSE_DIR}" fetch --tags && \
+    git -C "${COMPOSE_DIR}" checkout "${COMPOSE_VERSION}"
 
 # switch back to root
 USER root
