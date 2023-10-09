@@ -11,6 +11,8 @@ zip
 unzip
 
 # system utilities (dependencies)
+gpg
+gpg-agent
 build-essential
 software-properties-common
 
