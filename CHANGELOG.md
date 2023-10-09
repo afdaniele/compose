@@ -1,3 +1,6 @@
+## 1.3.1 (October 09, 2023)
+  - reorganized Dockerfile
+
 ## 1.3.0 (October 09, 2023)
   - moved to ubuntu:22.04
 
