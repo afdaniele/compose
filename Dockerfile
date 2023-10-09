@@ -26,6 +26,7 @@ ENV SSL_DIR="${APP_DIR}/ssl"
 ENV COMPOSE_DIR="${APP_DIR}/html" \
     COMPOSE_URL="https://github.com/afdaniele/compose.git" \
     COMPOSE_USERDATA_DIR="/user-data" \
+    COMPOSE_METADATA_DIR="/compose" \
     HTTP_PORT=80 \
     HTTPS_PORT=443 \
     SSL_CERTFILE="${SSL_DIR}/certfile.pem" \
@@ -33,14 +34,18 @@ ENV COMPOSE_DIR="${APP_DIR}/html" \
     QEMU_EXECVE=1 \
     DEBIAN_FRONTEND=noninteractive
 
+# remove pre-installed app
+RUN rm -rf "${APP_DIR}" && \
+    mkdir -p "${COMPOSE_DIR}" "${COMPOSE_USERDATA_DIR}" "${COMPOSE_METADATA_DIR}"
+
 # copy QEMU
 COPY ./assets/qemu/${ARCH}/ /usr/bin/
 
 # install apt dependencies
-COPY ./dependencies-apt.txt /tmp/dependencies-apt.txt
+COPY ./dependencies-apt.txt "${COMPOSE_METADATA_DIR}/dependencies-apt.txt"
 RUN apt-get update \
   && apt-get install -y --no-install-recommends \
-    $(awk -F: '/^[^#]/ { print $1 }' /tmp/dependencies-apt.txt | uniq) \
+    $(awk -F: '/^[^#]/ { print $1 }' "${COMPOSE_METADATA_DIR}/dependencies-apt.txt" | uniq) \
   && rm -rf /var/lib/apt/lists/*
 
 # PHP modules
@@ -80,16 +85,8 @@ RUN cd /tmp/ && \
     mv ./composer.phar /usr/local/bin/composer && \
     rm ./installer
 
-# configure apcu
-COPY assets/usr/local/etc/php/conf.d/apcu.ini /usr/local/etc/php/conf.d/
-
-# configure PHP errors logging
-COPY assets/usr/local/etc/php/conf.d/log_errors.ini /usr/local/etc/php/conf.d/
-
-# remove pre-installed app
-RUN rm -rf "${APP_DIR}" && \
-    mkdir -p "${COMPOSE_DIR}" "${COMPOSE_USERDATA_DIR}" && \
-    chown -R www-data:www-data "${APP_DIR}" "${COMPOSE_USERDATA_DIR}"
+# configure apcu, PHP errors logging, etc
+COPY assets/usr/local/etc/php/conf.d/*.ini /usr/local/etc/php/conf.d/
 
 # copy nginx configuration file
 ADD assets/etc/nginx/default /etc/nginx/sites-available/default
@@ -97,12 +94,9 @@ ADD assets/etc/nginx/default /etc/nginx/sites-available/default
 # copy SHA of the current commit. This has two effects:
 # - stores the SHA of the commit from which the image was built
 # - correct the issue with docker cache due to git clone command below
-RUN echo "${GIT_SHA}" >> /compose.builder.version.sha
+RUN echo "${GIT_SHA}" >> ${COMPOSE_METADATA_DIR}/builder.version.sha
 ENV COMPOSE_VERSION=${COMPOSE_VERSION} \
     COMPOSE_GIT_SHA=${GIT_SHA}
-
-# switch to simple user
-USER www-data
 
 # install \compose\
 RUN rretry \
@@ -118,8 +112,8 @@ RUN rretry \
 RUN git -C "${COMPOSE_DIR}" fetch --tags && \
     git -C "${COMPOSE_DIR}" checkout "${COMPOSE_VERSION}"
 
-# switch back to root
-USER root
+# give ownership to www-data
+RUN chown -R www-data:www-data "${APP_DIR}" "${COMPOSE_USERDATA_DIR}" "${COMPOSE_METADATA_DIR}"
 
 # configure entrypoint
 COPY assets/entrypoint.sh /entrypoint.sh
