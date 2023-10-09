@@ -1,3 +1,6 @@
+## 1.3.0 (October 09, 2023)
+  - moved to ubuntu:22.04
+
 ## 1.2.1 (June 30, 2023)
   - Merge branch 'devel' into stable
   - minor
