@@ -1,3 +1,6 @@
+## 1.3.2 (October 09, 2023)
+  - added variable COMPOSE_USER; added support for non-root user (as long as passwordless sudo is enabled); nginx installed from official ubuntu repositories
+
 ## 1.3.1 (October 09, 2023)
   - reorganized Dockerfile
 
