@@ -15,6 +15,7 @@ gpg
 gpg-agent
 build-essential
 software-properties-common
+nginx
 
 # python libraries
 python3-requests

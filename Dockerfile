@@ -27,6 +27,7 @@ ENV COMPOSE_DIR="${APP_DIR}/html" \
     COMPOSE_URL="https://github.com/afdaniele/compose.git" \
     COMPOSE_USERDATA_DIR="/user-data" \
     COMPOSE_METADATA_DIR="/compose" \
+    COMPOSE_USER="www-data" \
     HTTP_PORT=80 \
     HTTPS_PORT=443 \
     SSL_CERTFILE="${SSL_DIR}/certfile.pem" \
@@ -50,9 +51,7 @@ RUN apt-get update \
 
 # PHP modules
 RUN add-apt-repository -y ppa:ondrej/php && \
-    add-apt-repository -y ppa:nginx/stable && \
     apt-get install --no-install-recommends --yes \
-        nginx \
         php7.0-apcu \
         php7.0-cli \
         php7.0-fpm \
@@ -66,12 +65,15 @@ RUN add-apt-repository -y ppa:ondrej/php && \
         php7.0-zip \
         php7.0-xml \
         php7.0-soap \
-        php7.0-mbstring
+        php7.0-mbstring \
+    && rm -rf /var/lib/apt/lists/*
 
-# configure php-fpm
+# configure nginx and php-fpm
 RUN sed -i 's/\;date\.timezone\ =/date\.timezone\ =\ America\/New_York/g' /etc/php/7.0/fpm/php.ini && \
     sed -i 's/\;error_log\ =\ syslog/error_log\ =\ syslog/g' /etc/php/7.0/fpm/php.ini && \
-    sed -i 's/\;clear_env\ =\ no/clear_env\ =\ no/g' /etc/php/7.0/fpm/pool.d/www.conf
+    sed -i 's/\;clear_env\ =\ no/clear_env\ =\ no/g' /etc/php/7.0/fpm/pool.d/www.conf && \
+    sed -i "s/www-data/${COMPOSE_USER}/g" /etc/php/7.0/fpm/pool.d/www.conf && \
+    sed -i "s/www-data/${COMPOSE_USER}/g" /etc/nginx/nginx.conf
 
 # install python dependencies
 RUN pip3 install \
@@ -112,8 +114,8 @@ RUN rretry \
 RUN git -C "${COMPOSE_DIR}" fetch --tags && \
     git -C "${COMPOSE_DIR}" checkout "${COMPOSE_VERSION}"
 
-# give ownership to www-data
-RUN chown -R www-data:www-data "${APP_DIR}" "${COMPOSE_USERDATA_DIR}" "${COMPOSE_METADATA_DIR}"
+# give ownership to the user
+RUN chown -R ${COMPOSE_USER}:${COMPOSE_USER} "${APP_DIR}" "${COMPOSE_USERDATA_DIR}" "${COMPOSE_METADATA_DIR}"
 
 # configure entrypoint
 COPY assets/entrypoint.sh /entrypoint.sh
