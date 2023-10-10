@@ -35,12 +35,12 @@ ENV COMPOSE_DIR="${APP_DIR}/html" \
     QEMU_EXECVE=1 \
     DEBIAN_FRONTEND=noninteractive
 
+# copy QEMU
+COPY ./assets/qemu/${ARCH}/ /usr/bin/
+
 # remove pre-installed app
 RUN rm -rf "${APP_DIR}" && \
     mkdir -p "${COMPOSE_DIR}" "${COMPOSE_USERDATA_DIR}" "${COMPOSE_METADATA_DIR}"
-
-# copy QEMU
-COPY ./assets/qemu/${ARCH}/ /usr/bin/
 
 # install apt dependencies
 COPY ./dependencies-apt.txt "${COMPOSE_METADATA_DIR}/dependencies-apt.txt"
