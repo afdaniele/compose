@@ -49,7 +49,7 @@ learn more about **\\compose\\**
 
 ### Build your own image using Dockerfile
 
-You can download our Docker files from (here)[https://github.com/afdaniele/compose/tree/master/docker].
+You can download our Docker files from (here)[https://github.com/duckietown/compose/tree/master/docker].
 To build a Docker image from one of our Docker files run:
 
 `docker build -t <image_name>:<image_tag> .`
@@ -58,14 +58,14 @@ To build a Docker image from one of our Docker files run:
 ### Pre-built Docker images
 
 You can find the list of pre-built images on
-(Docker Hub)[https://cloud.docker.com/repository/docker/afdaniele/compose/tags].
+(Docker Hub)[https://cloud.docker.com/repository/docker/duckietown/compose/tags].
 
 
 ### Run image with \\compose\\ outside the container (suggested)
 
 Run
 
-`docker run -itd -p <PORT>:80 -v <COMPOSE_ROOT_HOST_DIR>:/var/www/html afdaniele/compose:<IMAGE_TAG>`
+`docker run -itd -p <PORT>:80 -v <COMPOSE_ROOT_HOST_DIR>:/var/www/html duckietown/compose:<IMAGE_TAG>`
 
 **NOTE:** `<COMPOSE_ROOT_HOST_DIR>` is the path to the directory on the host that contains the root of the `\compose\` repository. This path should contain a `public_html` dir.
 
@@ -76,5 +76,5 @@ Run
 
 Run
 
-`docker run -d -p <PORT>:80 afdaniele/compose:<IMAGE_TAG>`
+`docker run -d -p <PORT>:80 duckietown/compose:<IMAGE_TAG>`
  

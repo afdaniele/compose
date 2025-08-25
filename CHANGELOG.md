@@ -1,3 +1,6 @@
+## 1.3.4 (August 25, 2025)
+  - updated php from 7.0 to 7.4
+
 ## 1.3.3 (October 09, 2023)
   - bug fix
   - updated QEMU

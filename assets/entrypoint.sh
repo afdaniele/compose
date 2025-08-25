@@ -83,7 +83,7 @@ trap compose_terminate SIGTERM
 
 # launch daemon process (inherited from the PHP image)
 echo "Launching PHP-FPM..."
-sudo -E /etc/init.d/php7.0-fpm start
+sudo -E /etc/init.d/php${PHP_VERSION:-7.4}-fpm start
 
 echo "Launching NGINX..."
 sudo -E nginx -g 'daemon off;'

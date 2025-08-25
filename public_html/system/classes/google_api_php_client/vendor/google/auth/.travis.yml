@@ -12,13 +12,15 @@ php:
   - 7.0
   - 7.1
   - 7.2
+  - 7.3
+  - 7.4
 
 env:
   -
   - COMPOSER_ARGS="--prefer-lowest"
 matrix:
   include:
-    - php: "7.2"
+    - php: "7.4"
       env: RUN_CS_FIXER=true
 
 before_script:

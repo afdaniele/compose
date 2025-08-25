@@ -1,5 +1,5 @@
 ARG ARCH=amd64
-ARG PHP_VERSION=7.0
+ARG PHP_VERSION=7.4
 ARG OS_FAMILY=ubuntu
 ARG OS_DISTRO=jammy
 ARG COMPOSE_VERSION=stable
@@ -24,7 +24,7 @@ ENV ARCH=${ARCH} \
 ENV APP_DIR="/var/www"
 ENV SSL_DIR="${APP_DIR}/ssl"
 ENV COMPOSE_DIR="${APP_DIR}/html" \
-    COMPOSE_URL="https://github.com/afdaniele/compose.git" \
+    COMPOSE_URL="https://github.com/duckietown/compose.git" \
     COMPOSE_USERDATA_DIR="/user-data" \
     COMPOSE_METADATA_DIR="/compose" \
     COMPOSE_USER="www-data" \
@@ -52,27 +52,26 @@ RUN apt-get update \
 # PHP modules
 RUN add-apt-repository -y ppa:ondrej/php && \
     apt-get install --no-install-recommends --yes \
-        php7.0-apcu \
-        php7.0-cli \
-        php7.0-fpm \
-        php7.0-mysql \
-        php7.0-curl \
-        php7.0-memcached \
-        php7.0-gd \
-        php7.0-mcrypt \
-        php7.0-tidy \
-        php7.0-bcmath \
-        php7.0-zip \
-        php7.0-xml \
-        php7.0-soap \
-        php7.0-mbstring \
+        php${PHP_VERSION}-apcu \
+        php${PHP_VERSION}-cli \
+        php${PHP_VERSION}-fpm \
+        php${PHP_VERSION}-mysql \
+        php${PHP_VERSION}-curl \
+        php${PHP_VERSION}-memcached \
+        php${PHP_VERSION}-gd \
+        php${PHP_VERSION}-tidy \
+        php${PHP_VERSION}-bcmath \
+        php${PHP_VERSION}-zip \
+        php${PHP_VERSION}-xml \
+        php${PHP_VERSION}-soap \
+        php${PHP_VERSION}-mbstring \
     && rm -rf /var/lib/apt/lists/*
 
 # configure nginx and php-fpm
-RUN sed -i 's/\;date\.timezone\ =/date\.timezone\ =\ America\/New_York/g' /etc/php/7.0/fpm/php.ini && \
-    sed -i 's/\;error_log\ =\ syslog/error_log\ =\ syslog/g' /etc/php/7.0/fpm/php.ini && \
-    sed -i 's/\;clear_env\ =\ no/clear_env\ =\ no/g' /etc/php/7.0/fpm/pool.d/www.conf && \
-    sed -i "s/www-data/${COMPOSE_USER}/g" /etc/php/7.0/fpm/pool.d/www.conf && \
+RUN sed -i 's/\;date\.timezone\ =/date\.timezone\ =\ America\/New_York/g' /etc/php/${PHP_VERSION}/fpm/php.ini && \
+    sed -i 's/\;error_log\ =\ syslog/error_log\ =\ syslog/g' /etc/php/${PHP_VERSION}/fpm/php.ini && \
+    sed -i 's/\;clear_env\ =\ no/clear_env\ =\ no/g' /etc/php/${PHP_VERSION}/fpm/pool.d/www.conf && \
+    sed -i "s/www-data/${COMPOSE_USER}/g" /etc/php/${PHP_VERSION}/fpm/pool.d/www.conf && \
     sed -i "s/www-data/${COMPOSE_USER}/g" /etc/nginx/nginx.conf
 
 # install python dependencies

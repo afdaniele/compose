@@ -3,7 +3,7 @@
 
 DEFAULT_ARCH=amd64
 ARCH=${DEFAULT_ARCH}
-IMAGE=afdaniele/compose
+IMAGE=duckietown/compose
 BASE_VERSION=stable
 H=unix:///var/run/docker.sock
 
